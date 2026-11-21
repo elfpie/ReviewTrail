@@ -1,2 +1,0 @@
-# upstream/ is checked byte for byte against UPSTREAM.md: no line-ending conversion on checkout (Windows).
-upstream/** -text

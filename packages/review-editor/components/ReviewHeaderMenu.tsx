@@ -7,13 +7,10 @@ import {
 } from '@plannotator/ui/components/ActionMenu';
 import { useTheme } from '@plannotator/ui/components/ThemeProvider';
 import { THEME_MODES } from '@plannotator/ui/components/themeModes';
-import { MenuVersionSection } from '@plannotator/ui/components/MenuVersionSection';
 import { ReviewAgentsIcon } from '@plannotator/ui/components/ReviewAgentsIcon';
 import { SparklesIcon } from '@plannotator/ui/components/SparklesIcon';
 import { PRPlatformIcon } from '@plannotator/ui/components/PRPlatformIcon';
 import { modKey } from '@plannotator/ui/utils/platform';
-import type { UpdateInfo } from '@plannotator/ui/hooks/useUpdateCheck';
-import type { Origin } from '@plannotator/shared/agents';
 
 export interface CompactReviewDestination {
   value: 'agent' | 'platform';
@@ -47,9 +44,6 @@ interface ReviewHeaderMenuProps {
   compactTouchLayout?: boolean;
   agentInstructionsEnabled: boolean;
   appVersion: string;
-  updateInfo?: UpdateInfo | null;
-  origin?: Origin | null;
-  isWSL?: boolean;
 }
 
 export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
@@ -69,13 +63,9 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
   compactTouchLayout = false,
   agentInstructionsEnabled,
   appVersion,
-  updateInfo,
-  origin,
-  isWSL = false,
 }) => {
   const { theme, setTheme } = useTheme();
 
-  const showUpdateDot = !!updateInfo?.updateAvailable && !updateInfo.dismissed;
 
   return (
     <ActionMenu
@@ -88,10 +78,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
         <button
           data-pn-touch-target
           data-pn-touch-target-icon
-          onClick={() => {
-            if (!isOpen && showUpdateDot) updateInfo?.dismiss();
-            toggleMenu();
-          }}
+          onClick={toggleMenu}
           // Desktop: the ☰ alone (owner's header order), named by its tooltip
           // and aria-label. Compact touch keeps today's button and word.
           className={`relative flex h-7 items-center rounded-md transition-colors ${
@@ -106,13 +93,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
           aria-expanded={isOpen}
         >
           {isOpen ? <CloseIcon /> : <MenuIcon />}
-          {/* The dot says an update is out; the label never moves (no shimmer). */}
           {compactTouchLayout && <span className="hidden lg:inline">Options</span>}
-          {showUpdateDot && (
-            <span className={`absolute w-2 h-2 rounded-full bg-primary ring-2 ring-background ${
-              compactTouchLayout ? 'top-0.5 right-0.5 lg:-top-0.5 lg:-right-0.5' : 'top-0.5 right-0.5'
-            }`} />
-          )}
         </button>
       )}
     >
@@ -296,13 +277,7 @@ export const ReviewHeaderMenu: React.FC<ReviewHeaderMenuProps> = ({
 
           <ActionMenuDivider />
 
-          <MenuVersionSection
-            appVersion={appVersion}
-            updateInfo={updateInfo}
-            origin={origin}
-            isWSL={isWSL}
-            closeMenu={closeMenu}
-          />
+          <div className="px-3 py-1.5 text-xs text-muted-foreground">ReviewTrail {appVersion}</div>
         </>
       )}
     </ActionMenu>

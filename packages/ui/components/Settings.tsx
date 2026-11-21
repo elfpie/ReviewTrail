@@ -1,13 +1,10 @@
 import { DiffDisplayOptionsBody } from './DiffDisplayOptions';
-import type { UpdateCheckSetting } from '../hooks/useUpdateCheckSetting';
 import { cookieHostDescription, type CookieHostSetting } from '../hooks/useCookieHostSetting';
 import type { PackageChangesSetting } from '../hooks/usePackageChangesSetting';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import type { AnnotateAgentTerminalSide } from '@plannotator/core/agent-terminal';
 import type { Origin } from '@plannotator/core/agents';
 import type { TokenHoverDelay } from '@plannotator/core/token-hover';
-import { basenameFromPath } from '@plannotator/core/source-save';
 import {
   configStore,
   useConfigValue,
@@ -19,10 +16,6 @@ import {
   type VcsReviewSettingsDescriptor,
 } from '../config';
 import { setWebMcpToolsEnabled, useWebMcpToolsEnabled } from '../webmcp/preference';
-import { DIAGRAM_SHADOW_OPTIONS } from '../utils/diagramShadow';
-import { markLookAndFeelChoiceResolved } from '../utils/lookAndFeelAnnouncement';
-import { DEFAULT_DOCUMENT_TEXT_SIZE, DOCUMENT_TEXT_SIZE_OPTIONS } from '../utils/documentTextSize';
-import { DOCUMENT_FONT_OPTIONS, documentFontStack } from '../utils/documentFont';
 import {
   agentToolAppliesWhen,
   agentToolCostNote,
@@ -35,97 +28,30 @@ import { MAX_FONT_FAMILY_LENGTH, monoFontStack, normalizeCssFontSize, normalizeF
 import { TaterSpritePullup } from './TaterSpritePullup';
 import { getIdentity, regenerateIdentity, setCustomIdentity, isIdentityEditable } from '../utils/identity';
 import { GitUser } from '../icons/GitUser';
-import {
-  getObsidianSettings,
-  saveObsidianSettings,
-  getEffectiveVaultPath,
-  CUSTOM_PATH_SENTINEL,
-  DEFAULT_FILENAME_FORMAT,
-  type ObsidianSettings,
-} from '../utils/obsidian';
-import {
-  getBearSettings,
-  saveBearSettings,
-  normalizeTags,
-  type BearSettings,
-} from '../utils/bear';
-import {
-  getOctarineSettings,
-  saveOctarineSettings,
-  type OctarineSettings,
-} from '../utils/octarine';
-import {
-  getNotionSettings,
-  saveNotionSettings,
-  getNotionParentPageId,
-  isNotionAvailable,
-  type NotionSettings,
-} from '../utils/notion';
-import {
-  getAgentSwitchSettings,
-  getAgentSwitchDefaults,
-  saveAgentSwitchSettings,
-  AGENT_OPTIONS,
-  type AgentSwitchSettings,
-  type AgentSwitchSurface,
-} from '../utils/agentSwitch';
-import {
-  getPlanSaveSettings,
-  savePlanSaveSettings,
-  type PlanSaveSettings,
-} from '../utils/planSave';
-import {
-  getUIPreferences,
-  saveUIPreferences,
-  PLAN_WIDTH_OPTIONS,
-  type UIPreferences,
-  type PlanWidth,
-} from '../utils/uiPreferences';
-import {
-  getPermissionModeSettings,
-  savePermissionModeSettings,
-  PERMISSION_MODE_OPTIONS,
-  type PermissionMode,
-} from '../utils/permissionMode';
+import { getAgentSwitchSettings, getAgentSwitchDefaults, saveAgentSwitchSettings, AGENT_OPTIONS, type AgentSwitchSettings } from '../utils/agentSwitch';
 import { getAutoCloseDelay, setAutoCloseDelay, AUTO_CLOSE_OPTIONS, type AutoCloseDelay } from '../utils/storage';
-import {
-  getDefaultNotesApp,
-  saveDefaultNotesApp,
-  type DefaultNotesApp,
-} from '../utils/defaultNotesApp';
 import { useAgents } from '../hooks/useAgents';
 import { KeyboardShortcuts } from './KeyboardShortcuts';
 import { ThemeTab } from './ThemeTab';
-import { modKey, modKeyWord } from '../utils/platform';
+import { modKeyWord } from '../utils/platform';
 import { getAIProviderSettings, resolveAIProviderSelection } from '../utils/aiProvider';
 import { AISettingsTab } from './AISettingsTab';
-import { HooksTab } from './settings/HooksTab';
-import { QuickLabelsTab } from './settings/QuickLabelsTab';
 import { OverlayScrollArea } from './OverlayScrollArea';
 import {
   getFileBrowserSettings,
   saveFileBrowserSettings,
   type FileBrowserSettings,
 } from '../utils/fileBrowser';
-import { requestVimDocumentFocus } from '../hooks/useVimDocumentFocus';
 import { AnalysisLayerToggle } from './AnalysisLayerToggle';
 import { SemanticDiffsTab } from './settings/SemanticDiffsTab';
 
-type SettingsTab = 'general' | 'theme' | 'review' | 'display' | 'semantic' | 'analysis' | 'saving' | 'labels' | 'vim' | 'shortcuts' | 'ai' | 'files' | 'obsidian' | 'bear' | 'octarine' | 'notion' | 'comments' | 'hooks' | 'experimental';
+type SettingsTab = 'general' | 'theme' | 'review' | 'display' | 'semantic' | 'analysis' | 'shortcuts' | 'ai' | 'files' | 'comments' | 'experimental';
 
 interface SettingsProps {
   taterMode: boolean;
   onTaterModeChange: (enabled: boolean) => void;
   onIdentityChange?: (oldIdentity: string, newIdentity: string) => void;
   origin?: Origin | null;
-  mode?: 'plan' | 'annotate' | 'review';
-  /**
-   * `mode="annotate"` only: offer the document tabs plan review has (Display,
-   * Saving, Labels, and the Obsidian / Bear / Octarine integrations) and hide
-   * the plan-only OpenCode agent-switch row. Plannotator's annotate app passes
-   * true; a host that omits it keeps the pre-parity annotate tab set.
-   */
-  annotateParity?: boolean;
   /**
    * Hide General's "Enter saves a comment" row (#1934). Default false: the
    * row shows. A host that drives the `enterSavesComment` setting itself, or
@@ -139,24 +65,6 @@ interface SettingsProps {
    * name, which would read `hideHideRepoOwner`.)
    */
   hideRepoOwnerSetting?: boolean;
-  /**
-   * Show Display's Text size row (#2066). Default false: the row does
-   * something only where the page applies the `documentTextSize` setting
-   * (`hooks/useDocumentTextSize`), so a host opts in. Plannotator passes true
-   * in plan review and annotate on a markdown or text document.
-   */
-  showDocumentTextSize?: boolean;
-  /**
-   * Show Display's Document font row (#1657). Default false, like
-   * `showDocumentTextSize`: the row does something only where the page
-   * applies the `documentFontFamily` setting (`hooks/useDocumentFont`).
-   */
-  showDocumentFont?: boolean;
-  onUIPreferencesChange?: (prefs: UIPreferences) => void;
-  /** Claude Code's permission mode was changed here (plan review). The host
-   *  keeps its own copy in step, since its Approve sends the mode and its
-   *  decision menu shows it. Optional: hosts that omit it are unchanged. */
-  onPermissionModeChange?: (mode: PermissionMode) => void;
   /** Externally controlled open state (for mobile menu integration) */
   externalOpen?: boolean;
   externalTab?: 'semantic';
@@ -165,14 +73,6 @@ interface SettingsProps {
   aiProviders?: Array<{ id: string; name: string; capabilities: Record<string, boolean>; models?: Array<{ id: string; label: string; default?: boolean }> }>;
   /** Git user name from `git config user.name`, for quick identity set */
   gitUser?: string;
-  /** Present when the server advertises the auto-update setting (#1634);
-   *  `env` is PLANNOTATOR_AUTO_UPDATE when it overrides the config file.
-   *  Hosts that omit it get no toggle. */
-  autoUpdateSetting?: { env?: boolean };
-  /** Present when the server reports the update-notice switch (serverConfig.updateCheck,
-   *  useUpdateCheckSetting); `env` is PLANNOTATOR_UPDATE_CHECK when it overrides the
-   *  config file. Hosts that omit it get no row. */
-  updateCheckSetting?: UpdateCheckSetting;
   /** "Open Plannotator at plannotator.localhost" (#2184, useCookieHostSetting): present
    *  only when the server reports it (a local session). Hosts that omit it get no row. */
   cookieHostSetting?: CookieHostSetting;
@@ -194,13 +94,6 @@ interface SettingsProps {
    *  settings that the compact shell overrides for the session are hidden
    *  there instead of silently editing the desktop preference. */
   isCompactTouchLayout?: boolean;
-  /** Override Obsidian vault detection (default = GET /api/obsidian/vaults). */
-  onDetectObsidianVaults?: () => Promise<string[]>;
-  /** This annotate session actually offers the Agent TUI, so its Position
-   *  setting is worth showing. Default false: the setting is the only way back
-   *  from a Hidden position, but offering it where no terminal can ever run
-   *  would just be a dead control. */
-  agentTerminalAvailable?: boolean;
   /** The browser exposes WebMCP (`document.modelContext`), so the "Agent
    *  tools" opt-out is worth showing. Default false: a browser without the
    *  API gets no row at all (the provider registers nothing there). */
@@ -264,11 +157,6 @@ const JJ_REVIEW_DEFAULTS: VcsReviewSettingsDescriptor = {
   defaultDiffType: 'jj-current',
   diffOptions: JJ_DEFAULT_DIFF_TYPE_OPTIONS.map(({ value, label, description }) => ({ id: value, label, description })),
 };
-const AGENT_TERMINAL_SIDE_OPTIONS: { value: AnnotateAgentTerminalSide; label: string }[] = [
-  { value: 'left', label: 'Left' },
-  { value: 'right', label: 'Right' },
-  { value: 'hidden', label: 'Hidden' },
-];
 
 function SegmentedControl<T extends string>({ options, value, onChange, disabled = false }: {
   options: { value: T; label: string }[];
@@ -402,78 +290,6 @@ interface VimSettingsTabProps {
 }
 
 /** First-class Vim configuration, separate from the shortcut reference. */
-function VimSettingsTab({
-  vimModeEnabled,
-  vimHudEnabled,
-  vimHudKeyPanelEnabled,
-  onVimModeChange,
-  onVimHudChange,
-  onVimHudKeyPanelChange,
-}: VimSettingsTabProps) {
-  return (
-    <div className="space-y-5">
-      <div>
-        <div className="text-sm font-semibold">Vim mode</div>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Navigate, select, and annotate the rendered document without reaching for the mouse.
-        </p>
-      </div>
-
-      <div className="space-y-4 rounded-xl border border-border bg-muted/20 p-4">
-        <ToggleSwitch
-          checked={vimModeEnabled}
-          onChange={onVimModeChange}
-          label="Vim controls"
-          description="Use Vim-style keys for document navigation and annotation. Off by default."
-        />
-        <div className="border-t border-border" />
-        <ToggleSwitch
-          checked={vimModeEnabled && vimHudEnabled}
-          onChange={onVimHudChange}
-          label="Vim HUD"
-          description={
-            vimModeEnabled
-              ? 'Show the four-corner target reticle and navigation context.'
-              : 'Enable Vim controls first to use the target reticle.'
-          }
-          disabled={!vimModeEnabled}
-        />
-        <div className="border-t border-border" />
-        <ToggleSwitch
-          checked={vimModeEnabled && vimHudEnabled && vimHudKeyPanelEnabled}
-          onChange={onVimHudKeyPanelChange}
-          label="Key panel"
-          description={
-            vimModeEnabled && vimHudEnabled
-              ? 'Show the bottom-right live keypress legend and command panel.'
-              : 'Enable the Vim HUD first to use the live keypress legend.'
-          }
-          disabled={!vimModeEnabled || !vimHudEnabled}
-        />
-      </div>
-
-      <div className="rounded-xl border border-primary/20 bg-primary/[0.05] p-4">
-        <div className="flex items-start gap-3">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary/15 font-mono text-xs font-bold text-primary">
-            ?
-          </span>
-          <div>
-            <div className="text-xs font-semibold">Learn while you navigate</div>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Vim takes focus automatically when the page is ready. From other app controls, press{' '}
-              <span className="font-mono text-foreground">Esc</span> to return to the document, then
-              use <span className="font-mono text-foreground">j</span> and{' '}
-              <span className="font-mono text-foreground">k</span> to move by block. Press{' '}
-              <span className="font-mono text-foreground">?</span> for the complete key map,
-              even when the Key panel is hidden.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function ReviewAnalysisTab({ packageChangesSetting }: { packageChangesSetting?: PackageChangesSetting }) {
   const semanticDiffEnabled = useConfigValue('semanticDiffEnabled');
   const callFlowEnabled = useConfigValue('callFlowEnabled');
@@ -1186,27 +1002,10 @@ const CommentsTab: React.FC = () => {
   );
 };
 
-export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange, onIdentityChange, origin, mode = 'plan', annotateParity = false, onUIPreferencesChange, onPermissionModeChange, externalOpen, externalTab, onExternalClose, aiProviders = [], gitUser, autoUpdateSetting, updateCheckSetting, cookieHostSetting, packageChangesSetting, agentToolSetting, onAgentToolChange, sinceBaseUnavailable, isCompactTouchLayout = false, onDetectObsidianVaults, agentTerminalAvailable = false, webmcpAvailable = false, hideEnterSavesComment = false, hideRepoOwnerSetting = false, showDocumentTextSize = false, showDocumentFont = false }) => {
+export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange, onIdentityChange, origin, externalOpen, externalTab, onExternalClose, aiProviders = [], gitUser, cookieHostSetting, packageChangesSetting, agentToolSetting, onAgentToolChange, sinceBaseUnavailable, isCompactTouchLayout = false, webmcpAvailable = false, hideEnterSavesComment = false, hideRepoOwnerSetting = false }) => {
   const webmcpTools = useWebMcpToolsEnabled();
-  const autoUpdate = useConfigValue('autoUpdate');
-  const updateChecksOn = updateCheckSetting ? updateCheckSetting.on : true;
   const [showDialog, setShowDialog] = useState(false);
-  const settingsWasOpenRef = useRef(false);
   const [themePreview, setThemePreview] = useState(false);
-
-  useEffect(() => {
-    const wasOpen = settingsWasOpenRef.current;
-    settingsWasOpenRef.current = showDialog;
-    if (
-      wasOpen
-      && !showDialog
-      && !themePreview
-      && mode !== 'review'
-      && configStore.get('vimModeEnabled')
-    ) {
-      requestVimDocumentFocus();
-    }
-  }, [mode, showDialog, themePreview]);
 
   useEffect(() => {
     if (!themePreview) return;
@@ -1217,96 +1016,41 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
     return () => document.removeEventListener('keydown', handler);
   }, [themePreview]);
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
-  const gridEnabled = useConfigValue('gridEnabled');
-  const diagramShadow = useConfigValue('diagramShadow');
-  const documentTextSize = useConfigValue('documentTextSize');
-  const documentFontFamily = useConfigValue('documentFontFamily');
-  const documentSourceLineNumbers = useConfigValue('documentSourceLineNumbers');
   const vimModeEnabled = useConfigValue('vimModeEnabled');
   const enterSavesComment = useConfigValue('enterSavesComment');
   const hideRepoOwner = useConfigValue('hideRepoOwner');
-  const vimHudEnabled = useConfigValue('vimHudEnabled');
-  const vimHudKeyPanelEnabled = useConfigValue('vimHudKeyPanelEnabled');
-  const agentTerminalSide = useConfigValue('agentTerminalSide');
   const [identity, setIdentity] = useState('');
-  const [obsidian, setObsidian] = useState<ObsidianSettings>({
-    enabled: false,
-    vaultPath: '',
-    folder: 'plannotator',
-    filenameSeparator: 'space',
-    autoSave: false,
-    vaultBrowserEnabled: false,
-  });
-  const [detectedVaults, setDetectedVaults] = useState<string[]>([]);
-  const [vaultsLoading, setVaultsLoading] = useState(false);
-  const [bear, setBear] = useState<BearSettings>({ enabled: false, customTags: '', tagPosition: 'append', autoSave: false });
-  const [octarine, setOctarine] = useState<OctarineSettings>({ enabled: false, workspace: '', folder: 'plannotator', autoSave: false });
-  const [notion, setNotion] = useState<NotionSettings>({ enabled: false, parentPageId: '', autoSave: false });
-  // The agent switch default depends on the surface: plan approval hands off to
-  // the build agent, review feedback stays on the current agent.
-  const agentSurface: AgentSwitchSurface = mode === 'review' ? 'review' : 'plan';
-  // Annotate with parity on gets the same document tabs as plan review.
-  const annotateDocumentTabs = mode === 'annotate' && annotateParity;
-  const [agent, setAgent] = useState<AgentSwitchSettings>(() => getAgentSwitchDefaults(agentSurface));
-  const [planSave, setPlanSave] = useState<PlanSaveSettings>({ enabled: true, customPath: null });
-  const [uiPrefs, setUiPrefs] = useState<UIPreferences>({ tocEnabled: true, stickyActionsEnabled: true, planWidth: 'compact' });
-  const [permissionMode, setPermissionMode] = useState<PermissionMode>('bypassPermissions');
+  const [agent, setAgent] = useState<AgentSwitchSettings>(() => getAgentSwitchDefaults('review'));
   const [agentWarning, setAgentWarning] = useState<string | null>(null);
   const [autoCloseDelay, setAutoCloseDelayState] = useState<AutoCloseDelay>('off');
-  const [defaultNotesApp, setDefaultNotesApp] = useState<DefaultNotesApp>('ask');
   const [aiProvider, setAiProvider] = useState<string | null>(null);
   const [fileBrowserSettings, setFileBrowserSettings] = useState<FileBrowserSettings>({ enabled: false, directories: [] });
   const [newDirPath, setNewDirPath] = useState('');
 
   // Fetch available agents for OpenCode
-  const { agents: availableAgents, validateAgent, getAgentWarning } = useAgents(origin ?? null, agentSurface);
+  const { agents: availableAgents, validateAgent, getAgentWarning } = useAgents(origin ?? null, 'review');
 
   const mainTabs = useMemo(() => {
     const t: { id: SettingsTab; label: string }[] = [{ id: 'general', label: 'General' }];
     t.push({ id: 'theme', label: 'Theme' });
-    // Annotate renders the same document viewer as plan review, so the
-    // document-level tabs apply there too. Only rows that describe a plan
-    // decision (plan snapshots, plan-arrival auto-save, plan-time hooks,
-    // post-approval permission mode / agent switch) stay plan-only.
-    if (mode === 'plan' || annotateDocumentTabs) {
-      t.push({ id: 'display', label: 'Display' });
-      t.push({ id: 'saving', label: 'Saving' });
-      t.push({ id: 'labels', label: 'Labels' });
-    }
-    if (mode === 'review') {
-      t.push({ id: 'review', label: 'Review' });
-      t.push({ id: 'display', label: 'Editor' });
-      t.push({ id: 'semantic', label: 'Semantic diffs' });
-      t.push({ id: 'analysis', label: 'Analysis' });
-      t.push({ id: 'comments', label: 'Comments' });
-      if (aiProviders.length > 0) {
-        t.push({ id: 'ai', label: 'AI' });
-      }
-    }
-    if (mode !== 'review') {
-      t.push({ id: 'vim', label: 'Vim' });
+    t.push({ id: 'review', label: 'Review' });
+    t.push({ id: 'display', label: 'Editor' });
+    t.push({ id: 'semantic', label: 'Semantic diffs' });
+    t.push({ id: 'analysis', label: 'Analysis' });
+    t.push({ id: 'comments', label: 'Comments' });
+    if (aiProviders.length > 0) {
+      t.push({ id: 'ai', label: 'AI' });
     }
     t.push({ id: 'shortcuts', label: 'Shortcuts' });
-    if (mode === 'plan') {
-      t.push({ id: 'hooks', label: 'Hooks' });
-    }
     return t;
-  }, [mode, annotateDocumentTabs, aiProviders.length]);
+  }, [aiProviders.length]);
 
   const integrationTabs: { id: SettingsTab; label: string }[] = [
     { id: 'files', label: 'Files' },
-    ...(mode === 'plan' || annotateDocumentTabs
-      ? [{ id: 'obsidian' as SettingsTab, label: 'Obsidian' }, { id: 'bear' as SettingsTab, label: 'Bear' }, { id: 'octarine' as SettingsTab, label: 'Octarine' }, ...(isNotionAvailable() ? [{ id: 'notion' as SettingsTab, label: 'Notion' }] : [])]
-      : []),
   ];
   // Experimental is the last tab, on its own below the integrations (the owner,
   // 2026-10-27). Only where it has a setting: code review's Edit Code to Suggest.
-  const experimentalTabs: { id: SettingsTab; label: string }[] = mode === 'review' ? [{ id: 'experimental', label: 'Experimental' }] : [];
-  const obsidianDefaultSaveAvailable = obsidian.enabled && getEffectiveVaultPath(obsidian).trim().length > 0;
-  const bearDefaultSaveAvailable = bear.enabled;
-  const octarineDefaultSaveAvailable = octarine.enabled && octarine.workspace.trim().length > 0;
-  const notionDefaultSaveAvailable = getNotionParentPageId(notion) !== null;
-
+  const experimentalTabs: { id: SettingsTab; label: string }[] = [{ id: 'experimental', label: 'Experimental' }];
   // Sync external open state
   useEffect(() => {
     if (externalOpen) {
@@ -1319,16 +1063,8 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
   useEffect(() => {
     if (showDialog) {
       setIdentity(getIdentity())
-      setObsidian(getObsidianSettings());
-      setBear(getBearSettings());
-      setOctarine(getOctarineSettings());
-      setNotion(getNotionSettings());
-      setAgent(getAgentSwitchSettings(agentSurface));
-      setPlanSave(getPlanSaveSettings());
-      setUiPrefs(getUIPreferences());
-      setPermissionMode(getPermissionModeSettings().mode);
+      setAgent(getAgentSwitchSettings('review'));
       setAutoCloseDelayState(getAutoCloseDelay());
-      setDefaultNotesApp(getDefaultNotesApp());
       const aiSettings = getAIProviderSettings();
       setAiProvider(resolveAIProviderSelection({ providers: aiProviders, origin, settings: aiSettings }).providerId);
       setFileBrowserSettings(getFileBrowserSettings());
@@ -1340,55 +1076,10 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
     }
   }, [showDialog, availableAgents, origin, getAgentWarning, aiProviders.length]);
 
-  useEffect(() => {
-    if (!showDialog) return;
-
-    const defaultSaveAvailable =
-      defaultNotesApp === 'ask' ||
-      defaultNotesApp === 'download' ||
-      (defaultNotesApp === 'obsidian' && obsidianDefaultSaveAvailable) ||
-      (defaultNotesApp === 'bear' && bearDefaultSaveAvailable) ||
-      (defaultNotesApp === 'octarine' && octarineDefaultSaveAvailable) ||
-      // A session without Notion (remote, or no NOTION_TOKEN) keeps the choice for the next one.
-      (defaultNotesApp === 'notion' && (notionDefaultSaveAvailable || !isNotionAvailable()));
-
-    if (!defaultSaveAvailable) {
-      setDefaultNotesApp('ask');
-      saveDefaultNotesApp('ask');
-    }
-  }, [
-    showDialog,
-    defaultNotesApp,
-    obsidianDefaultSaveAvailable,
-    bearDefaultSaveAvailable,
-    octarineDefaultSaveAvailable,
-    notionDefaultSaveAvailable,
-  ]);
-
-  // Fetch detected vaults when Obsidian is enabled
-  useEffect(() => {
-    if (obsidian.enabled && detectedVaults.length === 0 && !vaultsLoading) {
-      setVaultsLoading(true);
-      const detect = onDetectObsidianVaults
-        ?? (() => fetch('/api/obsidian/vaults').then(res => res.json()).then((data: { vaults: string[] }) => data.vaults || []));
-      detect()
-        .then((vaults: string[]) => {
-          setDetectedVaults(vaults || []);
-          // Auto-select first vault if none set
-          if (vaults?.length > 0 && !obsidian.vaultPath) {
-            handleObsidianChange({ vaultPath: vaults[0] });
-          }
-        })
-        .catch(() => setDetectedVaults([]))
-        .finally(() => setVaultsLoading(false));
-    }
-  }, [obsidian.enabled]);
-
   const handleFileBrowserChange = (updates: Partial<FileBrowserSettings>) => {
     const newSettings = { ...fileBrowserSettings, ...updates };
     setFileBrowserSettings(newSettings);
     saveFileBrowserSettings(newSettings);
-    if (onUIPreferencesChange) onUIPreferencesChange({ ...uiPrefs });
   };
 
   const addDirectory = () => {
@@ -1401,58 +1092,10 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
     setNewDirPath('');
   };
 
-  const handleObsidianChange = (updates: Partial<ObsidianSettings>) => {
-    const newSettings = { ...obsidian, ...updates };
-    setObsidian(newSettings);
-    saveObsidianSettings(newSettings);
-  };
-
-  const handleBearChange = (updates: Partial<BearSettings>) => {
-    const newSettings = { ...bear, ...updates };
-    setBear(newSettings);
-    saveBearSettings(newSettings);
-  };
-
-  const handleOctarineChange = (updates: Partial<OctarineSettings>) => {
-    const newSettings = { ...octarine, ...updates };
-    setOctarine(newSettings);
-    saveOctarineSettings(newSettings);
-  };
-
-  const handleNotionChange = (updates: Partial<NotionSettings>) => {
-    const newSettings = { ...notion, ...updates };
-    setNotion(newSettings);
-    saveNotionSettings(newSettings);
-  };
-
   const handleAgentChange = (switchTo: AgentSwitchSettings['switchTo'], customName?: string) => {
     const newSettings = { switchTo, customName: customName ?? agent.customName };
     setAgent(newSettings);
     saveAgentSwitchSettings(newSettings);
-  };
-
-  const handlePlanSaveChange = (updates: Partial<PlanSaveSettings>) => {
-    const newSettings = { ...planSave, ...updates };
-    setPlanSave(newSettings);
-    savePlanSaveSettings(newSettings);
-  };
-
-  const handleUIPrefsChange = (updates: Partial<UIPreferences>) => {
-    const newPrefs = { ...uiPrefs, ...updates };
-    setUiPrefs(newPrefs);
-    saveUIPreferences(newPrefs);
-    onUIPreferencesChange?.(newPrefs);
-  };
-
-  const handlePermissionModeChange = (mode: PermissionMode) => {
-    setPermissionMode(mode);
-    savePermissionModeSettings(mode);
-    onPermissionModeChange?.(mode);
-  };
-
-  const handleDefaultNotesAppChange = (app: DefaultNotesApp) => {
-    setDefaultNotesApp(app);
-    saveDefaultNotesApp(app);
   };
 
   // Server write-back is handled automatically by configStore.set() (debounced POST /api/config)
@@ -1701,47 +1344,6 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       </>
                     )}
 
-                    {/* Update notices: on by default. Writes updateCheck to
-                        ~/.plannotator/config.json; off makes no request to GitHub. */}
-                    {updateCheckSetting && (
-                      <>
-                        <div className="border-t border-border" />
-                        <ToggleSwitch
-                          checked={updateChecksOn}
-                          onChange={(v) => updateCheckSetting.onChange(v)}
-                          disabled={updateCheckSetting.env !== undefined}
-                          label="Tell me when a new version is out"
-                          description={
-                            updateCheckSetting.env !== undefined
-                              ? 'Set by PLANNOTATOR_UPDATE_CHECK in your environment.'
-                              : 'This computer asks GitHub every few minutes, never your browser. Off makes no request at all.'
-                          }
-                        />
-                      </>
-                    )}
-
-                    {/* Auto-update (#1634): opt-in, default off. Writes
-                        autoUpdate to ~/.plannotator/config.json. It needs
-                        update checks, so it is locked while they are off. */}
-                    {autoUpdateSetting && (
-                      <>
-                        <div className="border-t border-border" />
-                        <ToggleSwitch
-                          checked={(autoUpdateSetting.env ?? autoUpdate) && updateChecksOn}
-                          onChange={(v) => configStore.set('autoUpdate', v)}
-                          disabled={autoUpdateSetting.env !== undefined || !updateChecksOn}
-                          label="Keep Plannotator up to date"
-                          description={
-                            autoUpdateSetting.env !== undefined
-                              ? 'Set by PLANNOTATOR_AUTO_UPDATE in your environment.'
-                              : !updateChecksOn
-                                ? 'Needs update checks (above).'
-                                : 'Installs new releases in the background, at most once a day, never while another review is open.'
-                          }
-                        />
-                      </>
-                    )}
-
                     {/* Open Plannotator at plannotator.localhost (#2184): writes or
                         removes urlHost "plannotator.localhost" in config.json.
                         Locked while PLANNOTATOR_URL_HOST is set or config.json
@@ -1808,38 +1410,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       </>
                     )}
 
-                    {/* Permission Mode (Claude Code only) */}
-                    {origin === 'claude-code' && mode === 'plan' && (
-                      <>
-                        <div className="border-t border-border" />
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-sm font-medium">Permission Mode</div>
-                            <div className="text-xs text-muted-foreground">
-                              Automation level after plan approval
-                            </div>
-                          </div>
-                          <select
-                            value={permissionMode}
-                            onChange={(e) => handlePermissionModeChange(e.target.value as PermissionMode)}
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer"
-                          >
-                            {PERMISSION_MODE_OPTIONS.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="text-[10px] text-muted-foreground/70">
-                            {PERMISSION_MODE_OPTIONS.find(o => o.value === permissionMode)?.description}
-                          </div>
-                        </div>
-                      </>
-                    )}
-
                     {/* Agent Switching (OpenCode only). Applied on plan
                         approval only; annotate decisions never switch agents. */}
-                    {origin === 'opencode' && !annotateDocumentTabs && (
+                    {origin === 'opencode' && (
                       <>
                         <div className="border-t border-border" />
                         <div className="space-y-2">
@@ -1924,39 +1497,6 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       </>
                     )}
 
-                    {/* Agent TUI position. The same control lives in the
-                        terminal's own Display popover, but that one is
-                        unreachable once the position is Hidden — this is the
-                        way back. Both write the same config value. Gated on the
-                        terminal actually being available in this session, so a
-                        remote or runtime-less annotate never offers a dead
-                        control. */}
-                    {mode === 'annotate' && agentTerminalAvailable && (
-                      <>
-                        <div className="border-t border-border" />
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-sm font-medium">Agent TUI Position</div>
-                            <div className="text-xs text-muted-foreground">
-                              Which side the agent terminal docks on, or Hidden to keep it out of the layout
-                            </div>
-                          </div>
-                          <SegmentedControl
-                            options={AGENT_TERMINAL_SIDE_OPTIONS}
-                            value={agentTerminalSide}
-                            onChange={(v) => configStore.set('agentTerminalSide', v)}
-                          />
-                          {agentTerminalSide === 'hidden' && (
-                            <div className="text-[10px] text-muted-foreground/70">
-                              You can still open it for this session from the sidebar rail.
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-
-                    <div className="border-t border-border" />
-
                     {/* Auto-close Tab */}
                     <div className="space-y-2">
                       <div className="text-sm font-medium">Auto-close Tab</div>
@@ -1986,480 +1526,26 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                 {activeTab === 'theme' && <ThemeTab onPreview={() => { setShowDialog(false); setThemePreview(true); }} />}
 
                 {/* === REVIEW TAB === */}
-                {activeTab === 'review' && mode === 'review' && (
+                {activeTab === 'review' && (
                   <ReviewTab sinceBaseUnavailable={sinceBaseUnavailable} />
                 )}
 
                 {/* === DISPLAY TAB === */}
-                {activeTab === 'display' && mode === 'review' && (
+                {activeTab === 'display' && (
                   <ReviewDisplayTab isCompactTouchLayout={isCompactTouchLayout} />
                 )}
 
-                {activeTab === 'semantic' && mode === 'review' && <SemanticDiffsTab />}
+                {activeTab === 'semantic' && <SemanticDiffsTab />}
 
-                {activeTab === 'experimental' && mode === 'review' && <ExperimentalTab />}
+                {activeTab === 'experimental' && <ExperimentalTab />}
 
-                {activeTab === 'analysis' && mode === 'review' && (
+                {activeTab === 'analysis' && (
                   <ReviewAnalysisTab packageChangesSetting={packageChangesSetting} />
-                )}
-
-                {activeTab === 'display' && mode !== 'review' && (
-                  <>
-                    {/* Text size (#2066): the document only, not the app around it */}
-                    {showDocumentTextSize && (<>
-                    <div className="space-y-3" data-document-text-size-setting>
-                      <div>
-                        <div className="text-sm font-medium" id="document-text-size-label">Text size</div>
-                        <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Body text of the document' : 'Body text of the plan'}, in px ({DEFAULT_DOCUMENT_TEXT_SIZE} is the default)
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5" role="group" aria-labelledby="document-text-size-label">
-                        {DOCUMENT_TEXT_SIZE_OPTIONS.map((value) => (
-                          <button
-                            key={value}
-                            onClick={() => configStore.set('documentTextSize', value)}
-                            aria-pressed={documentTextSize === value}
-                            className={`flex-1 px-3 py-1.5 text-xs rounded-md transition-colors tabular-nums ${
-                              documentTextSize === value
-                                ? 'bg-background text-foreground shadow-sm font-medium'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            {value}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="border-t border-border" />
-                    </>)}
-
-                    {/* Document font (#1657): the document only; code keeps its font */}
-                    {showDocumentFont && (<>
-                    <div data-document-font-setting>
-                      <FontFamilyField
-                        label="Document font"
-                        description={`${mode === 'annotate' ? 'Text of the document' : 'Text of the plan'}; code keeps its monospace font`}
-                        value={documentFontFamily}
-                        onSave={(v) => configStore.set('documentFontFamily', v)}
-                        options={DOCUMENT_FONT_OPTIONS}
-                        previewStack={documentFontStack}
-                        previewText="Preview: The quick brown fox jumps over the lazy dog."
-                        customAriaLabel="Custom document font name"
-                        customPlaceholder="Font name as installed, e.g. Iowan Old Style"
-                        notFoundText="Not found — the document keeps the theme font"
-                      />
-                    </div>
-
-                    <div className="border-t border-border" />
-                    </>)}
-
-                    {showDocumentTextSize && (<>
-                    <div className="flex items-center justify-between" data-document-source-line-numbers-setting>
-                      <div>
-                        <div className="text-sm font-medium">Source line numbers</div>
-                        <div className="text-xs text-muted-foreground">
-                          Each block&apos;s source lines beside the {mode === 'annotate' ? 'document' : 'plan'}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-label="Source line numbers"
-                        aria-checked={documentSourceLineNumbers}
-                        onClick={() => configStore.set('documentSourceLineNumbers', !documentSourceLineNumbers)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          documentSourceLineNumbers ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            documentSourceLineNumbers ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    <div className="border-t border-border" />
-                    </>)}
-
-                    {/* Auto-open Sidebar */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Auto-open Sidebar</div>
-                        <div className="text-xs text-muted-foreground">
-                          Open sidebar with Table of Contents on load
-                        </div>
-                      </div>
-                      <button
-                        role="switch"
-                        aria-checked={uiPrefs.tocEnabled}
-                        onClick={() => handleUIPrefsChange({ tocEnabled: !uiPrefs.tocEnabled })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          uiPrefs.tocEnabled ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            uiPrefs.tocEnabled ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    <div className="border-t border-border" />
-
-                    {/* Sticky Actions */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Sticky Actions</div>
-                        <div className="text-xs text-muted-foreground">
-                          Keep action buttons visible while scrolling
-                        </div>
-                      </div>
-                      <button
-                        role="switch"
-                        aria-checked={uiPrefs.stickyActionsEnabled}
-                        onClick={() => handleUIPrefsChange({ stickyActionsEnabled: !uiPrefs.stickyActionsEnabled })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          uiPrefs.stickyActionsEnabled ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            uiPrefs.stickyActionsEnabled ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    <div className="border-t border-border" />
-
-                    {/* Grid Background */}
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Grid Background</div>
-                        <div className="text-xs text-muted-foreground">Show the plan as a floating card on a grid</div>
-                      </div>
-                      <button role="switch" aria-checked={gridEnabled} aria-label="Grid Background"
-                        onClick={() => {
-                          configStore.set('gridEnabled', !gridEnabled);
-                          // A Settings flip is a real choice: keep it across reloads.
-                          markLookAndFeelChoiceResolved();
-                        }}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${gridEnabled ? 'bg-primary' : 'bg-muted'}`}>
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${gridEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
-                      </button>
-                    </div>
-
-                    <div className="border-t border-border" />
-
-                    {/* Diagram Shadow */}
-                    <div className="space-y-3" data-diagram-shadow-setting>
-                      <div>
-                        <div className="text-sm font-medium">Diagram Shadow</div>
-                        <div className="text-xs text-muted-foreground">
-                          Drop shadow under diagram nodes (100 = Mermaid's own)
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
-                        {DIAGRAM_SHADOW_OPTIONS.map((value) => (
-                          <button
-                            key={value}
-                            onClick={() => configStore.set('diagramShadow', value)}
-                            aria-pressed={diagramShadow === value}
-                            className={`flex-1 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                              diagramShadow === value
-                                ? 'bg-background text-foreground shadow-sm font-medium'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            {value === 0 ? 'None' : String(value)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="border-t border-border" />
-
-                    {/* Plan Width */}
-                    <div className="space-y-3">
-                      <div>
-                        <div className="text-sm font-medium flex items-center gap-2">{mode === 'annotate' ? 'Document Width' : 'Plan Width'}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Maximum width of the document card' : 'Maximum width of the plan card'}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
-                        {PLAN_WIDTH_OPTIONS.map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => handleUIPrefsChange({ planWidth: opt.id })}
-                            className={`flex-1 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                              uiPrefs.planWidth === opt.id
-                                ? 'bg-background text-foreground shadow-sm font-medium'
-                                : 'text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Abstract layout preview — exaggerated proportions for visual clarity */}
-                      {(() => {
-                        const active = PLAN_WIDTH_OPTIONS.find(o => o.id === uiPrefs.planWidth) ?? PLAN_WIDTH_OPTIONS[0];
-                        // Exaggerated proportions so the width difference is visually obvious in the small preview
-                        const sidebarPct = 14;
-                        const panelPct = 14;
-                        const cardPctMap: Record<PlanWidth, number> = { compact: 48, default: 70, wide: 94 };
-                        const cardPct = cardPctMap[active.id];
-                        return (
-                          <div className="space-y-2">
-                            <div className="rounded-lg border border-border/40 bg-muted/20 px-2 py-3 overflow-hidden">
-                              {/* Simulated header bar */}
-                              <div className="flex items-center justify-between mb-2 px-1">
-                                <div className="h-0.5 w-8 rounded-full bg-foreground/15" />
-                                <div className="flex gap-1">
-                                  <div className="h-1 w-1 rounded-full bg-foreground/15" />
-                                  <div className="h-1 w-1 rounded-full bg-foreground/15" />
-                                  <div className="h-1 w-1 rounded-full bg-foreground/15" />
-                                </div>
-                              </div>
-                              <div className="border-t border-foreground/5 mb-2" />
-                              {/* Three-column layout */}
-                              <div className="flex gap-1 items-stretch" style={{ minHeight: 64 }}>
-                                {/* Sidebar */}
-                                <div className="flex-shrink-0 space-y-1 pt-0.5 opacity-30" style={{ width: `${sidebarPct}%` }}>
-                                  <div className="h-0.5 w-full rounded-full bg-foreground" />
-                                  <div className="h-0.5 w-3/4 rounded-full bg-foreground" />
-                                  <div className="h-0.5 w-1/2 rounded-full bg-foreground" />
-                                  <div className="h-0.5 w-2/3 rounded-full bg-foreground" />
-                                  <div className="h-0.5 w-1/2 rounded-full bg-foreground" />
-                                </div>
-                                {/* Plan card — width animates */}
-                                <div className="flex-1 flex justify-center min-w-0">
-                                  <div
-                                    className="rounded border border-border/60 bg-card/50 p-1.5 space-y-1 transition-all duration-300 ease-out"
-                                    style={{ width: `${cardPct}%`, minWidth: 0 }}
-                                  >
-                                    {/* Heading */}
-                                    <div className="h-1 w-2/5 rounded-full bg-foreground/25" />
-                                    {/* Prose lines */}
-                                    <div className="space-y-[2px]">
-                                      <div className="h-[2px] w-full rounded-full bg-foreground/10" />
-                                      <div className="h-[2px] w-11/12 rounded-full bg-foreground/10" />
-                                      <div className="h-[2px] w-4/5 rounded-full bg-foreground/10" />
-                                    </div>
-                                    {/* Code block */}
-                                    <div className="rounded bg-muted/60 p-1 space-y-[2px]">
-                                      <div className="h-[2px] w-full rounded-full bg-primary/20" />
-                                      <div className="h-[2px] w-3/4 rounded-full bg-primary/20" />
-                                      <div className="h-[2px] w-5/6 rounded-full bg-primary/20" />
-                                    </div>
-                                    {/* More prose */}
-                                    <div className="space-y-[2px]">
-                                      <div className="h-[2px] w-full rounded-full bg-foreground/10" />
-                                      <div className="h-[2px] w-3/4 rounded-full bg-foreground/10" />
-                                    </div>
-                                  </div>
-                                </div>
-                                {/* Annotation panel */}
-                                <div className="flex-shrink-0 space-y-1 pt-0.5 opacity-20" style={{ width: `${panelPct}%` }}>
-                                  <div className="rounded border border-foreground/20 p-0.5 space-y-[2px]">
-                                    <div className="h-[2px] w-full rounded-full bg-foreground" />
-                                    <div className="h-[2px] w-2/3 rounded-full bg-foreground" />
-                                  </div>
-                                  <div className="rounded border border-foreground/20 p-0.5 space-y-[2px]">
-                                    <div className="h-[2px] w-full rounded-full bg-foreground" />
-                                    <div className="h-[2px] w-1/2 rounded-full bg-foreground" />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-muted-foreground/70 leading-snug">
-                              {active.px}px — {active.hint}
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-
-                    <div className="border-t border-border" />
-
-                    {/* Tater Mode */}
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium">Tater Mode</div>
-                      <button
-                        role="switch"
-                        aria-checked={taterMode}
-                        onClick={() => onTaterModeChange(!taterMode)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          taterMode ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            taterMode ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* === SAVING TAB === */}
-                {activeTab === 'saving' && (
-                  <>
-                    {/* Plan Saving — decision snapshots in plans/ are written
-                        on plan approve/deny only. */}
-                    {mode === 'plan' && (<>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-sm font-medium">Save Plans</div>
-                          <div className="text-xs text-muted-foreground">
-                            Auto-save plans to the default data directory
-                          </div>
-                        </div>
-                        <button
-                          role="switch"
-                          aria-checked={planSave.enabled}
-                          onClick={() => handlePlanSaveChange({ enabled: !planSave.enabled })}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            planSave.enabled ? 'bg-primary' : 'bg-muted'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                              planSave.enabled ? 'translate-x-6' : 'translate-x-1'
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      {planSave.enabled && (
-                        <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Custom Path (optional)</label>
-                          <input
-                            type="text"
-                            value={planSave.customPath || ''}
-                            onChange={(e) => handlePlanSaveChange({ customPath: e.target.value || null })}
-                            placeholder="Leave empty for default"
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          />
-                          <div className="text-[10px] text-muted-foreground/70">
-                            Leave empty to use default location
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="border-t border-border" />
-                    </>)}
-
-                    {/* Default Notes App */}
-                    <div className="space-y-2">
-                      <div>
-                        <div className="text-sm font-medium">Default Save Action</div>
-                        <div className="text-xs text-muted-foreground">
-                          Used for keyboard shortcut ({modKey}+S)
-                        </div>
-                      </div>
-                      <select
-                        value={defaultNotesApp}
-                        onChange={(e) => handleDefaultNotesAppChange(e.target.value as DefaultNotesApp)}
-                        className="w-full px-3 py-2 bg-muted rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer"
-                      >
-                        <option value="ask">Ask each time</option>
-                        <option value="download">Download Annotations</option>
-                        {obsidianDefaultSaveAvailable && <option value="obsidian">Obsidian</option>}
-                        {bearDefaultSaveAvailable && <option value="bear">Bear</option>}
-                        {octarineDefaultSaveAvailable && <option value="octarine">Octarine</option>}
-                        {(notionDefaultSaveAvailable || defaultNotesApp === 'notion') && <option value="notion">Notion</option>}
-                      </select>
-                      <div className="text-[10px] text-muted-foreground/70">
-                        {defaultNotesApp === 'ask'
-                          ? 'Opens Export dialog with Notes tab'
-                          : defaultNotesApp === 'download'
-                            ? `${modKey}+S downloads the annotations file`
-                            : `${modKey}+S saves directly to ${{ obsidian: 'Obsidian', bear: 'Bear', octarine: 'Octarine', notion: 'Notion' }[defaultNotesApp] ?? defaultNotesApp}`}
-                      </div>
-                    </div>
-
-                    <div className="border-t border-border" />
-
-                    {/* Integration links */}
-                    <div className="space-y-2">
-                      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                        Integrations
-                      </div>
-                      <button
-                        onClick={() => setActiveTab('obsidian')}
-                        className="w-full flex items-center justify-between px-3 py-2.5 bg-muted/50 hover:bg-muted rounded-lg text-sm transition-colors group"
-                      >
-                        <span className="text-foreground">Obsidian</span>
-                        <span className="flex items-center gap-2">
-                          <span className={`text-[10px] font-medium ${obsidian.enabled ? 'text-primary' : 'text-muted-foreground/50'}`}>
-                            {obsidian.enabled ? 'Enabled' : 'Off'}
-                          </span>
-                          <svg className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('bear')}
-                        className="w-full flex items-center justify-between px-3 py-2.5 bg-muted/50 hover:bg-muted rounded-lg text-sm transition-colors group"
-                      >
-                        <span className="text-foreground">Bear Notes</span>
-                        <span className="flex items-center gap-2">
-                          <span className={`text-[10px] font-medium ${bear.enabled ? 'text-primary' : 'text-muted-foreground/50'}`}>
-                            {bear.enabled ? 'Enabled' : 'Off'}
-                          </span>
-                          <svg className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('octarine')}
-                        className="w-full flex items-center justify-between px-3 py-2.5 bg-muted/50 hover:bg-muted rounded-lg text-sm transition-colors group"
-                      >
-                        <span className="text-foreground">Octarine</span>
-                        <span className="flex items-center gap-2">
-                          <span className={`text-[10px] font-medium ${octarine.enabled ? 'text-primary' : 'text-muted-foreground/50'}`}>
-                            {octarine.enabled ? 'Enabled' : 'Off'}
-                          </span>
-                          <svg className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </span>
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* === LABELS TAB === */}
-                {activeTab === 'labels' && <QuickLabelsTab />}
-
-                {/* === VIM TAB === */}
-                {activeTab === 'vim' && mode !== 'review' && (
-                  <VimSettingsTab
-                    vimModeEnabled={vimModeEnabled}
-                    vimHudEnabled={vimHudEnabled}
-                    vimHudKeyPanelEnabled={vimHudKeyPanelEnabled}
-                    onVimModeChange={(enabled) => configStore.set('vimModeEnabled', enabled)}
-                    onVimHudChange={(enabled) => configStore.set('vimHudEnabled', enabled)}
-                    onVimHudKeyPanelChange={(enabled) =>
-                      configStore.set('vimHudKeyPanelEnabled', enabled)}
-                  />
                 )}
 
                 {/* === SHORTCUTS TAB === */}
                 {activeTab === 'shortcuts' && (
-                  <KeyboardShortcuts mode={mode} vimModeEnabled={vimModeEnabled} />
+                  <KeyboardShortcuts mode="review" vimModeEnabled={vimModeEnabled} />
                 )}
 
                 {/* === COMMENTS TAB === */}
@@ -2559,451 +1645,6 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                           </div>
                         </div>
                       </>
-                    )}
-                  </>
-                )}
-
-                {/* === HOOKS TAB === */}
-                {activeTab === 'hooks' && <HooksTab />}
-
-                {/* === OBSIDIAN TAB === */}
-                {activeTab === 'obsidian' && (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Obsidian Integration</div>
-                        <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Save documents to your vault from the Options menu. When on, plan review also saves each approved plan here.' : 'Auto-save approved plans to your vault'}
-                        </div>
-                      </div>
-                      <button
-                        role="switch"
-                        aria-checked={obsidian.enabled}
-                        onClick={() => handleObsidianChange({ enabled: !obsidian.enabled })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          obsidian.enabled ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            obsidian.enabled ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {obsidian.enabled && (
-                      <>
-                        <div className="border-t border-border" />
-
-                        <div className="space-y-3">
-                          <div className="flex gap-3">
-                            <div className="flex-1 space-y-1.5">
-                              <label className="text-xs text-muted-foreground">Vault</label>
-                              {vaultsLoading ? (
-                                <div className="w-full px-3 py-2 bg-muted rounded-lg text-xs text-muted-foreground">
-                                  Detecting...
-                                </div>
-                              ) : detectedVaults.length > 0 ? (
-                                <>
-                                  <select
-                                    value={obsidian.vaultPath}
-                                    onChange={(e) => handleObsidianChange({ vaultPath: e.target.value })}
-                                    className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/50 cursor-pointer"
-                                  >
-                                    {detectedVaults.map((vault) => (
-                                      <option key={vault} value={vault}>
-                                        {basenameFromPath(vault)}
-                                      </option>
-                                    ))}
-                                    <option value={CUSTOM_PATH_SENTINEL}>Custom path...</option>
-                                  </select>
-                                  {obsidian.vaultPath === CUSTOM_PATH_SENTINEL && (
-                                    <input
-                                      type="text"
-                                      value={obsidian.customPath || ''}
-                                      onChange={(e) => handleObsidianChange({ customPath: e.target.value })}
-                                      placeholder="/path/to/vault"
-                                      className="w-full mt-2 px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                                    />
-                                  )}
-                                </>
-                              ) : (
-                                <input
-                                  type="text"
-                                  value={obsidian.vaultPath}
-                                  onChange={(e) => handleObsidianChange({ vaultPath: e.target.value })}
-                                  placeholder="/path/to/vault"
-                                  className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                                />
-                              )}
-                            </div>
-
-                            <div className="w-44 space-y-1.5">
-                              <label className="text-xs text-muted-foreground">Folder</label>
-                              <input
-                                type="text"
-                                value={obsidian.folder}
-                                onChange={(e) => handleObsidianChange({ folder: e.target.value })}
-                                placeholder="plannotator"
-                                className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-muted-foreground">Filename Format</label>
-                            <input
-                              type="text"
-                              value={obsidian.filenameFormat || ''}
-                              onChange={(e) => handleObsidianChange({ filenameFormat: e.target.value || undefined })}
-                              placeholder={DEFAULT_FILENAME_FORMAT}
-                              className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                            />
-                            <div className="text-[10px] text-muted-foreground/70">
-                              Variables: <code className="text-[10px]">{'{title}'}</code> <code className="text-[10px]">{'{YYYY}'}</code> <code className="text-[10px]">{'{MM}'}</code> <code className="text-[10px]">{'{DD}'}</code> <code className="text-[10px]">{'{Mon}'}</code> <code className="text-[10px]">{'{D}'}</code> <code className="text-[10px]">{'{HH}'}</code> <code className="text-[10px]">{'{h}'}</code> <code className="text-[10px]">{'{hh}'}</code> <code className="text-[10px]">{'{mm}'}</code> <code className="text-[10px]">{'{ss}'}</code> <code className="text-[10px]">{'{ampm}'}</code>
-                            </div>
-                            <div className="text-[10px] text-muted-foreground/70">
-                              Preview: {(() => {
-                                const fmt = obsidian.filenameFormat?.trim() || DEFAULT_FILENAME_FORMAT;
-                                const now = new Date();
-                                const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                                const h24 = now.getHours(); const h12 = h24 % 12 || 12;
-                                const vars: Record<string, string> = {
-                                  title: 'My Plan Title', YYYY: String(now.getFullYear()),
-                                  MM: String(now.getMonth()+1).padStart(2,'0'), DD: String(now.getDate()).padStart(2,'0'),
-                                  Mon: months[now.getMonth()], D: String(now.getDate()),
-                                  HH: String(h24).padStart(2,'0'), h: String(h12), hh: String(h12).padStart(2,'0'),
-                                  mm: String(now.getMinutes()).padStart(2,'0'), ss: String(now.getSeconds()).padStart(2,'0'),
-                                  ampm: h24 >= 12 ? 'pm' : 'am',
-                                };
-                                let preview = fmt.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) + '.md';
-                                if (obsidian.filenameSeparator === 'dash') preview = preview.replace(/ /g, '-');
-                                else if (obsidian.filenameSeparator === 'underscore') preview = preview.replace(/ /g, '_');
-                                return preview;
-                              })()}
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-muted-foreground">Filename Separator</label>
-                            <select
-                              value={obsidian.filenameSeparator || 'space'}
-                              onChange={(e) => handleObsidianChange({ filenameSeparator: e.target.value as 'space' | 'dash' | 'underscore' })}
-                              className="w-full px-3 py-2 bg-muted rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
-                            >
-                              <option value="space">Spaces (default)</option>
-                              <option value="dash">Dashes (-)</option>
-                              <option value="underscore">Underscores (_)</option>
-                            </select>
-                            <div className="text-[10px] text-muted-foreground/70">
-                              Replaces spaces in the generated filename. Useful when working with CLI tools in your vault.
-                            </div>
-                          </div>
-
-                          <div className="text-[10px] text-muted-foreground/70">
-                            {mode === 'annotate' ? 'Saved to' : 'Plans saved to'}: {obsidian.vaultPath === CUSTOM_PATH_SENTINEL
-                              ? (obsidian.customPath || '...')
-                              : (obsidian.vaultPath || '...')}/{obsidian.folder || 'plannotator'}/
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <label className="text-xs text-muted-foreground">Frontmatter (auto-generated)</label>
-                            <pre className="px-3 py-2 bg-muted/50 rounded-lg text-[10px] font-mono text-muted-foreground overflow-x-auto">
-{`---
-created: ${new Date().toISOString().slice(0, 19)}Z
-source: plannotator
-tags: [${mode === 'annotate' ? 'plannotator' : 'plan'}, ...]
----`}
-                            </pre>
-                          </div>
-
-                          <div className="border-t border-border/30" />
-
-                          {mode === 'plan' && (<>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="text-xs font-medium">Auto-save on Plan Arrival</div>
-                              <div className="text-[10px] text-muted-foreground">
-                                Automatically save to Obsidian when a plan loads, before you approve or deny
-                              </div>
-                            </div>
-                            <button
-                              role="switch"
-                              aria-checked={obsidian.autoSave}
-                              onClick={() => handleObsidianChange({ autoSave: !obsidian.autoSave })}
-                              className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-                                obsidian.autoSave ? 'bg-primary' : 'bg-muted'
-                              }`}
-                            >
-                              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                                obsidian.autoSave ? 'translate-x-6' : 'translate-x-1'
-                              }`} />
-                            </button>
-                          </div>
-                          </>)}
-
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="text-xs font-medium">Vault Browser</div>
-                              <div className="text-[10px] text-muted-foreground">
-                                Browse and annotate vault files from the sidebar
-                              </div>
-                            </div>
-                            <button
-                              role="switch"
-                              aria-checked={obsidian.vaultBrowserEnabled}
-                              onClick={() => handleObsidianChange({ vaultBrowserEnabled: !obsidian.vaultBrowserEnabled })}
-                              className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-                                obsidian.vaultBrowserEnabled ? 'bg-primary' : 'bg-muted'
-                              }`}
-                            >
-                              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                                obsidian.vaultBrowserEnabled ? 'translate-x-6' : 'translate-x-1'
-                              }`} />
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </>
-                )}
-
-                {/* === BEAR TAB === */}
-                {activeTab === 'bear' && (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Bear Notes</div>
-                        <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Save documents to Bear from the Options menu. When on, plan review also saves each approved plan here.' : 'Auto-save approved plans to Bear'}
-                        </div>
-                      </div>
-                      <button
-                        role="switch"
-                        aria-checked={bear.enabled}
-                        onClick={() => handleBearChange({ enabled: !bear.enabled })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          bear.enabled ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            bear.enabled ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    {bear.enabled && (
-                      <div className="mt-3 space-y-3">
-                        <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Custom Tags</label>
-                          <input
-                            type="text"
-                            value={bear.customTags}
-                            onChange={(e) => handleBearChange({ customTags: e.target.value })}
-                            onBlur={(e) => handleBearChange({ customTags: normalizeTags(e.target.value) })}
-                            placeholder="plan, work"
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          />
-                          <div className="text-[10px] text-muted-foreground">
-                            Comma-separated, kebab-case. Leave empty for auto-generated tags.
-                          </div>
-                        </div>
-                        <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Tag Position</label>
-                          <select
-                            value={bear.tagPosition}
-                            onChange={(e) => handleBearChange({ tagPosition: e.target.value as 'prepend' | 'append' })}
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          >
-                            <option value="append">Append (end of note)</option>
-                            <option value="prepend">Prepend (after title)</option>
-                          </select>
-                        </div>
-
-                        {mode === 'plan' && (<>
-                        <div className="border-t border-border/30" />
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-xs font-medium">Auto-save on Plan Arrival</div>
-                            <div className="text-[10px] text-muted-foreground">
-                              Automatically save to Bear when a plan loads, before you approve or deny
-                            </div>
-                          </div>
-                          <button
-                            role="switch"
-                            aria-checked={bear.autoSave}
-                            onClick={() => handleBearChange({ autoSave: !bear.autoSave })}
-                            className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-                              bear.autoSave ? 'bg-primary' : 'bg-muted'
-                            }`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                              bear.autoSave ? 'translate-x-6' : 'translate-x-1'
-                            }`} />
-                          </button>
-                        </div>
-                        </>)}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* === OCTARINE TAB === */}
-                {activeTab === 'octarine' && (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Octarine</div>
-                        <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Save documents to Octarine from the Options menu. When on, plan review also saves each approved plan here.' : 'Auto-save approved plans to Octarine'}
-                        </div>
-                      </div>
-                      <button
-                        role="switch"
-                        aria-checked={octarine.enabled}
-                        onClick={() => handleOctarineChange({ enabled: !octarine.enabled })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          octarine.enabled ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            octarine.enabled ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    {octarine.enabled && (
-                      <div className="mt-3 space-y-3">
-                        <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Workspace Name</label>
-                          <input
-                            type="text"
-                            value={octarine.workspace}
-                            onChange={(e) => handleOctarineChange({ workspace: e.target.value })}
-                            placeholder="My Workspace"
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          />
-                          <div className="text-[10px] text-muted-foreground">
-                            The Octarine workspace name to save plans into.
-                          </div>
-                        </div>
-                        <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Folder</label>
-                          <input
-                            type="text"
-                            value={octarine.folder}
-                            onChange={(e) => handleOctarineChange({ folder: e.target.value })}
-                            placeholder="plannotator"
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          />
-                          <div className="text-[10px] text-muted-foreground">
-                            Subfolder within the workspace for saved plans.
-                          </div>
-                        </div>
-
-                        <div className="text-[10px] text-muted-foreground/70">
-                          {mode === 'annotate' ? 'Saved to' : 'Plans saved to'}: {octarine.workspace || '...'} / {octarine.folder || 'plannotator'}/
-                        </div>
-
-                        {mode === 'plan' && (<>
-                        <div className="border-t border-border/30" />
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-xs font-medium">Auto-save on Plan Arrival</div>
-                            <div className="text-[10px] text-muted-foreground">
-                              Automatically save to Octarine when a plan loads, before you approve or deny
-                            </div>
-                          </div>
-                          <button
-                            role="switch"
-                            aria-checked={octarine.autoSave}
-                            onClick={() => handleOctarineChange({ autoSave: !octarine.autoSave })}
-                            className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-                              octarine.autoSave ? 'bg-primary' : 'bg-muted'
-                            }`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                              octarine.autoSave ? 'translate-x-6' : 'translate-x-1'
-                            }`} />
-                          </button>
-                        </div>
-                        </>)}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* === NOTION TAB === */}
-                {activeTab === 'notion' && (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium">Notion</div>
-                        <div className="text-xs text-muted-foreground">
-                          {mode === 'annotate' ? 'Save documents to Notion from the Options menu. When on, plan review also saves each approved plan here.' : 'Save approved plans as Notion pages'}
-                        </div>
-                      </div>
-                      <button
-                        role="switch"
-                        aria-checked={notion.enabled}
-                        onClick={() => handleNotionChange({ enabled: !notion.enabled })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          notion.enabled ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                            notion.enabled ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    {notion.enabled && (
-                      <div className="mt-3 space-y-3">
-                        <div className="space-y-1.5 pl-0.5">
-                          <label className="text-xs text-muted-foreground">Parent Page</label>
-                          <input
-                            type="text"
-                            value={notion.parentPageId}
-                            onChange={(e) => handleNotionChange({ parentPageId: e.target.value })}
-                            placeholder="https://www.notion.so/..."
-                            className="w-full px-3 py-2 bg-muted rounded-lg text-xs font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
-                          />
-                          <div className="text-[10px] text-muted-foreground">
-                            A page link or ID. Each save adds a page under it. Share it with your Notion integration first.
-                          </div>
-                        </div>
-
-                        {mode === 'plan' && (<>
-                        <div className="border-t border-border/30" />
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-xs font-medium">Auto-save on Plan Arrival</div>
-                            <div className="text-[10px] text-muted-foreground">
-                              Automatically save to Notion when a plan loads, before you approve or deny
-                            </div>
-                          </div>
-                          <button
-                            role="switch"
-                            aria-checked={notion.autoSave}
-                            onClick={() => handleNotionChange({ autoSave: !notion.autoSave })}
-                            className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
-                              notion.autoSave ? 'bg-primary' : 'bg-muted'
-                            }`}
-                          >
-                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                              notion.autoSave ? 'translate-x-6' : 'translate-x-1'
-                            }`} />
-                          </button>
-                        </div>
-                        </>)}
-                      </div>
                     )}
                   </>
                 )}

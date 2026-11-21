@@ -9,7 +9,7 @@ import { isTerminalStatus } from '@plannotator/shared/agent-jobs';
 import { useGuideData } from '../../hooks/guide/useGuideData';
 import { useGuideLaunch } from '../../hooks/guide/useGuideLaunch';
 import { useReviewState } from '../../dock/ReviewStateContext';
-import { readPassages } from './readingPath';
+import { readPassages } from '@plannotator/core/reading-path';
 import { BehaviorReader } from './BehaviorReader';
 import { GuideEmptyState } from './GuideEmptyState';
 import { GuideGenerating } from './GuideGenerating';
@@ -463,6 +463,7 @@ function ActiveGuide({
         {(['behavior', 'diff'] as const).map(mode => <button key={mode} type="button" aria-pressed={view === mode}
           className={`rounded px-3 py-1.5 ${view === mode ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
           onClick={() => setSelectedView(mode)}>{mode === 'behavior' ? 'Reading path' : 'Full guide and diffs'}</button>)}
+        <div className="ml-auto"><GuideExportButton jobId={jobId} /></div>
       </div>
       {view === 'behavior' && <BehaviorReader guide={guide} jobId={jobId} liveFiles={state.files}
         reviewed={reviewed} onToggle={toggleReviewed} onComment={state.onRequestLineAnnotation} />}
@@ -476,7 +477,6 @@ function ActiveGuide({
           focusedFile={focusedFile}
           onFocusFile={setFocusedFile}
           onRegenerate={guideLaunch.canLaunch && !regenerating ? handleRegenerate : undefined}
-          headerActions={<GuideExportButton jobId={jobId} />}
         />
       </ReviewGuideHost>}
       {globalAnchor && onAddGlobalComment && (

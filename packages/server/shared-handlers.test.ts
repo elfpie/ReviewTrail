@@ -4,131 +4,13 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   handleFavicon,
-  handleSaveNotes,
+
   handleServerReady,
   SESSION_READY_LINE_PREFIX,
   writeServerReadyMetadata,
 } from "./shared-handlers";
 import { saveConfig } from "./config";
 import { FACE_FAVICON_PNG_BYTES, FAVICON_ICO_BYTES, FAVICON_PNG_BYTES, YELLOW_FAVICON_ICO_BYTES, YELLOW_FAVICON_PNG_BYTES } from "@plannotator/shared/favicon";
-
-function saveNotesRequest(body: unknown): Request {
-  return new Request("http://localhost/api/save-notes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-}
-
-describe("handleSaveNotes", () => {
-  test("saves to an Obsidian vault and returns JSON success", async () => {
-    const tmpDir = mkdtempSync(join(tmpdir(), "plannotator-save-notes-"));
-    try {
-      const response = await handleSaveNotes(
-        saveNotesRequest({
-          obsidian: {
-            vaultPath: tmpDir,
-            folder: "plannotator",
-            plan: "# Test Plan\n\nContent here",
-          },
-        }),
-      );
-
-      expect(response.status).toBe(200);
-      expect(response.headers.get("content-type")).toContain("application/json");
-      const json = await response.json();
-      expect(json).toHaveProperty("ok", true);
-      expect(json.results.obsidian).toHaveProperty("success", true);
-      expect(json.results.obsidian).toHaveProperty("path");
-    } finally {
-      rmSync(tmpDir, { recursive: true, force: true });
-    }
-  });
-
-  test("returns 200 with empty results when no integrations are configured", async () => {
-    const response = await handleSaveNotes(saveNotesRequest({}));
-
-    expect(response.status).toBe(200);
-    const json = await response.json();
-    expect(json).toHaveProperty("ok", true);
-    expect(json.results).toEqual({});
-  });
-
-  test("a failed integration is reported, not thrown as a server error", async () => {
-    const response = await handleSaveNotes(
-      saveNotesRequest({
-        obsidian: {
-          vaultPath: "/nonexistent-vault-path",
-          folder: "plannotator",
-          plan: "# Test Plan\n\nContent here",
-        },
-      }),
-    );
-
-    expect(response.status).toBe(200);
-    const json = await response.json();
-    expect(json).toHaveProperty("ok", true);
-    expect(json.results.obsidian).toHaveProperty("success", false);
-    expect(json.results.obsidian).toHaveProperty("error");
-  });
-
-  describe("Notion", () => {
-    const originalToken = process.env.NOTION_TOKEN;
-    const originalFetch = globalThis.fetch;
-    let notionCalls = 0;
-
-    beforeEach(() => {
-      notionCalls = 0;
-      process.env.NOTION_TOKEN = "secret-token";
-      globalThis.fetch = (async () => {
-        notionCalls++;
-        return Response.json({ url: "https://www.notion.so/saved-plan" });
-      }) as unknown as typeof fetch;
-    });
-
-    afterEach(() => {
-      globalThis.fetch = originalFetch;
-      if (originalToken === undefined) delete process.env.NOTION_TOKEN;
-      else process.env.NOTION_TOKEN = originalToken;
-    });
-
-    const notionBody = { notion: { plan: "# Test Plan", parentPageId: "parent-page-id" } };
-
-    test("saves when the server offers Notion, without returning the token", async () => {
-      const response = await handleSaveNotes(saveNotesRequest(notionBody), { notion: true });
-
-      expect(response.status).toBe(200);
-      const json = await response.json();
-      expect(json.results.notion).toEqual({ success: true, url: "https://www.notion.so/saved-plan" });
-      expect(JSON.stringify(json)).not.toContain("secret-token");
-      expect(notionCalls).toBe(1);
-    });
-
-    test("never calls Notion when the session does not offer it (remote, --tailscale)", async () => {
-      const response = await handleSaveNotes(saveNotesRequest(notionBody));
-
-      expect(response.status).toBe(200);
-      const json = await response.json();
-      expect(json.results.notion).toBeUndefined();
-      expect(notionCalls).toBe(0);
-    });
-  });
-
-  test("an unparseable body returns a 500 JSON error (not SPA HTML)", async () => {
-    const badRequest = new Request("http://localhost/api/save-notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: "{ not valid json",
-    });
-
-    const response = await handleSaveNotes(badRequest);
-
-    expect(response.status).toBe(500);
-    expect(response.headers.get("content-type")).toContain("application/json");
-    const json = await response.json();
-    expect(json).toHaveProperty("error");
-  });
-});
 
 describe("writeServerReadyMetadata", () => {
   test("writes host-plugin ready metadata", () => {

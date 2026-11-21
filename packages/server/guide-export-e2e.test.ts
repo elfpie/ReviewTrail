@@ -116,7 +116,13 @@ describe("guide export end to end (Bun review server)", () => {
 
       const res = await fetch(`${server.url}/api/guide/${jobId}/export`);
       expect(res.status).toBe(200);
-      const snapshot = embeddedSnapshot(await res.text());
+      const html = await res.text();
+      expect(html).toContain("default-src 'none'");
+      expect(html).not.toMatch(/<(?:script|img|link|iframe)\b[^>]*(?:src|href)=/i);
+      for (const [path, method] of [[`/api/guide/${jobId}/share`, "POST"], [`/api/guide/${jobId}/share-info`, "GET"], [`/api/guide/${jobId}/share`, "DELETE"], ["/api/star-ask/claim", "POST"]]) {
+        expect((await fetch(server.url + path, { method })).status).toBe(404);
+      }
+      const snapshot = embeddedSnapshot(html);
       expect(snapshot.review.rawPatch).toBe(FIXTURE_PATCH_TS_JSON);
       expect(snapshot.review.gitRef).toBe("test..HEAD");
       expect(snapshot.source.kind).toBe("local");

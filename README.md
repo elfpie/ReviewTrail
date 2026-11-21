@@ -8,7 +8,7 @@ The source install requires Bun 1.4.4 or newer, Node.js 22.19 or newer, and Git.
 
 ```sh
 bun install --frozen-lockfile
-bun run build:review && bun run build:hook
+bun run build
 bun run install:reviewtrail
 ```
 
@@ -30,6 +30,10 @@ Select **Guide → Generate guide → Reading path**. Use **More context** to ex
 
 **Send Feedback** returns your notes to the calling agent. In a GitHub PR review, the platform submission action lets you publish comments and your verdict. You make the decision.
 
+## Share a guide as a file
+
+Open a generated guide and choose **Download portable guide**, or use the menu on a saved guide. Send the resulting `.html` through your chosen channel. It includes the guide and the entire retained patch, including files outside the reading path. The recipient can navigate chapters, read inline explanations and expand file diffs offline in a browser. Diagrams are included as source. The live review handles comments, approval and GitHub submission.
+
 ## Settings and network traffic
 
 ReviewTrail uses `~/.reviewtrail`, an ephemeral local port, and its own browser preference keys. Use `REVIEWTRAIL_DATA_DIR` or `REVIEWTRAIL_PORT` to override these. A policy stored only in your upstream config file needs an equivalent ReviewTrail setting. The launcher carries forward shared environment opt-outs and service destination overrides listed in [the launcher](bin/reviewtrail). For example, `reviewtrail --no-git-remote-check --diff-type staged` skips automatic Git remote discovery for that session. An explicit fetch still contacts the remote.
@@ -38,4 +42,4 @@ The [network inventory](NETWORK_AUDIT.md) lists each request type, destination, 
 
 ## Development
 
-Run `bun run dev:review` for the UI. Rebuild the review UI before the command host after editing the reader. The checkout contains shared upstream packages and its MIT and Apache 2.0 licenses.
+Run `bun run dev:review` for the UI. Run `bun run build` after editing it to refresh the local launcher’s assets. Claude and Pi both run the same Bun review server. The source includes the upstream MIT and Apache 2.0 licenses.

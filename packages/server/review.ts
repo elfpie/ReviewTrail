@@ -1,3 +1,4 @@
+import { createOfflineGuide } from "@plannotator/core/offline-guide";
 /**
  * Code Review Server
  *
@@ -129,7 +130,7 @@ import { createCommitAvatarResolver } from "@plannotator/shared/commit-avatars";
 import { detectGeneratedFiles, detectGeneratedFilesByName } from "@plannotator/shared/generated-files";
 import { getRepoInfo } from "./repo";
 import { createRefCards, refCardRouteResponse, refCardsTailnetAllowed, type RefRunner } from "./ref-cards";
-import { handleImage, handleStarAsk, handleUpload, handleAgents, handleServerReady, handleApiNotFound, handleFavicon, handleCustomThemesScript, customThemesPage, readDraftGenerationFromBody, readDraftGenerationFromUrl, missingDraftResponse, type OpencodeClient } from "./shared-handlers";
+import { handleImage, handleUpload, handleAgents, handleServerReady, handleApiNotFound, handleFavicon, handleCustomThemesScript, customThemesPage, readDraftGenerationFromBody, readDraftGenerationFromUrl, missingDraftResponse, type OpencodeClient } from "./shared-handlers";
 import { contentHash } from "./draft";
 import { createReviewDraftSession, localGitDraftTargetKey, localReviewDraftKeys, prDraftTargetKey, type ReviewDraftKeys } from "@plannotator/shared/review-draft";
 import { captureReviewProgress, handleReviewProgress } from "@plannotator/shared/review-progress";
@@ -151,20 +152,15 @@ import {
   transformClaudeFindings,
 } from "./claude-review";
 import { createGuideSession, GUIDE_EMPTY_OUTPUT_ERROR } from "./guide/guide-review";
-import { GuideShareError, shareGuide, unshareBeforeDelete, unshareGuide } from "./guide/guide-share";
-import { createGuideStoreSession, normalizeGuideTitle, SAVED_GUIDE_ID_PREFIX, updateGuideShare } from "@plannotator/shared/guide-store";
-import { resolveGuideShareUrl, resolveSharingEnabled } from "@plannotator/shared/config";
+import { createGuideStoreSession, normalizeGuideTitle, SAVED_GUIDE_ID_PREFIX } from "@plannotator/shared/guide-store";
 import {
   buildGuideSnapshot,
-  createGuideHtml,
   detectGuideLanguages,
   guideExportFilename,
-  resolveGuideViewerAssets,
   type GuideLaunchReview,
   type GuideSnapshot,
   type GuideSnapshotSource,
 } from "@plannotator/shared/guide-format";
-import { GUIDE_VIEWER_MANIFEST } from "@plannotator/shared/guide-viewer-manifest";
 import {
   MARKER_ENGINES,
   resolveMarkerBinary,
@@ -178,7 +174,6 @@ import {
   type MarkerEngineId,
 } from "./marker-review";
 import { agentSwitchConfigToSave, agentToolSaveFailed, cookieHostConfigWrite, loadConfig, saveConfig, detectGitUser, getServerConfig, parsePackageChangesConfig, parseReviewAnalysisConfig, resolveAIEnabled, resolvePackageLookup, resolveClaudeSandbox, resolveCursorSandbox, resolveFeedbackHistory, resolveGuideHistory, resolveGitRemoteCheck, resolveReviewProgress } from "./config";
-import { getAutoUpdateAdvert, getUpdateAdvert, handleUpdateRoute } from "./auto-update";
 import { appendFeedbackRecord, countChangedFiles, deriveFeedbackProject, type FeedbackDecision, type FeedbackReviewTarget } from "@plannotator/shared/feedback-archive";
 import { isFaviconStyle, type FaviconStyle } from "@plannotator/shared/favicon";
 import { type PRMetadata, type PRRef, type PRReviewFileComment, type PRStackTree, type PRListItem, fetchPR, fetchPRFileContent, fetchPRFileBytes, fetchPRTree, fetchPRContext, submitPRReview, parseFileLevelComments, parsePRReviewAction, fetchPRViewedFiles, markPRFilesViewed, fetchPRStack, fetchPRList, getPRUser, parsePRUrl, prRefFromMetadata, isSameProject, getDisplayRepo, getMRLabel, getMRNumberLabel, getPRNumber, prCommandRuntime } from "./pr";
@@ -308,8 +303,6 @@ export interface ReviewServerOptions {
   /** Freshness token captured atomically with the initial provider patch. */
   initialFingerprint?: string;
   initialFileIdentities?: Record<string, string>;
-  /** Whether URL sharing is enabled (default: true) */
-  sharingEnabled?: boolean;
   /**
    * Whether this session's decision consumer delivers approve-time feedback
    * (decision-control spec §6.4). Echoed as `approvalNotesSupported` on every
@@ -321,8 +314,6 @@ export interface ReviewServerOptions {
    * approve-carrying items, exactly the pre-PR5 behavior.
    */
   approvalNotesSupported?: boolean;
-  /** Custom base URL for share links (default: https://share.plannotator.ai) */
-  shareBaseUrl?: string;
   /** Called when server starts with the URL, remote status, and port */
   onReady?: (url: string, isRemote: boolean, port: number) => void | Promise<void>;
   /** OpenCode client for querying available agents (OpenCode only) */
@@ -416,7 +407,7 @@ export async function startReviewServer(
   options: ReviewServerOptions
 ): Promise<ReviewServerResult> {
   assertTestHome();
-  const { htmlContent, origin, gitContext, sharingEnabled = true, shareBaseUrl, onReady } = options;
+  const { htmlContent, origin, gitContext, onReady } = options;
   // Session-constant capability advert; rides every diff payload (see the
   // option's doc). Absent option = false, so old callers advertise honestly.
   const approvalNotesSupported = options.approvalNotesSupported === true;
@@ -2330,8 +2321,7 @@ export async function startReviewServer(
             if (guideExportMatch[2] === "patch") {
               return Response.json({ patch: snapshot.review.rawPatch });
             }
-            const viewer = resolveGuideViewerAssets(GUIDE_VIEWER_MANIFEST, { baseUrl: process.env.PLANNOTATOR_GUIDE_VIEWER_URL });
-            const html = createGuideHtml(snapshot, { viewer });
+            const html = createOfflineGuide(snapshot);
             const filename = guideExportFilename(snapshot.guide.title);
             if (guideExportMatch[2] === "export-info") {
               return Response.json({
@@ -2350,121 +2340,16 @@ export async function startReviewServer(
             });
           }
 
-          // API: Share a guide on the guide host (guide share hosting
-          // contract §7). POST uploads (encrypted unless `public`) and records
-          // the link on the saved envelope; DELETE removes it with the stored
-          // token; share-info tells the UI whether sharing is on and whether a
-          // link already exists. The mutating verbs carry the same
-          // cross-origin guard as the other state-changing endpoints: an
-          // upload publishes the diff off-machine.
-          const guideShareMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(share|share-info)$/);
-          if (guideShareMatch && guideShareMatch[2] === "share-info" && req.method === "GET") {
-            const jobId = decodePathSegment(guideShareMatch[1]);
-            if (jobId === null) return Response.json({ error: MALFORMED_PATH_ERROR }, { status: 400 });
-            const config = loadConfig();
-            const existing = (await guideStore.locateEnvelope(jobId))?.envelope.share;
-            return Response.json({
-              enabled: resolveSharingEnabled(config),
-              serviceUrl: resolveGuideShareUrl(config),
-              ...(existing ? { existing: { url: existing.url, createdAt: existing.createdAt } } : {}),
-            });
-          }
-          if (guideShareMatch && guideShareMatch[2] === "share" && (req.method === "POST" || req.method === "DELETE")) {
-            if (!callFlowInstallOriginAllowed(req.headers.get("origin"), url.host, req.headers.get("sec-fetch-site"))) {
-              return Response.json({ error: "Cross-origin share requests are not allowed" }, { status: 403 });
-            }
-            const jobId = decodePathSegment(guideShareMatch[1]);
-            if (jobId === null) return Response.json({ error: MALFORMED_PATH_ERROR }, { status: 400 });
-            const config = loadConfig();
-            const serviceUrl = resolveGuideShareUrl(config);
-            if (req.method === "POST") {
-              if (!resolveSharingEnabled(config)) return Response.json({ error: "sharing disabled" }, { status: 403 });
-              // Every body field is optional, so no body at all means the defaults.
-              let body: { public?: unknown; ttlSeconds?: unknown };
-              try {
-                const raw = await req.text();
-                const parsed: unknown = raw.trim() === "" ? {} : JSON.parse(raw);
-                if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("not an object");
-                body = parsed as { public?: unknown; ttlSeconds?: unknown };
-              } catch {
-                return Response.json({ error: "Invalid JSON" }, { status: 400 });
-              }
-              if (body.public !== undefined && typeof body.public !== "boolean") return Response.json({ error: "public must be a boolean" }, { status: 400 });
-              if (body.ttlSeconds !== undefined && (typeof body.ttlSeconds !== "number" || !Number.isSafeInteger(body.ttlSeconds) || body.ttlSeconds <= 0)) {
-                return Response.json({ error: "ttlSeconds must be a positive integer" }, { status: 400 });
-              }
-              // One link per guide: the envelope is the only place the delete
-              // token lives, so a second upload would orphan the first on the
-              // host. Remove the existing link before creating another.
-              const located = await guideStore.locateEnvelope(jobId);
-              const existing = located?.envelope.share;
-              if (existing) {
-                return Response.json({ error: "This guide already has a share link. Remove it before creating another.", url: existing.url }, { status: 409 });
-              }
-              const snapshot = await resolveGuideSnapshotForExport(jobId);
-              if (!snapshot) {
-                return Response.json({ error: "This guide cannot be shared: its diff was not retained." }, { status: 404 });
-              }
-              try {
-                const shared = await shareGuide(snapshot, {
-                  serviceUrl,
-                  mode: body.public === true ? "plain" : "encrypted",
-                  ...(body.ttlSeconds !== undefined ? { ttlSeconds: body.ttlSeconds } : {}),
-                  viewer: GUIDE_VIEWER_MANIFEST,
-                });
-                // `recorded` tells the client whether this Plannotator can
-                // remove the link later; without an envelope (guide history
-                // off, or an autosave that never happened) only the one-time
-                // token can.
-                const recorded = located
-                  ? updateGuideShare(located.repoKey, located.id, {
-                      id: shared.id,
-                      url: shared.url,
-                      createdAt: new Date().toISOString(),
-                      deleteToken: shared.deleteToken,
-                      serviceUrl,
-                    })
-                  : false;
-                return Response.json({ ...shared, recorded });
-              } catch (e) {
-                if (e instanceof GuideShareError) return Response.json({ error: e.message }, { status: 502 });
-                throw e;
-              }
-            }
-            // DELETE: the record is the only place the delete token lives, and
-            // it names the host the link was created on; the configured share
-            // URL may have changed since (or differ from the CLI shell that
-            // created the link), and a 404 from the wrong host would forget a
-            // link that is still live.
-            const located = await guideStore.locateEnvelope(jobId);
-            const record = located?.envelope.share;
-            if (!located || !record) return Response.json({ error: "No share link for this guide" }, { status: 404 });
-            try {
-              await unshareGuide(record.id, record.deleteToken, { serviceUrl: record.serviceUrl });
-            } catch (e) {
-              // Already gone on the host (expired or removed elsewhere): the
-              // link is dead either way, so forget it here too.
-              if (!(e instanceof GuideShareError && e.status === 404)) {
-                if (e instanceof GuideShareError) return Response.json({ error: e.message }, { status: 502 });
-                throw e;
-              }
-            }
-            updateGuideShare(located.repoKey, located.id, null);
-            return new Response(null, { status: 204 });
-          }
-
           // API: List saved guides for the current repo (#1112)
           if (url.pathname === "/api/guides" && req.method === "GET") {
             return Response.json(await guideStore.listSaved());
           }
 
-          // API: Delete a saved guide (#1112). Its share link goes with it,
-          // best effort: the envelope is the only copy of the delete token.
+          // Delete the saved guide and its retained patch locally.
           const savedGuideDeleteMatch = url.pathname.match(/^\/api\/guides\/([^/]+)$/);
           if (savedGuideDeleteMatch && req.method === "DELETE") {
             const savedId = decodePathSegment(savedGuideDeleteMatch[1]);
             if (savedId === null) return Response.json({ error: MALFORMED_PATH_ERROR }, { status: 400 });
-            await unshareBeforeDelete((await guideStore.locateEnvelope(`${SAVED_GUIDE_ID_PREFIX}${savedId}`))?.envelope.share);
             const ok = await guideStore.deleteSaved(savedId);
             if (!ok) return Response.json({ error: "Guide not found" }, { status: 404 });
             return Response.json({ ok: true });
@@ -2568,7 +2453,6 @@ export async function startReviewServer(
               hideWhitespace: servedHideWhitespace,
               ...(workspace && { diffOptions: workspace.diffOptions }),
               gitContext: hasLocalAccess ? servedGitContext : undefined,
-              sharingEnabled,
               approvalNotesSupported,
 
               serverSession,
@@ -2585,7 +2469,6 @@ export async function startReviewServer(
               ...(options.openStatePinned && { openStatePinned: true }),
               // `--title` (#2289): session-constant, read by the page at mount.
               ...(options.title && { title: options.title }),
-              shareBaseUrl,
               repoInfo,
               isWSL: wslFlag,
               // config.json `markdownExtensions`: extra extensions the review
@@ -2618,8 +2501,6 @@ export async function startReviewServer(
               ...(servedError && { error: servedError }),
               callFlow: await getCallFlowAdvert(servedDiffType as DiffType),
               serverConfig: getServerConfig(gitUser, agentToolHostForServer(options.sessionBridge), { cookieHost: !isRemote && options.tailnetPublished !== true }),
-              ...getAutoUpdateAdvert(),
-              ...getUpdateAdvert(origin, { exposed: isRemote || options.tailnetPublished === true }),
             });
           }
 
@@ -4027,12 +3908,6 @@ export async function startReviewServer(
             }
           }
 
-          // API: Update now (the update toast and the Options menu): the install script, once.
-
-          const updateRoute = handleUpdateRoute(req, url, { port: boundPort, exposed: isRemote || options.tailnetPublished === true, serverSession, localHostname });
-
-          if (updateRoute) return updateRoute;
-
           // API: a hover card's data for an issue, PR or MR link (GET /api/ref, ref-cards.ts).
           const refRoute = await refCardRouteResponse(req, url, refCards, {
             // Remote mode: only an SSH session's own tunnel (isSshTunnelRequest) may drive gh / glab here.
@@ -4059,8 +3934,6 @@ export async function startReviewServer(
               if (body.reviewDefaults !== undefined) toSave.reviewDefaults = body.reviewDefaults;
               if (body.theme !== undefined) toSave.theme = body.theme;
               if (isFaviconStyle(body.favicon)) toSave.favicon = body.favicon;
-              if (typeof body.autoUpdate === "boolean") toSave.autoUpdate = body.autoUpdate;
-              if (typeof body.updateCheck === "boolean") toSave.updateCheck = body.updateCheck;
               // The agent tool switch: boolean only; it applies to the next session.
               if (typeof body.agentTool === "boolean") toSave.agentTool = body.agentTool;
               if (body.reviewAnalysis !== undefined) {
@@ -4089,11 +3962,6 @@ export async function startReviewServer(
             } catch {
               return Response.json({ error: "Invalid request" }, { status: 400 });
             }
-          }
-
-          // The "Star the repo" ask on the done screen (packages/shared/star-ask.ts).
-          if (url.pathname.startsWith("/api/star-ask/")) {
-            return (await handleStarAsk(req, url, "review", { remote: isRemote })) ?? handleApiNotFound(url.pathname);
           }
 
           // API: Serve images (local paths or temp uploads)

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && bun diagram-engine/build.ts && sem-jiff-copy-wasm dist/sem-diff",
-    "serve": "bun run server/index.ts"
+    "serve": "bun ../../bin/reviewtrail"
   },
   "dependencies": {
     "@plannotator/review-editor": "workspace:*",

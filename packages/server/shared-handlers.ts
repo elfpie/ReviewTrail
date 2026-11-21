@@ -18,14 +18,8 @@ import { faviconBody, faviconIcoBody } from "@plannotator/shared/favicon";
 import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
 import { customThemesAnswer, pageWithCustomThemes } from "@plannotator/shared/theme-files";
 import { getServerConfig } from "./config";
-import { saveToObsidian, saveToBear, saveToOctarine, saveToNotion } from "./integrations";
-import type { ObsidianConfig, BearConfig, OctarineConfig, NotionConfig, IntegrationResult } from "./integrations";
 import { listReferenceSkills, readReferenceSkillContent } from "./review-skill-loader";
-import { crossOriginRefusalBody } from "@plannotator/shared/request-origin";
-import { isSameOriginRequest } from "./request-origin-guard";
-import { checkServerSession, serverSessionMismatchBody } from "@plannotator/shared/server-session";
 import { localImageContentType, localImageResponseHeaders } from "@plannotator/shared/local-image";
-import { starAskRoute, starAskService, type StarAskSurface } from "@plannotator/shared/star-ask";
 
 function normalizeDraftGeneration(value: unknown): number | undefined {
   if (typeof value !== "number") return undefined;
@@ -397,83 +391,4 @@ export async function handleServerReady(
   if (!opened && !isRemote && announce) {
     process.stderr.write("  Could not open a browser automatically — open the URL above.\n\n");
   }
-}
-
-export interface HandleSaveNotesOptions {
-  /**
-   * This server's stale-tab nonce (packages/core/server-session.ts). A body
-   * carrying a different `serverSession` is refused with 409 before anything
-   * is written or opened; a body without one is accepted.
-   */
-  serverSession?: string;
-  /** Notion saves run only when this session offers Notion (packages/shared/notion.ts isNotionAvailable). */
-  notion?: boolean;
-}
-
-/**
- * Save to external note apps (Obsidian, Bear, Octarine, Notion). Used by plan + annotate servers.
- *
- * Writes a file into the vault the body names and opens `bear://` /
- * `octarine://` URLs, so it refuses another site's page (the servers also do
- * this before routing; repeated here so the handler is safe wherever it is
- * mounted) and a stale tab.
- */
-export async function handleSaveNotes(req: Request, options: HandleSaveNotesOptions = {}): Promise<Response> {
-  if (!isSameOriginRequest(req)) {
-    return Response.json(crossOriginRefusalBody(), { status: 403 });
-  }
-
-  const results: { obsidian?: IntegrationResult; bear?: IntegrationResult; octarine?: IntegrationResult; notion?: IntegrationResult } = {};
-
-  try {
-    const body = (await req.json()) as {
-      obsidian?: ObsidianConfig;
-      bear?: BearConfig;
-      octarine?: OctarineConfig;
-      notion?: NotionConfig;
-    };
-
-    if (options.serverSession !== undefined && checkServerSession(body, options.serverSession) === "mismatch") {
-      return Response.json(serverSessionMismatchBody(), { status: 409 });
-    }
-
-    const promises: Promise<void>[] = [];
-    if (body.obsidian?.vaultPath && body.obsidian?.plan) {
-      promises.push(saveToObsidian(body.obsidian).then(r => { results.obsidian = r; }));
-    }
-    if (body.bear?.plan) {
-      promises.push(saveToBear(body.bear).then(r => { results.bear = r; }));
-    }
-    if (body.octarine?.plan && body.octarine?.workspace) {
-      promises.push(saveToOctarine(body.octarine).then(r => { results.octarine = r; }));
-    }
-    if (options.notion && body.notion?.plan && body.notion?.parentPageId) {
-      promises.push(saveToNotion(body.notion).then(r => { results.notion = r; }));
-    }
-    await Promise.allSettled(promises);
-
-    for (const [name, result] of Object.entries(results)) {
-      if (!result?.success && result) {
-        console.error(`[${name}] Save failed: ${result.error}`);
-      }
-    }
-  } catch (err) {
-    console.error(`[Save Notes] Error:`, err);
-    return Response.json({ error: "Save failed" }, { status: 500 });
-  }
-
-  return Response.json({ ok: true, results });
-}
-
-/**
- * The "Star the repo" ask on the done screen (packages/shared/star-ask.ts): `POST /api/star-ask/claim` (at load: may
- * it show), `/shown` (at the decision: stamp it, draw it) and `/answer`. Null for any other path. In remote mode the ask
- * never shows: gh there is the server machine's login, not the person's own (`claim` and `shown` answer
- * `show: false`, with no gh and no stamp).
- */
-export async function handleStarAsk(req: Request, url: URL, surface: StarAskSurface, options: { remote: boolean }): Promise<Response | null> {
-  if (!url.pathname.startsWith("/api/star-ask/")) return null;
-  const body = req.method === "POST" ? await req.json().catch(() => ({})) : undefined;
-  const answered = await starAskRoute(starAskService(), surface, req.method, url.pathname, body, { remote: options.remote });
-  return answered ? Response.json(answered.body, { status: answered.status }) : null;
 }

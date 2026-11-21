@@ -545,18 +545,6 @@ export function updateGuideReviewed(repoKey: string, id: string, reviewed: boole
   });
 }
 
-/**
- * Record (or, with null, forget) the share link of a saved guide. Atomic
- * rewrite of the whole envelope; false when the guide does not exist or the
- * write failed.
- */
-export function updateGuideShare(repoKey: string, id: string, share: SavedGuideShare | null): boolean {
-  const envelope = loadGuide(repoKey, id);
-  if (!envelope) return false;
-  const { share: _previous, ...rest } = envelope;
-  return saveGuide(repoKey, id, share ? { ...rest, share } : rest);
-}
-
 /** List all saved guides for a repo, newest first. Corrupt files are skipped. */
 export function listGuides(repoKey: string): Array<{ id: string; envelope: SavedGuideEnvelope }> {
   let names: string[];
@@ -696,13 +684,7 @@ export interface GuideStoreSession {
   getSavedGuideSnapshot(id: string): Promise<GuideSnapshot | null>;
   /** Portable snapshot for a live job that was autosaved this session, else null. */
   getJobGuideSnapshot(jobId: string): Promise<GuideSnapshot | null>;
-  /**
-   * Where the envelope behind an endpoint guide id lives on disk: `saved:{id}`
-   * → this repo's shelf; a live job → its autosave (when one happened). Null
-   * when nothing is persisted. Backs the share-link bookkeeping
-   * (`updateGuideShare`) so a saved guide remembers its link.
-   */
-  locateEnvelope(jobId: string): Promise<{ repoKey: string; id: string; envelope: SavedGuideEnvelope } | null>;
+
 }
 
 export function createGuideStoreSession(options: GuideStoreSessionOptions): GuideStoreSession {
@@ -884,13 +866,5 @@ export function createGuideStoreSession(options: GuideStoreSessionOptions): Guid
       return envelope ? buildSavedGuideSnapshot(saved.repoKey, envelope) : null;
     },
 
-    async locateEnvelope(jobId) {
-      const saved = jobId.startsWith(SAVED_GUIDE_ID_PREFIX)
-        ? { repoKey: await resolveRepoKey(), id: jobId.slice(SAVED_GUIDE_ID_PREFIX.length) }
-        : savedIdByJob.get(jobId);
-      if (!saved) return null;
-      const envelope = loadGuide(saved.repoKey, saved.id);
-      return envelope ? { ...saved, envelope } : null;
-    },
   };
 }

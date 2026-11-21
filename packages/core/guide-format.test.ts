@@ -1,14 +1,13 @@
+import { createOfflineGuide } from "./offline-guide";
 import { describe, expect, test } from "bun:test";
 import {
   GUIDE_SNAPSHOT_SCRIPT_ID,
   buildGuideSnapshot,
-  createGuideHtml,
   detectGuideLanguages,
   escapeJsonForHtmlScript,
   guideExportFilename,
   guideLanguageForPath,
   listGuidePatchFiles,
-  normalizeGuideViewerBaseUrl,
   parseGuideSnapshot,
   parseGuideSnapshotJson,
   readEmbeddedGuideSnapshot,
@@ -18,14 +17,7 @@ import {
 import { FIXTURE_PATCH_TS_JSON, FIXTURE_V1_LOCAL, FIXTURE_V1_PR, FIXTURE_V2_HTML, FIXTURE_V2_OVERVIEW, GUIDE_SNAPSHOT_FIXTURES } from "./guide-format-fixtures";
 import { checkGuideNotes } from "./guide-notes";
 
-const VIEWER = {
-  baseUrl: "https://guides.show/v1/",
-  js: "viewer.8f3a2c.js",
-  css: "viewer.8f3a2c.css",
-  jsIntegrity: "sha384-AAAA",
-  cssIntegrity: "sha384-BBBB",
-  langs: { typescript: "langs/typescript.ab12.js", json: "langs/json.cd34.js", python: "langs/python.ef56.js" },
-};
+
 
 /**
  * Read the embedded snapshot back the way the viewer boots: through
@@ -115,84 +107,6 @@ describe("parseGuideSnapshot rejects what it must", () => {
   });
 });
 
-describe("createGuideHtml", () => {
-  test("a patch line containing </script> cannot terminate the snapshot element", () => {
-    const html = createGuideHtml(FIXTURE_V1_LOCAL, { viewer: VIEWER });
-    // The raw string must not appear anywhere in the document…
-    expect(html).not.toContain("'</script><!--'");
-    // …and the embedded JSON must round-trip byte-for-byte.
-    expect(snapshotFromHtml(html).review.rawPatch).toBe(FIXTURE_PATCH_TS_JSON);
-  });
-
-  test("escapeJsonForHtmlScript escapes &, <, >, U+2028, U+2029 as JSON unicode escapes", () => {
-    const escaped = escapeJsonForHtmlScript(JSON.stringify("a<b>&c\u2028d\u2029"));
-    expect(escaped).not.toMatch(/[<>&\u2028\u2029]/);
-    expect(JSON.parse(escaped)).toBe("a<b>&c\u2028d\u2029");
-  });
-
-  test("pins the exact viewer build with integrity and preloads only detected languages", () => {
-    const html = createGuideHtml(FIXTURE_V1_LOCAL, { viewer: VIEWER });
-    expect(html).toContain('src="https://guides.show/v1/viewer.8f3a2c.js" integrity="sha384-AAAA"');
-    expect(html).toContain('href="https://guides.show/v1/viewer.8f3a2c.css" integrity="sha384-BBBB"');
-    expect(html).toContain("langs/typescript.ab12.js");
-    expect(html).toContain("langs/json.cd34.js");
-    expect(html).not.toContain("langs/python.ef56.js");
-  });
-
-  test("CSP allows only the viewer origin, inline styles, and blob workers", () => {
-    const html = createGuideHtml(FIXTURE_V1_LOCAL, { viewer: VIEWER });
-    const csp = /Content-Security-Policy" content="([^"]+)"/.exec(html)![1];
-    expect(csp).toContain("default-src 'none'");
-    expect(csp).toContain("script-src https://guides.show 'wasm-unsafe-eval' blob:");
-    expect(csp).toContain("connect-src https://guides.show");
-    expect(csp).not.toContain("'unsafe-eval'");
-    expect(csp).not.toContain("http:");
-  });
-
-  test("the no-JS fallback body carries the guide text and the PR link", () => {
-    const html = createGuideHtml(FIXTURE_V1_PR, { viewer: VIEWER });
-    const body = html.slice(html.indexOf('<div id="root">'), html.indexOf(`<script id="${GUIDE_SNAPSHOT_SCRIPT_ID}"`));
-    expect(body).toContain("PR: auth token refresh");
-    expect(body).toContain("Guard the refresh entry point");
-    expect(body).toContain("<code>src/auth.ts</code>");
-    expect(body).toContain('href="https://github.com/acme/demo/pull/42"');
-  });
-
-  test("HTML-significant characters in guide text are escaped in the fallback body", () => {
-    const s: GuideSnapshotV1 = {
-      ...FIXTURE_V1_LOCAL,
-      guide: { ...FIXTURE_V1_LOCAL.guide, title: '<img src=x onerror=alert(1)> "quoted"' },
-    };
-    const html = createGuideHtml(s, { viewer: VIEWER });
-    expect(html).not.toContain("<img src=x");
-    expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
-  });
-
-  test("document overhead beyond the snapshot stays small (D1)", () => {
-    const html = createGuideHtml(FIXTURE_V1_LOCAL, { viewer: VIEWER });
-    const snapshotBytes = new TextEncoder().encode(escapeJsonForHtmlScript(JSON.stringify(FIXTURE_V1_LOCAL))).byteLength;
-    const overhead = new TextEncoder().encode(html).byteLength - snapshotBytes;
-    expect(overhead).toBeLessThan(6_000);
-  });
-
-  test("refuses a non-https viewer base (except http localhost)", () => {
-    expect(() => createGuideHtml(FIXTURE_V1_LOCAL, { viewer: { ...VIEWER, baseUrl: "javascript:alert(1)" } })).toThrow();
-    expect(() => createGuideHtml(FIXTURE_V1_LOCAL, { viewer: { ...VIEWER, baseUrl: "http://evil.example/v1/" } })).toThrow();
-    expect(() => createGuideHtml(FIXTURE_V1_LOCAL, { viewer: { ...VIEWER, baseUrl: "http://localhost:5173/" } })).not.toThrow();
-  });
-});
-
-describe("normalizeGuideViewerBaseUrl", () => {
-  test("strips credentials, query and hash; forces trailing slash", () => {
-    const url = normalizeGuideViewerBaseUrl("https://user:pw@guides.show/v1?x=1#y");
-    expect(url?.href).toBe("https://guides.show/v1/");
-  });
-  test("rejects non-https and garbage", () => {
-    expect(normalizeGuideViewerBaseUrl("ftp://guides.show/")).toBeNull();
-    expect(normalizeGuideViewerBaseUrl("not a url")).toBeNull();
-  });
-});
-
 describe("language detection", () => {
   test("maps common extensions and special basenames", () => {
     expect(guideLanguageForPath("src/a.ts")).toBe("typescript");
@@ -231,8 +145,8 @@ describe("format version 2: the overview", () => {
     const { reviewed: _r, ...guide } = FIXTURE_V1_LOCAL.guide;
     const built = buildGuideSnapshot({ ...pieces, guide });
     expect(JSON.stringify(built)).toBe(JSON.stringify(FIXTURE_V1_LOCAL));
-    expect(createGuideHtml(built, { viewer: VIEWER })).toBe(createGuideHtml(FIXTURE_V1_LOCAL, { viewer: VIEWER }));
-    expect(createGuideHtml(built, { viewer: VIEWER })).toContain('content="v1"');
+    expect(createOfflineGuide(built)).toBe(createOfflineGuide(FIXTURE_V1_LOCAL));
+    expect(createOfflineGuide(built)).toContain('content="v1"');
   });
 
   test("a guide with an overview builds version 2, the overview after the intent", () => {
@@ -256,10 +170,10 @@ describe("format version 2: the overview", () => {
   });
 
   test("version-2 exports round-trip through the HTML and say v2; the fallback body carries the overview text", () => {
-    const html = createGuideHtml(FIXTURE_V2_OVERVIEW, { viewer: VIEWER });
+    const html = createOfflineGuide(FIXTURE_V2_OVERVIEW);
     expect(html).toContain('content="v2"');
     expect(snapshotFromHtml(html)).toEqual(JSON.parse(JSON.stringify(FIXTURE_V2_OVERVIEW)));
-    const body = html.slice(html.indexOf('<div id="root">'), html.indexOf(`<script id="${GUIDE_SNAPSHOT_SCRIPT_ID}"`));
+    const body = html.slice(html.indexOf("<body>"), html.indexOf(`<script id="${GUIDE_SNAPSHOT_SCRIPT_ID}"`));
     expect(body).toContain("The guard in [`refresh`](symbol:src/auth.ts#refresh) runs first");
   });
 });

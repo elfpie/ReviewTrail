@@ -1,6 +1,6 @@
 # Working on `@plannotator/ui`
 
-This is the **published, reusable document UI** (`@plannotator/ui` + `@plannotator/core`). The commercial Workspaces app installs it and plugs in its own backend; Plannotator uses the defaults. See **`README.md`** in this directory for the architecture (packages, seams, `configurePlannotatorUI`, publishing).
+This private workspace retains the upstream document UI components used by ReviewTrail. See [README.md](README.md) for its role in the fork.
 
 **The rules when editing here:**
 

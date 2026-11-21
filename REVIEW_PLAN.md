@@ -13,9 +13,9 @@ Cut active review time on typical 2,000-line agent-written changes by 90% while 
 - [x] Package a review-only entry point and verify a local review round trip.
 - [x] Give the fork its own command, data directory, browser preferences, Claude Code skill and Pi extension so it can run alongside Plannotator.
 - [x] Inventory external requests, including optional transfers of review content. Record the user's approval for GitHub review operations and the configured LLM in [the network inventory](NETWORK_AUDIT.md).
-- [ ] Apply the remaining network choices once selected and verify the resulting behavior with hosted and local review fixtures.
+- [x] Remove usage telemetry (N1), upstream starring (N4), and hosted guide sharing (N13). Keep a local, self-contained HTML export.
+- [x] Extract a single review server for Claude and Pi. Remove the plan, annotation, Inbox, relay, mobile, marketing and hosted-service applications.
 - [ ] Verify the installed skill in the Claude Code Desktop GUI on the target corporate machine.
-- [ ] Publish the fork to the owner's GitHub account.
 - [ ] Try the fork on comparable familiar and unfamiliar PRs. Record active minutes, lines or paths revisited, missed behavior, and verdict changes on a full-diff follow-up.
 - [ ] Use the trial to prioritize deeper repository orientation, cross-revision decision tracking and optional prediction exercises.
 
@@ -32,7 +32,6 @@ Alternate comparable fresh PRs between upstream and the fork. Include unfamiliar
 - The review-only launcher returned the correct patch and reviewer feedback for staged, unstaged and last-commit changes in a disposable Git repository.
 - A clean-room trial generated a guide for upstream commit `5cf5177`. The application parser resolved all 27 authored passages in its 58-file, 2,388-line patch. This checked the references, not a human review-time reduction.
 - Regression tests cover old/new line anchors, changed-file comment gating, test folding, persisted snapshots and platform submission through test adapters.
-- Publication requires GitHub credentials for the fork operation. The available connector lacks that operation, and the private credential request expired.
 - The production browser smoke test opened the 58-file guide, expanded source context, navigated between behaviors, marked progress, switched to the full diff and back, and opened the line-comment composer.
 - The focused suites passed 63 checks. A standalone review-editor TypeScript check still reports errors in other upstream files.
 
@@ -43,3 +42,9 @@ Alternate comparable fresh PRs between upstream and the fork. Include unfamiliar
 - Exercised the personal Claude skill instructions against the real launcher in a scratch repository. A live Claude Desktop GUI session is still pending.
 - Exercised the production reader on the 58-file patch with a local stand-in for the guide provider. The browser requested 46 distinct loopback paths and zero external origins. The test also preserved an existing upstream preference cookie.
 - Optional prediction exercises, links into unchanged callers, cross-revision decision tracking and human timing trials remain open.
+
+## Offline guide acceptance
+
+Downloaded a guide from the production reader for a 58-file, 2,388-line patch. After the review server stopped, Chromium opened the file with networking and JavaScript disabled. Six chapters, 27 code excerpts, and 58 expandable file diffs were present. Opening the file made zero HTTP requests.
+
+The review-only checkout built from its frozen dependency lock. The core suite passed 5,150 tests and the isolated DOM suite passed 1,349. A fake GitHub CLI exercised PR access refusal, account selection and local clone/fetch without contacting GitHub. Pi opened a staged change from its real slash command. The server type check passed. The standalone editor type check still reports upstream errors.

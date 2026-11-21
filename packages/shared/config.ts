@@ -864,15 +864,6 @@ export interface PlannotatorConfig {
    */
   share?: "enabled" | "disabled";
   /**
-   * Base URL of the guide host that `plannotator guide share` and the
-   * in-app "Create share link" upload Guided Reviews to (default
-   * https://guides.show; a self-hosted `apps/guides-show` origin otherwise).
-   * Must be http(s); a trailing slash is trimmed. Mirrors the
-   * PLANNOTATOR_GUIDE_SHARE_URL env var, which takes precedence. Guide sharing
-   * is off entirely while `share` is "disabled".
-   */
-  guideShareUrl?: string;
-  /**
    * Atlassian account email for Bitbucket Cloud PR review (basic auth with
    * `bitbucketToken`). Mirrors PLANNOTATOR_BITBUCKET_EMAIL, which takes
    * precedence. Omit it to send the token as a Bearer token instead.
@@ -2003,31 +1994,6 @@ export function resolveUpdateCheck(
   return coerceConfigBoolean(config.updateCheck, true);
 }
 
-/** What in the environment turns the daily ping off (it can only turn it off). */
-export type TelemetryEnvOff = "DO_NOT_TRACK" | "NO_ANON_PING" | "CI";
-
-/** The CI variables that turn the daily ping off when set (CI itself: unless "0" or "false"). */
-export const TELEMETRY_CI_VARS = ["CI", "GITHUB_ACTIONS", "GITLAB_CI", "BUILDKITE", "CIRCLECI", "JENKINS_URL", "TF_BUILD", "CODEBUILD_BUILD_ID"] as const;
-
-/**
- * The environment's hard off for the daily ping, or undefined. In order:
- * DO_NOT_TRACK set to anything but empty, 0, false, no or off (donottrack.sh);
- * NO_ANON_PING set to any non-empty value other than "0" (the NO_COLOR
- * convention); a CI variable. No value turns the ping on.
- */
-export function parseTelemetryEnvOff(env: NodeJS.ProcessEnv = process.env): TelemetryEnvOff | undefined {
-  // DO_NOT_TRACK is the shared developer convention (donottrack.sh): honoured quietly, never named to users.
-  const dnt = env.DO_NOT_TRACK?.trim().toLowerCase();
-  if (dnt && !["0", "false", "no", "off"].includes(dnt)) return "DO_NOT_TRACK";
-  const noPing = env.NO_ANON_PING;
-  if (noPing !== undefined && noPing !== "" && noPing.trim() !== "0") return "NO_ANON_PING";
-  for (const name of TELEMETRY_CI_VARS) {
-    const v = env[name]?.trim().toLowerCase();
-    if (v && v !== "0" && v !== "false") return "CI";
-  }
-  return undefined;
-}
-
 /** The PLANNOTATOR_UPDATE_CHECK override, or undefined when it does not decide. */
 export function parseUpdateCheckEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
   const v = env.PLANNOTATOR_UPDATE_CHECK?.trim().toLowerCase();
@@ -2509,54 +2475,6 @@ export function resolveSharingEnabled(config: PlannotatorConfig, env: NodeJS.Pro
   if (envVal !== undefined) return envVal !== "disabled";
   if (config.share !== undefined) return config.share !== "disabled";
   return true;
-}
-
-/** Where shared Guided Reviews are uploaded by default (guide share hosting contract, §7). */
-export const DEFAULT_GUIDE_SHARE_URL = "https://guides.show";
-
-/**
- * Validate and normalize a guide share service URL: http(s) only, credentials,
- * query and fragment dropped, trailing slashes trimmed so callers can append
- * `/api/g`. Null when the value must not be used.
- */
-export function normalizeGuideShareUrl(input: string): string | null {
-  let parsed: URL;
-  try {
-    parsed = new URL(input.trim());
-  } catch {
-    return null;
-  }
-  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return null;
-  const path = parsed.pathname.replace(/\/+$/, "");
-  return `${parsed.protocol}//${parsed.host}${path}`;
-}
-
-const warnedInvalidGuideShareUrls = new Set<string>();
-
-/**
- * Resolve the guide host that guide share links are created on.
- *
- * Priority (highest wins):
- *   PLANNOTATOR_GUIDE_SHARE_URL env var  →  config.guideShareUrl  →  https://guides.show
- *
- * An empty (but set) env var counts as unset. A value that is not an http(s)
- * URL warns once per value on stderr and falls back to the default: a share
- * setting must never break a server launch or a CLI run. Whether sharing is
- * allowed at all is a separate question (`resolveSharingEnabled`).
- */
-export function resolveGuideShareUrl(config: PlannotatorConfig, env: NodeJS.ProcessEnv = process.env): string {
-  const envVal = env.PLANNOTATOR_GUIDE_SHARE_URL;
-  const raw = envVal !== undefined && envVal.trim() !== "" ? envVal : config.guideShareUrl;
-  if (typeof raw !== "string" || raw.trim() === "") return DEFAULT_GUIDE_SHARE_URL;
-  const normalized = normalizeGuideShareUrl(raw);
-  if (normalized) return normalized;
-  if (!warnedInvalidGuideShareUrls.has(raw)) {
-    warnedInvalidGuideShareUrls.add(raw);
-    process.stderr.write(
-      `[plannotator] Warning: invalid guide share URL ${JSON.stringify(raw)} — expected an http(s) URL; using ${DEFAULT_GUIDE_SHARE_URL}\n`,
-    );
-  }
-  return DEFAULT_GUIDE_SHARE_URL;
 }
 
 /** Validate a public reverse-proxy URL as an HTTP(S) origin without a path. */

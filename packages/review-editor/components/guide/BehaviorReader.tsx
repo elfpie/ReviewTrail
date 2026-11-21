@@ -5,7 +5,7 @@ import { renderMarkdownProse } from '@plannotator/guide-viewer/renderMarkdownPro
 import { renderInlineMarkdown } from '@plannotator/guide-viewer/renderInlineMarkdown';
 import type { SelectedLineRange } from '@plannotator/ui/types';
 import { DEMO_GUIDE_ID } from '../../demoGuide';
-import { isReviewTest, passageLines, readPassages, type Passage } from './readingPath';
+import { isReviewTest, passageLines, readPassages, type Passage } from '@plannotator/core/reading-path';
 
 const button = 'rounded border border-border px-2.5 py-1 text-xs hover:bg-muted focus-visible:outline-primary';
 type Comment = (file: string, range: SelectedLineRange) => void;

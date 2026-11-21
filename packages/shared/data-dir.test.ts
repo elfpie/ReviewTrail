@@ -155,23 +155,21 @@ test("bun test isolates imported stores, inherits runtime writes, and cleans onl
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join, sep } from "node:path";
-// Static imports are essential: storage captures DATA_DIR during evaluation.
-import { saveToHistory, saveAnnotateSubmission } from ${JSON.stringify(join(import.meta.dir, "storage.ts"))};
+import { saveGuidePatch } from ${JSON.stringify(join(import.meta.dir, "guide-store.ts"))};
 import { loadConfig, saveConfig, resolveFeedbackHistory } from ${JSON.stringify(join(import.meta.dir, "config.ts"))};
 import { appendFeedbackRecord } from ${JSON.stringify(join(import.meta.dir, "feedback-archive.ts"))};
 export { loadConfig, saveConfig, resolveFeedbackHistory, appendFeedbackRecord };
 
 export function writeStores(project: string) {
   const dataDir = process.env.PLANNOTATOR_DATA_DIR!;
-  const history = saveToHistory(project, "plan", "history:" + project).path;
-  const submission = saveAnnotateSubmission(project, "plan", "submission:" + project);
-  for (const path of [history, submission]) assert.ok(path.startsWith(dataDir + sep), path);
+  const history = join(dataDir, "guides", project, "1000-change.patch");
+  assert.ok(saveGuidePatch(project, "1000-change", "history:" + project));
+  for (const path of [history]) assert.ok(path.startsWith(dataDir + sep), path);
   assert.equal(readFileSync(history, "utf-8"), "history:" + project);
-  assert.equal(readFileSync(submission, "utf-8"), "submission:" + project);
   saveConfig({ displayName: project });
   assert.equal(loadConfig().displayName, project);
   assert.equal(JSON.parse(readFileSync(join(dataDir, "config.json"), "utf-8")).displayName, project);
-  return { dataDir, history, submission };
+  return { dataDir, history };
 }
 
 export async function runChild(args: string[], env = process.env) {
@@ -284,7 +282,7 @@ test("preloading precedes storage imports without disabling explicit overrides",
 
 afterAll(async () => {
   // Read an earlier write before anything can recreate a prematurely removed dir.
-  assert.equal(readFileSync(writes.submission, "utf-8"), "submission:parent");
+  assert.equal(readFileSync(writes.history, "utf-8"), "history:parent");
   await runChild(["run", ${JSON.stringify(runtimeFile)}]);
   const runtime = JSON.parse(readFileSync(${JSON.stringify(runtimeReport)}, "utf-8"));
   assert.equal(runtime.dataDir, owned);

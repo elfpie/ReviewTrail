@@ -157,6 +157,6 @@ describe.if(hasDom)("review --title: the tab", () => {
 
   test("without a title: the tab names the repository, as before", async () => {
     await mount(undefined);
-    expect(document.title).toBe("acme/payments-service · Code Review");
+    expect(document.title).toBe("acme/payments-service · ReviewTrail");
   });
 });

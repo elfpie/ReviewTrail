@@ -27,18 +27,12 @@ import {
   resolvePlatformDecisionAction,
   resolveReviewDecisionAction,
 } from './reviewDecision';
-import { useUpdateCheck } from '@plannotator/ui/hooks/useUpdateCheck';
-import { useUpdateToast } from '@plannotator/ui/hooks/useUpdateToast';
-import { useUpdateCheckSetting } from '@plannotator/ui/hooks/useUpdateCheckSetting';
 import { useCookieHostSetting } from '@plannotator/ui/hooks/useCookieHostSetting';
 import { adoptPackageChangesConfig, usePackageChangesSetting } from '@plannotator/ui/hooks/usePackageChangesSetting';
-import { parseUpdateAdvert, parseUpdateCheckFailing, type UpdateAdvert, type UpdateCheckFailingAdvert } from '@plannotator/ui/utils/updateNotice';
-import { claimAutoUpdateNotice, describeAutoUpdateNotice, parseAutoUpdateNotice, type AutoUpdateNotice } from '@plannotator/ui/utils/autoUpdateNotice';
 import { storage } from '@plannotator/ui/utils/storage';
 import { RefHoverCards } from '@plannotator/ui/components/RefHoverCard';
 import { refCardRouteTransport, setRefCardTransport } from '@plannotator/ui/utils/refCard';
 import { CompletionOverlay } from '@plannotator/ui/components/CompletionOverlay';
-import { useStarAskDoneScreen } from '@plannotator/ui/components/StarAskDoneScreen';
 import {
   closePendingTab,
   openPendingTab,
@@ -63,9 +57,6 @@ import { useAIProviderConfig } from '@plannotator/ui/hooks/useAIProviderConfig';
 import { useAIProviderActivation } from '@plannotator/ui/hooks/useAIProviderActivation';
 import { isSessionBridgeProvider } from '@plannotator/ui/utils/aiProvider';
 import type { SessionAskAction } from '@plannotator/ui/components/ai/SessionAskNotice';
-import {
-  isVSCodeWebview,
-} from '@plannotator/ui/utils/inboxAnnouncement';
 import { askSessionSetupHint } from '@plannotator/ui/utils/askSessionSetupHint';
 import { useAgentToolSetting } from '@plannotator/ui/hooks/useAgentToolSetting';
 import { CodeAnnotation, CodeAnnotationType, SelectedLineRange, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration, Annotation, CommentAnnotation, AgentJobInfo, type ArtifactAnnotationMeta, type CallFlowAnnotationTarget, type ImageAttachment, type MarkdownPreviewAnchor } from '@plannotator/ui/types';
@@ -305,7 +296,6 @@ interface DiffData {
   aiReviewContext?: string;
   gitContext?: GitContext;
   diffOptions?: DiffOption[];
-  sharingEnabled?: boolean;
   prStackInfo?: PRStackInfo | null;
   prDiffScope?: PRDiffScope;
   prDiffScopeOptions?: PRDiffScopeOption[];
@@ -694,7 +684,6 @@ const ReviewApp: React.FC = () => {
   const guideReachable = aiUIEnabled || hasSavedGuides;
   const guideVisible = guideReachable && guideOpen;
   const [gitUser, setGitUser] = useState<string | undefined>();
-  const [isWSL, setIsWSL] = useState(false);
   const [reviewMode, setReviewMode] = useState<string | null>(null);
   const [diffType, setDiffType] = useState<string>('uncommitted');
   const [gitContext, setGitContext] = useState<GitContext | null>(null);
@@ -787,7 +776,6 @@ const ReviewApp: React.FC = () => {
   // a spec update while a dialog is up can never show or confirm stale copy.
   const [compactDecisionComposer, setCompactDecisionComposer] = useState<DecisionMenuItem['id'] | null>(null);
   const [compactDecisionConfirm, setCompactDecisionConfirm] = useState<DecisionMenuItem['id'] | null>(null);
-  const [sharingEnabled, setSharingEnabled] = useState(true);
   // Server capability advert (spec §6.4): does this session's decision
   // consumer deliver approve-time feedback? Defaults false so an old server
   // that never sends the field renders no approve-carrying items (PR3
@@ -1046,40 +1034,8 @@ const ReviewApp: React.FC = () => {
       ? `You can't request changes on your own ${mrLabel === 'MR' ? 'merge request' : 'pull request'} on ${platformLabel}.`
       : undefined;
   const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0';
-  // The server's update advert (the machine's once-a-day check): the Options
-  // dot, the menu's command and the toast. The browser never asks GitHub.
-  const [updateAdvert, setUpdateAdvert] = useState<UpdateAdvert | null>(null);
-  // Checking for updates has failed for hours: the Options menu says so, with the command.
-  const [updateCheckFailing, setUpdateCheckFailing] = useState<UpdateCheckFailingAdvert | null>(null);
-  const updateInfo = useUpdateCheck(updateAdvert, updateCheckFailing);
-  // True when the compiled CLI will install new releases itself (#1634); the
-  // "new version available" toast is then redundant and stays hidden.
-  const [autoUpdateActive, setAutoUpdateActive] = useState(false);
-  // The update-notice switch for Settings: present when the server reports it.
-  const updateCheckSetting = useUpdateCheckSetting();
   const cookieHostSetting = useCookieHostSetting();
   const packageChangesSetting = usePackageChangesSetting();
-  // One-time notice after a background auto-update (#1634); the compiled
-  // CLI's server attaches it to the initial payload.
-  const [autoUpdateNotice, setAutoUpdateNotice] = useState<AutoUpdateNotice | undefined>();
-  const [autoUpdateSetting, setAutoUpdateSetting] = useState<{ env?: boolean } | undefined>();
-  useEffect(() => {
-    if (!autoUpdateNotice || !claimAutoUpdateNotice(autoUpdateNotice)) return;
-    const { title, description } = describeAutoUpdateNotice(autoUpdateNotice);
-    const t = setTimeout(() => {
-      toast(title, {
-        description,
-        duration: autoUpdateNotice.kind === 'failed' ? 10000 : 6000,
-        position: 'top-right',
-        action: { label: 'Release notes', onClick: () => window.open(autoUpdateNotice.releaseUrl, '_blank', 'noopener,noreferrer') },
-        // The failed notice names the update log's path: keep that line selectable
-        // so it can be copied (every other toast is select-none, see <Toaster>).
-        classNames: { toast: '!w-auto', description: autoUpdateNotice.kind === 'failed' ? '!text-foreground/70 select-text' : '!text-foreground/70' },
-      });
-    }, 1500);
-    return () => clearTimeout(t);
-  }, [autoUpdateNotice]);
-
   const identity = useConfigValue('displayName');
 
   const clearPendingSelection = useCallback(() => {
@@ -2833,7 +2789,6 @@ const ReviewApp: React.FC = () => {
         diffOptions?: DiffOption[];
         agentCwd?: string | null;
         markdownExtensions?: string[];
-        sharingEnabled?: boolean;
         approvalNotesSupported?: boolean;
         serverSession?: string;
         imagePreviewSupported?: boolean;
@@ -2875,15 +2830,7 @@ const ReviewApp: React.FC = () => {
         configStore.init(data.serverConfig);
         // gitUser drives the "Use git name" button in Settings; stays undefined (button hidden) when unavailable
         setGitUser(data.serverConfig?.gitUser);
-        // Only the compiled CLI running the installer-managed binary offers the
-        // toggle; OpenCode, Pi and dev runs send no autoUpdateSupported.
-        setAutoUpdateSetting(data.autoUpdateSupported === true && typeof data.serverConfig?.autoUpdate === 'boolean' ? { env: data.serverConfig.autoUpdateEnv } : undefined);
         agentTool.adopt(data.serverConfig);
-        setAutoUpdateActive(data.autoUpdateActive === true);
-        setAutoUpdateNotice(parseAutoUpdateNotice(data.autoUpdateNotice));
-        setUpdateAdvert(parseUpdateAdvert(data.updateAvailable));
-        setUpdateCheckFailing(parseUpdateCheckFailing(data.updateCheckFailing));
-        updateCheckSetting.adopt(data.serverConfig as Record<string, unknown> | undefined);
         cookieHostSetting.adopt(data.serverConfig as Record<string, unknown> | undefined);
         adoptPackageChangesConfig(data.serverConfig as Record<string, unknown> | undefined);
         primeImageSizes(data.snapshotId, data.imageSizes);
@@ -2900,7 +2847,6 @@ const ReviewApp: React.FC = () => {
           aiReviewContext: data.aiReviewContext,
           gitContext: data.gitContext,
           diffOptions: data.diffOptions,
-          sharingEnabled: data.sharingEnabled,
           callFlow: data.callFlow,
         });
         setFiles(apiFiles);
@@ -2921,7 +2867,6 @@ const ReviewApp: React.FC = () => {
         // `markdownExtensions` in config.json: extra extensions the Markdown
         // preview (and local-link detection) treat as Markdown.
         setExtraMarkdownExtensions(data.markdownExtensions);
-        if (data.sharingEnabled !== undefined) setSharingEnabled(data.sharingEnabled);
         setApprovalNotesSupported(readApprovalNotesAdvert(data.approvalNotesSupported));
         // Stale-tab guard: every decision echoes this server's nonce.
         adoptServerSession(data.serverSession);
@@ -2956,7 +2901,6 @@ const ReviewApp: React.FC = () => {
           setViewedFiles(new Set(data.viewedFiles));
         }
         if (data.error) setDiffError(data.error);
-        if (data.isWSL) setIsWSL(true);
         if (data.callFlow) setCallFlowAdvert(data.callFlow);
         setSections(data.sections ?? null);
         setCommitInfo(data.commitInfo ?? null);
@@ -3528,14 +3472,6 @@ const ReviewApp: React.FC = () => {
     fileKey: isAllFilesActive ? 'all' : activeFileIndex,
   });
   const handleAutoView = autoViewedNotice.show;
-  // The update toast waits behind the guide takeover and every first-run
-  // dialog of this load (useUpdateToast).
-  useUpdateToast({
-    advert: updateAdvert,
-    blocked: isLoading || guideOpen,
-    autoUpdateActive,
-    position: 'top-right',
-  });
   const { handleReadingFileChange: handleAutoViewReadingFile, handleFileScrolledPast } = useAutoViewed({
     enabled: autoViewedEnabled,
     // Rule 4 — only the review target. The guide takeover CSS-hides the dock
@@ -5510,14 +5446,6 @@ const ReviewApp: React.FC = () => {
     },
   });
 
-  // The "Star the repo" ask (approval "star-ask"): claimed once the page loads (the server stops on the decision),
-  // shown on the done screen only, once a decision was sent (approved or feedback; never a closed session), never in
-  // the VS Code webview or without a live session. The server decides the rest.
-  const starAskFooter = useStarAskDoneScreen({
-    ready: !isLoading,
-    decided: submitted === 'approved' || submitted === 'feedback',
-    eligible: !!origin && !isVSCodeWebview(),
-  });
   // Explorer keys (the `review-explorer` scope): never over a dialog, the
   // guide, or while the review is settling; only Go to File works from a text
   // field (as in VS Code), every other key leaves typing alone.
@@ -6255,9 +6183,6 @@ const ReviewApp: React.FC = () => {
               compactTouchLayout={isCompactTouchLayout}
               agentInstructionsEnabled={!!origin}
               appVersion={appVersion}
-              updateInfo={updateInfo}
-              origin={origin}
-              isWSL={isWSL}
             />
           </div>
         </header>
@@ -6665,11 +6590,8 @@ const ReviewApp: React.FC = () => {
             onTaterModeChange={() => {}}
             onIdentityChange={handleIdentityChange}
             origin={origin}
-            mode="review"
             aiProviders={aiProviders}
             gitUser={gitUser}
-            autoUpdateSetting={autoUpdateSetting}
-            updateCheckSetting={updateCheckSetting.setting}
             cookieHostSetting={cookieHostSetting.setting}
             packageChangesSetting={packageChangesSetting}
             agentToolSetting={agentTool.setting}
@@ -6777,7 +6699,6 @@ const ReviewApp: React.FC = () => {
                   : `${getAgentName(origin)} will address your review feedback.`
           }
           agentLabel={getAgentName(origin)}
-          footer={starAskFooter}
           links={platformMode && submitted !== 'exited'
             ? platformPostedUrls.map((href) => ({
               href,
