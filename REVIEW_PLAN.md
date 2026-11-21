@@ -2,7 +2,7 @@
 
 ## Goal
 
-Cut active review time on typical 2,000-line agent-written changes by 90% while retaining the reviewer's ability to explain the behavior, assess the design, and decide what ships. The baseline is time spent using upstream Plannotator's guided review.
+Reach at least 9/10 satisfaction for each reviewer on typical 2,000-line agent-written changes. The reviewer should be able to explain the behavior, assess the design, and decide what ships. The secondary target is a 90% reduction in active reading time against upstream Plannotator’s guided review.
 
 ## Working checklist
 
@@ -17,7 +17,8 @@ Cut active review time on typical 2,000-line agent-written changes by 90% while 
 - [x] Extract a single review server for Claude and Pi. Remove the plan, annotation, Inbox, relay, mobile, marketing and hosted-service applications.
 - [ ] Verify the installed skill in the Claude Code Desktop GUI on the target corporate machine.
 - [ ] Try the fork on comparable familiar and unfamiliar PRs. Record active minutes, lines or paths revisited, missed behavior, and verdict changes on a full-diff follow-up.
-- [ ] Use the trial to prioritize deeper repository orientation, cross-revision decision tracking and optional prediction exercises.
+- [x] Add unchanged-caller evidence, optional failure questions, design rationale, exact repeat grouping and review follow-up across revisions.
+- [ ] Run the satisfaction trial below with human reviewers and prioritize the lowest-scoring task.
 
 ## Acceptance for the first version
 
@@ -41,10 +42,26 @@ Alternate comparable fresh PRs between upstream and the fork. Include unfamiliar
 - Pi 0.84.4 loaded both extensions and registered both slash commands once. Its ReviewTrail command opened the expected staged diff.
 - Exercised the personal Claude skill instructions against the real launcher in a scratch repository. A live Claude Desktop GUI session is still pending.
 - Exercised the production reader on the 58-file patch with a local stand-in for the guide provider. The browser requested 46 distinct loopback paths and zero external origins. The test also preserved an existing upstream preference cookie.
-- Optional prediction exercises, links into unchanged callers, cross-revision decision tracking and human timing trials remain open.
+- The next iteration added prediction questions, unchanged callers and cross-revision follow-up. Human timing and satisfaction trials remain open.
 
 ## Offline guide acceptance
 
 Downloaded a guide from the production reader for a 58-file, 2,388-line patch. After the review server stopped, Chromium opened the file with networking and JavaScript disabled. Six chapters, 27 code excerpts, and 58 expandable file diffs were present. Opening the file made zero HTTP requests.
 
 The review-only checkout built from its frozen dependency lock. The core suite passed 5,150 tests and the isolated DOM suite passed 1,349. A fake GitHub CLI exercised PR access refusal, account selection and local clone/fetch without contacting GitHub. Pi opened a staged change from its real slash command. The server type check passed. The standalone editor type check still reports upstream errors.
+
+## Satisfaction trial
+
+The primary target is at least 9/10 from **each** participating reviewer after two weeks. Record individual scores and the lowest score. A 90% reduction in active review time is a separate target. Automated checks provide no estimate of either outcome.
+
+Alternate comparable, previously unseen PRs between ReviewTrail and the upstream guided review. Include a roughly 2,000-line PR in a familiar repo and one in an unfamiliar repo. For each review, record active reading minutes separately from guide generation and interruptions. Before reading the full diff, have the reviewer explain an affected caller, predict a failure outcome, identify the supporting test or coverage gap, and record their design objection or merge decision. After an agent revision, check whether they can find their original objection and identify which previously reviewed evidence changed.
+
+After the full-diff follow-up, record missed material issues and changes of verdict. At the end of the trial ask each reviewer “How satisfied are you using ReviewTrail for the PRs you own, from 0 to 10?” and “What took the most effort?” Keep the answers and timings locally. A higher speed or satisfaction score cannot compensate for a missed material issue.
+
+## Evidence and follow-up verification
+
+A fresh agent used the guide instructions in a scratch repository and produced a reading path from a changed retry default into an unchanged worker. The production reader checked and displayed the caller, both policy versions and a failure-specific test. The downloaded guide retained the caller after the server stopped with browser networking and JavaScript disabled.
+
+On a second staged revision, the production reader presented the original comment, its original source and the changed default, and resurfaced the reviewed worker behavior. The reviewer explicitly resolved and reopened the comment and acknowledged the revision. The browser made zero external requests in this fixture. A separate regression covers an unrelated hunk changing in the same large file.
+
+The production build and server type check passed. The unit and integration run passed 5,171 checks. The isolated DOM run passed 1,349. One timing-sensitive diff-cache test failed under concurrent suite load and passed on the full serial rerun. The standalone editor type check still reports 118 existing diagnostics. Pi opened the staged review through its registered slash command, generated the verified caller with a fixture provider, and recorded the marked behavior. The fake GitHub CLI tests passed. Live Claude Desktop on the corporate machine and human satisfaction scores are still pending.

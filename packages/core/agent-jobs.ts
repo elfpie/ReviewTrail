@@ -127,6 +127,7 @@ export interface AgentJobInfo {
    * completion. Structurally matches guide-store's GuideLaunchContext.
    */
   guideContext?: {
+    reviewProgressKey?: string;
     pr?: { url: string; headSha: string; label: string } | null;
     branchLabel?: string;
     headSha?: string;

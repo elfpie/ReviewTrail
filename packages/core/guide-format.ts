@@ -58,6 +58,9 @@ export const GUIDE_SNAPSHOT_NOTES_VERSION = 4 as const;
  */
 export const GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION = 5 as const;
 
+/** Verified excerpts from outside the patch. */
+export const GUIDE_SNAPSHOT_EVIDENCE_VERSION = 6 as const;
+
 /** Every snapshot version the current parser reads. */
 export const GUIDE_SNAPSHOT_VERSIONS = [
   GUIDE_SNAPSHOT_VERSION,
@@ -65,6 +68,7 @@ export const GUIDE_SNAPSHOT_VERSIONS = [
   GUIDE_SNAPSHOT_DRAWN_VERSION,
   GUIDE_SNAPSHOT_NOTES_VERSION,
   GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION,
+  GUIDE_SNAPSHOT_EVIDENCE_VERSION,
 ] as const;
 
 /** The drawn-picture keys of an overview diagram (format version 3). */
@@ -169,11 +173,12 @@ export type GuideSnapshotV5 = GuideSnapshot & { readonly version: typeof GUIDE_S
 
 /** Whether a version keeps notes on lines (4 and up). */
 function versionHasNotes(version: GuideSnapshotVersion): boolean {
-  return version === GUIDE_SNAPSHOT_NOTES_VERSION || version === GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION;
+  return version >= GUIDE_SNAPSHOT_NOTES_VERSION;
 }
 
-/** The version a guide is written as: 5 with a chapter diagram, else 4 with a note, else 3 with a drawn overview, 2 with an overview, else 1. */
+/** The version a guide is written as: 6 with caller evidence, 5 with a chapter diagram, else 4 with a note, else 3 with a drawn overview, 2 with an overview, else 1. */
 export function guideSnapshotVersionFor(guide: Pick<CodeGuideOutput, "overview" | "sections">): GuideSnapshotVersion {
+  if (guide.sections.some(section => section.evidence?.length)) return GUIDE_SNAPSHOT_EVIDENCE_VERSION;
   if (guide.sections.some((section) => section.diagram !== undefined)) return GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION;
   if (guide.sections.some((section) => section.diffs.some((ref) => (ref.notes?.length ?? 0) > 0))) return GUIDE_SNAPSHOT_NOTES_VERSION;
   if (!guide.overview) return GUIDE_SNAPSHOT_VERSION;
@@ -257,10 +262,14 @@ export function buildGuideSnapshot(input: BuildGuideSnapshotInput): GuideSnapsho
  */
 function snapshotSections(sections: GuideSection[], version: GuideSnapshotVersion): GuideSection[] {
   const kept = versionHasNotes(version) ? sections : withoutNotes(sections);
-  if (!kept.some((section) => "diagram" in section)) return kept;
-  return kept.map(({ diagram, ...section }) =>
-    version === GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION && diagram ? { ...section, diagram: copyDiagram(diagram) } : section,
-  );
+  if (!kept.some(section => "diagram" in section || "evidence" in section)) return kept;
+  return kept.map(({ diagram, evidence, ...section }) => ({
+    ...section,
+    ...(version >= GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION && diagram && { diagram: copyDiagram(diagram) }),
+    ...(version >= GUIDE_SNAPSHOT_EVIDENCE_VERSION && evidence?.length && {
+      evidence: evidence.map(({ path, start, end, text, side }) => ({ path, start, end, text, ...(side && { side }) })),
+    }),
+  }));
 }
 
 /** Below version 4 a diff reference carries no `notes` key, not even an empty list (an older reader refuses it). */
@@ -390,8 +399,10 @@ function parseDiffRef(input: unknown, path: string, version: GuideSnapshotVersio
 function parseSection(input: unknown, path: string, version: GuideSnapshotVersion): Parsed<GuideSection> {
   const object = asRecord(input, path);
   if (isFail(object)) return object;
-  // A chapter's diagram exists only in version 5: an older document stays as strict as every reader of its version.
-  const s = strict(object.value, version === GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION ? ["title", "overview", "diffs", "diagram"] : ["title", "overview", "diffs"], path);
+  const fields = ["title", "overview", "diffs"];
+  if (version >= GUIDE_SNAPSHOT_CHAPTER_DIAGRAM_VERSION) fields.push("diagram");
+  if (version >= GUIDE_SNAPSHOT_EVIDENCE_VERSION) fields.push("evidence");
+  const s = strict(object.value, fields, path);
   if (isFail(s)) return s;
   const title = str(s.value.title, `${path}.title`, { nonEmpty: true });
   if (isFail(title)) return title;
@@ -410,7 +421,18 @@ function parseSection(input: unknown, path: string, version: GuideSnapshotVersio
     if (isFail(ref)) return ref;
     diffs.push(ref.value);
   }
-  return { ok: true, value: { title: title.value, overview: overview.value, diffs, ...(diagram !== undefined && { diagram }) } };
+  const evidence: NonNullable<GuideSection["evidence"]> = [];
+  if (s.value.evidence !== undefined) {
+    if (!Array.isArray(s.value.evidence)) return fail(path, "Expected source excerpts");
+    for (const e of s.value.evidence) {
+      if (!e || typeof e.path !== "string" || typeof e.text !== "string" || !Number.isSafeInteger(e.start)
+        || !Number.isSafeInteger(e.end) || e.start < 1 || e.end < e.start || e.end - e.start > 39
+        || (e.side !== undefined && e.side !== "old" && e.side !== "new") || e.text.length > 16_384
+        || e.text.split("\n").length !== e.end - e.start + 1) return fail(path, "Invalid source excerpt");
+      evidence.push({ path: e.path, start: e.start, end: e.end, text: e.text, ...(e.side && { side: e.side }) });
+    }
+  }
+  return { ok: true, value: { title: title.value, overview: overview.value, diffs, ...(evidence.length > 0 && { evidence }), ...(diagram !== undefined && { diagram }) } };
 }
 
 function parseOverview(input: unknown, path: string, version: GuideSnapshotVersion): Parsed<GuideOverview> {
@@ -689,7 +711,7 @@ export interface GuideSnapshotParseOptions {
   readonly versions?: readonly GuideSnapshotVersion[];
 }
 
-/** Parse an unknown value into a snapshot (version 1 to 5). Never throws. */
+/** Parse an unknown value into a snapshot (version 1 to 6). Never throws. */
 export function parseGuideSnapshot(input: unknown, options: GuideSnapshotParseOptions = {}): GuideSnapshotParseResult {
   const object = asRecord(input, "$");
   if (isFail(object)) return object;
@@ -732,7 +754,7 @@ export function parseGuideSnapshot(input: unknown, options: GuideSnapshotParseOp
   };
 }
 
-/** Parse serialized JSON into a snapshot (version 1 to 5). Never throws. */
+/** Parse serialized JSON into a snapshot (version 1 to 6). Never throws. */
 export function parseGuideSnapshotJson(text: string, options: GuideSnapshotParseOptions = {}): GuideSnapshotParseResult {
   let input: unknown;
   try {

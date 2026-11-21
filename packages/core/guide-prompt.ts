@@ -109,6 +109,41 @@ wiring, the file summary is enough. Explain complex lines beside their link.
 If a call or consequence cannot be resolved, say what remains unknown.
 For configuration or declarative changes, follow the consumer and the effect.
 
+Start each behavior with one sentence stating the change the reviewer must judge,
+then the shortest chain of anchored production passages that explains it.
+After that main path use the following optional Markdown headings verbatim.
+Each heading owns its prose and passage bullets until the next heading.
+
+### Caller impact
+For a changed default, API or contract, find a real existing caller that has
+not changed. Show the input it already supplies or omits. Trace that SAME input
+through the old and new behavior using Before and new-side passage bullets.
+Cite the unchanged caller with a normal code: link and exact repository lines,
+without adding it to diffs. If there is no accessible caller, explain what
+external consumers or runtime configuration prevent you from checking.
+
+### What if the write times out?
+Replace the question with a concrete consequential failure, concurrency or
+boundary case. Give the answer, follow its actual path with code: bullets, and
+cite the most relevant test as a passage here even if it is placed in Tests.
+Describe its assertion. Say "Test source inspected" for a read test. Never
+imply it ran. If no test establishes the claim, state that gap. Do not invent
+a quiz for a mechanical edit.
+
+### Why here?
+Explain the ownership decision, citing an interface or precedent. Distinguish
+what the code establishes from your inference. If the rationale is unknown,
+give a specific question for the author.
+
+### Repeated edits
+For repeated changes, show one representative edit, name the matching paths,
+say how you checked them, and give exceptions their own anchored passages.
+Use this only after actually comparing the edits.
+
+### Open question
+State any remaining material uncertainty and what would resolve it.
+Omit headings that add nothing. Do not repeat the main claim under each heading.
+
 Put supporting edits in a "Supporting changes" section and tests in a final
 "Tests" section. On a tests-only change describe the contract under test.
 Never hide a production exception among the tests or supporting edits.

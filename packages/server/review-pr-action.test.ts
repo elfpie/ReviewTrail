@@ -9,6 +9,7 @@ import type {
 } from '@plannotator/shared/pr-types';
 import { startReviewServer } from './review';
 
+const originalHistory = process.env.PLANNOTATOR_FEEDBACK_HISTORY;
 const originalAI = process.env.PLANNOTATOR_AI;
 const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
 const originalPath = process.env.PATH;
@@ -75,6 +76,8 @@ async function postReview(url: string): Promise<Response> {
 }
 
 afterEach(() => {
+  if (originalHistory === undefined) delete process.env.PLANNOTATOR_FEEDBACK_HISTORY;
+  else process.env.PLANNOTATOR_FEEDBACK_HISTORY = originalHistory;
   if (originalAI === undefined) delete process.env.PLANNOTATOR_AI;
   else process.env.PLANNOTATOR_AI = originalAI;
   if (originalDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
@@ -87,6 +90,23 @@ afterEach(() => {
 });
 
 describe('Bun /api/pr-action submission contract', () => {
+  test('posted comments stay under the original PR and stale tabs cannot resolve them', async () => {
+    process.env.PLANNOTATOR_FEEDBACK_HISTORY = '1';
+    await withReviewServer(async () => ({ status: 'complete' }), async (url) => {
+      expect((await postReview(url)).ok).toBe(true);
+      const { snapshotId } = await (await fetch(url + '/api/diff')).json();
+      const query = '?snapshot=' + encodeURIComponent(snapshotId);
+      const { key } = await (await fetch(url + '/api/review-progress' + query)).json();
+      const api = url + '/api/review-follow-up' + query;
+      const { items } = await (await fetch(api + '&key=' + key)).json();
+      expect(items.map((i: { text: string }) => i.text).sort()).toEqual(['Handle this failure.', 'Overall review']);
+      const body = { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ id:items[0].id, resolved:true }) };
+      expect((await fetch(api + '&key=wrong-target',body)).status).toBe(409);
+      expect((await fetch(api + '&key=' + key,body)).ok).toBe(true);
+      expect((await (await fetch(api + '&key=' + key)).json()).items[0].resolved).toBe(true);
+    });
+  });
+
   test('returns complete success', async () => {
     await withReviewServer(
       async () => ({ status: 'complete' }),

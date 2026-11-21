@@ -183,6 +183,7 @@ export function useReviewProgress({
   }, [load, save, warn]);
 
   return {
+    reviewKey: snapshot.data?.available ? snapshot.data.key : undefined,
     status: loaded?.snapshot === snapshot ? loaded.status : snapshot.status,
     persistViewed,
     flush,

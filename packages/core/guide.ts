@@ -36,6 +36,8 @@ export interface GuideDiffRef {
 }
 
 export interface GuideSection {
+  /** Local evidence attached by the server after validating the generated guide. */
+  evidence?: import("./reading-path").GuideSourceExcerpt[];
   /** Concept-level title, e.g. "Payment localization module" — never a filename paraphrase. */
   title: string;
   /** Markdown prose: what changed, why it exists, and its key implications.

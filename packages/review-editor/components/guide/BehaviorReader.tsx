@@ -5,7 +5,7 @@ import { renderMarkdownProse } from '@plannotator/guide-viewer/renderMarkdownPro
 import { renderInlineMarkdown } from '@plannotator/guide-viewer/renderInlineMarkdown';
 import type { SelectedLineRange } from '@plannotator/ui/types';
 import { DEMO_GUIDE_ID } from '../../demoGuide';
-import { isReviewTest, passageLines, readPassages, type Passage } from '@plannotator/core/reading-path';
+import { isReviewTest, passageLines, readBehavior, repeatedEditGroups, sourceExcerpt, type GuideSourceExcerpt, type Passage } from '@plannotator/core/reading-path';
 
 const button = 'rounded border border-border px-2.5 py-1 text-xs hover:bg-muted focus-visible:outline-primary';
 type Comment = (file: string, range: SelectedLineRange) => void;
@@ -21,8 +21,8 @@ function PatchDetails({ label, file, summary }: { label: string; file?: DiffFile
   </details>;
 }
 
-function CodePassage({ passage, file, canComment, onComment }: {
-  passage: Passage; file?: DiffFile; canComment: boolean; onComment: Comment;
+function CodePassage({ passage, file, excerpt, canComment, onComment }: {
+  passage: Passage; file?: DiffFile; excerpt?: GuideSourceExcerpt; canComment: boolean; onComment: Comment;
 }) {
   const [expanded, setExpanded] = useState(false);
   const hunks = useMemo(() => file && diffHunkLines(file.patch), [file]);
@@ -31,13 +31,14 @@ function CodePassage({ passage, file, canComment, onComment }: {
   return (
     <li className="mb-5 border-l-2 border-primary/40 pl-4">
       <h4 className="font-semibold">{renderInlineMarkdown(title)}</h4>
-      <div className="my-1 break-all font-mono text-xs text-muted-foreground">{path} · {side === 'old' ? 'Before' : 'After'} · L{start}{end !== start && `–${end}`}</div>
-      {lines.length > 0 ? (
+      <div className="my-1 break-all font-mono text-xs text-muted-foreground">{path} · {excerpt ? 'Identical on both sides' : side === 'old' ? 'Before' : 'After'} · L{start}{end !== start && `–${end}`}</div>
+      {isReviewTest(path) && <small className="text-muted-foreground">Test source · execution unverified</small>}
+      {excerpt ? <pre className="my-2 overflow-auto rounded bg-muted/25 p-2 text-xs"><code>{excerpt.text}</code></pre> : lines.length > 0 ? (
         <pre className="my-2 max-h-80 overflow-auto rounded border border-border bg-muted/25 py-2 text-xs leading-5"><code>{lines.map(line => {
           const n = side === 'old' && 'oldLine' in line ? line.oldLine : 'newLine' in line ? line.newLine : undefined;
           return <span key={n} className={`block px-3 ${n && n >= start && n <= end ? 'text-foreground' : 'text-muted-foreground'}`}><span className="mr-3 select-none text-muted-foreground">{n}</span>{line.kind === 'add' ? '+' : line.kind === 'del' ? '-' : ' '} {line.text || ' '}</span>;
         })}</code></pre>
-      ) : <p className="my-2 text-xs text-muted-foreground">This range is outside the retained diff. Check the file before relying on this explanation.</p>}
+      ) : <p className="my-2 text-xs text-muted-foreground">Source unavailable for this range. This explanation needs verification.</p>}
       {explanation && <div className="my-2 text-sm">{renderInlineMarkdown(explanation)}</div>}
       {lines.length > 0 && <div className="flex flex-wrap items-center gap-2">
         <button className={button} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>{expanded ? 'Less context' : 'More context'}</button>
@@ -78,9 +79,10 @@ export function BehaviorReader({ guide, jobId, liveFiles, reviewed, onToggle, on
     return () => abort.abort();
   }, [jobId, attempt]);
   const retained = jobId === DEMO_GUIDE_ID ? liveFiles : snapshot;
+  const repeats = useMemo(() => repeatedEditGroups(retained ?? []), [retained]);
   const files = useMemo(() => new Map(retained?.map(f => [f.path, f])), [retained]);
   const live = useMemo(() => new Map(liveFiles.map(f => [f.path, f.patch])), [liveFiles]);
-  const sections = useMemo(() => guide.sections.map((s, index) => ({ ...s, index, ...readPassages(s.overview) })), [guide.sections]);
+  const sections = useMemo(() => guide.sections.map((s, index) => ({ ...s, index, ...readBehavior(s.overview) })), [guide.sections]);
   const testSection = (s: typeof sections[number]) => /^tests?$/i.test(s.title.trim())
     || (s.diffs.length > 0 && s.diffs.every(d => isReviewTest(d.file)) && s.passages.every(p => isReviewTest(p.path)));
   const tests = sections.filter(testSection);
@@ -93,11 +95,11 @@ export function BehaviorReader({ guide, jobId, liveFiles, reviewed, onToggle, on
   const testPaths = new Set(tests.flatMap(s => s.diffs.map(ref => ref.file)));
   for (const path of files.keys()) if (isReviewTest(path)) testPaths.add(path);
   const refFor = (path: string) => refs.get(path) ?? { file: path };
-  const covered = new Set(scenarios.flatMap(s => s.passages.map(p => p.path)));
+  const covered = new Set(scenarios.flatMap(s => [...s.passages, ...s.details.flatMap(d => d.passages)].map(p => p.path)));
   const grouped = [...files.keys()].filter(path => !covered.has(path) && !testPaths.has(path));
   const accounted = grouped.filter(path => refs.has(path));
   const unplaced = grouped.filter(path => !refs.has(path));
-  const renderPassage = (p: Passage, i: number) => <CodePassage key={i} passage={p} file={files.get(p.path)}
+  const renderPassage = (p: Passage, i: number, evidence?: GuideSourceExcerpt[]) => <CodePassage key={i} passage={p} file={files.get(p.path)} excerpt={sourceExcerpt(evidence, p)}
     canComment={files.has(p.path) && live.get(p.path) === files.get(p.path)?.patch} onComment={onComment} />;
 
   return <article className="mx-auto max-w-4xl px-5 py-6 text-foreground">
@@ -115,7 +117,12 @@ export function BehaviorReader({ guide, jobId, liveFiles, reviewed, onToggle, on
     {active && <section key={active.index}>
       <h2 className="text-lg font-semibold">{active.title}</h2>
       <div className="mt-2 mb-4">{renderMarkdownProse(active.prose)}</div>
-      {retained && <ol>{active.passages.filter(p => !testPaths.has(p.path)).map(renderPassage)}</ol>}
+      {retained && <ol>{active.passages.filter(p => !testPaths.has(p.path)).map((p, i) => renderPassage(p, i, active.evidence))}</ol>}
+      {active.details.map((detail, index) => <details key={index} open={detail.title.toLowerCase() === "open question" || undefined} className="my-3 rounded border border-border px-3 py-2">
+        <summary className="cursor-pointer font-medium">{detail.title}</summary>
+        <div className="my-2">{renderMarkdownProse(detail.prose)}</div>
+        {retained && <ol>{detail.passages.map((p, i) => renderPassage(p, i, active.evidence))}</ol>}
+      </details>)}
       <div className="flex flex-wrap gap-2">
         <button className={button} aria-pressed={!!reviewed[active.index]} onClick={() => { setChoice(active.index); onToggle(active.index); }}>{reviewed[active.index] ? 'Mark unread' : 'Mark behavior reviewed'}</button>
         {position > 0 && <button className={button} onClick={() => setChoice(scenarios[position - 1].index)}>Previous behavior</button>}
@@ -125,15 +132,20 @@ export function BehaviorReader({ guide, jobId, liveFiles, reviewed, onToggle, on
     {retained && <>
       {support.length > 0 && <details className="mt-3 rounded border border-border px-3 py-2">
         <summary className="cursor-pointer text-sm font-medium">Supporting changes</summary>
-        {support.map(s => <section key={s.index} className="my-3">{renderMarkdownProse(s.prose)}
-          <ol>{s.passages.filter(p => !testPaths.has(p.path)).map(renderPassage)}</ol></section>)}
+        {support.map(s => <section key={s.index} className="my-3">{renderMarkdownProse([s.prose, ...s.details.map(d => d.title + "\n" + d.prose)].join("\n\n"))}
+          <ol>{[...s.passages, ...s.details.flatMap(d => d.passages)].filter(p => !testPaths.has(p.path)).map((p, i) => renderPassage(p, i, s.evidence))}</ol></section>)}
       </details>}
+      {repeats.map(group => <details key={group[0].path} className="my-3 rounded border border-border px-3 py-2">
+        <summary className="cursor-pointer text-sm font-medium">Matching edit in {group.length} files · {group[0].path}</summary>
+        <p className="my-2 text-xs">These hunks add and remove the same lines in the same order. Inspect each caller for differences in behavior.</p>
+        {group.map((file, i) => <PatchDetails key={file.path} label={(i === 0 ? 'Example · ' : '') + file.path} file={file} />)}
+      </details>)}
       <FileGroup title="Files summarized without passages" refs={accounted.map(refFor)} files={files} />
       <FileGroup title="Outside the guide" refs={unplaced.map(refFor)} files={files} />
-      {(tests.length > 0 || testPaths.size > 0) && <details className="mt-4 rounded border border-border px-3 py-2">
+      {(tests.length > 0 || testPaths.size > 0) && <details open={!scenarios.length && !support.length || undefined} className="mt-4 rounded border border-border px-3 py-2">
         <summary className="cursor-pointer text-sm font-medium">Tests · {testPaths.size} files</summary>
-        {tests.map(s => <section key={s.index} className="my-3">{renderMarkdownProse(s.prose)}</section>)}
-        <ol>{sections.flatMap(s => s.passages.filter(p => testPaths.has(p.path))).map(renderPassage)}</ol>
+        {tests.map(s => <section key={s.index} className="my-3">{renderMarkdownProse([s.prose, ...s.details.map(d => d.title + "\n" + d.prose)].join("\n\n"))}</section>)}
+        <ol>{sections.flatMap(s => s.passages.filter(p => testPaths.has(p.path))).map((p, i) => renderPassage(p, i))}</ol>
         <FileGroup title="Test diffs" refs={[...testPaths].map(refFor)} files={files} />
       </details>}
     </>}
