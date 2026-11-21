@@ -1,0 +1,4 @@
+{
+  "name": "reviewtrail",
+  "description": "Read a code change in execution order and send line comments back to Claude."
+}

@@ -908,7 +908,7 @@ const ReviewApp: React.FC = () => {
   const repoName = repoInfo ? repoLabel(repoInfo.display, hideRepoOwner) : null;
 
   useEffect(() => {
-    document.title = sessionTitle ?? (repoName ? `${repoName} · Code Review` : "Code Review");
+    document.title = sessionTitle ?? (repoName ? `${repoName} · ReviewTrail` : "ReviewTrail");
   }, [repoName, sessionTitle]);
 
   const { prMetadata, prStackInfo, prStackTree, prDiffScope, prDiffScopeOptions, prPatchIncomplete, prPatchUpgradeAvailable, updatePRSession } = usePRSession();

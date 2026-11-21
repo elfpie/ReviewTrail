@@ -20,10 +20,12 @@ export interface StorageBackend {
  * Used instead of localStorage so settings persist across the random ports each
  * hook invocation uses (cookies are scoped by domain, not port).
  */
+declare const __REVIEWTRAIL__: boolean;
+const cookiePrefix = typeof __REVIEWTRAIL__ !== 'undefined' && __REVIEWTRAIL__ ? 'reviewtrail-' : '';
 const cookieBackend: StorageBackend = {
   getItem(key) {
     try {
-      const match = document.cookie.match(new RegExp(`(?:^|; )${escapeRegex(key)}=([^;]*)`));
+      const match = document.cookie.match(new RegExp(`(?:^|; )${escapeRegex(cookiePrefix + key)}=([^;]*)`));
       return match ? decodeURIComponent(match[1]) : null;
     } catch (e) {
       return null;
@@ -32,14 +34,14 @@ const cookieBackend: StorageBackend = {
   setItem(key, value) {
     try {
       const encoded = encodeURIComponent(value);
-      document.cookie = `${key}=${encoded}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax`;
+      document.cookie = `${cookiePrefix}${key}=${encoded}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax`;
     } catch (e) {
       // Cookie not available
     }
   },
   removeItem(key) {
     try {
-      document.cookie = `${key}=; path=/; max-age=0`;
+      document.cookie = `${cookiePrefix}${key}=; path=/; max-age=0`;
     } catch (e) {
       // Cookie not available
     }

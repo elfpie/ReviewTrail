@@ -1,12 +1,12 @@
 {
-  "name": "plannotator",
+  "name": "reviewtrail",
   "version": "0.29.1",
   "private": true,
-  "description": "Interactive Plan Review for Claude Code - annotate plans visually, share with team, automatically send feedback",
+  "description": "Review code changes along cross-file behavior paths",
   "author": "backnotprop",
   "license": "MIT OR Apache-2.0",
   "bin": {
-    "plannotator": "bin/plannotator.js"
+    "reviewtrail": "bin/reviewtrail"
   },
   "repository": {
     "type": "git",
@@ -54,7 +54,8 @@
     "e2e:slice": "bun run scripts/e2e-slice.ts",
     "ci:affected": "bun run scripts/ci-affected.ts",
     "verify:inbox-live": "bun scripts/inbox-live-verify.ts",
-    "test:parity:inbox-thread": "bun scripts/inbox-thread-parity.ts"
+    "test:parity:inbox-thread": "bun scripts/inbox-thread-parity.ts",
+    "install:reviewtrail": "bun scripts/install-reviewtrail.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.3.303",
@@ -67,6 +68,7 @@
     "sonner": "^2.0.8"
   },
   "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.4",
     "@pierre/diffs-sem": "file:vendor/pierre-diffs/pierre-diffs-1.7.0-beta.3-sem.6.tgz",
     "@agentclientprotocol/sdk": "1.9.0",
     "@modelcontextprotocol/client": "2.3.1",

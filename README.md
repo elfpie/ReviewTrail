@@ -1,37 +1,41 @@
-# Plannotator Review
+# ReviewTrail
 
-A personal code review fork of [Plannotator](https://github.com/backnotprop/plannotator). Follow a changed behavior from its caller through the implementation to its outcome. Each scenario shows the agent's explanation alongside short source passages from the exact patch under review.
+ReviewTrail is a personal code-review fork of [Plannotator](https://github.com/backnotprop/plannotator). Read a change in execution order. A behavior can start in a caller, cross several files and revisit the original caller to show the outcome. Each step pairs the agent’s explanation with lines from the reviewed patch.
 
-## Run the fork
+## Install alongside Plannotator
 
-Install Bun 1.4.4 or newer, Node.js 22.19 or newer, and Git. GitHub PR review also uses an authenticated GitHub CLI. Guide generation uses an agent CLI configured in Plannotator.
-
-From the fork checkout, build the review UI and its command host:
+The source install requires Bun 1.4.4 or newer, Node.js 22.19 or newer, and Git. For GitHub PRs, authenticate the GitHub CLI. To generate a guide, configure a supported agent CLI on the same machine.
 
 ```sh
 bun install --frozen-lockfile
 bun run build:review && bun run build:hook
-export PATH="$PWD/bin:$PATH"
+bun run install:reviewtrail
 ```
 
-In the repository you want to review, launch one of these:
+The installer links the executable into `~/.local/bin`, a personal Claude skill into `~/.claude/skills/reviewtrail`, and a Pi extension into `~/.pi/agent/extensions/reviewtrail`. Keep the checkout at its installed path and make `~/.local/bin` and Bun available on the agent’s PATH. The installer honors `REVIEWTRAIL_BIN_DIR`, `CLAUDE_CONFIG_DIR` and `PI_CODING_AGENT_DIR`. It refuses occupied destinations and can be rerun. The upstream installation keeps its own commands and plan hooks.
+
+Start a new **local Claude Code Desktop** or **Pi** session in the repo you want to review. Run `/reviewtrail --diff-type staged` or `/reviewtrail https://github.com/OWNER/REPO/pull/123`. The personal skill uses Desktop’s Code tab. SSH sessions require installation on the SSH host. Pi returns submitted feedback to the invoking session. Questions from inside the browser use the configured review provider. [Claude Code Desktop skills](https://code.claude.com/docs/en/desktop#use-skills)
+
+## Review from a terminal
 
 ```sh
-plannotator-review --diff-type unstaged
-plannotator-review --diff-type staged
-plannotator-review --diff-type last-commit
-plannotator-review --base main --diff-type since-base
-plannotator-review https://github.com/OWNER/REPO/pull/123
+reviewtrail --diff-type unstaged
+reviewtrail --diff-type staged
+reviewtrail --diff-type last-commit
+reviewtrail --base main --diff-type since-base
+reviewtrail https://github.com/OWNER/REPO/pull/123
 ```
 
-If you already use the upstream slash command, start your agent from the shell with the fork's bin directory on PATH. Its existing `/plannotator-review` command invokes `plannotator review`, which opens this checkout's UI. You can also run the review-only launcher by absolute path. The underlying source checkout includes the upstream packages that supply local and hosted reviews.
+Select **Guide → Generate guide → Reading path**. Use **More context** to expand a difficult passage, **Next behavior** to continue, or **Comment on lines** to flag an implementation detail. Tests start folded. The coverage list shows files outside the walkthrough and opens their diffs. **Full guide and diffs** restores the annotated view. Older guides retain their original prose and summaries. A newly generated guide includes source anchors.
 
-Select **Guide → Generate guide → Reading path**. Choose a behavior, follow the passages in order, and use **More context** or **Full file diff** to inspect the evidence. **Comment on lines** opens the normal annotation composer. Send your comments to the agent, or submit them to GitHub from a PR review. You choose the final review action.
+**Send Feedback** returns your notes to the calling agent. In a GitHub PR review, the platform submission action lets you publish comments and your verdict. You make the decision.
 
-The tests section starts folded. Summarized files and files outside the guide remain accessible. **Full guide and diffs** opens Plannotator's original annotated view. Older saved guides retain their original prose and file summaries. Generate a new guide to get linked passages.
+## Settings and network traffic
+
+ReviewTrail uses `~/.reviewtrail`, an ephemeral local port, and its own browser preference keys. Use `REVIEWTRAIL_DATA_DIR` or `REVIEWTRAIL_PORT` to override these. A policy stored only in your upstream config file needs an equivalent ReviewTrail setting. The launcher carries forward shared environment opt-outs and service destination overrides listed in [the launcher](bin/reviewtrail). For example, `reviewtrail --no-git-remote-check --diff-type staged` skips automatic Git remote discovery for that session. An explicit fetch still contacts the remote.
+
+The [network inventory](NETWORK_AUDIT.md) lists each request type, destination, trigger, payload, and the traffic controlled by Claude Desktop and Pi. The [review plan](REVIEW_PLAN.md) tracks implementation and how to measure the 90% time-reduction target.
 
 ## Development
 
-Use `bun run dev:review` for the UI. Rebuild the review app before its command host after editing the UI. For the bundled OpenCode plugin, run `bun run build:opencode` after the host build.
-
-The [review plan](REVIEW_PLAN.md) tracks implementation, open work, and how to evaluate the 90% time-reduction target. Upstream's MIT and Apache 2.0 license files are included in this checkout.
+Run `bun run dev:review` for the UI. Rebuild the review UI before the command host after editing the reader. The checkout contains shared upstream packages and its MIT and Apache 2.0 licenses.

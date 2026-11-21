@@ -1,0 +1,48 @@
+#!/usr/bin/env bun
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { tokenizeReviewArgs } from '../packages/shared/review-args.ts';
+import pkg from '../package.json';
+import { SUBCOMMAND_HELP } from '../apps/hook/server/cli.ts';
+
+// Pi provides slash command arguments as a single string. Parse in the CLI
+// so a standalone, auto-discovered extension needs no repository imports.
+const fromPi = process.argv[2] === '--pi-command' && process.argv.length === 4;
+const args = fromPi
+  ? [...tokenizeReviewArgs(process.argv[3]), '--json']
+  : process.argv.slice(2);
+const wantsVersion = ['--version', '-v'].includes(args[0]);
+if (wantsVersion || ['--help', '-h'].includes(args[0])) {
+  const message = wantsVersion
+    ? `ReviewTrail (Plannotator base ${pkg.version})`
+    : SUBCOMMAND_HELP.review.replaceAll('plannotator review', 'reviewtrail').replaceAll('PLANNOTATOR_', 'REVIEWTRAIL_');
+  console.log(fromPi ? JSON.stringify({ decision: 'info', message }) : message);
+  process.exit(0);
+}
+
+// Bridge public ReviewTrail settings only inside the review child. Upstream
+// session tags, result-file paths and ports belong to a different host.
+const env = process.env;
+const inheritedPolicy = new Set([
+  'PLANNOTATOR_TEST_SANDBOX', 'PLANNOTATOR_SHARE', 'PLANNOTATOR_AI',
+  'PLANNOTATOR_PACKAGE_LOOKUP', 'PLANNOTATOR_GIT_REMOTE_CHECK',
+  'PLANNOTATOR_CLAUDE_SANDBOX', 'PLANNOTATOR_UPDATE_CHECK',
+  // Keep operator-configured service destinations, including corporate mirrors.
+  'PLANNOTATOR_GUIDE_SHARE_URL', 'PLANNOTATOR_GUIDE_VIEWER_URL',
+  'PLANNOTATOR_SHARE_URL', 'PLANNOTATOR_PASTE_URL', 'PLANNOTATOR_PACKAGE_REGISTRY_URL',
+  'PLANNOTATOR_PACKAGE_DOWNLOADS_URL', 'PLANNOTATOR_FEEDBACK_URL', 'PLANNOTATOR_TELEMETRY_URL',
+  'PLANNOTATOR_UPDATE_API_URL', 'PLANNOTATOR_UPDATE_LATEST_URL', 'PLANNOTATOR_BITBUCKET_API_URL',
+  'PLANNOTATOR_RELAY_URL', 'PLANNOTATOR_SPACES_URL',
+]);
+for (const name of Object.keys(env)) {
+  if (name.startsWith('PLANNOTATOR_') && !inheritedPolicy.has(name)) delete env[name];
+}
+for (const [name, value] of Object.entries(env)) {
+  if (name.startsWith('REVIEWTRAIL_')) env['PLANNOTATOR_' + name.slice('REVIEWTRAIL_'.length)] = value;
+}
+env.PLANNOTATOR_DATA_DIR = env.REVIEWTRAIL_DATA_DIR?.trim() || join(homedir(), '.reviewtrail');
+env.PLANNOTATOR_PORT = env.REVIEWTRAIL_PORT?.trim() || '0';
+env.PLANNOTATOR_SESSION_BRAND = 'ReviewTrail';
+env.PLANNOTATOR_AUTO_UPDATE = '0'; // The upstream installer owns the plannotator binary.
+process.argv.splice(2, process.argv.length - 2, 'review', ...args);
+await import('../apps/hook/server/index.ts');

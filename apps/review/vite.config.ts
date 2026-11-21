@@ -31,6 +31,7 @@ export default defineConfig({
     host: '0.0.0.0',
   },
   define: {
+    __REVIEWTRAIL__: true,
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [demoFileContentPlugin(), react(), tailwindcss(), katexWoff2Only(), packedApp()],

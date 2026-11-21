@@ -358,7 +358,9 @@ export async function handleServerReady(
   // that never exits (a blocking BROWSER) must not hide it, and a local
   // session whose browser opened fine still needs a way back to a closed tab.
   // The URL appears exactly once; the lines below only add context.
-  if (announce) process.stderr.write(`\n  ${SESSION_READY_LINE_PREFIX}${url}\n`);
+  const readyPrefix = process.env.PLANNOTATOR_SESSION_BRAND === "ReviewTrail"
+    ? "ReviewTrail session ready: " : SESSION_READY_LINE_PREFIX;
+  if (announce) process.stderr.write(`\n  ${readyPrefix}${url}\n`);
 
   // A remote/SSH session can't pop a browser on the user's machine, so say
   // what to do with the URL, independently of whether URL sharing is enabled.

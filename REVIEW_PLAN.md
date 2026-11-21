@@ -1,4 +1,4 @@
-# Code review fork plan
+# ReviewTrail plan
 
 ## Goal
 
@@ -11,6 +11,10 @@ Cut active review time on typical 2,000-line agent-written changes by 90% while 
 - [x] Show excerpts in execution order with inline explanations, expandable context and line-anchored reviewer comments. Let a path revisit a file and distinguish branching or concurrent work.
 - [x] Account for files outside the walkthrough and fold tests at the end. Keep the full diff accessible.
 - [x] Package a review-only entry point and verify a local review round trip.
+- [x] Give the fork its own command, data directory, browser preferences, Claude Code skill and Pi extension so it can run alongside Plannotator.
+- [x] Inventory external requests, including optional transfers of review content. Record the user's approval for GitHub review operations and the configured LLM in [the network inventory](NETWORK_AUDIT.md).
+- [ ] Apply the remaining network choices once selected and verify the resulting behavior with hosted and local review fixtures.
+- [ ] Verify the installed skill in the Claude Code Desktop GUI on the target corporate machine.
 - [ ] Publish the fork to the owner's GitHub account.
 - [ ] Try the fork on comparable familiar and unfamiliar PRs. Record active minutes, lines or paths revisited, missed behavior, and verdict changes on a full-diff follow-up.
 - [ ] Use the trial to prioritize deeper repository orientation, cross-revision decision tracking and optional prediction exercises.
@@ -31,3 +35,11 @@ Alternate comparable fresh PRs between upstream and the fork. Include unfamiliar
 - Publication requires GitHub credentials for the fork operation. The available connector lacks that operation, and the private credential request expired.
 - The production browser smoke test opened the 58-file guide, expanded source context, navigated between behaviors, marked progress, switched to the full diff and back, and opened the line-comment composer.
 - The focused suites passed 63 checks. A standalone review-editor TypeScript check still reports errors in other upstream files.
+
+## Side-by-side and network verification
+
+- Ran the two launchers at the same time on one staged change. Each had a separate port, readiness file, data directory and reviewer comment.
+- Pi 0.84.4 loaded both extensions and registered both slash commands once. Its ReviewTrail command opened the expected staged diff.
+- Exercised the personal Claude skill instructions against the real launcher in a scratch repository. A live Claude Desktop GUI session is still pending.
+- Exercised the production reader on the 58-file patch with a local stand-in for the guide provider. The browser requested 46 distinct loopback paths and zero external origins. The test also preserved an existing upstream preference cookie.
+- Optional prediction exercises, links into unchanged callers, cross-revision decision tracking and human timing trials remain open.
