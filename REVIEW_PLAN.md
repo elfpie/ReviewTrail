@@ -29,3 +29,5 @@ Alternate comparable fresh PRs between upstream and the fork. Include unfamiliar
 - A clean-room trial generated a guide for upstream commit `5cf5177`. The application parser resolved all 27 authored passages in its 58-file, 2,388-line patch. This checked the references, not a human review-time reduction.
 - Regression tests cover old/new line anchors, changed-file comment gating, test folding, persisted snapshots and platform submission through test adapters.
 - Publication requires GitHub credentials for the fork operation. The available connector lacks that operation, and the private credential request expired.
+- The production browser smoke test opened the 58-file guide, expanded source context, navigated between behaviors, marked progress, switched to the full diff and back, and opened the line-comment composer.
+- The focused suites passed 63 checks. A standalone review-editor TypeScript check still reports errors in other upstream files.
