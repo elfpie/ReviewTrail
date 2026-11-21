@@ -107,6 +107,7 @@ describe("guide export end to end (Bun review server)", () => {
       const finished = await waitForJob(server.url, jobId);
       expect(finished.status).toBe("done");
 
+      expect(await (await fetch(`${server.url}/api/guide/${jobId}/patch`)).json()).toEqual({ patch: FIXTURE_PATCH_TS_JSON });
       const info = await fetch(`${server.url}/api/guide/${jobId}/export-info`);
       expect(info.status).toBe(200);
       const infoBody = (await info.json()) as { languages: string[]; filename: string };
@@ -137,6 +138,7 @@ describe("guide export end to end (Bun review server)", () => {
     try {
       expect((await fetch(`${server.url}/api/guide/${jobId}/export`)).status).toBe(404);
       const [saved] = listGuides(repoKey);
+      expect(await (await fetch(`${server.url}/api/guide/saved:${saved.id}/patch`)).json()).toEqual({ patch: FIXTURE_PATCH_TS_JSON });
       const res = await fetch(`${server.url}/api/guide/saved:${saved.id}/export`);
       expect(res.status).toBe(200);
       expect(embeddedSnapshot(await res.text()).review.rawPatch).toBe(FIXTURE_PATCH_TS_JSON);

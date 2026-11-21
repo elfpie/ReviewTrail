@@ -880,3 +880,4 @@ packages/inbox/launchChoiceStates.test.tsx
 packages/ui/components/html-embed/HtmlEmbedBlock.annotate.test.tsx
 packages/ui/components/html-viewer/HtmlViewer.inline.test.tsx
 packages/ui/components/html-viewer/bridgeStructuralAnchor.test.ts
+packages/review-editor/components/guide/BehaviorReader.test.tsx

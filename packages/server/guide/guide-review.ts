@@ -202,7 +202,7 @@ ${markerOpen(nonce)}
   "sections": [
     {
       "title": "Guide marker contract",
-      "overview": "Explains what changed here, why it exists, and its key implications, in 2-6 sentences.",
+      "overview": "Describe the previous and new result. Follow with linked passage bullets in execution order.",
       "diffs": [
         { "file": "packages/server/guide/guide-review.ts", "summary": "Adds the marker output contract so engines without a schema flag return the same guide JSON." }
       ]
@@ -217,10 +217,7 @@ Schema:
 - intent: string, 1-2 sentences.
 - sections: array of objects, each with
   - title: string — concept-level chapter title, NEVER a filename paraphrase
-  - overview: string — markdown, 2-6 sentences: what changed, why it exists,
-    and its key implications. Backtick file names/symbols/config keys; bold
-    the single key clause; bullets only for 3+ parallel changes; a tiny
-    fenced code block only when code says it better than prose
+  - overview: string — describe before/after and use the linked passage bullet format from the methodology
   - diffs: array of objects, each with two fields:
     - file: string — the EXACT repo-relative path as it appears in the diff or
       the Changed files list; never invented, abbreviated, or re-cased

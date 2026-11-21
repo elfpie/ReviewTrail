@@ -1,0 +1,5 @@
+#!/usr/bin/env bun
+// Keep the caller's working directory so local changes and agent feedback
+// resolve exactly as they do through the upstream slash command.
+process.argv.splice(2, 0, 'review');
+await import('../apps/hook/server/index.ts');

@@ -9,6 +9,8 @@ import { isTerminalStatus } from '@plannotator/shared/agent-jobs';
 import { useGuideData } from '../../hooks/guide/useGuideData';
 import { useGuideLaunch } from '../../hooks/guide/useGuideLaunch';
 import { useReviewState } from '../../dock/ReviewStateContext';
+import { readPassages } from './readingPath';
+import { BehaviorReader } from './BehaviorReader';
 import { GuideEmptyState } from './GuideEmptyState';
 import { GuideGenerating } from './GuideGenerating';
 import { GuideSectionSkeleton } from '@plannotator/guide-viewer/GuideSkeleton';
@@ -258,6 +260,9 @@ function ActiveGuide({
   barSlot?: HTMLElement | null;
 }) {
   const { guide, loading, error, reviewed, toggleReviewed, retry } = useGuideData(jobId);
+  const [selectedView, setSelectedView] = useState<'behavior' | 'diff' | null>(null);
+  const hasPath = useMemo(() => guide?.sections.some(s => readPassages(s.overview).passages.length > 0), [guide]);
+  const view = selectedView ?? (hasPath ? 'behavior' : 'diff');
   const [focusedFile, setFocusedFile] = useState<string | null>(null);
   // The top bar's Collapse all: every file card of this guide, not remembered.
   const [collapseAll, setCollapseAll] = useState<GuideCollapseAll | null>(null);
@@ -454,8 +459,15 @@ function ActiveGuide({
   return (
     <div className="w-full">
       {failureStrip}
-      {barSlot && createPortal(<GuideDiffControls collapseAll={collapseAll} onCollapseAll={() => setCollapseAll(nextGuideCollapseAll)} />, barSlot)}
-      <ReviewGuideHost globalComments={globalComments} collapseAll={collapseAll ?? undefined}>
+      <div className="flex items-center gap-2 border-b border-border px-5 py-2 text-xs">
+        {(['behavior', 'diff'] as const).map(mode => <button key={mode} type="button" aria-pressed={view === mode}
+          className={`rounded px-3 py-1.5 ${view === mode ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+          onClick={() => setSelectedView(mode)}>{mode === 'behavior' ? 'Reading path' : 'Full guide and diffs'}</button>)}
+      </div>
+      {view === 'behavior' && <BehaviorReader guide={guide} jobId={jobId} liveFiles={state.files}
+        reviewed={reviewed} onToggle={toggleReviewed} onComment={state.onRequestLineAnnotation} />}
+      {view === 'diff' && barSlot && createPortal(<GuideDiffControls collapseAll={collapseAll} onCollapseAll={() => setCollapseAll(nextGuideCollapseAll)} />, barSlot)}
+      {view === 'diff' && <ReviewGuideHost globalComments={globalComments} collapseAll={collapseAll ?? undefined}>
         <GuideView
           guide={guide}
           reviewed={reviewed}
@@ -466,7 +478,7 @@ function ActiveGuide({
           onRegenerate={guideLaunch.canLaunch && !regenerating ? handleRegenerate : undefined}
           headerActions={<GuideExportButton jobId={jobId} />}
         />
-      </ReviewGuideHost>
+      </ReviewGuideHost>}
       {globalAnchor && onAddGlobalComment && (
         <GuideGlobalCommentPopover
           anchorEl={globalAnchor}

@@ -2273,7 +2273,7 @@ export async function startReviewServer(options: {
 		}
 
 		// API: Portable export of a guide (decision record D1/D9). Mirrors packages/server/review.ts.
-		const guideExportMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(export|export-info)$/);
+		const guideExportMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(export|export-info|patch)$/);
 		if (guideExportMatch && req.method === "GET") {
 			const jobId = decodePathSegment(guideExportMatch[1]);
 			if (jobId === null) {
@@ -2288,6 +2288,10 @@ export async function startReviewServer(options: {
 				snapshot = await resolveGuideSnapshotForExport(jobId);
 				if (!snapshot) {
 					json(res, { error: "This guide cannot be exported: its diff was not retained." }, 404);
+					return;
+				}
+				if (guideExportMatch[2] === "patch") {
+					json(res, { patch: snapshot.review.rawPatch });
 					return;
 				}
 				const viewer = resolveGuideViewerAssets(GUIDE_VIEWER_MANIFEST, { baseUrl: process.env.PLANNOTATOR_GUIDE_VIEWER_URL });

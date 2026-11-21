@@ -2319,13 +2319,16 @@ export async function startReviewServer(
           // `saved:{id}` from the store and live ids from this session's
           // launch review (persisted copy as fallback). No size gate: the file
           // is as big as the diff, and that is the user's call.
-          const guideExportMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(export|export-info)$/);
+          const guideExportMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(export|export-info|patch)$/);
           if (guideExportMatch && req.method === "GET") {
             const jobId = decodePathSegment(guideExportMatch[1]);
             if (jobId === null) return Response.json({ error: MALFORMED_PATH_ERROR }, { status: 400 });
             const snapshot = await resolveGuideSnapshotForExport(jobId);
             if (!snapshot) {
               return Response.json({ error: "This guide cannot be exported: its diff was not retained." }, { status: 404 });
+            }
+            if (guideExportMatch[2] === "patch") {
+              return Response.json({ patch: snapshot.review.rawPatch });
             }
             const viewer = resolveGuideViewerAssets(GUIDE_VIEWER_MANIFEST, { baseUrl: process.env.PLANNOTATOR_GUIDE_VIEWER_URL });
             const html = createGuideHtml(snapshot, { viewer });
