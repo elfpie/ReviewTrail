@@ -1,1 +1,1 @@
-export * from "@plannotator/core/review-prompt";
+export * from "@reviewtrail/core/review-prompt";

@@ -2,20 +2,20 @@ import { revealFirstChange } from '../utils/revealFirstChange';
 import { EXPAND_COLOUR_WAIT_MS, MAX_LINE_DIFF_LENGTH } from '../utils/diffChromeMetrics';
 import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
 import { FileDiff, type DiffLineAnnotation } from '@pierre/diffs/react';
-import { LazyBlockBoundary } from '@plannotator/ui/components/LazyBlockBoundary';
+import { LazyBlockBoundary } from '@reviewtrail/ui/components/LazyBlockBoundary';
 import { getSingularPatch, processFile } from '@pierre/diffs';
-import { CodeAnnotation, CodeAnnotationType, SelectedLineRange, DiffAnnotationMetadata, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration } from '@plannotator/ui/types';
+import { CodeAnnotation, CodeAnnotationType, SelectedLineRange, DiffAnnotationMetadata, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration } from '@reviewtrail/ui/types';
 import type { DiffTokenEventBaseProps } from '@pierre/diffs';
 import { usePierreTheme } from '../hooks/usePierreTheme';
 import { useFileContents } from '../hooks/useFileContents';
 import { useWorkerPoolThemeSync } from '../workerPool';
-import { CommentPopover } from '@plannotator/ui/components/CommentPopover';
-import { storage } from '@plannotator/ui/utils/storage';
+import { CommentPopover } from '@reviewtrail/ui/components/CommentPopover';
+import { storage } from '@reviewtrail/ui/utils/storage';
 import { applyFileLanguageFixes } from '../utils/highlightLanguage';
 import { buildCodeNavRequest } from '../utils/buildCodeNavRequest';
 import { ToolbarHost, type ToolbarHostHandle } from './ToolbarHost';
-import { OverlayScrollArea } from '@plannotator/ui/components/OverlayScrollArea';
-import { useOverlayViewport } from '@plannotator/ui/hooks/useOverlayViewport';
+import { OverlayScrollArea } from '@reviewtrail/ui/components/OverlayScrollArea';
+import { useOverlayViewport } from '@reviewtrail/ui/hooks/useOverlayViewport';
 import { FileMinimap } from './minimap/FileMinimap';
 import { FileHeader } from './FileHeader';
 // Lazy: the rendered views bring the text highlighter (which needs a DOM at
@@ -31,13 +31,13 @@ import { changeNotice } from '../utils/changeNotice';
 import { FileCommentBanner } from './FileCommentBanner';
 import { DiffBottomBar } from './DiffBottomBar';
 import { OversizedFileNotice } from './OversizedFileNotice';
-import { isContentlessBinaryPatch, isImagePreviewCandidate, isOversizedReviewStubPatch } from '@plannotator/shared/diff-paths';
+import { isContentlessBinaryPatch, isImagePreviewCandidate, isOversizedReviewStubPatch } from '@reviewtrail/shared/diff-paths';
 import { ImageDiffPreview } from './ImageDiffPreview';
 import { ImageViewMenu } from './image-diff/ImageViewMenu';
 import { differencesSupported } from './image-diff/differences';
 import { isSvgPath, setSvgView, useSvgView } from './image-diff/svgView';
 import { PackageChangesCard } from './PackageChangesCard';
-import { isPackageChangePath } from '@plannotator/core/package-changes';
+import { isPackageChangePath } from '@reviewtrail/core/package-changes';
 import { isFileScopedAnnotation, lineRangeForAnnotation } from '../utils/annotationScope';
 import { lineAnnotationMetadata } from '../utils/annotationDisplay';
 import type { AnnotationScrollTarget } from '../types';
@@ -287,7 +287,7 @@ interface DiffViewerProps {
   /** AI messages overlapping the current pending selection */
   aiHistoryMessages?: AIChatEntry[];
   // Code navigation
-  onCodeNavRequest?: (request: import('@plannotator/shared/code-nav').CodeNavRequest) => void;
+  onCodeNavRequest?: (request: import('@reviewtrail/shared/code-nav').CodeNavRequest) => void;
   /**
    * Token hover cards. Absent (the default) means the feature is not wired at
    * all. Deliberately raw: the view reports the token event and its file, and

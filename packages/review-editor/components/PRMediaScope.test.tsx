@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { GithubPRMetadata, PRContext } from '@plannotator/shared/pr-types';
+import type { GithubPRMetadata, PRContext } from '@reviewtrail/shared/pr-types';
 import { ReviewStateProvider, type ReviewState } from '../dock/ReviewStateContext';
 import { buildPRArtifacts } from '../utils/prArtifacts';
 import { artifactContentProxyUrl } from '../dock/panels/artifactDocument';
@@ -168,7 +168,7 @@ describe.if(hasDom)('PR text pictures and videos open in Artifacts (DOM)', () =>
   });
 
   test('the panel opens at the clicked item, un-hides it, and puts focus on its row', async () => {
-    localStorage.setItem(`plannotator-pr-artifacts:hidden:${metadata.url}`, JSON.stringify([idOf(CLIP)]));
+    localStorage.setItem(`reviewtrail-pr-artifacts:hidden:${metadata.url}`, JSON.stringify([idOf(CLIP)]));
     const onPRArtifactFocusHandled = mock((_seq: number) => {});
     const host = await render(
       <ReviewStateProvider value={state({ prArtifactFocus: { id: idOf(CLIP), seq: 7 }, onPRArtifactFocusHandled })}>

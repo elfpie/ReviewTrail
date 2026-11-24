@@ -1,14 +1,14 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import { sanitizeBlockHtml } from '@plannotator/ui/utils/sanitizeHtml';
-import { paintAuthorColors } from '@plannotator/ui/utils/authorColorContrast';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import { sanitizeBlockHtml } from '@reviewtrail/ui/utils/sanitizeHtml';
+import { paintAuthorColors } from '@reviewtrail/ui/utils/authorColorContrast';
 import { CommentMeta } from './CommentMeta';
 import { CommentActions } from './CommentActions';
 import { FileNameChip } from './FileNameChip';
 import { commentCopyText } from '../utils/annotationDisplay';
 import { isAgentGeneratedFinding } from '../utils/explainFinding';
-import { useConfigValue } from '@plannotator/ui/config';
-import { isCommentSubmitKey } from '@plannotator/ui/utils/commentSubmitKey';
+import { useConfigValue } from '@reviewtrail/ui/config';
+import { isCommentSubmitKey } from '@reviewtrail/ui/utils/commentSubmitKey';
 
 interface FileCommentBannerProps {
   /** File-scoped comments for ONE file (already filtered to scope === 'file'). */

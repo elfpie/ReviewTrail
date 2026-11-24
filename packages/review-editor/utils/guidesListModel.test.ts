@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { SavedGuideListEntry } from '@plannotator/shared/guide';
+import type { SavedGuideListEntry } from '@reviewtrail/shared/guide';
 import { groupSavedGuides, guideMismatchText, guideProgressText, resumeFile } from './guidesListModel';
 
 const entry = (id: string, where: SavedGuideListEntry['where'], savedAt: number, extra: Partial<SavedGuideListEntry> = {}): SavedGuideListEntry => ({

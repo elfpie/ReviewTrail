@@ -9,8 +9,8 @@ import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { ReviewCallFlowPanel } from './ReviewCallFlowPanel';
 import { ReviewStateProvider, type ReviewState } from '../ReviewStateContext';
-import type { CallFlowAdvert, CallFlowInstallStatus } from '@plannotator/shared/call-flow-types';
-import type { CallFlowLanguageId } from '@plannotator/shared/call-flow-languages';
+import type { CallFlowAdvert, CallFlowInstallStatus } from '@reviewtrail/shared/call-flow-types';
+import type { CallFlowLanguageId } from '@reviewtrail/shared/call-flow-languages';
 
 const hasDom = typeof document !== 'undefined';
 let host: HTMLDivElement | null = null;
@@ -129,14 +129,14 @@ describe('ReviewCallFlowPanel install funnel', () => {
       advert({
         state: 'unavailable',
         reason: 'override-relative',
-        message: 'PLANNOTATOR_CALLDIFF_PATH must be absolute.',
+        message: 'REVIEWTRAIL_CALLDIFF_PATH must be absolute.',
         installable: false,
         installPlan: undefined,
       }),
       { state: 'idle' },
     ));
     expect(installButton()).toBeNull();
-    expect(host?.textContent).toContain('PLANNOTATOR_CALLDIFF_PATH must be absolute.');
+    expect(host?.textContent).toContain('REVIEWTRAIL_CALLDIFF_PATH must be absolute.');
   });
 
   test.skipIf(!hasDom)('running renders staged progress without another install control', async () => {
@@ -239,7 +239,7 @@ describe('ReviewCallFlowPanel install funnel', () => {
       callFlowInstall: { status: { state: 'idle' }, start: () => starts++ },
     });
     expect(host?.textContent).toContain('1 file skipped: Python support not installed');
-    expect(host?.textContent).toContain('Add this language grammar to PLANNOTATOR_CALLDIFF_PATH');
+    expect(host?.textContent).toContain('Add this language grammar to REVIEWTRAIL_CALLDIFF_PATH');
     const unavailableInstall = [...(host?.querySelectorAll('button') ?? [])]
       .find((button) => button.textContent?.trim() === 'Install');
     expect(unavailableInstall).toBeUndefined();

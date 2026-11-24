@@ -131,7 +131,7 @@ afterEach(() => {
 describe("useFileBrowser", () => {
   test.skipIf(!hasDom)("waits for the initial tree fetch before opening the live watcher", async () => {
     installMockEventSource();
-    const dirPath = "/tmp/plannotator-docs";
+    const dirPath = "/tmp/reviewtrail-docs";
     const pending = deferred<Response>();
     const calls: string[] = [];
     globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -166,19 +166,19 @@ describe("useFileBrowser", () => {
     globalThis.fetch = (async () => response({ tree: [] })) as unknown as typeof fetch;
     const session = await mountHook();
     await act(async () => {
-      session.result.current!.fetchAll(["C:\\work\\plannotator-docs"]);
+      session.result.current!.fetchAll(["C:\\work\\reviewtrail-docs"]);
     });
     await tick(0);
 
-    expect(session.result.current!.dirs[0]?.name).toBe("plannotator-docs");
+    expect(session.result.current!.dirs[0]?.name).toBe("reviewtrail-docs");
 
     await session.unmount();
   });
 
   test.skipIf(!hasDom)("waits for all initial folder snapshots before opening the live watcher", async () => {
     installMockEventSource();
-    const firstDir = "/tmp/plannotator-docs-a";
-    const secondDir = "/tmp/plannotator-docs-b";
+    const firstDir = "/tmp/reviewtrail-docs-a";
+    const secondDir = "/tmp/reviewtrail-docs-b";
     const first = deferred<Response>();
     const second = deferred<Response>();
     const pending = [first.promise, second.promise];
@@ -227,7 +227,7 @@ describe("useFileBrowser", () => {
   });
 
   test.skipIf(!hasDom)("quiet invalid-directory refresh clears stale files", async () => {
-    const dirPath = "/tmp/plannotator-docs";
+    const dirPath = "/tmp/reviewtrail-docs";
     const tree: VaultNode[] = [{ type: "file", name: "a.md", path: "a.md" }];
     installFetchResponses([
       response({
@@ -259,7 +259,7 @@ describe("useFileBrowser", () => {
   });
 
   test.skipIf(!hasDom)("quiet server failure preserves the previous tree", async () => {
-    const dirPath = "/tmp/plannotator-docs";
+    const dirPath = "/tmp/reviewtrail-docs";
     const tree: VaultNode[] = [{ type: "file", name: "a.md", path: "a.md" }];
     installFetchResponses([
       response({ tree }),
@@ -281,7 +281,7 @@ describe("useFileBrowser", () => {
 
   test.skipIf(!hasDom)("refreshes after an SSE ready event from reconnect", async () => {
     installMockEventSource();
-    const dirPath = "/tmp/plannotator-docs";
+    const dirPath = "/tmp/reviewtrail-docs";
     const initialTree: VaultNode[] = [{ type: "file", name: "a.md", path: "a.md" }];
     const reconnectedTree: VaultNode[] = [
       { type: "file", name: "a.md", path: "a.md" },
@@ -316,7 +316,7 @@ describe("useFileBrowser", () => {
 
   test.skipIf(!hasDom)("waits for the first tree snapshot before opening the live stream", async () => {
     installMockEventSource();
-    const dirPath = "/tmp/plannotator-docs";
+    const dirPath = "/tmp/reviewtrail-docs";
     const tree: VaultNode[] = [{ type: "file", name: "a.md", path: "a.md" }];
     const deferred = installDeferredFetch();
 

@@ -10,7 +10,7 @@
  */
 
 import { afterEach, describe, expect, test } from "bun:test";
-import type { TailscaleRunResult } from "@plannotator/shared/tailscale";
+import type { TailscaleRunResult } from "@reviewtrail/shared/tailscale";
 import {
   announceTailscaleSession,
   disableTailscaleServe,
@@ -142,7 +142,7 @@ describe("enableTailscaleServe", () => {
   test("Serve off for the tailnet, CLI exits 0: says so with Tailscale's link and takes nothing down", () => {
     const { runner, calls } = makeRunner({ serve: { status: 0, stdout: SERVE_OFF, stderr: "" } });
     expect(() => enableTailscaleServe(4321, runner)).toThrow(
-      /Serve is off for your tailnet[\s\S]*not a Plannotator bug[\s\S]*https:\/\/login\.tailscale\.com\/f\/serve\?node=nABC/,
+      /Serve is off for your tailnet[\s\S]*not a ReviewTrail bug[\s\S]*https:\/\/login\.tailscale\.com\/f\/serve\?node=nABC/,
     );
     expect(calls.some((args) => args.includes("off"))).toBe(false);
   });
@@ -207,7 +207,7 @@ describe("SIGHUP routing", () => {
   // Guards the nohup contract: any SIGHUP listener overrides the ignored
   // disposition `nohup` depends on, so a listener may exist ONLY while a
   // serve mapping does. An unconditional listener regressed
-  // `nohup plannotator review &` into dying on terminal close.
+  // `nohup reviewtrail review &` into dying on terminal close.
   test("installs the SIGHUP→exit route only once a mapping exists, and reset removes it", () => {
     const before = process.listenerCount("SIGHUP");
     const { runner } = makeRunner({});
@@ -261,13 +261,13 @@ describe("enableTailscaleServe for the Inbox (8443, persisted, re-pointed)", () 
 
 describe("announceTailscaleSession", () => {
   const withoutReadyFile = async (fn: () => Promise<void>): Promise<void> => {
-    const original = process.env.PLANNOTATOR_READY_FILE;
-    delete process.env.PLANNOTATOR_READY_FILE;
+    const original = process.env.REVIEWTRAIL_READY_FILE;
+    delete process.env.REVIEWTRAIL_READY_FILE;
     try {
       await fn();
     } finally {
-      if (original === undefined) delete process.env.PLANNOTATOR_READY_FILE;
-      else process.env.PLANNOTATOR_READY_FILE = original;
+      if (original === undefined) delete process.env.REVIEWTRAIL_READY_FILE;
+      else process.env.REVIEWTRAIL_READY_FILE = original;
     }
   };
 
@@ -284,10 +284,10 @@ describe("announceTailscaleSession", () => {
     }
     const output = capture.output();
     // Literal text, not the constant (see shared-handlers.test.ts).
-    expect(output.split("Plannotator session ready: ").length - 1).toBe(1);
+    expect(output.split("ReviewTrail session ready: ").length - 1).toBe(1);
     expect(output.split(url).length - 1).toBe(1);
-    expect(output).toContain(`\n  Plannotator session ready: ${url}\n`);
-    expect(output.indexOf("Plannotator session ready: ")).toBeLessThan(output.indexOf("Served over your tailnet"));
+    expect(output).toContain(`\n  ReviewTrail session ready: ${url}\n`);
+    expect(output.indexOf("ReviewTrail session ready: ")).toBeLessThan(output.indexOf("Served over your tailnet"));
     expect(output).not.toContain("Could not open a browser");
   });
 });

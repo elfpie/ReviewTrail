@@ -1,7 +1,7 @@
 import {
   composeReviewPrompt,
   type ResolvedReviewProfile,
-} from "@plannotator/shared/review-profiles";
+} from "@reviewtrail/shared/review-profiles";
 import {
   transformSeverityFindings,
   type ReviewSeverity,
@@ -211,7 +211,7 @@ export function composeClaudeReviewPrompt(
 export interface ClaudeJobCommandOptions {
   /** False turns Claude Code's sandbox off for this job only (see
    *  `claudeJobIsolationArgs`). Callers resolve this via
-   *  resolveClaudeSandbox() (PLANNOTATOR_CLAUDE_SANDBOX / config.json
+   *  resolveClaudeSandbox() (REVIEWTRAIL_CLAUDE_SANDBOX / config.json
    *  `claudeSandbox`); the builders stay env-free. Default: the user's own
    *  Claude Code sandbox setting applies. */
   sandbox?: boolean;
@@ -328,7 +328,7 @@ export const CLAUDE_JOB_DISALLOWED_TOOLS: readonly string[] = [
   "Bash(git grep *)", "Bash(git ls-remote *)", "Bash(gh api *)", "Bash(glab api *)",
   // jj: config injection (global flags, accepted anywhere) and external tools.
   "Bash(jj --config*)", "Bash(jj * --config*)", "Bash(jj * --tool*)",
-  // Plannotator's Inbox MCP server, by name, as Ask AI does (claude-agent-sdk.ts).
+  // ReviewTrail's Inbox MCP server, by name, as Ask AI does (claude-agent-sdk.ts).
   // `--strict-mcp-config` already loads no MCP server; this holds whatever the transport.
   "mcp__plannotator-inbox",
 ];
@@ -501,8 +501,8 @@ export function formatClaudeLogEvent(line: string): string | null {
 export const CLAUDE_SHELL_BLOCKED_WARNING =
   "Claude Code refused every shell command this job tried, so it could not inspect the repository with git. " +
   "If your Claude Code settings enable its sandbox and the sandbox cannot start on this machine " +
-  "(for example Linux without bubblewrap and socat), set PLANNOTATOR_CLAUDE_SANDBOX=0 or " +
-  "{ \"claudeSandbox\": false } in ~/.plannotator/config.json and run the job again.";
+  "(for example Linux without bubblewrap and socat), set REVIEWTRAIL_CLAUDE_SANDBOX=0 or " +
+  "{ \"claudeSandbox\": false } in ~/.reviewtrail/config.json and run the job again.";
 
 /** A Bash tool_result that reads as a refusal rather than a command's own failure. */
 function isBashRefusal(content: unknown): boolean {

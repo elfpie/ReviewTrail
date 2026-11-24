@@ -3,7 +3,7 @@
  * the agent feedback export and a hosted PR review submission.
  */
 import { describe, expect, test } from 'bun:test';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import { exportReviewFeedback, OUTDATED_ANNOTATION_LABEL } from './exportFeedback';
 import { buildReviewSubmission } from '../components/ReviewSubmissionDialog';
 

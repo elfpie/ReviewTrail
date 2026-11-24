@@ -1,8 +1,8 @@
 {
-  "name": "@plannotator/guide-viewer",
+  "name": "@reviewtrail/guide-viewer",
   "version": "0.0.1",
   "type": "module",
-  "description": "Guided Review renderer shared by the Plannotator review app and portable guide exports.",
+  "description": "Guided Review renderer shared by the ReviewTrail review app and portable guide exports.",
   "exports": {
     "./types": "./types.ts",
     "./diffParser": "./diffParser.ts",
@@ -20,7 +20,7 @@
     "./FileKindIcon": "./FileKindIcon.tsx"
   },
   "dependencies": {
-    "@plannotator/core": "workspace:*",
+    "@reviewtrail/core": "workspace:*",
     "lucide-react": "^1.59.0"
   },
   "peerDependencies": {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip } from '@plannotator/ui/components/Tooltip';
+import { Tooltip } from '@reviewtrail/ui/components/Tooltip';
 
 /**
  * Shared atoms for file rows — used by both the tree view (FileTreeNode) and
@@ -8,12 +8,12 @@ import { Tooltip } from '@plannotator/ui/components/Tooltip';
  * stage button/dot.
  *
  * The change-type letter is the shared diff-file-tree atom from
- * @plannotator/ui, re-exported so review call sites import one module. The
+ * @reviewtrail/ui, re-exported so review call sites import one module. The
  * +/- numbers are the review's own `CountColumns` (two aligned columns), not
  * ui's `DiffCounts`.
  */
-export { ChangeTypeLetter } from '@plannotator/ui/components/DiffFileTree';
-export { ViewedControl, CountColumns, countColumnVars } from '@plannotator/ui/components/FileRowAtoms';
+export { ChangeTypeLetter } from '@reviewtrail/ui/components/DiffFileTree';
+export { ViewedControl, CountColumns, countColumnVars } from '@reviewtrail/ui/components/FileRowAtoms';
 
 /** Staging affordance — plus button on unstaged working files (always
  * visible, brightens on hover), primary dot when staged, spinner mid-flight.

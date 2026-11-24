@@ -46,12 +46,12 @@ import {
 } from "./command-path.ts";
 import { guardChildStreams, writeChildLine } from "./child-io.ts";
 import { askAiChildEnv, codexAskAiConfigArgs, codexOneShotConfigArgs, readCodexConfigTexts } from "./ask-ai-env.ts";
-import { CODEX_FALLBACK_MODELS, cliVersionFrom, effortList, type CatalogModel } from "@plannotator/core/model-catalog";
+import { CODEX_FALLBACK_MODELS, cliVersionFrom, effortList, type CatalogModel } from "@reviewtrail/core/model-catalog";
 
 const PROVIDER_NAME = "codex-sdk";
 const CODEX_PROCESS_LABEL = "Codex app-server";
 const DEFAULT_MODEL = "gpt-5.6-sol";
-const CLIENT_NAME = "plannotator";
+const CLIENT_NAME = "reviewtrail";
 /** Kill an idle app-server process after this long with no query. */
 const IDLE_TIMEOUT_MS = 10 * 60_000;
 /** Reject a JSON-RPC request that gets no response in this long (RPC acks are
@@ -59,7 +59,7 @@ const IDLE_TIMEOUT_MS = 10 * 60_000;
 const RPC_TIMEOUT_MS = 30_000;
 /**
  * The longest unfinished stdout line, in characters. One line can hold a whole `thread/resume` answer or a command's
- * `aggregatedOutput`, and neither has a size Plannotator knows, so this stops a runaway and not a long message.
+ * `aggregatedOutput`, and neither has a size ReviewTrail knows, so this stops a runaway and not a long message.
  */
 export const CODEX_LINE_MAX = 256 * 1024 * 1024;
 /** How long a Codex gets to stop on SIGTERM before SIGKILL. */
@@ -361,7 +361,7 @@ export class CodexAppServerProcess {
   private decoder = new TextDecoder();
   private _alive = false;
   private startPromise: Promise<void> | null = null;
-  /** The initialize response's `userAgent` ("plannotator/<codex version> (…)"). */
+  /** The initialize response's `userAgent` ("reviewtrail/<codex version> (…)"). */
   userAgent: string | undefined;
 
   /** `lineMax`: past this many characters with no newline, the process is failed and stopped. */
@@ -396,7 +396,7 @@ export class CodexAppServerProcess {
       const [file, ...args] = command;
       // stderr is "ignore", not "pipe": we never read it, and an un-drained
       // stderr pipe deadlocks the child once its buffer fills. The env turns
-      // Plannotator's integration off in this Codex (ask-ai-env.ts): its hooks
+      // ReviewTrail's integration off in this Codex (ask-ai-env.ts): its hooks
       // read the marker; the Inbox MCP server is off by the `-c` overrides.
       proc = spawn(file, args, { cwd, env: askAiChildEnv(env), stdio: ["pipe", "pipe", "ignore"], windowsHide: true });
     } catch (err) {
@@ -443,7 +443,7 @@ export class CodexAppServerProcess {
       const init = await this.sendAndWait({
         method: "initialize",
         params: {
-          clientInfo: { name: CLIENT_NAME, title: "Plannotator", version: "1.0.0" },
+          clientInfo: { name: CLIENT_NAME, title: "ReviewTrail", version: "1.0.0" },
         },
       }, initTimeoutMs);
       if (typeof init.userAgent === "string") this.userAgent = init.userAgent;

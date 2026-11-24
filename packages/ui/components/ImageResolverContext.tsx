@@ -16,7 +16,7 @@ export type ImageResolution =
       src: string;
       /**
        * The picture's own width in pixels, when `src` serves a smaller copy
-       * of it (the Plannotator Inbox's `?w=`, for a big screenshot drawn at
+       * of it (the ReviewTrail Inbox's `?w=`, for a big screenshot drawn at
        * the width of a message): the `<img>` gets it as its `width`, so it is
        * laid out exactly as the original would be (still at most 100% wide),
        * while the browser decodes only the copy.

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Check, Copy, Search } from 'lucide-react';
-import { CommentPopover, type CommentTargetChip } from '@plannotator/ui/components/CommentPopover';
-import type { CallFlowAnnotationTarget } from '@plannotator/ui/types';
-import { copyTextToClipboard } from '@plannotator/ui/utils/clipboard';
+import { CommentPopover, type CommentTargetChip } from '@reviewtrail/ui/components/CommentPopover';
+import type { CallFlowAnnotationTarget } from '@reviewtrail/ui/types';
+import { copyTextToClipboard } from '@reviewtrail/ui/utils/clipboard';
 import {
   annotationTargetForCallFlowRawLine,
   findCallFlowRawMatches,

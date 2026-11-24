@@ -12,7 +12,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { DiffFile } from '../types';
 
 const realPierreDiffsReact = { ...(await import('@pierre/diffs/react')) };
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 /** The stand-in's host element for its one item, as Pierre's `<diffs-container>`. */
 let itemHost: HTMLElement | null = null;

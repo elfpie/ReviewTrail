@@ -1,10 +1,10 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
-import { OptionPicker } from '@plannotator/ui/components/OptionPicker';
-import { getProviderMeta } from '@plannotator/ui/components/ProviderIcons';
-import { findSessionBridge, type AIProviderOption } from '@plannotator/ui/utils/aiProvider';
-import { ModelSourceHint, modelSourceToolForProvider } from '@plannotator/ui/components/ModelSourceHint';
-import { AskSessionSetupHint } from '@plannotator/ui/components/ai/AskSessionSetupHint';
+import { OptionPicker } from '@reviewtrail/ui/components/OptionPicker';
+import { getProviderMeta } from '@reviewtrail/ui/components/ProviderIcons';
+import { findSessionBridge, type AIProviderOption } from '@reviewtrail/ui/utils/aiProvider';
+import { ModelSourceHint, modelSourceToolForProvider } from '@reviewtrail/ui/components/ModelSourceHint';
+import { AskSessionSetupHint } from '@reviewtrail/ui/components/ai/AskSessionSetupHint';
 
 interface AIConfigBarProps {
   providers: AIProviderOption[];
@@ -30,7 +30,7 @@ export const AIConfigBar: React.FC<AIConfigBarProps> = ({
   hasSession,
   setupHint,
 }) => {
-  // "Ask this session": the session that opened Plannotator is the only thing
+  // "Ask this session": the session that opened ReviewTrail is the only thing
   // Ask AI talks to, so the bar shows just its label (one provider, no models).
   const sessionBridge = findSessionBridge(offeredProviders);
   const providers = sessionBridge ? [sessionBridge] : offeredProviders;

@@ -3,8 +3,8 @@ import { cookieHostDescription, type CookieHostSetting } from '../hooks/useCooki
 import type { PackageChangesSetting } from '../hooks/usePackageChangesSetting';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import type { Origin } from '@plannotator/core/agents';
-import type { TokenHoverDelay } from '@plannotator/core/token-hover';
+import type { Origin } from '@reviewtrail/core/agents';
+import type { TokenHoverDelay } from '@reviewtrail/core/token-hover';
 import {
   configStore,
   useConfigValue,
@@ -73,12 +73,12 @@ interface SettingsProps {
   aiProviders?: Array<{ id: string; name: string; capabilities: Record<string, boolean>; models?: Array<{ id: string; label: string; default?: boolean }> }>;
   /** Git user name from `git config user.name`, for quick identity set */
   gitUser?: string;
-  /** "Open Plannotator at plannotator.localhost" (#2184, useCookieHostSetting): present
+  /** "Open ReviewTrail at reviewtrail.localhost" (#2184, useCookieHostSetting): present
    *  only when the server reports it (a local session). Hosts that omit it get no row. */
   cookieHostSetting?: CookieHostSetting;
   /** Code review's package changes switches (usePackageChangesSetting). Hosts that omit it get no rows. */
   packageChangesSetting?: PackageChangesSetting;
-  /** The `plannotator` agent tool switch, as the server reports it
+  /** The `reviewtrail` agent tool switch, as the server reports it
    *  (parseAgentToolSetting of serverConfig: present only when the session's
    *  host registers the tool). Shown only together with onAgentToolChange;
    *  hosts that omit them get no row. */
@@ -234,7 +234,7 @@ function ToggleSwitch({ checked, onChange, label, description, disabled = false 
 }
 
 /**
- * The `plannotator` agent tool switch. The value is the one the NEXT session
+ * The `reviewtrail` agent tool switch. The value is the one the NEXT session
  * uses (the tool list is part of the model's prompt, so a running session
  * never changes it). Writes go straight to POST /api/config and wait for the
  * answer, so a failed save is reported and the switch stays where it was.
@@ -264,10 +264,10 @@ function AgentToolSettingRow({ setting, onChange }: {
         checked={setting.enabled}
         onChange={(next) => void change(next)}
         disabled={locked}
-        label="Let the agent open reviews (plannotator tool)"
+        label="Let the agent open reviews (reviewtrail tool)"
         description={
           locked
-            ? `Set by PLANNOTATOR_AGENT_TOOL in your environment, so it is ${setting.enabled ? 'on' : 'off'} here.`
+            ? `Set by REVIEWTRAIL_AGENT_TOOL in your environment, so it is ${setting.enabled ? 'on' : 'off'} here.`
             : `${agentToolHostName(setting.host)} can open reviews itself and keep working. ${agentToolCostNote(setting.host)} Applies from ${agentToolAppliesWhen(setting.host)}.`
         }
       />
@@ -332,7 +332,7 @@ function ReviewAnalysisTab({ packageChangesSetting }: { packageChangesSetting?: 
               disabled={packageChangesSetting.lookupEnv === false}
               label="Look up packages on npm"
               description={packageChangesSetting.lookupEnv === false
-                ? 'Off: PLANNOTATOR_PACKAGE_LOOKUP=0.'
+                ? 'Off: REVIEWTRAIL_PACKAGE_LOOKUP=0.'
                 : 'License, release date and weekly downloads. Sends the names of changed public packages to registry.npmjs.org and api.npmjs.org.'}
             />
           </>
@@ -660,7 +660,7 @@ const FontFamilyField: React.FC<{
  * Experimental (the owner, 2026-10-27: "its own page on settings", the last
  * tab): each experimental setting, off by default. Today one, code review's
  * Edit Code to Suggest (`editSuggestions`, the
- * `plannotator-experimental-edit-suggestions` cookie, unchanged).
+ * `reviewtrail-experimental-edit-suggestions` cookie, unchanged).
  */
 const ExperimentalTab: React.FC = () => {
   const editSuggestions = useConfigValue('editSuggestions');
@@ -1123,7 +1123,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
 
   // When a host owns identity (e.g. a logged-in user whose author is server-stamped),
   // hide the rename/regenerate controls so a local name can't diverge from it.
-  // Default (Plannotator cookie identity) is editable, so this is true and the
+  // Default (ReviewTrail cookie identity) is editable, so this is true and the
   // controls render exactly as before.
   const identityEditable = isIdentityEditable();
 
@@ -1149,7 +1149,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
             className="bg-card border border-border rounded-xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl relative overflow-hidden"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="plannotator-settings-title"
+            aria-labelledby="reviewtrail-settings-title"
             onClick={e => e.stopPropagation()}
             onKeyDown={(event) => {
               if (event.key !== 'Escape' || event.defaultPrevented) return;
@@ -1160,7 +1160,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
           >
             {taterMode && <TaterSpritePullup />}
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 id="plannotator-settings-title" className="font-semibold text-sm">Settings</h3>
+              <h3 id="reviewtrail-settings-title" className="font-semibold text-sm">Settings</h3>
               <button
                 type="button"
                 aria-label="Close settings"
@@ -1344,9 +1344,9 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       </>
                     )}
 
-                    {/* Open Plannotator at plannotator.localhost (#2184): writes or
-                        removes urlHost "plannotator.localhost" in config.json.
-                        Locked while PLANNOTATOR_URL_HOST is set or config.json
+                    {/* Open ReviewTrail at reviewtrail.localhost (#2184): writes or
+                        removes urlHost "reviewtrail.localhost" in config.json.
+                        Locked while REVIEWTRAIL_URL_HOST is set or config.json
                         holds another urlHost, which it never replaces. */}
                     {cookieHostSetting && (
                       <>
@@ -1356,7 +1356,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                             checked={cookieHostSetting.on}
                             onChange={(v) => cookieHostSetting.onChange(v)}
                             disabled={cookieHostSetting.env !== undefined || cookieHostSetting.urlHost !== undefined}
-                            label="Open Plannotator at plannotator.localhost"
+                            label="Open ReviewTrail at reviewtrail.localhost"
                             description={cookieHostDescription(cookieHostSetting)}
                           />
                           {cookieHostSetting.error && (
@@ -1366,7 +1366,7 @@ export const Settings: React.FC<SettingsProps> = ({ taterMode, onTaterModeChange
                       </>
                     )}
 
-                    {/* The `plannotator` agent tool switch: only where the
+                    {/* The `reviewtrail` agent tool switch: only where the
                         server reports a tool host (Claude Code mod, Pi,
                         OpenCode 2). Writes agentTool to config.json; applies
                         to the next session. */}

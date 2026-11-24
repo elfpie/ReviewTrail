@@ -1,9 +1,9 @@
 import type { Block, Annotation, CodeAnnotation, EditorAnnotation, ImageAttachment } from '../types';
 import { attachedLines } from './attachedLines';
-import { planDenyFeedback } from '@plannotator/core/feedback-templates';
-import { resolveReplyParents } from '@plannotator/core/annotation-threads';
-import { diagramAnchorLocationLine, parseDiagramAnchor } from '@plannotator/core/diagram-anchor';
-import { imageRegionLocationLines, parseImageRegion, type ImageRegion } from '@plannotator/core/image-region';
+import { planDenyFeedback } from '@reviewtrail/core/feedback-templates';
+import { resolveReplyParents } from '@reviewtrail/core/annotation-threads';
+import { diagramAnchorLocationLine, parseDiagramAnchor } from '@reviewtrail/core/diagram-anchor';
+import { imageRegionLocationLines, parseImageRegion, type ImageRegion } from '@reviewtrail/core/image-region';
 import {
   formatQuestionAnswerLines,
   formatQuestionAnswerText,
@@ -13,7 +13,7 @@ import {
   questionExportItems,
   type QuestionAnswer,
   type QuestionExportItem,
-} from '@plannotator/core/question-block';
+} from '@reviewtrail/core/question-block';
 import {
   DIRECTIVE_OPEN_RE,
   HTML_BLOCK_TAGS,
@@ -24,7 +24,7 @@ import {
   scanDisplayMath,
   splitFrontmatter,
   type TagCloseIndex,
-} from '@plannotator/core/markdown-structure';
+} from '@reviewtrail/core/markdown-structure';
 import { skillReferenceExportBlock } from './skillReferences';
 import { FOOTNOTE_DEF_RE, FOOTNOTE_INDENTED_RE, footnoteKey, referencedDefinitionLabels } from './footnotes';
 
@@ -44,7 +44,7 @@ function opensMultiLineBlock(lines: string[], j: number, htmlCloseCache: Map<str
   return htmlBlockEndAt(lines, j, htmlCloseCache) !== -1;
 }
 
-// The structural helpers moved to `@plannotator/core/markdown-structure` so
+// The structural helpers moved to `@reviewtrail/core/markdown-structure` so
 // `findQuestionBlocks` (core) splits a document exactly as this parser does.
 export { HTML_BLOCK_TAGS, resolveReferenceLinks };
 
@@ -314,7 +314,7 @@ export interface ParseMarkdownOptions {
    * Strip a leading `--- ... ---` pair as frontmatter (default true).
    * Pass false for non-markdown plain-text sources (.yaml/.json/.txt/…)
    * where the delimiters are real content — a multi-document YAML starts
-   * with them (see shouldStripFrontmatter in @plannotator/core/annotatable).
+   * with them (see shouldStripFrontmatter in @reviewtrail/core/annotatable).
    */
   frontmatter?: boolean;
   /**
@@ -327,7 +327,7 @@ export interface ParseMarkdownOptions {
 
 
 /**
- * The block list for a whole-file diagram source (`plannotator annotate
+ * The block list for a whole-file diagram source (`reviewtrail annotate
  * flow.mmd`): ONE code block carrying the file's raw text, which `Viewer`
  * hands to the same `DiagramBlock` a ```mermaid fence in a plan produces.
  * Everything downstream — diagram comments, the annotations rail, the export's
@@ -1178,7 +1178,7 @@ export const elementIdentityForAskAI = (targets: readonly AskAIElementTarget[] |
  * The body is the same shape the full export emits for the entry, including
  * the element block, so a standalone entry never drifts from what Send
  * Feedback delivers; the live-app route line is included here because the
- * standalone entry has no `## Page:` heading above it. Plannotator's own
+ * standalone entry has no `## Page:` heading above it. ReviewTrail's own
  * panel chrome does not use it.
  */
 export const exportAnnotationEntry = (ann: any, opts: ElementContextExportOptions = { includeRoute: true }): string => {
@@ -1244,7 +1244,7 @@ const diagramLocationExportLine = (ann: any): string => {
 
 /** A host's own location line for an entry (the Inbox's "At 1:42 (102.4 s of
  *  7:41)" on a video comment): `exportLocation`, a string the HOST sets on the
- *  copy it hands the exporter, never stored and never set by Plannotator, so
+ *  copy it hands the exporter, never stored and never set by ReviewTrail, so
  *  every other annotation's output is byte-identical. One line, capped. */
 const hostLocationExportLine = (ann: any): string => {
   const line = ann?.exportLocation;

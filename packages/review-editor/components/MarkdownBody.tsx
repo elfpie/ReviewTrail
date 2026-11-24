@@ -4,12 +4,12 @@
  * infrastructure — the full document surface is Viewer/BlockRenderer.
  */
 import React, { useMemo, useRef, useLayoutEffect } from 'react';
-import { parseMarkdownToBlocks } from '@plannotator/ui/utils/parser';
-import type { Block } from '@plannotator/ui/types';
-import { MAX_QUOTE_DEPTH, isProseQuote, parseQuoteBody } from '@plannotator/ui/components/blocks/BlockquoteBlock';
-import { parseTableContent } from '@plannotator/ui/components/blocks/TableBlock';
-import { sanitizeInlineHtml } from '@plannotator/ui/utils/sanitizeHtml';
-import { paintAuthorColors } from '@plannotator/ui/utils/authorColorContrast';
+import { parseMarkdownToBlocks } from '@reviewtrail/ui/utils/parser';
+import type { Block } from '@reviewtrail/ui/types';
+import { MAX_QUOTE_DEPTH, isProseQuote, parseQuoteBody } from '@reviewtrail/ui/components/blocks/BlockquoteBlock';
+import { parseTableContent } from '@reviewtrail/ui/components/blocks/TableBlock';
+import { sanitizeInlineHtml } from '@reviewtrail/ui/utils/sanitizeHtml';
+import { paintAuthorColors } from '@reviewtrail/ui/utils/authorColorContrast';
 import { renderInlineMarkdown as renderInline } from '../utils/renderInlineMarkdown';
 import { prImageSrc, prImageSrcset } from '../utils/prImage';
 import { PRMediaScope, PR_MEDIA_SKIP_ATTR } from './PRMediaScope';

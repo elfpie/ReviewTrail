@@ -1,9 +1,9 @@
 /**
  * Where a comment on an element of a live `html` block sits in its document
- * (a message in the Plannotator Inbox): which block, and which source.
+ * (a message in the ReviewTrail Inbox): which block, and which source.
  * Browser-safe and dependency-free. The annotation carries it as
  * `htmlBlockAnchor`, beside the element's own anchor inside the page
- * (`htmlAnchor`, `elementContext`: @plannotator/core/html-anchor), the way a
+ * (`htmlAnchor`, `elementContext`: @reviewtrail/core/html-anchor), the way a
  * comment on a diagram part carries `diagramAnchor`.
  *
  *     { v: 1, index: 2, id: "<32 hex>", sourceLine: [14, 31] }

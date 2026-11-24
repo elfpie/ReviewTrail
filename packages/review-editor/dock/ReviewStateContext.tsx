@@ -1,24 +1,24 @@
 import React, { createContext, useContext } from 'react';
-import type { CallFlowAnnotationTarget, CodeAnnotation, CodeAnnotationType, SelectedLineRange, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration, Annotation, CommentAnnotation, ArtifactAnnotationMeta, ImageAttachment, MarkdownPreviewAnchor } from '@plannotator/ui/types';
+import type { CallFlowAnnotationTarget, CodeAnnotation, CodeAnnotationType, SelectedLineRange, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration, Annotation, CommentAnnotation, ArtifactAnnotationMeta, ImageAttachment, MarkdownPreviewAnchor } from '@reviewtrail/ui/types';
 import type { MarkdownPreviewController } from '../hooks/useMarkdownPreview';
-import type { CommentAskAIHandler } from '@plannotator/ui/components/CommentPopover';
-import type { AgentJobInfo } from '@plannotator/ui/types';
+import type { CommentAskAIHandler } from '@reviewtrail/ui/components/CommentPopover';
+import type { AgentJobInfo } from '@reviewtrail/ui/types';
 import type { DiffFile, AnnotationScrollTarget } from '../types';
 import type { AIChatEntry } from '../hooks/useAIChat';
 import type { ReviewSearchMatch } from '../utils/reviewSearch';
-import type { PRMetadata, PRContext } from '@plannotator/shared/pr-types';
+import type { PRMetadata, PRContext } from '@reviewtrail/shared/pr-types';
 import type { PRArtifact } from '../utils/prArtifacts';
-import type { PRDiffScope } from '@plannotator/shared/pr-stack';
-import type { SemanticDiffChange } from '@plannotator/shared/semantic-diff-types';
+import type { PRDiffScope } from '@reviewtrail/shared/pr-stack';
+import type { SemanticDiffChange } from '@reviewtrail/shared/semantic-diff-types';
 import type { FeedbackDiffContext } from '../utils/exportFeedback';
 import type { SuggestionHunk } from '../edit/deriveSuggestions';
 import type { EditSelectionComment } from '../edit/useEditSession';
 import type { CallFlowAnalysisState } from '../hooks/useCallFlowAnalysis';
 import type { CallFlowInstallController } from '../hooks/useCallFlowInstall';
-import type { CallFlowAdvert, CallFlowNode } from '@plannotator/shared/call-flow-types';
-import type { CallTreeDoc } from '@plannotator/shared/call-tree';
+import type { CallFlowAdvert, CallFlowNode } from '@reviewtrail/shared/call-flow-types';
+import type { CallTreeDoc } from '@reviewtrail/shared/call-tree';
 import type { HostLineNote } from '../components/hostLineNotes';
-import type { CodeFileAnnotationInput } from '@plannotator/ui/components/CodeFilePopout';
+import type { CodeFileAnnotationInput } from '@reviewtrail/ui/components/CodeFilePopout';
 import type { ChangedFileView } from '../components/FileViewSwitch';
 import type { DiagramEngineUrls } from '../utils/diagramEngineContract';
 import type { SemDiffClient } from '../semDiff/semDiffClient';
@@ -178,7 +178,7 @@ export interface ReviewState {
   /** The same for a whole-file view, and its Cmd+click (references). */
   fileTokens?: (filePath: string) => import('../components/RepoFileView').FileTokenHandlers;
   /** A result of the references panel opened in a tab at its line. */
-  onOpenCodeNavLocation?: (location: import('@plannotator/shared/code-nav').CodeNavLocation) => void;
+  onOpenCodeNavLocation?: (location: import('@reviewtrail/shared/code-nav').CodeNavLocation) => void;
   onEditAnnotation: (id: string, text?: string, suggestedCode?: string, originalCode?: string, conventionalLabel?: ConventionalLabel | null, decorations?: ConventionalDecoration[]) => void;
   /** Highlight a comment without moving the viewport (in-diff click). */
   onSelectAnnotation: (id: string | null) => void;
@@ -318,7 +318,7 @@ export interface ReviewState {
   onAllFilesCollapsedChange: (collapsed: boolean) => void;
   // Commit metadata when a commit:<sha> diff is active — heads the all-files
   // view (description card) and seeds its files collapsed.
-  commitInfo: import('@plannotator/shared/types').CommitDiffInfo | null;
+  commitInfo: import('@reviewtrail/shared/types').CommitDiffInfo | null;
   semanticDiffAvailable: boolean;
   isSemanticDiffActive: boolean;
   onSemanticDiffLoadError: () => boolean;
@@ -348,7 +348,7 @@ export interface ReviewState {
   openGuide?: (jobId: string) => void;
 
   // Code navigation
-  onCodeNavRequest?: (request: import('@plannotator/shared/code-nav').CodeNavRequest) => void;
+  onCodeNavRequest?: (request: import('@reviewtrail/shared/code-nav').CodeNavRequest) => void;
   /** Token hover cards. Undefined whenever the gate or the setting is off.
    *  Returns false for a token that is not a symbol (no hover affordance). */
   onTokenHoverEnter?: (
@@ -356,7 +356,7 @@ export interface ReviewState {
     filePath: string,
   ) => boolean;
   onTokenHoverLeave?: () => void;
-  codeNavResult: import('@plannotator/shared/code-nav').CodeNavResponse | null;
+  codeNavResult: import('@reviewtrail/shared/code-nav').CodeNavResponse | null;
   codeNavIsLoading: boolean;
   codeNavActiveSymbol: string | null;
 }

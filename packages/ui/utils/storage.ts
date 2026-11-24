@@ -20,35 +20,51 @@ export interface StorageBackend {
  * Used instead of localStorage so settings persist across the random ports each
  * hook invocation uses (cookies are scoped by domain, not port).
  */
-declare const __REVIEWTRAIL__: boolean;
-const cookiePrefix = typeof __REVIEWTRAIL__ !== 'undefined' && __REVIEWTRAIL__ ? 'reviewtrail-' : '';
+// Older fork builds prefixed every cookie, including keys that still carried
+// the upstream name. Only that fork-specific namespace is safe to migrate.
+function cookieNames(key: string) {
+  const name = key.startsWith('reviewtrail-') || key.startsWith('reviewtrail.')
+    ? key : 'reviewtrail-' + key;
+  const old = 'reviewtrail-' + key.replace(/^reviewtrail(?=[.-])/, 'plannotator');
+  return { name, old };
+}
+
+function readCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${escapeRegex(name)}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function writeCookie(name: string, value: string, age: number) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${age}; SameSite=Lax`;
+}
+
 const cookieBackend: StorageBackend = {
   getItem(key) {
     try {
-      const match = document.cookie.match(new RegExp(`(?:^|; )${escapeRegex(cookiePrefix + key)}=([^;]*)`));
-      return match ? decodeURIComponent(match[1]) : null;
-    } catch (e) {
-      return null;
-    }
+      const { name, old } = cookieNames(key);
+      const current = readCookie(name);
+      if (current !== null || old === name) return current;
+      const previous = readCookie(old);
+      if (previous !== null) {
+        writeCookie(name, previous, ONE_YEAR_SECONDS);
+        if (readCookie(name) === previous) writeCookie(old, '', -1);
+      }
+      return previous;
+    } catch { return null; }
   },
   setItem(key, value) {
-    try {
-      const encoded = encodeURIComponent(value);
-      document.cookie = `${cookiePrefix}${key}=${encoded}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax`;
-    } catch (e) {
-      // Cookie not available
-    }
+    try { writeCookie(cookieNames(key).name, value, ONE_YEAR_SECONDS); } catch { /* Cookies unavailable. */ }
   },
   removeItem(key) {
     try {
-      document.cookie = `${cookiePrefix}${key}=; path=/; max-age=0`;
-    } catch (e) {
-      // Cookie not available
-    }
+      const { name, old } = cookieNames(key);
+      writeCookie(name, '', -1);
+      if (name !== old) writeCookie(old, '', -1);
+    } catch { /* Cookies unavailable. */ }
   },
 };
 
-// Active backend. Defaults to cookies so Plannotator is unchanged. A host
+// Active backend. Defaults to cookies so ReviewTrail is unchanged. A host
 // (e.g. Workspaces) calls setStorageBackend once at startup to persist settings
 // through its own storage instead.
 let backend: StorageBackend = cookieBackend;
@@ -96,7 +112,7 @@ function escapeRegex(str: string): string {
  * Values: 'off' | '0' (immediate) | '3' | '5' (seconds)
  * Legacy 'true' maps to '0' for backward compatibility.
  */
-const AUTO_CLOSE_KEY = 'plannotator-auto-close';
+const AUTO_CLOSE_KEY = 'reviewtrail-auto-close';
 
 export type AutoCloseDelay = 'off' | '0' | '3' | '5';
 
@@ -123,7 +139,7 @@ export function setAutoCloseDelay(delay: AutoCloseDelay): void {
  * Stores the app id from the OPEN_IN_APPS catalog (packages/shared/open-in-apps.ts).
  * Defaults to 'reveal' (the file manager) when unset.
  */
-const OPEN_IN_APP_KEY = 'plannotator-open-in-app';
+const OPEN_IN_APP_KEY = 'reviewtrail-open-in-app';
 
 export function getLastOpenInApp(): string {
   return getItem(OPEN_IN_APP_KEY) ?? 'reveal';

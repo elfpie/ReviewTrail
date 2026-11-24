@@ -1,5 +1,5 @@
 import React from 'react';
-import type { GuideOverview as GuideOverviewData } from '@plannotator/core/guide';
+import type { GuideOverview as GuideOverviewData } from '@reviewtrail/core/guide';
 import { useGuideHost } from './host';
 import { renderMarkdownProse } from './renderMarkdownProse';
 import type { GuideLinkRenderer } from './renderInlineMarkdown';

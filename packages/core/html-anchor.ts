@@ -1,6 +1,6 @@
 /**
  * Raw-HTML annotation anchors: the pure, host-facing helpers a consumer of
- * `@plannotator/ui`'s HtmlViewer needs on either side of its own storage.
+ * `@reviewtrail/ui`'s HtmlViewer needs on either side of its own storage.
  *
  * - `buildPersistedHtmlAnchor` trims a composed comment's anchor into a
  *   bounded record a host can persist (target cap, byte budget).
@@ -9,10 +9,10 @@
  * - `parseHtmlElementAnchor` and `parseHtmlElementContext` are the pure,
  *   fail-closed validators both of those run on the way through.
  *
- * Browser-safe and dependency-free (this package is `@plannotator/core`).
+ * Browser-safe and dependency-free (this package is `@reviewtrail/core`).
  * The types below are structurally identical to `HtmlElementAnchor`,
- * `HtmlAnnotationTarget` and `HtmlElementContext` in `@plannotator/ui/types`,
- * and the caps here ARE the caps enforced at `@plannotator/ui`'s own parent
+ * `HtmlAnnotationTarget` and `HtmlElementContext` in `@reviewtrail/ui/types`,
+ * and the caps here ARE the caps enforced at `@reviewtrail/ui`'s own parent
  * trust boundary (`components/html-viewer/useHtmlAnnotation.ts`), which
  * imports and re-exports these validators rather than keeping its own copy —
  * one definition, never mirrored — so nothing persisted here is ever refused
@@ -101,11 +101,11 @@ export interface HtmlElementContext {
   sourceName?: string;
 }
 
-/** Mirrors `MAX_ANCHOR_SELECTOR_LENGTH` in `@plannotator/ui`. */
+/** Mirrors `MAX_ANCHOR_SELECTOR_LENGTH` in `@reviewtrail/ui`. */
 export const MAX_HTML_ANCHOR_SELECTOR_LENGTH = 1024;
-/** Mirrors `MAX_ANCHOR_TAG_LENGTH` in `@plannotator/ui`. */
+/** Mirrors `MAX_ANCHOR_TAG_LENGTH` in `@reviewtrail/ui`. */
 export const MAX_HTML_ANCHOR_TAG_LENGTH = 64;
-/** Mirrors `MAX_ANCHOR_TEXT_LENGTH` in `@plannotator/ui` (the 400-char snapshot). */
+/** Mirrors `MAX_ANCHOR_TEXT_LENGTH` in `@reviewtrail/ui` (the 400-char snapshot). */
 export const MAX_HTML_ANCHOR_TEXT_LENGTH = 400;
 /** A structural anchor's path: at most this many levels under the root element (mirrors the bridge). */
 export const MAX_HTML_STRUCTURE_PATH_DEPTH = 64;
@@ -120,7 +120,7 @@ export const MAX_HTML_STRUCTURE_ATTR_NAME_LENGTH = 64;
 export const MAX_HTML_STRUCTURE_ATTR_VALUE_LENGTH = 160;
 /** The longest attribute value a digest may stand for. */
 export const MAX_HTML_STRUCTURE_LONG_VALUE_LENGTH = 4 * 1024 * 1024;
-/** Mirrors `MAX_TARGET_LABEL_LENGTH` in `@plannotator/ui`. */
+/** Mirrors `MAX_TARGET_LABEL_LENGTH` in `@reviewtrail/ui`. */
 export const MAX_HTML_TARGET_LABEL_LENGTH = 64;
 /**
  * Persisted bound for an additional target's display text: the anchor
@@ -128,7 +128,7 @@ export const MAX_HTML_TARGET_LABEL_LENGTH = 64;
  * draft-sized texts alone would blow a 16 KiB anchor budget).
  */
 export const MAX_HTML_TARGET_TEXT_LENGTH = 400;
-/** Mirrors `MAX_ADDITIONAL_TARGETS` in `@plannotator/ui` (the draft cap). */
+/** Mirrors `MAX_ADDITIONAL_TARGETS` in `@reviewtrail/ui` (the draft cap). */
 export const MAX_HTML_ADDITIONAL_TARGETS = 16;
 /** Default byte budget for a persisted anchor (16 KiB of UTF-8 JSON). */
 export const DEFAULT_HTML_ANCHOR_MAX_BYTES = 16 * 1024;
@@ -136,7 +136,7 @@ export const DEFAULT_HTML_ANCHOR_MAX_BYTES = 16 * 1024;
 export const MAX_ELEMENT_CONTEXT_BYTES = 2048;
 /**
  * Cap for live-app page identity strings (mirrors the bridge's own slice).
- * The single definition: `@plannotator/ui`'s parent trust boundary imports
+ * The single definition: `@reviewtrail/ui`'s parent trust boundary imports
  * and re-exports it from here rather than keeping its own copy.
  */
 export const MAX_PAGE_URL_LENGTH = 2048;
@@ -596,7 +596,7 @@ export interface ProjectHostThreadsOptions {
   openOnly?: boolean;
   /**
    * How a row with nothing restorable (no quoted text, no element anchor)
-   * projects. `'global'` (default, Plannotator's model): a document-level
+   * projects. `'global'` (default, ReviewTrail's model): a document-level
    * `GLOBAL_COMMENT`, rendered by the panel's global card grammar and never
    * reported as unanchored. `'unanchored'`: a page `COMMENT` with an empty
    * quote and no anchor, which the viewer's unanchored report then names
@@ -615,10 +615,10 @@ export interface ProjectHostThreadsOptions {
 
 /**
  * The viewer-facing annotation shape, structurally the `Annotation` of
- * `@plannotator/ui/types` restricted to what the raw-HTML surface reads:
+ * `@reviewtrail/ui/types` restricted to what the raw-HTML surface reads:
  * paint fields (`originalText`, `htmlAnchor`, `htmlAdditionalTargets`), the
  * type that decides marker versus document-level card, and the optional
- * presentational fields. `@plannotator/ui` re-exports the projection typed
+ * presentational fields. `@reviewtrail/ui` re-exports the projection typed
  * as `Annotation[]`.
  */
 export interface ProjectedHostAnnotation {

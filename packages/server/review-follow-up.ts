@@ -1,16 +1,16 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
-import { diffHunkLines, parseDiffToFiles, type DiffFile } from "@plannotator/core/diff-files";
-import { passageLines, readPassages, type Passage } from "@plannotator/core/reading-path";
-import type { GuideSection } from "@plannotator/core/guide";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
+import { diffHunkLines, parseDiffToFiles, type DiffFile } from "@reviewtrail/core/diff-files";
+import { passageLines, readPassages, type Passage } from "@reviewtrail/core/reading-path";
+import type { GuideSection } from "@reviewtrail/core/guide";
 
 const digest = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const validKey = (value: string) => /^[a-f0-9]{64}$/.test(value);
 function directory(key: string) {
   if (!validKey(key)) throw Error("Invalid review identity");
-  return join(getPlannotatorDataDir(), "review-follow-up", key);
+  return join(getReviewTrailDataDir(), "review-follow-up", key);
 }
 type Anchor = Pick<Passage, "start" | "end" | "side">;
 interface Evidence {

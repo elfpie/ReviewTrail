@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import type { Block } from '../../types';
 import { computeListIndices, groupBlocks, parseMarkdownToBlocks } from '../../utils/parser';
-import { isQuestionDirectiveKind } from '@plannotator/core/question-block';
+import { isQuestionDirectiveKind } from '@reviewtrail/core/question-block';
 import { InlineMarkdown } from '../InlineMarkdown';
 import { Callout } from './Callout';
 // BlockRenderer renders this, and this renders the quote's inner blocks with
@@ -107,7 +107,7 @@ export const BlockquoteBlock: React.FC<BlockquoteBlockProps> = ({ block, ...inli
   return (
     <blockquote className={`${BLOCKQUOTE_CLASS_NAME} pn-quote-body`} data-block-id={block.id} {...sourceLineAttrs(block)}>
       {/* React hoists this into <head> once for every quote. */}
-      <style href="plannotator-quote-body" precedence="default">{QUOTE_BODY_CSS}</style>
+      <style href="reviewtrail-quote-body" precedence="default">{QUOTE_BODY_CSS}</style>
       <QuoteDepthContext.Provider value={depth + 1}>
         <QuoteBody inner={inner} {...inlineProps} />
       </QuoteDepthContext.Provider>
@@ -175,7 +175,7 @@ export const CalloutBlocks: React.FC<Omit<BlockquoteBlockProps, 'block'> & { inn
   const depth = useContext(QuoteDepthContext);
   return (
     <div className={className ? `pn-quote-body ${className}` : 'pn-quote-body'}>
-      <style href="plannotator-quote-body" precedence="default">{QUOTE_BODY_CSS}</style>
+      <style href="reviewtrail-quote-body" precedence="default">{QUOTE_BODY_CSS}</style>
       <QuoteDepthContext.Provider value={depth + 1}>
         <QuoteBody inner={inner} {...inlineProps} />
       </QuoteDepthContext.Provider>

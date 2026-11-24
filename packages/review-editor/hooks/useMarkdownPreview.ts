@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { storage } from '@plannotator/ui/utils/storage';
-import { useReviewMarkdownPreviewShortcuts } from '@plannotator/ui/shortcuts';
+import { storage } from '@reviewtrail/ui/utils/storage';
+import { useReviewMarkdownPreviewShortcuts } from '@reviewtrail/ui/shortcuts';
 import { isTypingTarget } from './useReviewSearch';
 import type { DiffFile } from '../types';
 import {
@@ -20,9 +20,9 @@ export type { MarkdownFileView } from '../utils/markdownPreview';
  * settings-registry entry: the registry is bundled into the portable
  * guides.show viewer.
  */
-export const MARKDOWN_VIEW_COOKIE = 'plannotator-markdown-view';
+export const MARKDOWN_VIEW_COOKIE = 'reviewtrail-markdown-view';
 /** The earlier "Preview .md" switch: `true` reads once as Changes. */
-export const LEGACY_MARKDOWN_PREVIEW_ALL_COOKIE = 'plannotator-markdown-preview-all';
+export const LEGACY_MARKDOWN_PREVIEW_ALL_COOKIE = 'reviewtrail-markdown-preview-all';
 
 /**
  * The remembered starting view. An old "Preview .md" cookie that was on is

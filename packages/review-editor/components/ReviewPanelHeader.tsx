@@ -19,10 +19,10 @@
  */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ChevronDown, FileSearch, FolderTree, GitCommitHorizontal } from 'lucide-react';
-import { Tooltip } from '@plannotator/ui/components/Tooltip';
-import { isMac } from '@plannotator/ui/utils/platform';
-import { formatShortcutBindingTokens, resolveShortcutBindings, reviewExplorerShortcuts } from '@plannotator/ui/shortcuts';
-import type { AvailableBranches, CompareTargetPickerCopy, DiffOption, RecentCommit } from '@plannotator/shared/types';
+import { Tooltip } from '@reviewtrail/ui/components/Tooltip';
+import { isMac } from '@reviewtrail/ui/utils/platform';
+import { formatShortcutBindingTokens, resolveShortcutBindings, reviewExplorerShortcuts } from '@reviewtrail/ui/shortcuts';
+import type { AvailableBranches, CompareTargetPickerCopy, DiffOption, RecentCommit } from '@reviewtrail/shared/types';
 import type { TreeScope } from '../hooks/useTreeScope';
 import type { RepoFilesState } from '../hooks/useRepoFiles';
 import { BaseBranchPicker } from './BaseBranchPicker';

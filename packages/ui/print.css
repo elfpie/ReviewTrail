@@ -2,7 +2,7 @@
  *
  * Two-pronged approach:
  *   1. @media print — standard print styles
- *   2. .plannotator-print — class added via JS beforeprint/afterprint events
+ *   2. .reviewtrail-print — class added via JS beforeprint/afterprint events
  *      to guarantee overrides that @media print alone cannot achieve
  *      (e.g. beating Tailwind layers, and the syntax theme's per-token inline
  *      colours — inline styles only lose to an !important author rule).
@@ -10,12 +10,12 @@
 
 /* ============================================================
  * CLASS-BASED OVERRIDES — applied via beforeprint/afterprint JS
- * These use .plannotator-print on <html> for maximum specificity.
+ * These use .reviewtrail-print on <html> for maximum specificity.
  * ============================================================ */
 
 /* Code blocks: flatten the syntax theme's dark block background to paper */
-.plannotator-print pre,
-.plannotator-print pre[class] {
+.reviewtrail-print pre,
+.reviewtrail-print pre[class] {
   background: #f5f5f5 !important;
   background-color: #f5f5f5 !important;
   color: #1a1a1a !important;
@@ -23,10 +23,10 @@
   border-left: 3px solid #888 !important;
 }
 
-.plannotator-print pre code,
-.plannotator-print code.pn-code,
-.plannotator-print pre code.pn-code,
-.plannotator-print .code-snippet-preview {
+.reviewtrail-print pre code,
+.reviewtrail-print code.pn-code,
+.reviewtrail-print pre code.pn-code,
+.reviewtrail-print .code-snippet-preview {
   background: transparent !important;
   background-color: transparent !important;
   color: #1a1a1a !important;
@@ -34,9 +34,9 @@
 
 /* The syntax theme colours every token with an inline `style`, so these
    !important rules are what flattens code to black on paper. */
-.plannotator-print pre span,
-.plannotator-print pre code span,
-.plannotator-print .code-snippet-preview span {
+.reviewtrail-print pre span,
+.reviewtrail-print pre code span,
+.reviewtrail-print .code-snippet-preview span {
   color: #1a1a1a !important;
   background: transparent !important;
   background-color: transparent !important;
@@ -45,7 +45,7 @@
 }
 
 /* Inline code */
-.plannotator-print code {
+.reviewtrail-print code {
   background: #e8e8e8 !important;
   background-color: #e8e8e8 !important;
   color: #1a1a1a !important;
@@ -53,7 +53,7 @@
 }
 
 /* Inline code inside pre should be transparent (not gray pill) */
-.plannotator-print pre code {
+.reviewtrail-print pre code {
   background: transparent !important;
   background-color: transparent !important;
   border: none !important;

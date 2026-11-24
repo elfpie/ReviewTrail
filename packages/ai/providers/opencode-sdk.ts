@@ -1,5 +1,5 @@
 /**
- * OpenCode provider — bridges Plannotator's AI layer with OpenCode's agent server.
+ * OpenCode provider — bridges ReviewTrail's AI layer with OpenCode's agent server.
  *
  * Uses @opencode-ai/sdk to spawn a dedicated `opencode serve` on an
  * OS-assigned port. One server is shared across all sessions of this process,
@@ -89,13 +89,13 @@ export class OpenCodeProvider implements AIProvider {
 		const epoch = this.startEpoch;
 		const { createOpencodeServer, createOpencodeClient } = await getSDK();
 		// port 0 asks opencode for an OS-assigned free port (the SDK reads the
-		// real URL back from the child's "listening" line), so every Plannotator
+		// real URL back from the child's "listening" line), so every ReviewTrail
 		// process gets its own server instead of piling onto a shared default
 		// port. An explicitly configured port is still honored verbatim.
 		let server: { url: string; close: () => void };
 		try {
-			// Plannotator's integration off in this `opencode serve`
-			// (ask-ai-env.ts): the Plannotator OpenCode plugin it loads reads
+			// ReviewTrail's integration off in this `opencode serve`
+			// (ask-ai-env.ts): the ReviewTrail OpenCode plugin it loads reads
 			// process.env and stands down. The SDK takes no env, so the switches
 			// are set on process.env only for the synchronous part of the call,
 			// where the SDK copies it into the spawn.

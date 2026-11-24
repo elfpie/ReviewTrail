@@ -1,31 +1,31 @@
 import React, { useEffect, useCallback, useState, useMemo, useRef } from 'react';
 import { focusFileHeaderWhenLost } from '../utils/focusFileHeader';
-import { useCompactTouchLayout } from '@plannotator/ui/hooks/useIsMobile';
-import { CodeAnnotation } from '@plannotator/ui/types';
+import { useCompactTouchLayout } from '@reviewtrail/ui/hooks/useIsMobile';
+import { CodeAnnotation } from '@reviewtrail/ui/types';
 import type {
   JjEvoLogEntry,
   SinceBaseSections,
   WorktreeInfo,
-} from '@plannotator/shared/types';
+} from '@reviewtrail/shared/types';
 import { buildFileTree, getAllFolderPaths, getVisualFileOrder, type FileTreeNode } from '../utils/buildFileTree';
 import { buildFileKindBlocks, type FileKindBlock } from '../utils/fileKindTree';
 import { buildFileStatusBlocks, FILE_STATUS_COVERS, FILE_STATUS_LABELS } from '../utils/fileStatusTree';
-import { FileKindIcon, FILE_KIND_LABELS } from '@plannotator/guide-viewer/FileKindIcon';
+import { FileKindIcon, FILE_KIND_LABELS } from '@reviewtrail/guide-viewer/FileKindIcon';
 import { ChangesTreeView, type ChangesTreeHandle } from './ChangesTreeView';
 import { useAfterFirstCode } from '../utils/firstCodePaint';
 import { EvoLogPicker } from './EvoLogPicker';
 import { WorktreePicker } from './WorktreePicker';
 import { type ReviewSearchFileGroup, type ReviewSearchMatch } from '../utils/reviewSearch';
 import type { DiffFile } from '../types';
-import { OverlayScrollArea } from '@plannotator/ui/components/OverlayScrollArea';
-import { PRPlatformIcon } from '@plannotator/ui/components/PRPlatformIcon';
+import { OverlayScrollArea } from '@reviewtrail/ui/components/OverlayScrollArea';
+import { PRPlatformIcon } from '@reviewtrail/ui/components/PRPlatformIcon';
 import { Paperclip } from 'lucide-react';
 import { RepoTreeView, type RepoTreeHandle } from './RepoTreeView';
 import { ReviewPanelHeader, ScopeSwitch, reviewPanelBodyProps, type ReviewPanelHeaderModel } from './ReviewPanelHeader';
 
 import type { TreeScope } from '../hooks/useTreeScope';
 import type { RepoFiles } from '../hooks/useRepoFiles';
-import type { OverlayScrollAreaHandle } from '@plannotator/ui/components/OverlayScrollArea';
+import type { OverlayScrollAreaHandle } from '@reviewtrail/ui/components/OverlayScrollArea';
 
 import { SidebarActionRow, SemanticDiffRow, CallFlowRow, AllChangesRow } from './PanelNavRows';
 import { PanelControlsRow, PanelSearchField } from './PanelChrome';

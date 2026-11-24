@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox: commands the person runs with one press (`:::run`) and
+ * ReviewTrail Inbox: commands the person runs with one press (`:::run`) and
  * secrets they save on their own computer (`:::secret`).
  *
  * An agent writes a `:::run` block when a command must run on the person's
@@ -88,7 +88,7 @@ export const INBOX_SECRET_REFUSED_NAMES: ReadonlySet<string> = new Set([
  */
 export const INBOX_SECRET_REFUSED_PREFIXES: readonly string[] = [
   "LD_", "DYLD_", "PYTHON", "PERL", "GIT_", "NPM_CONFIG_", "BASH_FUNC", "BUN_", "DENO_", "LC_", "XDG_", "DOTNET_",
-  "COREHOST_", "COR_", "CORECLR_", "COMPLUS_", "CARGO_", "RUSTUP_", "PLANNOTATOR_",
+  "COREHOST_", "COR_", "CORECLR_", "COMPLUS_", "CARGO_", "RUSTUP_", "REVIEWTRAIL_",
 ];
 /**
  * A name caught only by a prefix is still a secret's when it ends like one (GIT_TOKEN, CARGO_REGISTRY_TOKEN,
@@ -101,7 +101,7 @@ export function inboxSecretNameRefused(name: string): boolean {
   if (INBOX_SECRET_REFUSED_NAMES.has(name)) return true;
   const prefix = INBOX_SECRET_REFUSED_PREFIXES.find((p) => name.startsWith(p));
   if (!prefix) return false;
-  return prefix === "PLANNOTATOR_" || !SECRET_ENDING_RE.test(name);
+  return prefix === "REVIEWTRAIL_" || !SECRET_ENDING_RE.test(name);
 }
 
 /** Why a `Uses:` word gives the run nothing, for the card. */

@@ -38,7 +38,7 @@ afterEach(() => {
 });
 
 function setup() {
-	const dir = mkdtempSync(join(tmpdir(), "plannotator-qwen-sdk-"));
+	const dir = mkdtempSync(join(tmpdir(), "reviewtrail-qwen-sdk-"));
 	tempDirs.push(dir);
 	process.env.QWEN_HOME = join(dir, "qwen-home");
 	const fake = fakeQwenCli(dir);
@@ -87,7 +87,7 @@ describe("QwenSDKProvider", () => {
 
 		const [run1, run2] = fakeQwenRuns(fake.log);
 		const qwenId = run1!.args[1]!;
-		// Marked as an Ask AI chat, so `plannotator last` can skip it.
+		// Marked as an Ask AI chat, so `reviewtrail last` can skip it.
 		expect(qwenId.startsWith(QWEN_ASK_AI_SESSION_PREFIX)).toBe(true);
 		expect(qwenId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
 		const rest = [
@@ -108,10 +108,10 @@ describe("QwenSDKProvider", () => {
 		expect(run2!.stdin).toContain("And step 3?");
 	});
 
-	// The Inbox MCP server Plannotator adds to Qwen's settings.json inherits
+	// The Inbox MCP server ReviewTrail adds to Qwen's settings.json inherits
 	// Qwen's env: with the marker it lists no tools, so an Ask AI question can
 	// never post to the person's Inbox.
-	test.if(posix)("every qwen run starts with Plannotator's integration off", async () => {
+	test.if(posix)("every qwen run starts with ReviewTrail's integration off", async () => {
 		const { fake, provider } = setup();
 		const session = await newSession(provider);
 		await ask(session, "What does step 2 do?");
@@ -119,7 +119,7 @@ describe("QwenSDKProvider", () => {
 		const runs = fakeQwenRuns(fake.log);
 		expect(runs).toHaveLength(2);
 		for (const run of runs) {
-			expect(run.switches).toEqual({ PLANNOTATOR_ASK_AI_CHILD: "1", PLANNOTATOR_INBOX_TOOL: "0", PLANNOTATOR_AGENT_TOOL: "0" });
+			expect(run.switches).toEqual({ REVIEWTRAIL_ASK_AI_CHILD: "1", REVIEWTRAIL_INBOX_TOOL: "0", REVIEWTRAIL_AGENT_TOOL: "0" });
 		}
 	});
 

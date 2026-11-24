@@ -32,11 +32,11 @@ const CONTENT_TYPES: Record<string, string> = {
  * falls back to the system's light or dark scheme.
  */
 export const UPDATED_WHILE_OPEN_MESSAGE =
-  'Plannotator was updated while this session was open. Run /reload in Pi (or /restart in Oh My Pi), or restart your agent, to finish.';
+  'ReviewTrail was updated while this session was open. Run /reload in Pi (or /restart in Oh My Pi), or restart your agent, to finish.';
 
 const UPDATED_WHILE_OPEN_SCRIPT = `<script>(function(){
 var shown=false;
-function show(page){var h=document.documentElement;if(page&&!h.style.colorScheme)h.style.colorScheme="light dark";if(shown)return;shown=true;var p=document.createElement("p");p.setAttribute("role","alert");p.id="plannotator-updated";p.textContent=${JSON.stringify(UPDATED_WHILE_OPEN_MESSAGE)};p.style.cssText="position:fixed;top:0;left:0;right:0;margin:0;padding:12px 16px;font:14px/1.5 system-ui,sans-serif;background:Canvas;color:CanvasText;z-index:2147483647";(document.body||document.documentElement).prepend(p)}
+function show(page){var h=document.documentElement;if(page&&!h.style.colorScheme)h.style.colorScheme="light dark";if(shown)return;shown=true;var p=document.createElement("p");p.setAttribute("role","alert");p.id="reviewtrail-updated";p.textContent=${JSON.stringify(UPDATED_WHILE_OPEN_MESSAGE)};p.style.cssText="position:fixed;top:0;left:0;right:0;margin:0;padding:12px 16px;font:14px/1.5 system-ui,sans-serif;background:Canvas;color:CanvasText;z-index:2147483647";(document.body||document.documentElement).prepend(p)}
 function entry(){return document.querySelector('script[type="module"][src^="/assets/"]')}
 function check(page){var s=entry();if(s)fetch(s.src,{method:"HEAD",cache:"no-store",redirect:"manual"}).then(function(r){if(r.ok&&/^text\\/html/i.test(r.headers.get("content-type")||""))show(page)},function(){})}
 addEventListener("error",function(e){if(e.target===entry())check(true)},true);
@@ -44,7 +44,7 @@ addEventListener("vite:preloadError",function(){check(false)});
 })()</script>`;
 
 /** Said when the page's stylesheet or entry script still fails after one retry. */
-export const LOAD_FAILED_MESSAGE = "Plannotator couldn't finish loading.";
+export const LOAD_FAILED_MESSAGE = "ReviewTrail couldn't finish loading.";
 
 /**
  * The fonts every page draws its first text in. Preloaded from the head so
@@ -55,7 +55,7 @@ const PRELOADED_FONTS = [/^assets\/inter-latin-wght-normal-[^/]+\.woff2$/, /^ass
 
 /**
  * First in the head, before anything can paint:
- *  - The color scheme of the user's saved theme (the `plannotator-theme`
+ *  - The color scheme of the user's saved theme (the `reviewtrail-theme`
  *    cookie; dark when there is none, `system` follows the OS). The page's
  *    stylesheet lands before its entry script has run, and with the browser's
  *    default scheme the empty page would paint white for that long under a
@@ -76,11 +76,11 @@ const PRELOADED_FONTS = [/^assets\/inter-latin-wght-normal-[^/]+\.woff2$/, /^ass
 function headScript(core: string[]): string {
   return `<script>(function(){
 var d=document,h=d.documentElement;
-try{var m=(d.cookie.match(/(?:^|; )plannotator-theme=([^;]*)/)||[])[1];m=m?decodeURIComponent(m):"dark";if(m==="system")m=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";h.style.colorScheme=m==="light"?"light":"dark"}catch(e){}
+try{var m=(d.cookie.match(/(?:^|; )reviewtrail-theme=([^;]*)/)||[])[1];m=m?decodeURIComponent(m):"dark";if(m==="system")m=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";h.style.colorScheme=m==="light"?"light":"dark"}catch(e){}
 var core=${JSON.stringify(core)},failed=false;
-function show(){if(d.getElementById("plannotator-load-failed"))return;var p=d.createElement("p");p.id="plannotator-load-failed";p.setAttribute("role","alert");p.style.cssText="position:fixed;top:0;left:0;right:0;margin:0;padding:12px 16px;font:14px/1.5 system-ui,sans-serif;background:Canvas;color:CanvasText;z-index:2147483646";p.appendChild(d.createTextNode(${JSON.stringify(LOAD_FAILED_MESSAGE + ' ')}));var b=d.createElement("button");b.type="button";b.textContent="Reload";b.style.cssText="font:inherit;color:inherit;background:none;border:0;margin:-4px -6px;padding:4px 6px;min-height:28px;text-decoration:underline;cursor:pointer";b.onclick=function(){location.reload()};p.appendChild(b);var st=d.createElement("style");st.textContent="#root{display:none!important}@media (pointer:coarse){#plannotator-load-failed button{min-height:44px;margin-block:-12px}}";p.appendChild(st);(d.body||h).prepend(p)}
+function show(){if(d.getElementById("reviewtrail-load-failed"))return;var p=d.createElement("p");p.id="reviewtrail-load-failed";p.setAttribute("role","alert");p.style.cssText="position:fixed;top:0;left:0;right:0;margin:0;padding:12px 16px;font:14px/1.5 system-ui,sans-serif;background:Canvas;color:CanvasText;z-index:2147483646";p.appendChild(d.createTextNode(${JSON.stringify(LOAD_FAILED_MESSAGE + ' ')}));var b=d.createElement("button");b.type="button";b.textContent="Reload";b.style.cssText="font:inherit;color:inherit;background:none;border:0;margin:-4px -6px;padding:4px 6px;min-height:28px;text-decoration:underline;cursor:pointer";b.onclick=function(){location.reload()};p.appendChild(b);var st=d.createElement("style");st.textContent="#root{display:none!important}@media (pointer:coarse){#reviewtrail-load-failed button{min-height:44px;margin-block:-12px}}";p.appendChild(st);(d.body||h).prepend(p)}
 function fail(){if(failed)return;failed=true;var s=d.querySelector('script[type="module"][src^="/assets/"]');if(!s)return show();fetch(s.src,{method:"HEAD",cache:"no-store",redirect:"manual"}).then(function(r){if(!(r.ok&&/^text\\/html/i.test(r.headers.get("content-type")||"")))show()},show)}
-addEventListener("error",function(e){var t=e.target,a=t&&t.tagName==="LINK"?"href":"src",u=t&&t.getAttribute&&t.getAttribute(a);if(!u||!(t.tagName==="LINK"||t.tagName==="SCRIPT"))return;if(t.hasAttribute("data-plannotator-retry"))return fail();if(core.indexOf(u)<0)return;var n=d.createElement(t.tagName);for(var i=0;i<t.attributes.length;i++)n.setAttribute(t.attributes[i].name,t.attributes[i].value);if(a==="href")n.setAttribute(a,u+(u.indexOf("?")<0?"?":"&")+"retry=1");n.setAttribute("data-plannotator-retry","");t.parentNode.insertBefore(n,t.nextSibling)},true);
+addEventListener("error",function(e){var t=e.target,a=t&&t.tagName==="LINK"?"href":"src",u=t&&t.getAttribute&&t.getAttribute(a);if(!u||!(t.tagName==="LINK"||t.tagName==="SCRIPT"))return;if(t.hasAttribute("data-reviewtrail-retry"))return fail();if(core.indexOf(u)<0)return;var n=d.createElement(t.tagName);for(var i=0;i<t.attributes.length;i++)n.setAttribute(t.attributes[i].name,t.attributes[i].value);if(a==="href")n.setAttribute(a,u+(u.indexOf("?")<0?"?":"&")+"retry=1");n.setAttribute("data-reviewtrail-retry","");t.parentNode.insertBefore(n,t.nextSibling)},true);
 })()</script>`;
 }
 
@@ -91,7 +91,7 @@ addEventListener("error",function(e){var t=e.target,a=t&&t.tagName==="LINK"?"hre
  */
 export function packedApp(): Plugin {
   return {
-    name: 'plannotator-packed-app',
+    name: 'reviewtrail-packed-app',
     enforce: 'post',
     // Last in the hook, not merely a post plugin: Vite's own post build
     // plugins still rewrite the chunks here (vite:build-import-analysis fills

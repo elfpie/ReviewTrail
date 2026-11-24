@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { imageRegionFileName, imageRegionLocationLines, parseImageRegion, type ImageRegion } from '@plannotator/core/image-region';
+import { imageRegionFileName, imageRegionLocationLines, parseImageRegion, type ImageRegion } from '@reviewtrail/core/image-region';
 import { AnnotationType, type Annotation, type ImageAttachment } from '../types';
 import type { MentionSource } from '../utils/mentions';
 import { getIdentity } from '../utils/identity';

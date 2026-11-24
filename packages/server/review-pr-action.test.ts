@@ -6,12 +6,12 @@ import type {
   PRMetadata,
   PRReviewFileComment,
   PRReviewSubmissionResult,
-} from '@plannotator/shared/pr-types';
+} from '@reviewtrail/shared/pr-types';
 import { startReviewServer } from './review';
 
-const originalHistory = process.env.PLANNOTATOR_FEEDBACK_HISTORY;
-const originalAI = process.env.PLANNOTATOR_AI;
-const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+const originalHistory = process.env.REVIEWTRAIL_FEEDBACK_HISTORY;
+const originalAI = process.env.REVIEWTRAIL_AI;
+const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
 const originalPath = process.env.PATH;
 const tempDirs: string[] = [];
 
@@ -46,9 +46,9 @@ async function withReviewServer(
   submit: (...args: unknown[]) => Promise<PRReviewSubmissionResult>,
   run: (url: string) => Promise<void>,
 ): Promise<void> {
-  process.env.PLANNOTATOR_AI = 'disabled';
-  process.env.PLANNOTATOR_DATA_DIR = makeTempDir('plannotator-pr-action-data-');
-  process.env.PATH = makeTempDir('plannotator-pr-action-path-');
+  process.env.REVIEWTRAIL_AI = 'disabled';
+  process.env.REVIEWTRAIL_DATA_DIR = makeTempDir('reviewtrail-pr-action-data-');
+  process.env.PATH = makeTempDir('reviewtrail-pr-action-path-');
   const server = await startReviewServer({
     rawPatch: 'diff --git a/src/failing.ts b/src/failing.ts\n',
     gitRef: 'MR !7',
@@ -76,12 +76,12 @@ async function postReview(url: string): Promise<Response> {
 }
 
 afterEach(() => {
-  if (originalHistory === undefined) delete process.env.PLANNOTATOR_FEEDBACK_HISTORY;
-  else process.env.PLANNOTATOR_FEEDBACK_HISTORY = originalHistory;
-  if (originalAI === undefined) delete process.env.PLANNOTATOR_AI;
-  else process.env.PLANNOTATOR_AI = originalAI;
-  if (originalDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
+  if (originalHistory === undefined) delete process.env.REVIEWTRAIL_FEEDBACK_HISTORY;
+  else process.env.REVIEWTRAIL_FEEDBACK_HISTORY = originalHistory;
+  if (originalAI === undefined) delete process.env.REVIEWTRAIL_AI;
+  else process.env.REVIEWTRAIL_AI = originalAI;
+  if (originalDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
   if (originalPath === undefined) delete process.env.PATH;
   else process.env.PATH = originalPath;
   for (const dir of tempDirs.splice(0)) {
@@ -91,7 +91,7 @@ afterEach(() => {
 
 describe('Bun /api/pr-action submission contract', () => {
   test('posted comments stay under the original PR and stale tabs cannot resolve them', async () => {
-    process.env.PLANNOTATOR_FEEDBACK_HISTORY = '1';
+    process.env.REVIEWTRAIL_FEEDBACK_HISTORY = '1';
     await withReviewServer(async () => ({ status: 'complete' }), async (url) => {
       expect((await postReview(url)).ok).toBe(true);
       const { snapshotId } = await (await fetch(url + '/api/diff')).json();

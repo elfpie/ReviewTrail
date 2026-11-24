@@ -1,8 +1,8 @@
 import { afterEach, beforeAll, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { CodeGuideData, GuideOverviewDiagram } from '@plannotator/core/guide';
-import { FIXTURE_V2_OVERVIEW, FIXTURE_V1_LOCAL } from '@plannotator/core/guide-format-fixtures';
+import type { CodeGuideData, GuideOverviewDiagram } from '@reviewtrail/core/guide';
+import { FIXTURE_V2_OVERVIEW, FIXTURE_V1_LOCAL } from '@reviewtrail/core/guide-format-fixtures';
 import type { DiffFile } from './types';
 import { GuideHostProvider, type GuideHostValue } from './host';
 import { GuideView } from './GuideView';

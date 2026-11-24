@@ -1,4 +1,4 @@
-import { storage } from '@plannotator/ui/utils/storage';
+import { storage } from '@reviewtrail/ui/utils/storage';
 import type { SecondOpinionLink, SecondOpinionState } from '@plannotator/sem-jiff';
 
 export interface PowerUpFileState {
@@ -20,7 +20,7 @@ export interface PowerUpConfig {
   retry: number;
 }
 
-const REJECTED_KEY = 'plannotator-power-up-rejected';
+const REJECTED_KEY = 'reviewtrail-power-up-rejected';
 const MAX_REJECTED = 150;
 
 export function readPowerUpRejected(): readonly string[] {

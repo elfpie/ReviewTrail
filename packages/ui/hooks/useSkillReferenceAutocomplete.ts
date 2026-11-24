@@ -83,7 +83,7 @@ export function useSkillReferenceAutocomplete(options: {
   catalogFilter?: (entry: SkillCatalogEntry) => boolean;
   /**
    * A host's own commands (opt-in; the Inbox's `/side`): rows the `/` list offers that are not skills. They are
-   * listed after the catalog's leading host-served rows (root `plannotator`), a skill with the same name wins, and
+   * listed after the catalog's leading host-served rows (root `reviewtrail`), a skill with the same name wins, and
    * `$` never lists them. Picking one inserts nothing: the typed trigger leaves the text (`setText`) and `onCommand`
    * gets the row and the words that are left. A command typed and not picked is plain text: never painted, never a
    * reference. Absent: none, as before. Keep its identity stable across renders.
@@ -91,7 +91,7 @@ export function useSkillReferenceAutocomplete(options: {
   commands?: readonly SkillCatalogEntry[];
   onCommand?: (command: SkillCatalogEntry, text: string) => void;
   /**
-   * Keep the host-served rows (root `plannotator`) together at the top of the list whatever was typed (opt-in; pairs
+   * Keep the host-served rows (root `reviewtrail`) together at the top of the list whatever was typed (opt-in; pairs
    * with SkillReferenceMenu's `groupHostRows`, which draws them as their own group). Within each group the filter's
    * order stands. Absent: the filter's order alone, as before.
    */
@@ -145,7 +145,7 @@ export function useSkillReferenceAutocomplete(options: {
   const slashList = useMemo(() => {
     const offered = commands?.filter((command) => !catalog.some((skill) => skill.name === command.name)) ?? [];
     if (offered.length === 0) return catalog;
-    const lead = catalog.findIndex((skill) => skill.root !== 'plannotator');
+    const lead = catalog.findIndex((skill) => skill.root !== 'reviewtrail');
     const at = lead === -1 ? catalog.length : lead;
     return [...catalog.slice(0, at), ...offered, ...catalog.slice(at)];
   }, [catalog, commands]);
@@ -153,7 +153,7 @@ export function useSkillReferenceAutocomplete(options: {
   const items = useMemo(() => {
     if (!trigger) return [];
     const found = filterSkillCatalog(trigger.trigger === '/' ? slashList : catalog, trigger.query);
-    return hostRowsFirst ? [...found.filter((row) => row.root === 'plannotator'), ...found.filter((row) => row.root !== 'plannotator')] : found;
+    return hostRowsFirst ? [...found.filter((row) => row.root === 'reviewtrail'), ...found.filter((row) => row.root !== 'reviewtrail')] : found;
   }, [catalog, hostRowsFirst, slashList, trigger]);
 
   const open = trigger !== null && items.length > 0 && trigger.start !== dismissedStart && trigger.start !== quietStart;

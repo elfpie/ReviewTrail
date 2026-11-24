@@ -3,7 +3,7 @@
  * prompt builders: the per-diff-type "what to review / how to inspect it"
  * instruction and the multi-repo workspace context lines. Moved here from
  * packages/server/agent-review-message.ts (which re-exports every name) so
- * @plannotator/core/guide-prompt can build Plannotator's exact guide user
+ * @reviewtrail/core/guide-prompt can build ReviewTrail's exact guide user
  * message in any runtime. Zero dependencies beyond ./diff-type.
  */
 

@@ -16,7 +16,7 @@ import {
   OVERSIZED_REVIEW_STUB_MARKER,
   oversizedReviewStubBytesLine,
 } from "./diff-paths";
-import { parseDiffToFiles } from "@plannotator/core/diff-files";
+import { parseDiffToFiles } from "@reviewtrail/core/diff-files";
 
 import {
   BARE_HEX_SHA_RE,
@@ -30,9 +30,9 @@ import {
   parseRemoteBookmark,
   parseWorktreeDiffType,
   type DiffType,
-} from "@plannotator/core/diff-type";
+} from "@reviewtrail/core/diff-type";
 
-// Moved to @plannotator/core/diff-type (browser-safe); re-exported so every
+// Moved to @reviewtrail/core/diff-type (browser-safe); re-exported so every
 // existing importer of review-core keeps working unchanged.
 export {
   BARE_HEX_SHA_RE,
@@ -367,13 +367,13 @@ function gitConfigEnvironment(
 
 /**
  * Global options that keep color and pagers out of every Git command
- * Plannotator parses, whatever the user's git config says (#1661).
+ * ReviewTrail parses, whatever the user's git config says (#1661).
  *
  * `color.ui=never` alone is NOT enough: a more specific key such as an
  * explicit `color.diff = always` wins over `color.ui`. With it, every line of
  * a patch arrived wrapped in ANSI escapes, so the parser found 0 files and
  * viewed-file identity capture found 0 identities. Each command-specific color
- * key that Plannotator's output could hit is set too. `-c` on argv is the
+ * key that ReviewTrail's output could hit is set too. `-c` on argv is the
  * highest-precedence config scope. `--no-pager` rules out a `pager.<cmd>`
  * setting (a pager only starts on a TTY, which these pipes never are).
  */
@@ -413,7 +413,7 @@ export const GIT_OUTPUT_ARGS: readonly string[] = Object.freeze([
 
 /**
  * The same color-off settings as `GIT_CONFIG_*` environment variables, for
- * processes Plannotator spawns that run git themselves (review and
+ * processes ReviewTrail spawns that run git themselves (review and
  * guide agent jobs). Inherited `GIT_CONFIG_*` entries are kept. Git 2.31+
  * reads these; an older git ignores them, which only costs color in the
  * agent's own tool output.
@@ -2924,7 +2924,7 @@ export function isBinaryPatchFile(patch: string, filePath: string): boolean {
 
 /**
  * The `static-patch` diff type: the session's content is caller-supplied
- * unified-diff bytes (`plannotator review --patch-file`), not something a VCS
+ * unified-diff bytes (`reviewtrail --patch-file`), not something a VCS
  * computed. Nothing in the session may read the working tree.
  */
 export const STATIC_PATCH_DIFF_TYPE = "static-patch";

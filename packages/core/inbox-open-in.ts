@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox: which apps an attachment may open in (design record
+ * ReviewTrail Inbox: which apps an attachment may open in (design record
  * "inbox-open-in", approved 2026-10-14). Pure and browser-safe: the window
  * builds its menu from it and the server's launch route
  * (packages/server/inbox-open-in.ts) refuses anything it does not allow.
@@ -17,7 +17,7 @@
  * - md, txt, json, yaml, toml and log also get the OS default on macOS and
  *   Windows (never on Linux, where `xdg-open` may sniff the content).
  * - Everything else, executables and archives included, gets the file
- *   manager (reveal) and Copy path only. Plannotator never runs a file.
+ *   manager (reveal) and Copy path only. ReviewTrail never runs a file.
  */
 
 import { readInboxAttachmentKind } from "./inbox-attachments";

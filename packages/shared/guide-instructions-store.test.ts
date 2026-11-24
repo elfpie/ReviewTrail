@@ -24,13 +24,13 @@ let priorDataDir: string | undefined;
 
 beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), "pn-guide-instructions-"));
-  priorDataDir = process.env.PLANNOTATOR_DATA_DIR;
-  process.env.PLANNOTATOR_DATA_DIR = dir;
+  priorDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+  process.env.REVIEWTRAIL_DATA_DIR = dir;
 });
 
 afterEach(() => {
-  if (priorDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = priorDataDir;
+  if (priorDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = priorDataDir;
   rmSync(dir, { recursive: true, force: true });
 });
 

@@ -2,9 +2,9 @@
  * Claude Agent SDK provider — the first concrete AIProvider implementation.
  *
  * Uses @anthropic-ai/claude-agent-sdk to create sessions that can:
- * - Start fresh with Plannotator context as the system prompt
+ * - Start fresh with ReviewTrail context as the system prompt
  * - Fork from a parent Claude Code session (preserving full history)
- * - Resume a previous Plannotator inline chat session
+ * - Resume a previous ReviewTrail inline chat session
  * - Stream text deltas back to the UI in real time
  *
  * Sessions are read-only by default (tools limited to Read, Glob, Grep)
@@ -28,7 +28,7 @@ import {
   cliVersionFrom,
   type CatalogModel,
   type ClaudeSdkModelInfo,
-} from "@plannotator/core/model-catalog";
+} from "@reviewtrail/core/model-catalog";
 import { askAiChildEnv } from "./ask-ai-env.ts";
 
 // ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@ function isCloudModelId(model: string): boolean {
 /**
  * Resolve the model identifier to hand the Claude Agent SDK.
  *
- * Plannotator's model picker uses bare aliases (`claude-sonnet-4-6`). Those
+ * ReviewTrail's model picker uses bare aliases (`claude-sonnet-4-6`). Those
  * are valid against the first-party Anthropic API but are rejected by Bedrock
  * and Vertex, which require a full inference-profile id / ARN — producing
  * `400 The provided model identifier is invalid`. Claude Code itself reads
@@ -172,9 +172,9 @@ interface ClaudeSDKQueryOptions {
 
 /**
  * Removed from every Ask AI session whatever the person's settings allow: the
- * Plannotator Inbox MCP server, by its whole-server name (`mcp__<server>`, a
+ * ReviewTrail Inbox MCP server, by its whole-server name (`mcp__<server>`, a
  * server-level spec the SDK's `disallowedTools` takes). This covers an
- * HTTP-transport `plannotator-inbox` entry too, which the env marker
+ * HTTP-transport `reviewtrail-inbox` entry too, which the env marker
  * (ask-ai-env.ts) cannot reach.
  */
 const ASK_AI_DISALLOWED_TOOLS = ["mcp__plannotator-inbox"];
@@ -486,7 +486,7 @@ class ClaudeAgentSDKSession extends BaseSession {
       abortController: this._currentAbort!,
       includePartialMessages: true,
       persistSession: true,
-      // Plannotator's integration off in this `claude` (ask-ai-env.ts): the
+      // ReviewTrail's integration off in this `claude` (ask-ai-env.ts): the
       // plugin's ExitPlanMode hook exits at once instead of opening a review.
       // The SDK replaces the child's env with this, so it is the full live env.
       env: askAiChildEnv(),

@@ -1,10 +1,10 @@
 import React, { createContext, useContext } from 'react';
-import type { GuideOverviewDiagram } from '@plannotator/core/guide';
+import type { GuideOverviewDiagram } from '@reviewtrail/core/guide';
 import type { DiffFile } from './types';
 
 /**
  * The guide chain (GuideView → GuideSectionCard → GuideFileCard) is rendered by
- * two hosts: the Plannotator review app and the portable guide viewer. Both
+ * two hosts: the ReviewTrail review app and the portable guide viewer. Both
  * supply the same narrow contract through this context instead of the app's
  * ~200-field ReviewState, which is what lets the chain live in a package
  * without a server, a dock, or annotations behind it.
@@ -25,7 +25,7 @@ export interface GuideActiveSearchMatch {
 }
 
 /**
- * The minimum a diff renderer must accept from the guide chain. In Plannotator
+ * The minimum a diff renderer must accept from the guide chain. In ReviewTrail
  * this is `AllFilesCodeView`; the props below are exactly the guide-specific
  * subset added for the virtualized guide (#1158): one file per instance, a
  * tokenized scroll target, and remount-continuity for the viewport window.

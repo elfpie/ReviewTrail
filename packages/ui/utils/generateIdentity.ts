@@ -7,7 +7,7 @@
  *
  * The full `unique-username-generator` dictionary is NOT imported here. It is
  * registered into the slot below by `./identity-tater`, which every
- * Plannotator entry imports eagerly, so Plannotator mints names from the
+ * ReviewTrail entry imports eagerly, so ReviewTrail mints names from the
  * full dictionary exactly as before. A host that provides its own
  * `identityProvider` never calls the generator and, with the static import
  * gone, no longer ships the word lists.
@@ -53,7 +53,7 @@ let generator: IdentityGenerator = fallbackIdentityGenerator;
 /**
  * Register the generator `generateIdentity()` delegates to. Must return a
  * string synchronously. `./identity-tater` registers the full dictionary;
- * a host may register its own via `configurePlannotatorUI({ identityGenerator })`.
+ * a host may register its own via `configureReviewTrailUI({ identityGenerator })`.
  */
 export function setIdentityGenerator(next: IdentityGenerator): void {
   generator = next;

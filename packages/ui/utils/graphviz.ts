@@ -8,7 +8,7 @@
  * Emscripten JS with the wasm inlined) is fetched on the first dot fence, a
  * failed import is dropped from the memo so the next call issues a fresh
  * `import()`, and the block re-attempts once and offers Retry. In
- * Plannotator's single-file builds the import is inlined and resolves from
+ * ReviewTrail's single-file builds the import is inlined and resolves from
  * the bundle; a host that bundles by route fetches it on demand.
  *
  * This module has NO static import of `@viz-js/viz`; the only place the

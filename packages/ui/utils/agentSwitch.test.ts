@@ -3,8 +3,8 @@ import { resetStorageBackend, setStorageBackend, type StorageBackend } from "./s
 import { getAgentSwitchSettings, getEffectiveAgentName, saveAgentSwitchSettings } from "./agentSwitch";
 import { ConfigStoreForTest } from "../config/configStore";
 
-const SWITCH_COOKIE = "plannotator-agent-switch";
-const CUSTOM_COOKIE = "plannotator-agent-custom";
+const SWITCH_COOKIE = "reviewtrail-agent-switch";
+const CUSTOM_COOKIE = "reviewtrail-agent-custom";
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));

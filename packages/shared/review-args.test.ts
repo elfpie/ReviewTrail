@@ -57,7 +57,7 @@ describe("parseReviewArgs", () => {
     });
   });
 
-  // #1907: `plannotator review --gate` (an agent waiting for the sign-off) must
+  // #1907: `reviewtrail --gate` (an agent waiting for the sign-off) must
   // not be refused as an unknown option on hosts that run the CLI as written.
   test("--gate is accepted, marked, and absent otherwise", () => {
     expect(parseReviewArgs("--gate")).toMatchObject({ gate: true, errors: [] });
@@ -68,7 +68,7 @@ describe("parseReviewArgs", () => {
   test("--no-git-remote-check sets the opt-out bit and is absent otherwise", () => {
     // #1553: every host (CLI, OpenCode, Pi) forwards this bit to the review
     // server. It must be absent — not `true` — when the flag is not typed, or
-    // it would outrank PLANNOTATOR_GIT_REMOTE_CHECK and config.gitRemoteCheck and
+    // it would outrank REVIEWTRAIL_GIT_REMOTE_CHECK and config.gitRemoteCheck and
     // make the env/config opt-out unreachable.
     expect(parseReviewArgs("--no-git-remote-check").gitRemoteCheck).toBe(false);
     expect(parseReviewArgs(["--no-git-remote-check"]).gitRemoteCheck).toBe(false);
@@ -308,8 +308,8 @@ describe("review directory targets", () => {
       expect(target("", root)).toEqual({ ignored: [] });
       expect(() => target("file", root)).toThrow(
         `${join(root, "file")} is a file, not a folder; nothing was opened.\n` +
-          "To comment on the file, run: plannotator annotate file\n" +
-          "To review the current project instead, run: plannotator review",
+          "To comment on the file, run: reviewtrail annotate file\n" +
+          "To review the current project instead, run: reviewtrail",
       );
     });
   });
@@ -319,8 +319,8 @@ describe("review directory targets", () => {
       for (const input of ["./missing", "../missing", "missing/sub"]) {
         expect(() => target(input, root)).toThrow(`No folder "${input}" in ${root}; nothing was opened.`);
       }
-      const home = join(homedir(), "plannotator-missing-dir-xyz");
-      expect(() => target("~/plannotator-missing-dir-xyz", root)).toThrow(`No folder at ${home}; nothing was opened.`);
+      const home = join(homedir(), "reviewtrail-missing-dir-xyz");
+      expect(() => target("~/reviewtrail-missing-dir-xyz", root)).toThrow(`No folder at ${home}; nothing was opened.`);
       expect(() => target("./file", root)).toThrow("is a file, not a folder");
     });
   });
@@ -330,28 +330,28 @@ describe("review directory targets", () => {
       // The reported case: a folder name that is not there must not review the caller's repo.
       expect(() => target("myproj", root)).toThrow(
         `No folder "myproj" in ${root}; nothing was opened.\n` +
-          "Did you mean myproject? Run: plannotator review myproject\n" +
-          "To review the current project instead, run: plannotator review",
+          "Did you mean myproject? Run: reviewtrail myproject\n" +
+          "To review the current project instead, run: reviewtrail",
       );
       expect(() => target("please", root)).toThrow(
         `No folder "please" in ${root}; nothing was opened.\n` +
-          "To review another folder, run: plannotator review <path to an existing folder>\n" +
-          "To review the current project instead, run: plannotator review",
+          "To review another folder, run: reviewtrail <path to an existing folder>\n" +
+          "To review the current project instead, run: reviewtrail",
       );
       // Flags are not words: the folder is still the sole word.
       expect(() => target("--diff-type uncommitted myproj", root)).toThrow("Did you mean myproject?");
-      expect(() => target("staged", root)).toThrow("run: plannotator review --diff-type staged");
-      expect(() => target("1483", root)).toThrow("pass its URL: plannotator review https://github.com/<owner>/<repo>/pull/1483");
+      expect(() => target("staged", root)).toThrow("run: reviewtrail --diff-type staged");
+      expect(() => target("1483", root)).toThrow("pass its URL: reviewtrail review https://github.com/<owner>/<repo>/pull/1483");
     });
   });
 
   test("did you mean: a typo'd segment is matched against its parent's folders, as typed", () => {
     withTree((root) => {
-      expect(() => target("src/componnets", root)).toThrow("Did you mean src/components? Run: plannotator review src/components");
+      expect(() => target("src/componnets", root)).toThrow("Did you mean src/components? Run: reviewtrail src/components");
       expect(() => target("./src/compnents/", root)).toThrow("Did you mean ./src/components?");
       expect(() => target("srx/components", root)).toThrow("Did you mean src/components?");
       expect(() => target(join(root, "backnd"), root)).toThrow(`Did you mean ${join(root, "backend")}?`);
-      expect(() => target('"repo with spacs/"', root)).toThrow('Run: plannotator review "repo with spaces"');
+      expect(() => target('"repo with spacs/"', root)).toThrow('Run: reviewtrail "repo with spaces"');
       // A file is not offered as a folder, and a far name is not offered at all.
       expect(() => target("fil/", root)).toThrow("To review another folder");
       expect(() => target("zzzzzz", root)).toThrow("To review another folder");

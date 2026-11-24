@@ -12,7 +12,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { contrastRatio, hueDistance, parseCssColor, rgbToOklch } from '@plannotator/ui/utils/cssColor';
+import { contrastRatio, hueDistance, parseCssColor, rgbToOklch } from '@reviewtrail/ui/utils/cssColor';
 import { DIFF_COUNT_CONTRAST_MIN, diffCountColors, diffCountSurfaces, type DiffCountTokens } from './diffCountColors';
 
 const themesDir = join(import.meta.dir, '..', '..', 'ui', 'themes');

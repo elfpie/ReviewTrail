@@ -4,13 +4,13 @@ import {
   ActionMenuDivider,
   ActionMenuItem,
   ActionMenuSectionLabel,
-} from '@plannotator/ui/components/ActionMenu';
-import { useTheme } from '@plannotator/ui/components/ThemeProvider';
-import { THEME_MODES } from '@plannotator/ui/components/themeModes';
-import { ReviewAgentsIcon } from '@plannotator/ui/components/ReviewAgentsIcon';
-import { SparklesIcon } from '@plannotator/ui/components/SparklesIcon';
-import { PRPlatformIcon } from '@plannotator/ui/components/PRPlatformIcon';
-import { modKey } from '@plannotator/ui/utils/platform';
+} from '@reviewtrail/ui/components/ActionMenu';
+import { useTheme } from '@reviewtrail/ui/components/ThemeProvider';
+import { THEME_MODES } from '@reviewtrail/ui/components/themeModes';
+import { ReviewAgentsIcon } from '@reviewtrail/ui/components/ReviewAgentsIcon';
+import { SparklesIcon } from '@reviewtrail/ui/components/SparklesIcon';
+import { PRPlatformIcon } from '@reviewtrail/ui/components/PRPlatformIcon';
+import { modKey } from '@reviewtrail/ui/utils/platform';
 
 export interface CompactReviewDestination {
   value: 'agent' | 'platform';

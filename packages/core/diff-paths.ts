@@ -196,7 +196,7 @@ export function parseDiffFilePathLines(lines: string[]): DiffPathPair {
  * extended-header lines, and @pierre/diffs parses the stub identically with or
  * without it.
  */
-export const OVERSIZED_REVIEW_STUB_MARKER = "#plannotator-oversized-file";
+export const OVERSIZED_REVIEW_STUB_MARKER = "#reviewtrail-oversized-file";
 
 /**
  * Human-readable form of the cap for UI copy. The authoritative byte value is
@@ -205,7 +205,7 @@ export const OVERSIZED_REVIEW_STUB_MARKER = "#plannotator-oversized-file";
  */
 export const OVERSIZED_REVIEW_STUB_LIMIT_LABEL = "5 MB";
 
-export const OVERSIZED_REVIEW_STUB_BYTES_PREFIX = "#plannotator-file-bytes";
+export const OVERSIZED_REVIEW_STUB_BYTES_PREFIX = "#reviewtrail-file-bytes";
 
 export function oversizedReviewStubBytes(patch: string): { old?: number; new?: number } | null {
   const line = patch.split("\n").find((row) => row.startsWith(`${OVERSIZED_REVIEW_STUB_BYTES_PREFIX} `));

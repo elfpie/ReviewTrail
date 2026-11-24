@@ -1,10 +1,10 @@
 import { useMemo, useCallback } from 'react';
-import { getDisplayRepo, getPRNumber } from '@plannotator/shared/pr-types';
-import type { PRMetadata } from '@plannotator/shared/pr-types';
-import type { PRDiffScope } from '@plannotator/shared/pr-stack';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import { getDisplayRepo, getPRNumber } from '@reviewtrail/shared/pr-types';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
+import type { PRDiffScope } from '@reviewtrail/shared/pr-stack';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import type { DiffFile } from '../types';
-import { captureAnchor } from '@plannotator/ui/utils/codeAnnotationAnchor';
+import { captureAnchor } from '@reviewtrail/ui/utils/codeAnnotationAnchor';
 
 /** The active commit diff, if any — stamped onto annotations created while a
  *  commit:<sha> diff is on screen. Mirrors the PR fields: both exist so an

@@ -1,9 +1,9 @@
 /**
  * Host seam for the WebMCP provider, following the `utils/upload.ts` shape:
  * a module-level default, `set`/`reset`/`get`, wired through
- * `configurePlannotatorUI({ webmcp })`. Plannotator passes nothing and gets
+ * `configureReviewTrailUI({ webmcp })`. ReviewTrail passes nothing and gets
  * today's behavior: enabled (whenever `document.modelContext` exists) with the
- * `plannotator.` name prefix.
+ * `reviewtrail.` name prefix.
  */
 
 export interface WebMcpPolicy {
@@ -13,7 +13,7 @@ export interface WebMcpPolicy {
    * off in Settings.
    */
   enabled?: boolean;
-  /** Prefix applied to every bare tool name. Default `"plannotator."`; hosts namespace their own tools. */
+  /** Prefix applied to every bare tool name. Default `"reviewtrail."`; hosts namespace their own tools. */
   namePrefix?: string;
 }
 
@@ -22,7 +22,7 @@ export interface ResolvedWebMcpPolicy {
   namePrefix: string;
 }
 
-export const DEFAULT_WEBMCP_NAME_PREFIX = 'plannotator.';
+export const DEFAULT_WEBMCP_NAME_PREFIX = 'reviewtrail.';
 
 const defaultPolicy: ResolvedWebMcpPolicy = {
   enabled: true,
@@ -39,7 +39,7 @@ export function setWebMcpPolicy(next: WebMcpPolicy): void {
   };
 }
 
-/** Reset to Plannotator's default policy. Mainly for tests. */
+/** Reset to ReviewTrail's default policy. Mainly for tests. */
 export function resetWebMcpPolicy(): void {
   policy = defaultPolicy;
 }

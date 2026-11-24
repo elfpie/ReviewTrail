@@ -168,19 +168,19 @@ describe("serve routes that land on the window's port", () => {
 
 describe("resolveInboxTailscale", () => {
   test("env (a hard switch, both ways), then the flag, then config, then off", () => {
-    expect(resolveInboxTailscale({ inboxTailscale: true }, { PLANNOTATOR_INBOX_TAILSCALE: "0" }, true)).toEqual({ on: false, source: "env" });
-    expect(resolveInboxTailscale({}, { PLANNOTATOR_INBOX_TAILSCALE: "1" }, true)).toEqual({ on: true, source: "env" });
+    expect(resolveInboxTailscale({ inboxTailscale: true }, { REVIEWTRAIL_INBOX_TAILSCALE: "0" }, true)).toEqual({ on: false, source: "env" });
+    expect(resolveInboxTailscale({}, { REVIEWTRAIL_INBOX_TAILSCALE: "1" }, true)).toEqual({ on: true, source: "env" });
     expect(resolveInboxTailscale({ inboxTailscale: false }, {}, true)).toEqual({ on: true, source: "flag" });
     expect(resolveInboxTailscale({}, {})).toEqual({ on: false, source: "default" });
     expect(resolveInboxTailscale({ inboxTailscale: true }, {})).toEqual({ on: true, source: "config" });
     expect(resolveInboxTailscale({ inboxTailscale: "true" as never }, {})).toEqual({ on: true, source: "config" });
-    expect(resolveInboxTailscale({ inboxTailscale: true }, { PLANNOTATOR_INBOX_TAILSCALE: "off" })).toEqual({ on: false, source: "env" });
-    expect(resolveInboxTailscale({}, { PLANNOTATOR_INBOX_TAILSCALE: " ON " })).toEqual({ on: true, source: "env" });
-    expect(resolveInboxTailscale({ inboxTailscale: false }, { PLANNOTATOR_INBOX_TAILSCALE: "disabled" }, true)).toEqual({ on: false, source: "env" });
+    expect(resolveInboxTailscale({ inboxTailscale: true }, { REVIEWTRAIL_INBOX_TAILSCALE: "off" })).toEqual({ on: false, source: "env" });
+    expect(resolveInboxTailscale({}, { REVIEWTRAIL_INBOX_TAILSCALE: " ON " })).toEqual({ on: true, source: "env" });
+    expect(resolveInboxTailscale({ inboxTailscale: false }, { REVIEWTRAIL_INBOX_TAILSCALE: "disabled" }, true)).toEqual({ on: false, source: "env" });
   });
   test("an empty or unrecognized env value counts as unset", () => {
-    expect(resolveInboxTailscale({ inboxTailscale: true }, { PLANNOTATOR_INBOX_TAILSCALE: "" })).toEqual({ on: true, source: "config" });
-    expect(resolveInboxTailscale({}, { PLANNOTATOR_INBOX_TAILSCALE: "maybe" })).toEqual({ on: false, source: "default" });
+    expect(resolveInboxTailscale({ inboxTailscale: true }, { REVIEWTRAIL_INBOX_TAILSCALE: "" })).toEqual({ on: true, source: "config" });
+    expect(resolveInboxTailscale({}, { REVIEWTRAIL_INBOX_TAILSCALE: "maybe" })).toEqual({ on: false, source: "default" });
   });
   test("inboxTailscaleAllow: trimmed, lower-cased, deduplicated; non-strings and logins with spaces dropped", () => {
     expect(resolveInboxTailscaleAllow({ inboxTailscaleAllow: [" Me@Example.com", "me@example.com", "two words", "", 3 as never, "b@github"] })).toEqual(["me@example.com", "b@github"]);

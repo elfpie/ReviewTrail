@@ -138,7 +138,7 @@ describe('lookupPackages', () => {
     const seen: string[] = [];
     await lookupPackages([{ name: 'pg', version: '8.16.3' }], {
       fetchImpl: stubNpm(seen),
-      env: { PLANNOTATOR_PACKAGE_REGISTRY_URL: 'https://evil.example/', PLANNOTATOR_PACKAGE_DOWNLOADS_URL: 'http://127.0.0.1:9/' },
+      env: { REVIEWTRAIL_PACKAGE_REGISTRY_URL: 'https://evil.example/', REVIEWTRAIL_PACKAGE_DOWNLOADS_URL: 'http://127.0.0.1:9/' },
     });
     expect(seen.sort()).toEqual(['http://127.0.0.1:9/downloads/point/last-week/pg', 'https://registry.npmjs.org/pg']);
   });

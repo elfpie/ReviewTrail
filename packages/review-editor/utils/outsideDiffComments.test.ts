@@ -13,11 +13,11 @@
  *  - the Whole file view's change bars on the wrong lines.
  */
 import { describe, expect, test } from 'bun:test';
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import { prBlobPermalink, type PRMetadata } from '@plannotator/shared/pr-types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import { prBlobPermalink, type PRMetadata } from '@reviewtrail/shared/pr-types';
 import { buildReviewSubmission, OUTSIDE_DIFF_BODY_HEADING, OUTSIDE_DIFF_QUOTE_MAX_LINES } from '../components/ReviewSubmissionDialog';
 import { exportReviewFeedback, OUTSIDE_DIFF_ANNOTATION_LABEL } from './exportFeedback';
-import { canPostInline, reanchorCodeAnnotations } from '@plannotator/ui/utils/codeAnnotationAnchor';
+import { canPostInline, reanchorCodeAnnotations } from '@reviewtrail/ui/utils/codeAnnotationAnchor';
 import { wholeFileMarks, wholeFileMarksCss } from './wholeFileMarks';
 import type { DiffFile } from '../types';
 

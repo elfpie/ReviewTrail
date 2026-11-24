@@ -1,7 +1,7 @@
 /**
- * Plannotator Inbox: the browser-safe record and wire shapes.
+ * ReviewTrail Inbox: the browser-safe record and wire shapes.
  *
- * The Inbox is one long-lived local server (`plannotator inbox`) that holds
+ * The Inbox is one long-lived local server (`reviewtrail inbox`) that holds
  * messages agents send and the person's answers. Its store is append-only
  * JSONL under `${dataDir}/inbox/` (packages/shared/inbox/), one full snapshot
  * per line; these are the shapes of those snapshots and of what the window's
@@ -416,8 +416,8 @@ export interface DecisionDataSummary {
 }
 
 /** The markers around what an agent receives with a question asked from Decision data, each on its own line. */
-export const INBOX_DECISION_ASK_OPEN = "<plannotator-decision-ask>";
-export const INBOX_DECISION_ASK_CLOSE = "</plannotator-decision-ask>";
+export const INBOX_DECISION_ASK_OPEN = "<reviewtrail-decision-ask>";
+export const INBOX_DECISION_ASK_CLOSE = "</reviewtrail-decision-ask>";
 
 /**
  * What the agent receives after the person's words when they ask from Settings -> Decision data. The owner approved
@@ -464,7 +464,7 @@ export const INBOX_HOST_NAMES: Readonly<Record<string, string>> = {
 /**
  * The agent hosts a person's reply wakes as a new turn by itself: Claude Code,
  * Pi, OpenCode 2, DeepSeek Harness and Cline (its plugin: CLI, hub, Kanban,
- * desktop app, VS Code's new bundle) through Plannotator's own connection
+ * desktop app, VS Code's new bundle) through ReviewTrail's own connection
  * (OpenCode 1 has the tool but no wake), and Codex through MCP alone, where the Inbox puts the
  * reply into the Codex thread with `codex queue` (Codex CLI
  * INBOX_CODEX_QUEUE_MIN_VERSION or later; packages/server/inbox-codex-wake.ts),
@@ -480,7 +480,7 @@ export const INBOX_HOST_NAMES: Readonly<Record<string, string>> = {
  */
 export const INBOX_WAKING_HOSTS = ["claude-code", "pi", "opencode", "dsh", "cline", "openclaw", "hermes", "codex", "qwen", "t3", "antigravity"] as const;
 
-/** Of INBOX_WAKING_HOSTS, the ones an MCP connection alone wakes (no Plannotator plugin): Codex, Qwen Code, T3 Code and Antigravity. */
+/** Of INBOX_WAKING_HOSTS, the ones an MCP connection alone wakes (no ReviewTrail plugin): Codex, Qwen Code, T3 Code and Antigravity. */
 export const INBOX_MCP_WAKING_HOSTS: readonly string[] = ["codex", "qwen", "t3", "antigravity"];
 
 /** The first version of each agent MCP alone wakes that can be woken. */
@@ -746,7 +746,7 @@ export interface InboxMessage {
    * On an agent's message sent into a thread of another project (`reply_to`
    * from another folder): the project its `project_path` is in, by name
    * (approval "inbox-reply-recipient"). The window names the agent by it
-   * ("in plannotator", "Claude Code (plannotator)") after its session ends.
+   * ("in reviewtrail", "Claude Code (reviewtrail)") after its session ends.
    * Absent for a send from the thread's own project (or a project combined
    * with it), and on older records.
    */
@@ -1356,7 +1356,7 @@ export interface InboxDelivery {
 
 /**
  * What a message keeps about the guided review it carries: the blob holding
- * the snapshot (Plannotator's portable format, `@plannotator/core/guide-format`,
+ * the snapshot (ReviewTrail's portable format, `@reviewtrail/core/guide-format`,
  * exactly as validated) and the facts the card and the row draw.
  */
 export interface InboxGuideRef {
@@ -1448,7 +1448,7 @@ export interface InboxQuestionContract {
 export interface InboxQuestionFacts extends InboxQuestionContract {
   context: string | null;
   choices: InboxQuestionChoice[];
-  /** Plannotator's older names per choice (core `aliases`), in choice order; never served. */
+  /** ReviewTrail's older names per choice (core `aliases`), in choice order; never served. */
   aliases: (string[] | null)[];
   recommendation: string | null;
   suggested_text: string | null;
@@ -1554,7 +1554,7 @@ export interface InboxQuestionRecord {
 }
 
 /**
- * A question's kind as the Inbox stores it: Plannotator's question kinds,
+ * A question's kind as the Inbox stores it: ReviewTrail's question kinds,
  * plus `"action"` for an action item (approval "inbox-next-actions").
  */
 export type InboxQuestionKind = QuestionKind | "action";
@@ -2223,7 +2223,7 @@ export type InboxLine =
 
 // ─────────────────────────────── Health ───────────────────────────────
 
-export const INBOX_APP_ID = "plannotator-inbox";
+export const INBOX_APP_ID = "reviewtrail-inbox";
 
 export interface InboxHealth {
   ok: true;
@@ -2653,7 +2653,7 @@ export function inboxRowsSaved(rows: InboxRowsOption[] | null, savedUnder: unkno
 }
 
 /**
- * The agents the Inbox connects itself to on `plannotator inbox` (the
+ * The agents the Inbox connects itself to on `reviewtrail inbox` (the
  * approved "inbox-agent-awareness" design; packages/server/inbox-agents.ts).
  * Terminal agents and the Claude desktop app; editors keep their one-click
  * link or snippet in Settings and are never written to automatically.
@@ -2728,19 +2728,19 @@ export function inboxAgentList(ids: readonly InboxAgentId[]): string {
 export function inboxElsewhereText(moved: { agent: InboxAgentId; path: string | null; now: string | null }): string {
   const label = INBOX_AGENT_LABELS[moved.agent];
   const why = `${moved.agent === "qwen" ? "this Inbox has another QWEN_HOME, so it" : "this Inbox"} looks in ${moved.now ?? "another file"}`;
-  return `${label} is connected in ${moved.path ?? "another file"}, but ${why}. Plannotator left both as they are; Settings → Agents shows it off here, and turning it on moves it.`;
+  return `${label} is connected in ${moved.path ?? "another file"}, but ${why}. ReviewTrail left both as they are; Settings → Agents shows it off here, and turning it on moves it.`;
 }
 
 export function inboxGrantText(grant: { agent: InboxAgentId; setting: string; undo: string }): string {
-  return `Plannotator turned on ${INBOX_AGENT_LABELS[grant.agent]}'s ${grant.setting}, so your replies can start a turn in the session that asked. To turn it off: ${grant.undo}`;
+  return `ReviewTrail turned on ${INBOX_AGENT_LABELS[grant.agent]}'s ${grant.setting}, so your replies can start a turn in the session that asked. To turn it off: ${grant.undo}`;
 }
 
-/** What one `plannotator inbox` run did to the agents on this computer. */
+/** What one `reviewtrail inbox` run did to the agents on this computer. */
 export interface InboxConnectReport {
   at: string;
   /** The first run that connected anything on this computer; later runs say "new on this computer". */
   first: boolean;
-  /** Skipped as a whole: `PLANNOTATOR_INBOX_CONNECT=0`, or a test sandbox whose home is the real one. */
+  /** Skipped as a whole: `REVIEWTRAIL_INBOX_CONNECT=0`, or a test sandbox whose home is the real one. */
   skipped?: "env" | "sandbox";
   /** Connected by this run. */
   added: InboxAgentId[];
@@ -2748,9 +2748,9 @@ export interface InboxConnectReport {
   already: InboxAgentId[];
   /** Could not be connected; nothing was changed. Tried again at the next run. */
   failed: { agent: InboxAgentId; reason: string; path: string | null }[];
-  /** Have a `plannotator-inbox` entry that runs something else; left alone. */
+  /** Have a `reviewtrail-inbox` entry that runs something else; left alone. */
   foreign: { agent: InboxAgentId; path: string | null }[];
-  /** Found, but only a person can connect them (no CLI on PATH, a config file Plannotator does not edit). */
+  /** Found, but only a person can connect them (no CLI on PATH, a config file ReviewTrail does not edit). */
   manual: InboxAgentId[];
   /** Why each manual agent needs a person, said once per reason (the terminal prints these). */
   manual_why?: { agent: InboxAgentId; why: string }[];
@@ -2762,10 +2762,10 @@ export interface InboxConnectReport {
   elsewhere?: { agent: InboxAgentId; path: string | null; now: string | null }[];
   /** Did not finish within the time limits; tried again at the next run. */
   unfinished: InboxAgentId[];
-  /** Claude Code's plugin gives it the `plannotator_inbox` tool already. */
+  /** Claude Code's plugin gives it the `reviewtrail_inbox` tool already. */
   claude_code: boolean;
   /**
-   * Agents this run registered Plannotator with as a trusted sender, so the
+   * Agents this run registered ReviewTrail with as a trusted sender, so the
    * person's replies go into their running sessions (Qwen Code:
    * packages/server/inbox-qwen-trust.ts). Absent from older Inboxes.
    */
@@ -2782,13 +2782,13 @@ export const INBOX_NOTE_AGENT_IDS: readonly InboxNoteAgentId[] = ["claude-code",
 /**
  * The agents whose note is written by itself, without asking (approval
  * "inbox-agent-note-auto", which superseded the one-time dialog): only agents
- * proven to load the file where Plannotator writes it (their own code, source
+ * proven to load the file where ReviewTrail writes it (their own code, source
  * and docs, plus a live check). Qwen Code is not proven (likely only): its note
  * is still offered, and Cursor's is copied by hand.
  */
 export const INBOX_NOTE_AUTO_AGENT_IDS: readonly InboxNoteAgentId[] = ["claude-code", "codex", "gemini", "pi", "opencode"];
 
-/** A note Plannotator wrote by itself that the window has not said yet. `path` is shown with `~`. */
+/** A note ReviewTrail wrote by itself that the window has not said yet. `path` is shown with `~`. */
 export interface InboxNoteAutoAdd {
   agent: InboxNoteAgentId;
   path: string;
@@ -2797,11 +2797,11 @@ export interface InboxNoteAutoAdd {
 /**
  * Where an agent's note would go and how it stands:
  *  - absent: no note; `create` says whether adding it creates the file.
- *  - added: the note Plannotator wrote is there, untouched.
- *  - edited: the note is there but the person changed it; Plannotator never updates it.
+ *  - added: the note ReviewTrail wrote is there, untouched.
+ *  - edited: the note is there but the person changed it; ReviewTrail never updates it.
  *  - damaged: the markers are broken (one, several, or out of order); nothing is written.
  *  - refused: the file cannot be edited (not a regular file, over 1 MiB, not UTF-8, unreadable).
- *  - unavailable: no file to add to (OpenCode's AGENTS.md does not exist, and Plannotator never creates it).
+ *  - unavailable: no file to add to (OpenCode's AGENTS.md does not exist, and ReviewTrail never creates it).
  */
 export interface InboxAgentNoteStatus {
   agent: InboxNoteAgentId;
@@ -2812,7 +2812,7 @@ export interface InboxAgentNoteStatus {
   state: "absent" | "added" | "edited" | "damaged" | "refused" | "unavailable" | "manual";
   /** Adding it creates the file. */
   create: boolean;
-  /** Plannotator created the file (removing the note deletes it when nothing else is left). */
+  /** ReviewTrail created the file (removing the note deletes it when nothing else is left). */
   created: boolean;
   /** Why it is refused, damaged or unavailable. */
   reason: string | null;
@@ -2824,28 +2824,28 @@ export interface InboxAgentNoteStatus {
 export interface InboxAgentRow {
   id: InboxAgentId;
   label: string;
-  /** Found on this computer (its command on PATH, its folder, Plannotator's plugin). */
+  /** Found on this computer (its command on PATH, its folder, ReviewTrail's plugin). */
   detected: boolean;
   reach: {
     kind: "tool" | "mcp" | "manual" | "none";
     on: boolean;
     state: "connected" | "off" | "removed" | "foreign" | "not_connected" | "manual" | "unreadable" | "elsewhere";
     path: string | null;
-    /** PLANNOTATOR_INBOX_TOOL decides it. */
+    /** REVIEWTRAIL_INBOX_TOOL decides it. */
     locked: boolean;
     reason: string | null;
   };
   /**
-   * Claude Code, Pi and OpenCode only: their `plannotator_inbox` tool switch (`inboxTool`), shown whether or not the agent was found.
+   * Claude Code, Pi and OpenCode only: their `reviewtrail_inbox` tool switch (`inboxTool`), shown whether or not the agent was found.
    * `chosen_off`: config.json turns it off by name (not the host's default), so the first-run screen never offers turning it on.
-   * `mod_off` (Claude Code): Plannotator's Claude Code mod is off (PLANNOTATOR_CLAUDE_MOD / claudeCodeMod), so there is no tool whatever inboxTool says.
+   * `mod_off` (Claude Code): ReviewTrail's Claude Code mod is off (REVIEWTRAIL_CLAUDE_MOD / claudeCodeMod), so there is no tool whatever inboxTool says.
    */
   tool?: { on: boolean; locked: boolean; chosen_off?: boolean; mod_off?: boolean } | null;
   /** Claude Code, Pi and OpenCode only. `needs_tool`: the tool is off, so there is no reminder. */
   reminder: { on: boolean; locked: boolean; needs_tool: boolean } | null;
   note: InboxAgentNoteStatus | null;
   /**
-   * Claude Code, Pi and OpenCode only: whether Plannotator's own plugin or
+   * Claude Code, Pi and OpenCode only: whether ReviewTrail's own plugin or
    * extension is installed (Claude Code's plugin enabled, Pi's settings
    * `packages`, OpenCode's global `plugin`/`plugins`). Absent from an older
    * Inbox; null for every other agent. `disabled` (Claude Code): installed and
@@ -2959,11 +2959,11 @@ export interface InboxAgentsModel {
   agents: InboxAgentRow[];
   last_report: (InboxConnectReport & { seen?: boolean }) | null;
   connecting: boolean;
-  /** PLANNOTATOR_INBOX_CONNECT turns the automatic step off. */
+  /** REVIEWTRAIL_INBOX_CONNECT turns the automatic step off. */
   connect_env_off: boolean;
-  /** PLANNOTATOR_INBOX_TOOL's value when set. */
+  /** REVIEWTRAIL_INBOX_TOOL's value when set. */
   tool_env: boolean | null;
-  /** PLANNOTATOR_INBOX_NOTES=0: no note offer, and note rows only for a note already written (it can be turned off, not added). */
+  /** REVIEWTRAIL_INBOX_NOTES=0: no note offer, and note rows only for a note already written (it can be turned off, not added). */
   notes_env_off?: boolean;
   /** The note question was answered at least once. */
   notes_offered: boolean;
@@ -2971,12 +2971,12 @@ export interface InboxAgentsModel {
   notes_asked?: InboxNoteAgentId[];
   /** The exact block a note writes, markers included. */
   note_text: string;
-  /** Notes Plannotator wrote by itself that the window has not said yet (one quiet line; POST /api/inbox/agents/seen clears it). Absent from older Inboxes. */
+  /** Notes ReviewTrail wrote by itself that the window has not said yet (one quiet line; POST /api/inbox/agents/seen clears it). Absent from older Inboxes. */
   notes_auto?: InboxNoteAutoAdd[];
   /** A switch's refusal, after POST /api/inbox/agents. */
   error?: string | null;
   /**
-   * The open sessions of the three Plannotator hosts that poll the Inbox now
+   * The open sessions of the three ReviewTrail hosts that poll the Inbox now
    * (packages/server/inbox-restart.ts), for Settings → Agents' "Open sessions"
    * row. Absent from an Inbox older than the field.
    */
@@ -2985,7 +2985,7 @@ export interface InboxAgentsModel {
   t3?: InboxT3Status | null;
 }
 
-/** The hosts that connect through Plannotator's own plugin or extension. */
+/** The hosts that connect through ReviewTrail's own plugin or extension. */
 export type InboxToolHostId = "claude-code" | "pi" | "opencode" | "dsh" | "cline" | "openclaw" | "hermes";
 
 /**
@@ -2996,9 +2996,9 @@ export type InboxToolHostId = "claude-code" | "pi" | "opencode" | "dsh" | "cline
 export type InboxReloadRuntime = "claude-code" | "pi" | "oh-my-pi" | "opencode";
 
 /**
- * A polling session runs an older Plannotator plugin than a restart would
+ * A polling session runs an older ReviewTrail plugin than a restart would
  * load (`fix: "restart"`, Claude Code), or the installed plugin is itself
- * behind this Inbox's Plannotator, so a restart alone does not help (`fix:
+ * behind this Inbox's ReviewTrail, so a restart alone does not help (`fix:
  * "update_plugin"`). Pi, Oh My Pi and OpenCode 2 (packages/server/inbox-restart.ts):
  * `"reload"` when reloading the host loads newer code than the session runs
  * (`reload_command`: Pi `/reload`, Oh My Pi `/restart`, OpenCode 2
@@ -3077,7 +3077,7 @@ export interface InboxHostSessions {
   sessions: InboxOpenSession[];
 }
 
-/** The hosts whose every request carries the `plannotator_inbox` tool in full once it is on (Claude Code defers it behind tool search). */
+/** The hosts whose every request carries the `reviewtrail_inbox` tool in full once it is on (Claude Code defers it behind tool search). */
 export type InboxToolCostHost = "pi" | "opencode" | "dsh" | "cline" | "openclaw" | "hermes";
 
 /**
@@ -3089,7 +3089,7 @@ export type InboxToolCostHost = "pi" | "opencode" | "dsh" | "cline" | "openclaw"
  * JSON and code higher than o200k_base (GPT-4o and later), so `tokens` is a
  * rounded, deliberately high estimate, stated as "roughly". The window states
  * both (`inboxToolCostText`: the first-run screen, Settings → Agents), as does
- * `plannotator inbox --help`. History on both hosts: 11,736 bytes (2,796
+ * `reviewtrail inbox --help`. History on both hosts: 11,736 bytes (2,796
  * tokens with o200k_base) before the long field descriptions were shortened
  * (INBOX_AGENT_FIELD_DESCRIPTIONS); 7,058 bytes (1,661 with o200k_base) before
  * Decisions (list_decisions, record_decision) were removed; about 6,390 bytes
@@ -3155,7 +3155,7 @@ export type InboxToolCostHost = "pi" | "opencode" | "dsh" | "cline" | "openclaw"
  * branch's 457, estimated).
  * Then the Board-off line (INBOX_TOOL_BOARD_OFF_NOTE, the owner's answer of
  * 2026-10-27: with the Board off, one short line that it exists and
- * `plannotator card --help`): measured on Pi, 9,416 bytes (+118; about +25
+ * `reviewtrail card --help`): measured on Pi, 9,416 bytes (+118; about +25
  * tokens, so the rounded, high token figure stands). With the Board on the
  * line is left out: 10,760 stands.
  * Then where refs link (INBOX_REF_LINK_RULE, 171 characters, on `body`):
@@ -3220,7 +3220,7 @@ export type InboxToolCostHost = "pi" | "opencode" | "dsh" | "cline" | "openclaw"
  * bytes a token for the added prose (+137 from the stated 11,456), so 3,273.
  * With the op `initiative_delete` (its name in the enum, +20 bytes): 12,025
  * bytes, tokens scaled the same way (+5), so 3,278. The sentence on clearing
- * out is not in the tool: `plannotator card --help` and a per-call nudge.
+ * out is not in the tool: `reviewtrail card --help` and a per-call nudge.
  * The `snooze_thread` action (its name in `action`, its tag on `thread_id` and
  * its `until` field; no line in the description): 10,095 → 10,248 bytes with
  * Pi's wrapper, measured from the entry, not on real Pi (+153; tokens estimated
@@ -3821,7 +3821,7 @@ export interface InboxLaunchUntrusted {
 
 /**
  * Why an agent can't start on a machine: its CLI is not there (`missing`), older than launch needs (`too_old`),
- * Plannotator's plugin is not on (`plugin_off`) or its Inbox tool is off (`tool_off`), or it is not signed in
+ * ReviewTrail's plugin is not on (`plugin_off`) or its Inbox tool is off (`tool_off`), or it is not signed in
  * (`signed_out`). `unknown`: the check itself failed.
  */
 export type InboxLaunchNotReady = "missing" | "too_old" | "plugin_off" | "tool_off" | "signed_out" | "unknown";
@@ -3864,7 +3864,7 @@ export interface InboxComposeLaunch {
 }
 
 /**
- * The first Plannotator release whose Claude Code mod reports `plugin` on its
+ * The first ReviewTrail release whose Claude Code mod reports `plugin` on its
  * bridge poll (packages/server/inbox-restart.ts). A new mod ALWAYS sends the
  * field (version or root null when it could not read them), so a poll without
  * it means a mod older than this. Must merge before the version bump to it.
@@ -3872,7 +3872,7 @@ export interface InboxComposeLaunch {
 export const INBOX_PLUGIN_REPORTS_LOADED_SINCE = "0.28.24";
 
 /**
- * The first Plannotator release whose Claude Code mod has Send now (#1968).
+ * The first ReviewTrail release whose Claude Code mod has Send now (#1968).
  * A session that loaded this or newer already has Send now, so a missing Send
  * now there has another cause (its own Ask question holds the turn, the engine
  * refused a row) and the reply line never blames the plugin for it.
@@ -3918,7 +3918,7 @@ export function inboxEngineTooOldForSendNow(version: string | null | undefined):
 }
 
 /**
- * Settings → Prompts (approval "inbox-prompts-page", #2194): what Plannotator
+ * Settings → Prompts (approval "inbox-prompts-page", #2194): what ReviewTrail
  * tells agents, as `GET /api/inbox/settings` carries it in `prompts`.
  */
 /**
@@ -3939,7 +3939,7 @@ export interface InboxPromptItem {
   /** The group's heading: Plan, Code review, Annotate. */
   group_label: string;
   label: string;
-  /** Plannotator's own text. */
+  /** ReviewTrail's own text. */
   default: string;
   /** The text in effect for an agent without its own: config.json's, else the default. */
   text: string;
@@ -4121,7 +4121,7 @@ export type InboxBuiltInFace = "agent" | InboxGlassFace | "transparent" | "totma
 /**
  * A picture the person uploaded ("Your own…" in the picker): `own:` and the SHA-256 of its bytes, in lowercase hex.
  * The file is the Inbox's (`inbox/agent-icons/<hash>.<ext>`, packages/server/inbox-agent-icons.ts); a window without
- * it (another machine, a removed picture) draws the agent's own mark. An older Plannotator, whose faces are the
+ * it (another machine, a removed picture) draws the agent's own mark. An older ReviewTrail, whose faces are the
  * closed built-in list, drops these entries when it reads the file: the file stays `v: 1` so it never refuses it.
  */
 export type InboxOwnFace = `own:${string}`;
@@ -4130,7 +4130,7 @@ export type InboxOwnFace = `own:${string}`;
  * or one the person fetched into the data folder (`inbox/icon-sets/<set>/`, packages/server/inbox-icon-sets.ts).
  * Its own id, not a copy into the uploads, so it never counts against INBOX_AGENT_ICONS_KEPT. A window that cannot
  * load it (a set this machine lacks, an icon a later curation dropped) draws the agent's own mark; an older
- * Plannotator drops these entries when it reads the file, as it does `own:` ones, and the file stays `v: 1`.
+ * ReviewTrail drops these entries when it reads the file, as it does `own:` ones, and the file stays `v: 1`.
  */
 export type InboxSetFace = `set:${string}/${string}`;
 export type InboxAgentFace = InboxBuiltInFace | InboxOwnFace | InboxSetFace;
@@ -4139,7 +4139,7 @@ export type InboxAgentFace = InboxBuiltInFace | InboxOwnFace | InboxSetFace;
  * tile with its project's letters and the agent's own mark on its corner ("From the project name" in the picker), and
  * `mark`, the agent's own mark picked by hand while Settings → Rows' Agent icons is "From the project name"
  * (`agentProjectIcons`), so an agent can keep its own mark there. Never a `face`: an entry keeps `face: "agent"` and
- * the tile in its own field, so a Plannotator from before tiles (0.28.66 and older) reads the entry as the own mark and
+ * the tile in its own field, so a ReviewTrail from before tiles (0.28.66 and older) reads the entry as the own mark and
  * keeps its given name; it drops the tile (and an entry with neither a face nor a name), and the file stays `v: 1`.
  */
 export type InboxAgentTile = "project" | "mark";
@@ -4217,13 +4217,13 @@ export const INBOX_AGENT_FACE_ID_MAX = 200;
 export interface InboxAgentFaceEntry {
   /** `agent` (its own mark) only beside a `name` or a `tile`: an entry is kept for a face, a tile, a name, or a mix. */
   face: InboxAgentFace;
-  /** A tile choice (`InboxAgentTile`), only beside `face: "agent"`. Absent: none. An older Plannotator passes over it. */
+  /** A tile choice (`InboxAgentTile`), only beside `face: "agent"`. Absent: none. An older ReviewTrail passes over it. */
   tile?: InboxAgentTile;
   /** Every session id this agent was or is (never its key itself), oldest first. */
   sessions: string[];
   /**
    * The name the person gave it (Rename… on its sidebar row): the window's name for it everywhere, over its own
-   * title. Display only: never sent to an agent. Absent: none given. An older Plannotator drops an entry that has a
+   * title. Display only: never sent to an agent. Absent: none given. An older ReviewTrail drops an entry that has a
    * name and no face when it reads the file, and keeps the face of one with both.
    */
   name?: string;

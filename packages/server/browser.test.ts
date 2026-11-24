@@ -20,7 +20,7 @@ import {
 import { createTestEnvironment } from "../../tests/helpers/environment";
 
 const savedEnv: Record<string, string | undefined> = {};
-const envKeys = ["PLANNOTATOR_BROWSER", "BROWSER"];
+const envKeys = ["REVIEWTRAIL_BROWSER", "BROWSER"];
 
 function clearEnv() {
   for (const key of envKeys) {
@@ -56,9 +56,9 @@ describe("shouldTryRemoteBrowserFallback", () => {
     expect(shouldTryRemoteBrowserFallback(true)).toBe(false);
   });
 
-  test("false for remote sessions with PLANNOTATOR_BROWSER configured", () => {
+  test("false for remote sessions with REVIEWTRAIL_BROWSER configured", () => {
     clearEnv();
-    process.env.PLANNOTATOR_BROWSER = "/usr/bin/browser";
+    process.env.REVIEWTRAIL_BROWSER = "/usr/bin/browser";
     expect(shouldTryRemoteBrowserFallback(true)).toBe(false);
   });
 
@@ -68,12 +68,12 @@ describe("shouldTryRemoteBrowserFallback", () => {
     expect(shouldTryRemoteBrowserFallback(true)).toBe(true);
   });
 
-  // PLANNOTATOR_BROWSER=none opens nothing at all, so not VS Code either
+  // REVIEWTRAIL_BROWSER=none opens nothing at all, so not VS Code either
   // (before, #756 read it as unset and the IPC fallback ran).
-  test("false for remote sessions when PLANNOTATOR_BROWSER says none", () => {
+  test("false for remote sessions when REVIEWTRAIL_BROWSER says none", () => {
     clearEnv();
     // no-browser-guard: sentinel under test (in process; nothing is launched)
-    process.env.PLANNOTATOR_BROWSER = "none";
+    process.env.REVIEWTRAIL_BROWSER = "none";
     expect(shouldTryRemoteBrowserFallback(true)).toBe(false);
   });
 });
@@ -126,7 +126,7 @@ describe("isPosixBrowserTarget", () => {
   });
 });
 
-// --- WSL PLANNOTATOR_BROWSER routing (#1472) ---
+// --- WSL REVIEWTRAIL_BROWSER routing (#1472) ---
 
 const realPlatform = process.platform;
 const realRelease = os.release;
@@ -150,7 +150,7 @@ function writeExecutable(dir: string, name: string, body: string): string {
 }
 
 function makeTempDir(): string {
-  return mkdtempSync(join(tmpdir(), "plannotator-browser-"));
+  return mkdtempSync(join(tmpdir(), "reviewtrail-browser-"));
 }
 
 const URL = "http://127.0.0.1:19432/plan";
@@ -167,7 +167,7 @@ describe("WSL configured browser launch", () => {
     try {
       clearEnv();
       mockWsl();
-      process.env.PLANNOTATOR_BROWSER = script;
+      process.env.REVIEWTRAIL_BROWSER = script;
 
       expect(await openBrowser(URL)).toBe(true);
       expect(readFileSync(log, "utf8")).toBe(URL);
@@ -188,7 +188,7 @@ describe("WSL configured browser launch", () => {
       process.env.PATH = `${dir}${delimiter}${originalPath ?? ""}`;
       clearEnv();
       mockWsl();
-      process.env.PLANNOTATOR_BROWSER = "fake-browser-wsl1472";
+      process.env.REVIEWTRAIL_BROWSER = "fake-browser-wsl1472";
 
       expect(await openBrowser(URL)).toBe(true);
       expect(readFileSync(log, "utf8")).toBe(URL);
@@ -218,12 +218,12 @@ describe("WSL configured browser launch", () => {
     try {
       clearEnv();
       mockWsl();
-      process.env.PLANNOTATOR_BROWSER = script;
+      process.env.REVIEWTRAIL_BROWSER = script;
 
       expect(await openBrowser(URL)).toBe(false);
       const warning = chunks.join("");
       expect(warning).toContain(script);
-      expect(warning).toContain("PLANNOTATOR_BROWSER");
+      expect(warning).toContain("REVIEWTRAIL_BROWSER");
     } finally {
       (process.stderr as { write: unknown }).write = originalWrite;
       rmSync(dir, { recursive: true, force: true });
@@ -231,8 +231,8 @@ describe("WSL configured browser launch", () => {
   });
 });
 
-describe("tryVscodeIpc, module imported before PLANNOTATOR_DATA_DIR is set (#1502)", () => {
-  const dataDirEnv = createTestEnvironment(["PLANNOTATOR_DATA_DIR"], "plannotator-browser-ipc-");
+describe("tryVscodeIpc, module imported before REVIEWTRAIL_DATA_DIR is set (#1502)", () => {
+  const dataDirEnv = createTestEnvironment(["REVIEWTRAIL_DATA_DIR"], "reviewtrail-browser-ipc-");
 
   type IpcServer = { port: number; openedUrls: string[] };
 
@@ -267,22 +267,22 @@ describe("tryVscodeIpc, module imported before PLANNOTATOR_DATA_DIR is set (#150
 
   afterEach(() => dataDirEnv.restore());
 
-  test("reads the registry from a PLANNOTATOR_DATA_DIR set after import", async () => {
+  test("reads the registry from a REVIEWTRAIL_DATA_DIR set after import", async () => {
     await withIpcServer(async (ipc) => {
-      process.env.PLANNOTATOR_DATA_DIR = makeDataDirWithRegistry(ipc.port);
+      process.env.REVIEWTRAIL_DATA_DIR = makeDataDirWithRegistry(ipc.port);
 
       expect(await tryVscodeIpc(URL)).toBe(true);
       expect(ipc.openedUrls).toEqual([URL]);
     });
   });
 
-  test("follows a later change to PLANNOTATOR_DATA_DIR", async () => {
+  test("follows a later change to REVIEWTRAIL_DATA_DIR", async () => {
     await withIpcServer(async (first) => {
       await withIpcServer(async (second) => {
-        process.env.PLANNOTATOR_DATA_DIR = makeDataDirWithRegistry(first.port);
+        process.env.REVIEWTRAIL_DATA_DIR = makeDataDirWithRegistry(first.port);
         await tryVscodeIpc("http://127.0.0.1:19432/first");
 
-        process.env.PLANNOTATOR_DATA_DIR = makeDataDirWithRegistry(second.port);
+        process.env.REVIEWTRAIL_DATA_DIR = makeDataDirWithRegistry(second.port);
 
         expect(await tryVscodeIpc("http://127.0.0.1:19432/second")).toBe(true);
         expect(second.openedUrls).toEqual(["http://127.0.0.1:19432/second"]);

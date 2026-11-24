@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import { isFileScopedAnnotation } from '../../utils/annotationScope';
 import { codeViewLayoutSource, scrollElementLayoutSource, withFallback, type ScrollElementModel } from './layoutSource';
 import { DiffMinimapSlot, type MinimapFileInput, type MinimapNote } from './DiffMinimapSlot';

@@ -1,5 +1,5 @@
 /**
- * Pi SDK provider — bridges Plannotator's AI layer with Pi's coding agent.
+ * Pi SDK provider — bridges ReviewTrail's AI layer with Pi's coding agent.
  *
  * Spawns `pi --mode rpc` as a subprocess and communicates via JSONL over
  * stdio. No Pi SDK is imported — this is a thin protocol adapter.
@@ -14,7 +14,7 @@ import {
 	piThinkingLevelsSupported,
 	type CatalogModel,
 	type PiRpcModel,
-} from "@plannotator/core/model-catalog";
+} from "@reviewtrail/core/model-catalog";
 import type {
 	AIMessage,
 	AIProvider,
@@ -72,9 +72,9 @@ class PiProcess {
 				cwd,
 				// The LIVE env, never Bun's startup env (which still holds the
 				// variables the CLI scrubbed, like the bridge token): see
-				// packages/shared/child-env.ts. Plannotator's integration off
+				// packages/shared/child-env.ts. ReviewTrail's integration off
 				// (ask-ai-env.ts): Pi's RPC mode reports `ctx.hasUI`, so the
-				// Plannotator Pi extension would otherwise take this throwaway
+				// ReviewTrail Pi extension would otherwise take this throwaway
 				// process for a person's session and connect it to the Inbox.
 				env: askAiChildEnv(),
 				stdin: "pipe",

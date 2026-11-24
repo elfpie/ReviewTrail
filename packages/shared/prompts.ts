@@ -1,4 +1,4 @@
-import { loadConfig, type PlannotatorConfig, type PromptRuntime } from "./config";
+import { loadConfig, type ReviewTrailConfig, type PromptRuntime } from "./config";
 
 // ─── Template engine ─────────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ export const PLAN_TOOL_NAMES: Record<PromptRuntime, string> = {
   "kiro-cli": "ExitPlanMode",
   opencode: "submit_plan",
   "copilot-cli": "exit_plan_mode",
-  pi: "plannotator_submit_plan",
+  pi: "reviewtrail_submit_plan",
   codex: "ExitPlanMode",
   "gemini-cli": "exit_plan_mode",
   "oh-my-pi": "ExitPlanMode",
@@ -92,7 +92,7 @@ interface PromptLookupOptions {
   section: PromptSection;
   key: PromptKey;
   runtime?: PromptRuntime | null;
-  config?: PlannotatorConfig;
+  config?: ReviewTrailConfig;
   fallback: string;
   runtimeFallbacks?: Partial<Record<PromptRuntime, string>>;
 }
@@ -122,7 +122,7 @@ type FeedbackVars = Record<string, string | undefined>;
 
 export function getReviewApprovedPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   return getConfiguredPrompt({
     section: "review",
@@ -145,7 +145,7 @@ export const LEGACY_REVIEW_APPROVAL_PLACEHOLDER = "LGTM - no changes requested."
 
 export function getReviewApprovedWithNotesPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   const template = getConfiguredPrompt({
@@ -174,7 +174,7 @@ export function getReviewApprovedWithNotesPrompt(
 export function composeReviewApprovedMessage(
   runtime?: PromptRuntime | null,
   feedback?: string | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   const note = typeof feedback === "string" ? feedback.trim() : "";
   if (!note || note === LEGACY_REVIEW_APPROVAL_PLACEHOLDER) {
@@ -185,7 +185,7 @@ export function composeReviewApprovedMessage(
 
 export function getReviewDeniedSuffix(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   // Intentionally no per-runtime defaults: every agent gets the same
   // verification-only instruction so none of them start coding off raw review
@@ -204,7 +204,7 @@ export function getReviewDeniedSuffix(
 
 export function getPlanDeniedPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   const template = getConfiguredPrompt({
@@ -219,7 +219,7 @@ export function getPlanDeniedPrompt(
 
 export function getPlanAnsweredPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   const template = getConfiguredPrompt({
@@ -242,7 +242,7 @@ export function getPlanAnsweredPrompt(
  */
 export function composePlanDeniedMessage(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
   options?: { answersOnly?: boolean },
 ): string {
@@ -257,7 +257,7 @@ const PLAN_APPROVED_RUNTIME_DEFAULTS: Partial<Record<PromptRuntime, string>> = {
 
 export function getPlanApprovedPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   const template = getConfiguredPrompt({
@@ -282,7 +282,7 @@ const PLAN_APPROVED_WITH_NOTES_RUNTIME_DEFAULTS: Partial<Record<PromptRuntime, s
 
 export function getPlanApprovedWithNotesPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   const template = getConfiguredPrompt({
@@ -298,7 +298,7 @@ export function getPlanApprovedWithNotesPrompt(
 
 export function getPlanAutoApprovedPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   return getConfiguredPrompt({
     section: "plan",
@@ -319,7 +319,7 @@ export function getPlanAutoApprovedPrompt(
  */
 export function getAnnotateFileFeedbackTemplate(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   return getConfiguredPrompt({
     section: "annotate",
@@ -333,7 +333,7 @@ export function getAnnotateFileFeedbackTemplate(
 /** Message-annotate counterpart of getAnnotateFileFeedbackTemplate(). */
 export function getAnnotateMessageFeedbackTemplate(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   return getConfiguredPrompt({
     section: "annotate",
@@ -346,7 +346,7 @@ export function getAnnotateMessageFeedbackTemplate(
 
 export function getAnnotateFileFeedbackPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   return resolveTemplate(getAnnotateFileFeedbackTemplate(runtime, config), vars ?? {});
@@ -354,7 +354,7 @@ export function getAnnotateFileFeedbackPrompt(
 
 export function getAnnotateMessageFeedbackPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   return resolveTemplate(getAnnotateMessageFeedbackTemplate(runtime, config), vars ?? {});
@@ -362,7 +362,7 @@ export function getAnnotateMessageFeedbackPrompt(
 
 export function getAnnotateApprovedPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): string {
   return getConfiguredPrompt({
     section: "annotate",
@@ -375,7 +375,7 @@ export function getAnnotateApprovedPrompt(
 
 export function getAnnotateApprovedWithNotesPrompt(
   runtime?: PromptRuntime | null,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
   vars?: FeedbackVars,
 ): string {
   const template = getConfiguredPrompt({

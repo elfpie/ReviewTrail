@@ -71,7 +71,7 @@ function hostModules(): Plugin {
         code: [
           `const host = ${HOST};`,
           `const ns = host && host.modules && host.modules[${key}];`,
-          `if (!ns) throw new Error("Plannotator diagram engine: the page did not provide " + ${key});`,
+          `if (!ns) throw new Error("ReviewTrail diagram engine: the page did not provide " + ${key});`,
           `const base = ns.default && (typeof ns.default === 'object' || typeof ns.default === 'function') ? ns.default : null;`,
           `export const __pnHostModule = Object.assign({}, base, ns);`,
           `export default ns.default;`,
@@ -228,8 +228,8 @@ const common = {
   resolve: {
     dedupe: ['react', 'react-dom'],
     alias: {
-      '@plannotator/shared': path.join(repoRoot, 'packages/shared'),
-      '@plannotator/ui': uiRoot,
+      '@reviewtrail/shared': path.join(repoRoot, 'packages/shared'),
+      '@reviewtrail/ui': uiRoot,
     },
   },
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReviewDiagramFence } from '../ReviewDiagramFence';
-import type { GuideOverviewDiagram } from '@plannotator/core/guide';
-import type { Block } from '@plannotator/ui/types';
+import type { GuideOverviewDiagram } from '@reviewtrail/core/guide';
+import type { Block } from '@reviewtrail/ui/types';
 import type { DiagramEngineUrls } from '../../utils/diagramEngineContract';
 
 /** The guide overview's Mermaid diagram, drawn by the diagram engine the

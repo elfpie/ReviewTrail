@@ -2,27 +2,27 @@
  * Cross-platform browser opening utility
  */
 
-import { childPath } from "@plannotator/shared/child-env";
+import { childPath } from "@reviewtrail/shared/child-env";
 import { $ } from "bun";
 import { spawn } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 import fs from "node:fs";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
-import { loadConfig, resolveUseGlimpse } from "@plannotator/shared/config";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
+import { loadConfig, resolveUseGlimpse } from "@reviewtrail/shared/config";
 import {
   browserNoneReason,
   isNoOpBrowserSentinel,
   resolveBrowserIntent,
-} from "@plannotator/shared/browser-intent";
+} from "@reviewtrail/shared/browser-intent";
 
 function ipcRegistryPath(): string {
-  return path.join(getPlannotatorDataDir(), "vscode-ipc.json");
+  return path.join(getReviewTrailDataDir(), "vscode-ipc.json");
 }
 
 /**
- * The browser rule lives in @plannotator/shared/browser-intent (shared with
- * Pi): a "none" value on PLANNOTATOR_BROWSER opens nothing; BROWSER's no-op
+ * The browser rule lives in @reviewtrail/shared/browser-intent (shared with
+ * Pi): a "none" value on REVIEWTRAIL_BROWSER opens nothing; BROWSER's no-op
  * values (#756, e.g. Claude Code's agent view sets BROWSER=true) are read as
  * unset so the default chain still runs.
  */
@@ -30,7 +30,7 @@ export { isNoOpBrowserSentinel };
 
 /**
  * Try opening URL via VS Code extension IPC registry.
- * Falls back when env vars (PLANNOTATOR_BROWSER) aren't available to the process.
+ * Falls back when env vars (REVIEWTRAIL_BROWSER) aren't available to the process.
  */
 export async function tryVscodeIpc(url: string, options: { timeoutMs?: number } = {}): Promise<boolean> {
   try {
@@ -101,7 +101,7 @@ function isWindowsBrowserTarget(value: string): boolean {
 }
 
 /**
- * Resolve PLANNOTATOR_BROWSER to an executable the Linux side can run
+ * Resolve REVIEWTRAIL_BROWSER to an executable the Linux side can run
  * directly: a POSIX path (/..., ./..., ../...) verbatim, or a bare name's
  * absolute location on the Linux PATH. Null for values that must go through
  * cmd.exe under WSL instead (a .exe, C:\\..., /mnt/<drive>) (#1472).
@@ -125,7 +125,7 @@ export function resolvePosixBrowserTarget(value: string): string | null {
 }
 
 /**
- * True when PLANNOTATOR_BROWSER names something the Linux side can execute
+ * True when REVIEWTRAIL_BROWSER names something the Linux side can execute
  * itself. Under WSL those must NOT go through cmd.exe, which cannot resolve
  * them (#1472).
  */
@@ -136,7 +136,7 @@ export function isPosixBrowserTarget(value: string): boolean {
 /**
  * Open a URL in the browser
  *
- * Uses PLANNOTATOR_BROWSER env var if set, otherwise uses system default.
+ * Uses REVIEWTRAIL_BROWSER env var if set, otherwise uses system default.
  * - macOS: Set to app name ("Google Chrome") or path ("/Applications/Firefox.app")
  * - Linux/Windows/WSL: Set to executable path ("/usr/bin/firefox")
  *
@@ -145,7 +145,7 @@ export function isPosixBrowserTarget(value: string): boolean {
 export function shouldTryRemoteBrowserFallback(isRemote: boolean): boolean {
   if (!isRemote) return false;
   // Only the default chain asks VS Code: an explicit handler runs itself, and
-  // PLANNOTATOR_BROWSER=none opens nothing at all. BROWSER's no-op values
+  // REVIEWTRAIL_BROWSER=none opens nothing at all. BROWSER's no-op values
   // (BROWSER=true from Claude Code's agent view) count as unset, so the IPC
   // fallback still runs for them.
   return resolveBrowserIntent(process.env).kind === "default";
@@ -157,7 +157,7 @@ function buildGlimpseHtml(url: string): string {
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Plannotator</title>
+    <title>ReviewTrail</title>
     <style>
       html, body { width: 100%; height: 100%; margin: 0; }
       body { overflow: hidden; background: #0f1115; }
@@ -177,11 +177,11 @@ async function openGlimpse(url: string): Promise<boolean> {
 
   const args = [
     "--width",
-    String(Number(process.env.PLANNOTATOR_GLIMPSE_WIDTH || 1280)),
+    String(Number(process.env.REVIEWTRAIL_GLIMPSE_WIDTH || 1280)),
     "--height",
-    String(Number(process.env.PLANNOTATOR_GLIMPSE_HEIGHT || 900)),
+    String(Number(process.env.REVIEWTRAIL_GLIMPSE_HEIGHT || 900)),
     "--title",
-    "Plannotator",
+    "ReviewTrail",
     "--open-links",
   ];
   const html = buildGlimpseHtml(url);
@@ -236,18 +236,18 @@ async function openGlimpse(url: string): Promise<boolean> {
 /**
  * Open a URL in the browser. Returns false when nothing was opened.
  *
- * `PLANNOTATOR_BROWSER=none` (any "none" value, see browser-intent) opens
+ * `REVIEWTRAIL_BROWSER=none` (any "none" value, see browser-intent) opens
  * nothing at all and says so in one stderr line.
  */
 /**
  * The command that opens `url`: the configured browser (`browser`, and
- * `plannotatorBrowser` when it came from PLANNOTATOR_BROWSER), else the
+ * `reviewTrailBrowser` when it came from REVIEWTRAIL_BROWSER), else the
  * system opener. Shared by openBrowser and openBrowserDetached.
  */
 async function browserLaunchArgv(
   url: string,
   browser: string | undefined,
-  plannotatorBrowser: string | undefined,
+  reviewTrailBrowser: string | undefined,
 ): Promise<string[]> {
   const platform = process.platform;
   const wsl = await isWSL();
@@ -255,21 +255,21 @@ async function browserLaunchArgv(
   // Windows targets (a .exe, a C:\ path, a /mnt/<drive> path). Spawning the
   // RESOLVED absolute path also sidesteps Bun 1.3's shell, which resolves
   // bare command names against the PATH captured at startup (#1472).
-  const posixTarget = wsl && plannotatorBrowser
-    ? resolvePosixBrowserTarget(plannotatorBrowser)
+  const posixTarget = wsl && reviewTrailBrowser
+    ? resolvePosixBrowserTarget(reviewTrailBrowser)
     : null;
   const viaCmdExe =
     (platform === "win32" || wsl) &&
-    !!plannotatorBrowser &&
+    !!reviewTrailBrowser &&
     posixTarget === null;
 
   if (browser) {
-    if (plannotatorBrowser && platform === "darwin") {
-      return plannotatorBrowser.includes("/") && !plannotatorBrowser.endsWith(".app")
-        ? [plannotatorBrowser, url]
-        : ["open", "-a", plannotatorBrowser, url];
+    if (reviewTrailBrowser && platform === "darwin") {
+      return reviewTrailBrowser.includes("/") && !reviewTrailBrowser.endsWith(".app")
+        ? [reviewTrailBrowser, url]
+        : ["open", "-a", reviewTrailBrowser, url];
     }
-    if (viaCmdExe) return ["cmd.exe", "/c", "start", "", plannotatorBrowser!, url];
+    if (viaCmdExe) return ["cmd.exe", "/c", "start", "", reviewTrailBrowser!, url];
     return [posixTarget ?? browser, url];
   }
   // Default system browser
@@ -283,15 +283,15 @@ const DETACHED_IPC_TIMEOUT_MS = 2_000;
 
 /**
  * Open `url` and return at once, for a command that must not wait on the
- * browser (`plannotator inbox --open`). openBrowser waits for the opener and
+ * browser (`reviewtrail inbox --open`). openBrowser waits for the opener and
  * every process that keeps its output open, which can be the whole browser
- * (xdg-open starting a fresh Firefox, PLANNOTATOR_BROWSER naming an
+ * (xdg-open starting a fresh Firefox, REVIEWTRAIL_BROWSER naming an
  * executable). Here the opener runs in its own process group with no stdio
  * and is not waited for.
  *
  * In a remote session with no browser configured, only the VS Code extension
  * is asked: the system opener would open a browser on the remote host.
- * Answers `opened`, `none` (a "none" PLANNOTATOR_BROWSER), `remote` (remote,
+ * Answers `opened`, `none` (a "none" REVIEWTRAIL_BROWSER), `remote` (remote,
  * nothing could open it here) or `failed`.
  */
 export async function openBrowserDetached(
@@ -307,10 +307,10 @@ export async function openBrowserDetached(
     return (await tryVscodeIpc(url, { timeoutMs: DETACHED_IPC_TIMEOUT_MS })) ? "opened" : "remote";
   }
   const browser = intent.kind === "explicit" ? intent.browser : undefined;
-  const plannotatorBrowser = intent.kind === "explicit" && intent.source === "PLANNOTATOR_BROWSER"
+  const reviewTrailBrowser = intent.kind === "explicit" && intent.source === "REVIEWTRAIL_BROWSER"
     ? intent.browser
     : undefined;
-  const argv = await browserLaunchArgv(url, browser, plannotatorBrowser);
+  const argv = await browserLaunchArgv(url, browser, reviewTrailBrowser);
   const started = await new Promise<string | null>((resolve) => {
     try {
       const child = spawn(argv[0]!, argv.slice(1), {
@@ -329,8 +329,8 @@ export async function openBrowserDetached(
     }
   });
   if (started === null) return "opened";
-  if (plannotatorBrowser) {
-    process.stderr.write(`Plannotator: could not launch PLANNOTATOR_BROWSER="${plannotatorBrowser}": ${started}\n`);
+  if (reviewTrailBrowser) {
+    process.stderr.write(`ReviewTrail: could not launch REVIEWTRAIL_BROWSER="${reviewTrailBrowser}": ${started}\n`);
   }
   return (await tryVscodeIpc(url, { timeoutMs: DETACHED_IPC_TIMEOUT_MS })) ? "opened" : "failed";
 }
@@ -344,7 +344,7 @@ export async function openBrowser(
     process.stderr.write(`  ${browserNoneReason(intent)}\n`);
     return false;
   }
-  const plannotatorBrowser = intent.kind === "explicit" && intent.source === "PLANNOTATOR_BROWSER"
+  const reviewTrailBrowser = intent.kind === "explicit" && intent.source === "REVIEWTRAIL_BROWSER"
     ? intent.browser
     : undefined;
   try {
@@ -365,15 +365,15 @@ export async function openBrowser(
     }
 
     // windows-hide-guard: starts the app window the person asked for, which windowsHide would start hidden.
-    await $`${await browserLaunchArgv(url, browser, plannotatorBrowser)}`.quiet();
+    await $`${await browserLaunchArgv(url, browser, reviewTrailBrowser)}`.quiet();
     return true;
   } catch (error) {
     // An explicitly configured browser that fails is otherwise invisible:
     // warn before falling back to the VS Code IPC registry (#1472).
-    if (plannotatorBrowser) {
+    if (reviewTrailBrowser) {
       const message = error instanceof Error ? error.message : String(error);
       process.stderr.write(
-        `Plannotator: could not launch PLANNOTATOR_BROWSER="${plannotatorBrowser}": ${message}\n`,
+        `ReviewTrail: could not launch REVIEWTRAIL_BROWSER="${reviewTrailBrowser}": ${message}\n`,
       );
     }
     // Shell-based open failed — try VS Code IPC registry as fallback

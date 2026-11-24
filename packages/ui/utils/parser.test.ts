@@ -1,7 +1,7 @@
 import { describe, test, expect } from "bun:test";
 import { parseMarkdownToBlocks, computeListIndices, extractFrontmatter, exportAnnotations, exportAnnotationEntry, elementContextExportBlock, resolveReferenceLinks } from "./parser";
-import { shouldStripFrontmatter } from "@plannotator/core/annotatable";
-import { parseHtmlElementContext as coreParseHtmlElementContext } from "@plannotator/core/html-anchor";
+import { shouldStripFrontmatter } from "@reviewtrail/core/annotatable";
+import { parseHtmlElementContext as coreParseHtmlElementContext } from "@reviewtrail/core/html-anchor";
 import { parseHtmlElementContext as uiParseHtmlElementContext } from "../components/html-viewer/useHtmlAnnotation";
 import type { Block } from "../types";
 import { AnnotationType } from "../types";
@@ -618,7 +618,7 @@ describe("parseMarkdownToBlocks — tables", () => {
   });
 
   test("real-world plan: prose with union types is not a table", () => {
-    const md = "`@pierre/diffs` supports `overflow: 'scroll' | 'wrap'` plus options, but Plannotator doesn't expose any of them.";
+    const md = "`@pierre/diffs` supports `overflow: 'scroll' | 'wrap'` plus options, but ReviewTrail doesn't expose any of them.";
     const blocks = parseMarkdownToBlocks(md);
     expect(blocks).toHaveLength(1);
     expect(blocks[0].type).toBe("paragraph");
@@ -2239,7 +2239,7 @@ describe("parseMarkdownToBlocks — non-markdown plain text (#1029)", () => {
    */
   test("YAML content parses into blocks without crashing", () => {
     const yaml = [
-      "name: plannotator",
+      "name: reviewtrail",
       "on:",
       "  push:",
       "    branches: [main]",
@@ -2252,15 +2252,15 @@ describe("parseMarkdownToBlocks — non-markdown plain text (#1029)", () => {
     const blocks = parseMarkdownToBlocks(yaml);
     expect(blocks.length).toBeGreaterThan(0);
     const joined = blocks.map((b) => b.content).join("\n");
-    expect(joined).toContain("name: plannotator");
+    expect(joined).toContain("name: reviewtrail");
     expect(joined).toContain("uses: actions/checkout@v4");
   });
 
   test("JSON content parses into blocks without crashing", () => {
-    const json = '{\n  "name": "plannotator",\n  "private": true\n}';
+    const json = '{\n  "name": "reviewtrail",\n  "private": true\n}';
     const blocks = parseMarkdownToBlocks(json);
     expect(blocks.length).toBeGreaterThan(0);
-    expect(blocks.map((b) => b.content).join("\n")).toContain('"name": "plannotator"');
+    expect(blocks.map((b) => b.content).join("\n")).toContain('"name": "reviewtrail"');
   });
 
   test("multi-document YAML keeps its first document with frontmatter: false", () => {

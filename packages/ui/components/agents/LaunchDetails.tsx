@@ -1,5 +1,5 @@
 import React from 'react';
-import { GUIDE_ENGINE_LABEL, GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from '@plannotator/core/guide';
+import { GUIDE_ENGINE_LABEL, GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from '@reviewtrail/core/guide';
 import { cn } from '../../lib/utils';
 import { OptionPicker } from '../OptionPicker';
 import { ModelSourceHint } from '../ModelSourceHint';

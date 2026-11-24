@@ -7,11 +7,11 @@
  */
 import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 import { GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from "./guide";
 
 function instructionsPath(): string {
-  return join(getPlannotatorDataDir(), "guide-instructions.md");
+  return join(getReviewTrailDataDir(), "guide-instructions.md");
 }
 
 function bound(value: string): string {

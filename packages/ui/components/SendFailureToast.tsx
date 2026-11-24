@@ -91,7 +91,7 @@ export function showSendFailureToast(options: {
   const { what, error, onRetry, copyText } = options;
   const failure = sendFailureOf(error);
   dismissSendFailureToast(); // replaced, never stacked
-  const id = `plannotator-send-failure-${++failures}`;
+  const id = `reviewtrail-send-failure-${++failures}`;
   currentId = id;
   const forget = () => {
     if (currentId === id) currentId = null;

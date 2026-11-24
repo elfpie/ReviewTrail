@@ -1,7 +1,7 @@
-import type { ImageResolver } from '@plannotator/ui/components/ImageResolverContext';
-import type { PRMetadata } from '@plannotator/shared/pr-types';
-import { parseSrcset, serializeSrcset } from '@plannotator/ui/utils/srcset';
-import { isGitHubAttachmentUrl } from '@plannotator/core/pr-attachment-url';
+import type { ImageResolver } from '@reviewtrail/ui/components/ImageResolverContext';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
+import { parseSrcset, serializeSrcset } from '@reviewtrail/ui/utils/srcset';
+import { isGitHubAttachmentUrl } from '@reviewtrail/core/pr-attachment-url';
 import { artifactContentProxyUrl } from '../dock/panels/artifactDocument';
 
 /**

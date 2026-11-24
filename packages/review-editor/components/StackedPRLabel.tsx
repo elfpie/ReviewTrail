@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { getPlatformLabel, getPRPlatformCapabilities } from '@plannotator/shared/pr-types';
-import { buildMinimalStackTree } from '@plannotator/shared/pr-stack';
-import { getItem, setItem } from '@plannotator/ui/utils/storage';
-import type { PRMetadata } from '@plannotator/shared/pr-types';
-import type { PRDiffScope, PRDiffScopeOption, PRStackInfo, PRStackTree, PRStackNode } from '@plannotator/shared/pr-stack';
+import { getPlatformLabel, getPRPlatformCapabilities } from '@reviewtrail/shared/pr-types';
+import { buildMinimalStackTree } from '@reviewtrail/shared/pr-stack';
+import { getItem, setItem } from '@reviewtrail/ui/utils/storage';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
+import type { PRDiffScope, PRDiffScopeOption, PRStackInfo, PRStackTree, PRStackNode } from '@reviewtrail/shared/pr-stack';
 
 interface StackedPRLabelProps {
   metadata: PRMetadata;
@@ -44,7 +44,7 @@ function classifyNode(
   return { kind: 'navigate', url: node.url ?? '' };
 }
 
-const HIDE_MERGED_KEY = 'plannotator-stack-hide-merged';
+const HIDE_MERGED_KEY = 'reviewtrail-stack-hide-merged';
 
 export function StackedPRLabel({
   metadata,

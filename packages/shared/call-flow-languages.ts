@@ -44,7 +44,7 @@ const MB = 1024 * 1024;
  * new upstream in 0.6.0, is left out: tree-sitter-perl ships no prebuilt
  * binaries, so a pack would need a C compiler on every machine.
  *
- * Size estimates describe Plannotator's pruned managed artifacts, not the
+ * Size estimates describe ReviewTrail's pruned managed artifacts, not the
  * much larger npm tarball expansion. They are deliberately rounded up and
  * are re-measured whenever a grammar pin or pruning rule changes.
  */

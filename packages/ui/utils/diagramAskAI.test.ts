@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { DiagramAnchor } from '@plannotator/core/diagram-anchor';
+import type { DiagramAnchor } from '@reviewtrail/core/diagram-anchor';
 import { buildDefaultPrompt } from '../hooks/useAIChat';
 import {
   diagramAskAIContext,

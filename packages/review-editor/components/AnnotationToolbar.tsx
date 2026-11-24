@@ -1,24 +1,24 @@
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { useMentionAutocomplete } from '@plannotator/ui/hooks/useMentionAutocomplete';
-import { MentionAutocompleteMenu, mentionActiveOptionId } from '@plannotator/ui/components/MentionAutocomplete';
+import { useMentionAutocomplete } from '@reviewtrail/ui/hooks/useMentionAutocomplete';
+import { MentionAutocompleteMenu, mentionActiveOptionId } from '@reviewtrail/ui/components/MentionAutocomplete';
 import { holdCommentTags, tagsFromIds, useLiveCommentSource } from '../live/commentTags';
 import { createPortal } from 'react-dom';
 import { ToolbarState } from '../hooks/useAnnotationToolbar';
 import { useTabIndent } from '../hooks/useTabIndent';
 import { formatLineRange, formatTokenContext } from '../utils/formatLineRange';
 import { AskAIInput } from './AskAIInput';
-import { SparklesIcon } from '@plannotator/ui/components/SparklesIcon';
+import { SparklesIcon } from '@reviewtrail/ui/components/SparklesIcon';
 import { ConventionalLabelPicker, type LabelDef } from './ConventionalLabelPicker';
-import type { ConventionalLabel, ConventionalDecoration } from '@plannotator/ui/types';
+import type { ConventionalLabel, ConventionalDecoration } from '@reviewtrail/ui/types';
 import type { AIChatEntry } from '../hooks/useAIChat';
-import { useDraggable } from '@plannotator/ui/hooks/useDraggable';
-import { useConfigValue } from '@plannotator/ui/config';
-import { isCommentSubmitKey, isImeCompositionKey } from '@plannotator/ui/utils/commentSubmitKey';
+import { useDraggable } from '@reviewtrail/ui/hooks/useDraggable';
+import { useConfigValue } from '@reviewtrail/ui/config';
+import { isCommentSubmitKey, isImeCompositionKey } from '@reviewtrail/ui/utils/commentSubmitKey';
 import {
   hasPrimaryCoarsePointer,
   useVisibleViewportBounds,
   type VisibleViewportBounds,
-} from '@plannotator/ui/hooks/useViewportEnvironment';
+} from '@reviewtrail/ui/hooks/useViewportEnvironment';
 
 interface AnnotationToolbarProps {
   toolbarState: ToolbarState;

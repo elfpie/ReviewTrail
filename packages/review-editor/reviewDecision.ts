@@ -1,7 +1,7 @@
-import { generateId } from '@plannotator/ui/utils/generateId';
-import type { DecisionActionId, DecisionMenuItem, DecisionPrimary } from '@plannotator/ui/utils/decisionSpec';
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import type { PRReviewAction } from '@plannotator/shared/pr-types';
+import { generateId } from '@reviewtrail/ui/utils/generateId';
+import type { DecisionActionId, DecisionMenuItem, DecisionPrimary } from '@reviewtrail/ui/utils/decisionSpec';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import type { PRReviewAction } from '@reviewtrail/shared/pr-types';
 import type { CompactReviewAction } from './components/ReviewHeaderMenu';
 
 /**

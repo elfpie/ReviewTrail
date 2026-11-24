@@ -5,8 +5,8 @@
  * Used by both Claude Code hook and OpenCode plugin.
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
-import { readFileCapped } from "@plannotator/shared/repo-file";
+import { childEnv } from "@reviewtrail/shared/child-env";
+import { readFileCapped } from "@reviewtrail/shared/repo-file";
 import { lstat, open, readlink, realpath } from "node:fs/promises";
 import { resolve as resolvePath } from "node:path";
 
@@ -33,7 +33,7 @@ import {
   runGitDiff as runGitDiffCore,
   runGitDiffWithContext as runGitDiffWithContextCore,
   validateFilePath,
-} from "@plannotator/shared/review-core";
+} from "@reviewtrail/shared/review-core";
 
 export type {
   DiffOption,
@@ -42,7 +42,7 @@ export type {
   GitContext,
   GitDiffOptions,
   WorktreeInfo,
-} from "@plannotator/shared/review-core";
+} from "@reviewtrail/shared/review-core";
 
 /**
  * Process-group leaders of git commands started with `interaction: "forbid"`

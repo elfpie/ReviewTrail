@@ -1,4 +1,4 @@
-import { MAX_REVIEW_IMAGE_PREVIEW_LABEL } from '@plannotator/shared/diff-paths';
+import { MAX_REVIEW_IMAGE_PREVIEW_LABEL } from '@reviewtrail/shared/diff-paths';
 import { formatImageBytes, type ReviewImageError } from '../../utils/reviewImage';
 import type { Size } from './geometry';
 

@@ -8,7 +8,7 @@ import {
   type ReviewImageSide,
 } from '../../utils/reviewImage';
 import type { DiffFileStatus } from '../../types';
-import { MAX_REVIEW_IMAGE_PREVIEW_BYTES, oversizedReviewStubBytes } from '@plannotator/core/diff-paths';
+import { MAX_REVIEW_IMAGE_PREVIEW_BYTES, oversizedReviewStubBytes } from '@reviewtrail/core/diff-paths';
 
 export function knownTooLarge(patch: string | undefined, knownBytes?: Partial<Record<ReviewImageSide, number>>): Partial<Record<ReviewImageSide, number>> {
   const sizes = patch ? oversizedReviewStubBytes(patch) : null;

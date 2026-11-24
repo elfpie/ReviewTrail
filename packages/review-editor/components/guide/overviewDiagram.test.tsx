@@ -11,9 +11,9 @@
 import { afterEach, beforeAll, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { FIXTURE_V1_LOCAL, FIXTURE_V2_HTML, FIXTURE_V2_OVERVIEW } from '@plannotator/core/guide-format-fixtures';
-import type { GuideSnapshot } from '@plannotator/core/guide-format';
-import { GuideViewer } from '@plannotator/guide-viewer/GuideViewer';
+import { FIXTURE_V1_LOCAL, FIXTURE_V2_HTML, FIXTURE_V2_OVERVIEW } from '@reviewtrail/core/guide-format-fixtures';
+import type { GuideSnapshot } from '@reviewtrail/core/guide-format';
+import { GuideViewer } from '@reviewtrail/guide-viewer/GuideViewer';
 import { loadDiagramEngine, __resetDiagramEngineForTests } from '../../utils/diagramEngine';
 import type { DiagramEngineUrls } from '../../utils/diagramEngineContract';
 

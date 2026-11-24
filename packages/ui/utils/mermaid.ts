@@ -8,7 +8,7 @@
  * re-attempts once and offers Retry.
  *
  * Since Mermaid 12 (ELK layout by default, about 1.8 MB more runtime than 11)
- * the lazy path IS Plannotator's own path: `packages/editor/App.tsx` no longer
+ * the lazy path IS ReviewTrail's own path: `packages/editor/App.tsx` no longer
  * imports `./mermaid-eager`, so a plan with no diagram never downloads the
  * runtime in a chunked build (the share portal, any host that bundles by
  * route), nor in the single-file builds, which carry it as a packed chunk
@@ -23,7 +23,7 @@ import type { Mermaid, MermaidConfig } from 'mermaid';
 
 /**
  * Width in px at which node labels wrap (#2064). Mermaid 12 lowered the
- * default from 200 to 120, and at Plannotator's 16 px label text that wraps
+ * default from 200 to 120, and at ReviewTrail's 16 px label text that wraps
  * after about eight CJK characters and splits short Latin labels. 140 is the
  * owner-approved middle: long labels still wrap, short ones stay on one line.
  * The themed path (`buildMermaidConfig`) spreads this config, so both the
@@ -91,10 +91,10 @@ export const MERMAID_CONFIG: MermaidConfig = {
 /**
  * Who filled the slot. The eager value doubles as a build marker: the literal
  * only reaches a bundle when `./mermaid-eager` is evaluated in it, which is
- * how `tests/entry-assets.test.ts` proves on the built HTML that Plannotator's
+ * how `tests/entry-assets.test.ts` proves on the built HTML that ReviewTrail's
  * own bundles do NOT register the runtime eagerly.
  */
-export type MermaidRuntimeSource = 'plannotator-mermaid-eager' | 'loader' | 'host';
+export type MermaidRuntimeSource = 'reviewtrail-mermaid-eager' | 'loader' | 'host';
 
 export type MermaidRuntimeLoader = () => Promise<Mermaid>;
 

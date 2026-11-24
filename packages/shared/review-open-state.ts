@@ -1,5 +1,5 @@
 /**
- * Pure validation for the `plannotator review --base <ref>` / `--diff-type <id>`
+ * Pure validation for the `reviewtrail --base <ref>` / `--diff-type <id>`
  * open-state flags. Everything here is decision logic with no git and no
  * server, so the whole provider/PR/workspace matrix is testable in isolation
  * and shared verbatim by the CLI, the opencode-review bridge, the OpenCode
@@ -123,7 +123,7 @@ export function resolveReviewOpenState(input: ReviewOpenStateInput): ReviewOpenS
       // exists to fix).
       requestedDiffType = "since-base";
       notices.push(
-        `[plannotator] --base ${base} needs a base-relative diff; opening on "since-base" ` +
+        `[reviewtrail] --base ${base} needs a base-relative diff; opening on "since-base" ` +
           `for this session (your default stays ${input.resolvedDefaultDiffType}).`,
       );
     }

@@ -28,7 +28,7 @@ import { setCrossRepoRefsWithoutRepo, setDigitHexIssueRefs, type CrossRepoRefsWi
 import { setRefCardBitbucket, setRefCardTransport, type RefCardTransport } from './utils/refCard';
 
 // One-stop type barrel: every seam contract a host implements is importable
-// from this module, next to configurePlannotatorUI itself.
+// from this module, next to configureReviewTrailUI itself.
 export type { CommentCardLayout } from './utils/commentCardPolicy';
 export type {
   ImageSrcResolver,
@@ -59,7 +59,7 @@ export type {
 
 type ExternalAnnotationBase = { id: string; source?: string };
 
-export interface PlannotatorUIConfig {
+export interface ReviewTrailUIConfig {
   imageSrcResolver?: ImageSrcResolver;
   storageBackend?: StorageBackend;
   uploadTransport?: UploadTransport;
@@ -88,7 +88,7 @@ export interface PlannotatorUIConfig {
   skillReferenceExport?: boolean;
   /**
    * What a composer's "Includes skill instructions" line says a human-only
-   * skill's instructions go with. Default: "your feedback". The Plannotator
+   * skill's instructions go with. Default: "your feedback". The ReviewTrail
    * Inbox, where a comment rides a reply, says "your reply".
    */
   skillInstructionsDestination?: string;
@@ -96,7 +96,7 @@ export interface PlannotatorUIConfig {
   /**
    * WebMCP provider policy: `{ enabled, namePrefix }`. Default: enabled
    * whenever the browser exposes `document.modelContext`, with the
-   * `plannotator.` prefix. There is no confirmation seam because the catalog
+   * `reviewtrail.` prefix. There is no confirmation seam because the catalog
    * exposes nothing consequential: no tool decides, submits or closes.
    */
   webmcp?: WebMcpPolicy;
@@ -105,14 +105,14 @@ export interface PlannotatorUIConfig {
    * first math node renders. Default: `import('katex')` (JS only; the
    * stylesheet stays the host's job). A host that wants KaTeX and its CSS on
    * one lazy chunk passes a loader that imports both. Hosts that want math
-   * typeset on the first commit instead import `@plannotator/ui/utils/math-eager`.
+   * typeset on the first commit instead import `@reviewtrail/ui/utils/math-eager`.
    */
   mathRendererLoader?: MathRendererLoader;
   /**
    * Synchronous generator for the default "tater" display name, used only when
    * no `identityProvider` is installed. Default: a small built-in pool of the
-   * same `adjective-noun-tater` shape. Plannotator registers the full
-   * dictionary by importing `@plannotator/ui/utils/identity-tater`.
+   * same `adjective-noun-tater` shape. ReviewTrail registers the full
+   * dictionary by importing `@reviewtrail/ui/utils/identity-tater`.
    */
   identityGenerator?: IdentityGenerator;
   /**
@@ -135,14 +135,14 @@ export interface PlannotatorUIConfig {
    * question card's decision tag, a host-resolved local link's
    * `LocalLinkResolution.title`) as ui's `Tooltip` instead of a native
    * `title` (`components/HostTitle`). Default: false, native titles exactly
-   * as before. The Plannotator Inbox passes true.
+   * as before. The ReviewTrail Inbox passes true.
    */
   componentTooltips?: boolean;
   /**
    * Render a digit-only 6/8-digit `#123456` (word boundary, no leading zero)
    * as an issue ref instead of a hex colour swatch, when a ref link can be
    * built (a repo on a known forge). Default: false, swatches exactly as
-   * before. The Plannotator Inbox passes true (#1932).
+   * before. The ReviewTrail Inbox passes true (#1932).
    */
   digitHexIssueRefs?: boolean;
   /**
@@ -153,14 +153,14 @@ export interface PlannotatorUIConfig {
    * Default: false, such refs stay plain text exactly as before. A caller
    * that names its repo is unchanged, and bare `#123` still needs that repo.
    * May be called again later: mounted text re-renders with the new host.
-   * The Plannotator Inbox passes the host most of its projects use.
+   * The ReviewTrail Inbox passes the host most of its projects use.
    */
   crossRepoRefsWithoutRepo?: CrossRepoRefsWithoutRepo;
   /**
    * Make the selection toolbar's Copy button (Viewer and HtmlViewer) copy rich
    * text: text/html plus text/plain in one clipboard write, and show Copy
    * where `hideCopyButton` hid it (the Viewer on desktop). Default: false,
-   * Copy exactly as before. Plannotator's plan review, annotate, code review
+   * Copy exactly as before. ReviewTrail's plan review, annotate, code review
    * and Inbox pass true (#1972, `utils/richCopyPolicy`).
    */
   richCopy?: boolean;
@@ -168,10 +168,10 @@ export interface PlannotatorUIConfig {
    * Draw `CommentPopover` as the small comment card (no header line, no
    * blurred page behind, a chevron that closes and keeps the words, a solid
    * "Comment" button at the row's right end). Import
-   * `@plannotator/ui/comment-card.css` with it. An object turns it on and
+   * `@reviewtrail/ui/comment-card.css` with it. An object turns it on and
    * names, as CSS selectors, the host's pane (where a docked card spans) and
    * the things at its foot the card never covers. Default: false, the popover
-   * exactly as before. The Plannotator Inbox turns it on
+   * exactly as before. The ReviewTrail Inbox turns it on
    * (`utils/commentCardPolicy`).
    */
   commentCard?: boolean | CommentCardLayout;
@@ -179,7 +179,7 @@ export interface PlannotatorUIConfig {
    * Keep a closed text-selection comment that holds words visible: a pale
    * highlight and a floating "Draft" badge under the words' end, a press on
    * either reopening the box (Viewer). Default: false, a closed box leaves no
-   * mark, as before. The Plannotator Inbox passes true.
+   * mark, as before. The ReviewTrail Inbox passes true.
    */
   visibleCommentDrafts?: boolean;
   /**
@@ -189,7 +189,7 @@ export interface PlannotatorUIConfig {
    * and the safe-area insets, and give its buttons 44px targets
    * (`utils/touchToolbarPlacement`).
    * Default: false, the toolbar placed and sized exactly as before. With it
-   * on, nothing changes with a mouse or trackpad. Plannotator's plan review,
+   * on, nothing changes with a mouse or trackpad. ReviewTrail's plan review,
    * annotate, code review and Inbox pass true.
    */
   touchSelectionToolbar?: boolean;
@@ -200,7 +200,7 @@ export interface PlannotatorUIConfig {
    * selection chooser shows (`utils/pageMarks`). For a host that rewrites
    * those `:has()` selectors to the marks in its build: on a long page each
    * such `:has()` costs a style pass over the whole document on every DOM
-   * change. Default: false, nothing is marked. The Plannotator Inbox passes
+   * change. Default: false, nothing is marked. The ReviewTrail Inbox passes
    * true (build/inbox-page-marks.ts).
    */
   pageMarks?: boolean;
@@ -216,7 +216,7 @@ export interface PlannotatorUIConfig {
   /**
    * Fetch an issue / PR / MR hover card's data (`components/RefHoverCard`).
    * Default: none, so no card is drawn and nothing is requested. The
-   * Plannotator Inbox passes one over its `/api/inbox/ref` route.
+   * ReviewTrail Inbox passes one over its `/api/inbox/ref` route.
    */
   refCardTransport?: RefCardTransport;
   /**
@@ -232,14 +232,14 @@ export interface PlannotatorUIConfig {
    * and size) until then. For a host that shows many fences at once (a long
    * thread), where highlighting all of them at once blocks the page for
    * seconds. Default: false, every fence highlighted when it mounts, as
-   * before. The Plannotator Inbox passes true.
+   * before. The ReviewTrail Inbox passes true.
    */
   deferOffscreenCodeHighlight?: boolean;
   /**
    * With `deferOffscreenCodeHighlight`: make a waiting fence's markup off the
    * main thread (`utils/codeHighlight` `CodeHighlightWorker`, e.g. a Web
    * Worker with its own Shiki core). Only the markup is written on the page.
-   * Default: none, every fence's tokens made on the page. The Plannotator
+   * Default: none, every fence's tokens made on the page. The ReviewTrail
    * Inbox passes one (`packages/inbox/codeHighlightWorker.ts`).
    */
   codeHighlightWorker?: CodeHighlightWorker;
@@ -247,7 +247,7 @@ export interface PlannotatorUIConfig {
   loadSettingsFromBackend?: boolean;
 }
 
-export function configurePlannotatorUI(config: PlannotatorUIConfig): void {
+export function configureReviewTrailUI(config: ReviewTrailUIConfig): void {
   if (config.imageSrcResolver) setImageSrcResolver(config.imageSrcResolver);
   if (config.storageBackend) setStorageBackend(config.storageBackend);
   if (config.uploadTransport) setUploadTransport(config.uploadTransport);

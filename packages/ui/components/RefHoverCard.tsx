@@ -38,9 +38,9 @@ import {
   type ForgeRefCardResult,
   type ForgeRefChecks,
   type ForgeRefPerson,
-} from '@plannotator/core/forge-ref-card';
-import { FORGE_SPECS } from '@plannotator/core/forge-refs';
-import { cardProblem, refUnsupportedLine } from '@plannotator/core/problem-words';
+} from '@reviewtrail/core/forge-ref-card';
+import { FORGE_SPECS } from '@reviewtrail/core/forge-refs';
+import { cardProblem, refUnsupportedLine } from '@reviewtrail/core/problem-words';
 import { loadRefCard, refCardTarget } from '../utils/refCard';
 import { ProblemNotice } from './ProblemNotice';
 import { providedRefCardLabel, providedRefCardView } from '../utils/refCardProviders';
@@ -84,11 +84,11 @@ export function refKindName(ref: Pick<ForgeRef, 'platform' | 'kind'>): string {
   return ref.kind === 'issue' ? 'Issue' : FORGE_SPECS[ref.platform].pullName;
 }
 
-/** Bitbucket has no CLI: Plannotator reads it with an API token, so its failures keep their own lines (`unavailable` also: no answer at all). */
+/** Bitbucket has no CLI: ReviewTrail reads it with an API token, so its failures keep their own lines (`unavailable` also: no answer at all). */
 const BITBUCKET_FAILURE_TEXT: Record<ForgeRefCardError, string> = {
   unsupported: 'Details show for Bitbucket Cloud pull requests in the Inbox.',
   cli_missing: "Details couldn't load right now.",
-  signed_out: "Plannotator couldn't sign in to Bitbucket. Check its API token setup to see details here.",
+  signed_out: "ReviewTrail couldn't sign in to Bitbucket. Check its API token setup to see details here.",
   not_found: "Your Bitbucket API token can't see this one, or it doesn't exist.",
   rate_limited: 'Bitbucket asked for a short break. Details come back in a minute.',
   unavailable: "Details couldn't load right now.",
@@ -113,7 +113,7 @@ function stateOf(data: ForgeRefCardData): { label: string; tone: Tone } {
   }
 }
 
-// Merged and done read in the palette's primary (violet in Plannotator's own), like the forges' purple.
+// Merged and done read in the palette's primary (violet in ReviewTrail's own), like the forges' purple.
 const TONE_TEXT: Record<Tone, string> = {
   open: 'text-success',
   merged: 'text-primary',

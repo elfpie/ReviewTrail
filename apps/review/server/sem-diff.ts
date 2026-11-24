@@ -1,4 +1,4 @@
-import type { SemDiffSources } from "@plannotator/shared/sem-diff-assets";
+import type { SemDiffSources } from "@reviewtrail/shared/sem-diff-assets";
 
 let pending: Promise<SemDiffSources | null> | null = null;
 

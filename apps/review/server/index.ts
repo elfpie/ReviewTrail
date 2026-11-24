@@ -1,37 +1,37 @@
 import { exitOnPortInUse } from "./port-in-use";
 import "./loopback-no-proxy";
-import { startReviewServer, handleReviewServerReady } from "@plannotator/server/review";
+import { startReviewServer, handleReviewServerReady } from "@reviewtrail/server/review";
 import { setServerReadyTarget, setServerReadyTailnet } from "../../../packages/server/shared-handlers";
-import { isRemoteSession } from "@plannotator/server/remote";
-import { registerSession, unregisterSession } from "@plannotator/server/sessions";
-import { readInboxRegistry } from "@plannotator/shared/inbox/registry";
+import { isRemoteSession } from "@reviewtrail/server/remote";
+import { registerSession, unregisterSession } from "@reviewtrail/server/sessions";
+import { readInboxRegistry } from "@reviewtrail/shared/inbox/registry";
 import { parseTitleOption } from "./cli";
 import { loadEmbeddedDiagramEngine } from "./diagram-engine";
 import { loadEmbeddedSemDiff } from "./sem-diff";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
 import { readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { detectOrigin } from "./detect-origin";
 import { buildReviewOutput, supportsReviewApprovalNotes } from "./review-output";
 import { reviewDecisionTarget } from "./decision-target";
-import { detectProjectName } from "@plannotator/server/project";
-import { buildLocalWorkspaceReview, type WorkspaceDiffType } from "@plannotator/server/review-workspace";
-import { parseRemoteUrl } from "@plannotator/shared/repo";
-import { childEnv, GIT_REPO_ENV } from "@plannotator/shared/child-env";
-import { type DiffType, detectManagedVcs, prepareLocalReviewDiff, gitRuntime } from "@plannotator/server/vcs";
-import { loadConfig, resolveAIEnabled, resolveSessionTailscale, sessionTailscaleOptOut, resolveDefaultDiffType, resolveDefaultDiffTypeFor } from "@plannotator/shared/config";
-import { formatIgnoredReviewWords, parseReviewArgs, resolveReviewTarget, withReviewDirectory, type ParsedReviewArgs } from "@plannotator/shared/review-args";
-import { resolveReviewOpenState, type ReviewOpenState } from "@plannotator/shared/review-open-state";
-import { listBranches, type AvailableBranches } from "@plannotator/shared/review-core";
-import { createWorktreePool, type WorktreePool, type PoolEntry } from "@plannotator/shared/worktree-pool";
-import { parsePRUrl, checkPRAuth, fetchPR, type PRAuthResult, getCliName, getCliInstallUrl, getMRLabel, getMRNumberLabel, getDisplayRepo, getPlatformLabel, getPRNumber, getPRHeadFetchSpec, getPRCloneCommand } from "@plannotator/server/pr";
-import { announceTailscaleSession, enableTailscaleServe } from "@plannotator/server/tailscale-serve";
-import { takeEnvPullSessionBridgeConfig } from "@plannotator/server/ai-runtime";
-import { readTailnetOwners, setSessionTailnetOwners, setSessionTailnetServedUrl } from "@plannotator/server/session-tailnet";
-import { CF_ACCESS_SESSION_LINE, openSessionDoor } from "@plannotator/server/session-cf-access";
-import { resolveCfAccess } from "@plannotator/shared/inbox/cf-access";
-import { allowIgnoredLine } from "@plannotator/shared/inbox/tailnet-refusal";
+import { detectProjectName } from "@reviewtrail/server/project";
+import { buildLocalWorkspaceReview, type WorkspaceDiffType } from "@reviewtrail/server/review-workspace";
+import { parseRemoteUrl } from "@reviewtrail/shared/repo";
+import { childEnv, GIT_REPO_ENV } from "@reviewtrail/shared/child-env";
+import { type DiffType, detectManagedVcs, prepareLocalReviewDiff, gitRuntime } from "@reviewtrail/server/vcs";
+import { loadConfig, resolveAIEnabled, resolveSessionTailscale, sessionTailscaleOptOut, resolveDefaultDiffType, resolveDefaultDiffTypeFor } from "@reviewtrail/shared/config";
+import { formatIgnoredReviewWords, parseReviewArgs, resolveReviewTarget, withReviewDirectory, type ParsedReviewArgs } from "@reviewtrail/shared/review-args";
+import { resolveReviewOpenState, type ReviewOpenState } from "@reviewtrail/shared/review-open-state";
+import { listBranches, type AvailableBranches } from "@reviewtrail/shared/review-core";
+import { createWorktreePool, type WorktreePool, type PoolEntry } from "@reviewtrail/shared/worktree-pool";
+import { parsePRUrl, checkPRAuth, fetchPR, type PRAuthResult, getCliName, getCliInstallUrl, getMRLabel, getMRNumberLabel, getDisplayRepo, getPlatformLabel, getPRNumber, getPRHeadFetchSpec, getPRCloneCommand } from "@reviewtrail/server/pr";
+import { announceTailscaleSession, enableTailscaleServe } from "@reviewtrail/server/tailscale-serve";
+import { takeEnvPullSessionBridgeConfig } from "@reviewtrail/server/ai-runtime";
+import { readTailnetOwners, setSessionTailnetOwners, setSessionTailnetServedUrl } from "@reviewtrail/server/session-tailnet";
+import { CF_ACCESS_SESSION_LINE, openSessionDoor } from "@reviewtrail/server/session-cf-access";
+import { resolveCfAccess } from "@reviewtrail/shared/inbox/cf-access";
+import { allowIgnoredLine } from "@reviewtrail/shared/inbox/tailnet-refusal";
 
 const args = process.argv.slice(2);
 const detectedOrigin = detectOrigin(process.env);
@@ -41,7 +41,7 @@ process.once("SIGTERM", () => process.exit(143));
 process.on("exit", () => unregisterSession());
 const browserIdx = args.indexOf("--browser");
 if (browserIdx !== -1 && args[browserIdx + 1]) {
-  process.env.PLANNOTATOR_BROWSER = args[browserIdx + 1];
+  process.env.REVIEWTRAIL_BROWSER = args[browserIdx + 1];
   args.splice(browserIdx, 2);
 }
 
@@ -67,9 +67,9 @@ if (cloudflareAccessFlag && tailscaleIdx !== -1) {
   process.exit(1);
 }
 if (cloudflareAccessFlag) {
-  process.env.PLANNOTATOR_REMOTE = "0";
-  process.env.PLANNOTATOR_URL_HOST = "";
-  process.env.PLANNOTATOR_PUBLIC_URL = "";
+  process.env.REVIEWTRAIL_REMOTE = "0";
+  process.env.REVIEWTRAIL_URL_HOST = "";
+  process.env.REVIEWTRAIL_PUBLIC_URL = "";
 }
 const tailscaleResolved = !cloudflareAccessFlag
   ? resolveSessionTailscale(loadConfig(), process.env, tailscaleIdx !== -1)
@@ -79,21 +79,21 @@ const tailscaleOptOut = sessionTailscaleOptOut(tailscaleResolved.source);
 if (tailscaleFlag) {
   if (tailscaleResolved.source !== "flag") {
     process.stderr.write(
-      `[reviewtrail] Publishing over your tailnet (${tailscaleResolved.source === "env" ? "PLANNOTATOR_TAILSCALE" : 'config.json "tailscale"'}).\n`,
+      `[reviewtrail] Publishing over your tailnet (${tailscaleResolved.source === "env" ? "REVIEWTRAIL_TAILSCALE" : 'config.json "tailscale"'}).\n`,
     );
   }
   if (isRemoteSession()) {
     process.stderr.write(
-      "[reviewtrail] --tailscale keeps the server loopback-bound behind `tailscale serve`; ignoring remote mode (PLANNOTATOR_REMOTE/SSH detection) for this session.\n",
+      "[reviewtrail] --tailscale keeps the server loopback-bound behind `tailscale serve`; ignoring remote mode (REVIEWTRAIL_REMOTE/SSH detection) for this session.\n",
     );
   }
-  process.env.PLANNOTATOR_REMOTE = "0";
+  process.env.REVIEWTRAIL_REMOTE = "0";
   // urlHost and publicUrl are irrelevant here — the advertised URL comes from
   // tailscale serve, and the session is local-bound. An empty-but-set env var
   // also suppresses the config-file key, avoiding the misleading
-  // "set PLANNOTATOR_REMOTE=1" local-session warning mid --tailscale run.
-  process.env.PLANNOTATOR_URL_HOST = "";
-  process.env.PLANNOTATOR_PUBLIC_URL = "";
+  // "set REVIEWTRAIL_REMOTE=1" local-session warning mid --tailscale run.
+  process.env.REVIEWTRAIL_URL_HOST = "";
+  process.env.REVIEWTRAIL_PUBLIC_URL = "";
   // "Ask this session" stays ON (#2166): the host's bridge config is kept
   // (taken at the top of this file). Over the tailnet the session opens only
   // for the Tailscale login that owns this machine (or, where Tailscale names
@@ -128,7 +128,7 @@ async function handleTailscaleReady(port: number): Promise<void> {
     );
   };
   if ("reason" in owners) {
-    failStartup([`Over Tailscale, Plannotator opens only for the Tailscale account that owns this computer, and it cannot tell which account that is: ${owners.reason}.`]);
+    failStartup([`Over Tailscale, ReviewTrail opens only for the Tailscale account that owns this computer, and it cannot tell which account that is: ${owners.reason}.`]);
     return;
   }
   if (owners.ignored && owners.logins[0]) process.stderr.write(`[reviewtrail] ${allowIgnoredLine(owners.logins[0])}\n`);
@@ -156,14 +156,14 @@ async function handleCloudflareAccessReady(port: number): Promise<void> {
     return process.exit(1);
   };
   const resolved = resolveCfAccess(loadConfig());
-  if (!resolved.configured) return failStartup("Cloudflare Access is not set up: run plannotator inbox cloudflare-access setup.");
-  if (!resolved.on) return failStartup("Cloudflare Access is turned off (PLANNOTATOR_INBOX_CF_ACCESS).");
+  if (!resolved.configured) return failStartup("Cloudflare Access requires a configured external connector.");
+  if (!resolved.on) return failStartup("Cloudflare Access is turned off (REVIEWTRAIL_INBOX_CF_ACCESS).");
   if (!resolved.settings) return failStartup(`Cloudflare Access: ${resolved.error}`);
-  if (!resolved.settings.sessionHost) return failStartup("Cloudflare Access is set up for the Inbox only: sessions need the sessions' address that plannotator inbox cloudflare-access setup creates.");
+  if (!resolved.settings.sessionHost) return failStartup("The Cloudflare Access connector has no address configured for review sessions.");
   const sessionHost = resolved.settings.sessionHost;
-  const dataDir = getPlannotatorDataDir();
+  const dataDir = getReviewTrailDataDir();
   const entry = readInboxRegistry(dataDir);
-  if (!entry?.cloudflare_access?.url) return failStartup(`Cloudflare Access is not open in the running Inbox${entry?.cloudflare_access?.error ? `: ${entry.cloudflare_access.error}` : "; restart it with plannotator inbox restart"}.`);
+  if (!entry?.cloudflare_access?.url) return failStartup(`Cloudflare Access is not open in the running Inbox${entry?.cloudflare_access?.error ? `: ${entry.cloudflare_access.error}` : "; restart the external connector"}.`);
   const { url } = openSessionDoor(dataDir, port, sessionHost);
   setServerReadyTailnet({ ask: resolveAIEnabled() && takeEnvPullSessionBridgeConfig() !== undefined });
   await announceTailscaleSession(url, port, CF_ACCESS_SESSION_LINE);
@@ -284,7 +284,7 @@ if (reviewArgs.errors.length > 0) {
   process.exit(1);
 }
 const urlArg = reviewArgs.prUrl;
-const reviewDirectory = resolveCliReviewDirectory(reviewArgs, process.env.PLANNOTATOR_CWD || process.cwd());
+const reviewDirectory = resolveCliReviewDirectory(reviewArgs, process.env.REVIEWTRAIL_CWD || process.cwd());
 let reviewCwd = reviewDirectory ?? process.cwd();
 const isPRMode = urlArg !== undefined;
 const useLocal = isPRMode && reviewArgs.useLocal;
@@ -310,7 +310,7 @@ let worktreeCleanup: (() => void | Promise<void>) | undefined;
 let workspace: Awaited<ReturnType<typeof buildLocalWorkspaceReview>> | undefined;
 
 if (reviewArgs.patchFile) {
-  const patch = await readStaticPatch(reviewArgs.patchFile, process.env.PLANNOTATOR_CWD || process.cwd());
+  const patch = await readStaticPatch(reviewArgs.patchFile, process.env.REVIEWTRAIL_CWD || process.cwd());
   rawPatch = patch.rawPatch;
   gitRef = patch.gitRef;
   initialDiffType = "static-patch";
@@ -638,7 +638,7 @@ const reviewTarget = reviewDecisionTarget({
   prUrl: urlArg,
   patchFile: reviewArgs.patchFile,
   cwd: reviewCwd,
-  invocationCwd: process.env.PLANNOTATOR_CWD || process.cwd(),
+  invocationCwd: process.env.REVIEWTRAIL_CWD || process.cwd(),
 });
 setServerReadyTarget(reviewTarget);
 
@@ -662,7 +662,7 @@ const server = await startReview({
   initialBaseExplicit,
   openStatePinned,
   // `--no-git-remote-check` (#1553): session-only, and only ever a disable —
-  // undefined leaves PLANNOTATOR_GIT_REMOTE_CHECK / config.gitRemoteCheck deciding.
+  // undefined leaves REVIEWTRAIL_GIT_REMOTE_CHECK / config.gitRemoteCheck deciding.
   gitRemoteCheck: reviewArgs.gitRemoteCheck,
   initialFingerprint,
   initialFileIdentities,

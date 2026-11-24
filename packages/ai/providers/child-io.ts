@@ -17,7 +17,7 @@
  *     embedded extension that is not "the provider failed" — it terminates
  *     the HOST agent process.
  *
- * That is issue #1378: a Plannotator plan review opened from Pi on Windows
+ * That is issue #1378: a ReviewTrail plan review opened from Pi on Windows
  * took the whole Pi host down with `write EPIPE` out of `PiProcessNode.send()`.
  * Windows only made it likelier to land on the async path during teardown;
  * the mechanism is platform-independent.

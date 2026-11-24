@@ -1,5 +1,5 @@
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
-import { handleReviewLiveRequest, isReviewLivePath, type ReviewLiveContext } from "@plannotator/shared/review-live";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
+import { handleReviewLiveRequest, isReviewLivePath, type ReviewLiveContext } from "@reviewtrail/shared/review-live";
 
 export function createReviewLiveRoute(context: Omit<ReviewLiveContext, "dataDir"> & { dataDir?: string }) {
   return async (req: Request, url: URL): Promise<Response | null> => {
@@ -14,7 +14,7 @@ export function createReviewLiveRoute(context: Omit<ReviewLiveContext, "dataDir"
           return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
         },
       },
-      { ...context, dataDir: context.dataDir ?? getPlannotatorDataDir() },
+      { ...context, dataDir: context.dataDir ?? getReviewTrailDataDir() },
     );
     if (!answer) return null;
     if ("stream" in answer) {

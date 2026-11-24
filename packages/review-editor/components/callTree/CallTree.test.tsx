@@ -19,8 +19,8 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { callTreeFromEntry, type CallTreeDoc, type CallTreeNode } from '@plannotator/shared/call-tree';
-import type { CallFlowAnnotationTarget } from '@plannotator/ui/types';
+import { callTreeFromEntry, type CallTreeDoc, type CallTreeNode } from '@reviewtrail/shared/call-tree';
+import type { CallFlowAnnotationTarget } from '@reviewtrail/ui/types';
 import { CallTree } from './CallTree';
 import { CallTreeList } from './CallTreeList';
 import { CallFlowTreeView } from '../CallFlowTreeView';

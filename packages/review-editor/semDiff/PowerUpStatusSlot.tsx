@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PowerUpGuy } from '@plannotator/ui/components/agentFace/PowerUpGuy';
+import { PowerUpGuy } from '@reviewtrail/ui/components/agentFace/PowerUpGuy';
 import { PROVIDER_NAME, type PowerUpStatus } from './powerUp';
 
 export const PowerUpStatusSlot: React.FC<{

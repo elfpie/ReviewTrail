@@ -22,12 +22,12 @@
 import * as React from 'react';
 import * as JsxRuntime from 'react/jsx-runtime';
 import * as ReactDOM from 'react-dom';
-import * as ThemeProviderModule from '@plannotator/ui/components/ThemeProvider';
-import * as ConfigIndex from '@plannotator/ui/config';
-import * as Identity from '@plannotator/ui/utils/identity';
-import * as MathSlot from '@plannotator/ui/utils/math';
-import * as CommentDraftScope from '@plannotator/ui/utils/commentDraftScope';
-import * as DiagramSvgAccept from '@plannotator/ui/components/diagramSvgAccept';
+import * as ThemeProviderModule from '@reviewtrail/ui/components/ThemeProvider';
+import * as ConfigIndex from '@reviewtrail/ui/config';
+import * as Identity from '@reviewtrail/ui/utils/identity';
+import * as MathSlot from '@reviewtrail/ui/utils/math';
+import * as CommentDraftScope from '@reviewtrail/ui/utils/commentDraftScope';
+import * as DiagramSvgAccept from '@reviewtrail/ui/components/diagramSvgAccept';
 import {
   DIAGRAM_ENGINE_API_VERSION,
   DIAGRAM_ENGINE_HOST_KEY,

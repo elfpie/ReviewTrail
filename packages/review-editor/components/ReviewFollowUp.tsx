@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import type { DiffFile } from '@plannotator/core/diff-files';
+import type { DiffFile } from '@reviewtrail/core/diff-files';
 
 interface Item {
   id: string;

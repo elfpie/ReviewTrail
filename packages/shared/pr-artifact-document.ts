@@ -377,7 +377,7 @@ function providerAuthRequiredError(metadata: PRMetadata): PRArtifactDocumentErro
   const loginHint = metadata.platform === 'github'
     ? `gh auth login --hostname ${metadata.host}`
     : metadata.platform === 'bitbucket'
-      ? 'set PLANNOTATOR_BITBUCKET_TOKEN'
+      ? 'set REVIEWTRAIL_BITBUCKET_TOKEN'
       : `glab auth login --hostname ${metadata.host}`;
   return new PRArtifactDocumentError(
     `Artifact host requires authentication: run \`${loginHint}\``,
@@ -549,7 +549,7 @@ async function fetchArtifactContent(
         signal: controller.signal,
         headers: {
           Accept: '*/*',
-          'User-Agent': 'Plannotator artifact review',
+          'User-Agent': 'ReviewTrail artifact review',
           ...(isValidRangeHeader(options.range) ? { Range: options.range } : {}),
           // The token never crosses a redirect: GitHub's signed S3 URL needs none.
           ...(shouldSendProviderAuth(currentUrl, metadata) && currentUrl.origin === firstOrigin ? providerHeaders : {}),

@@ -5,8 +5,8 @@
  * Pre-binds a Bun-based runtime so consumers get a clean API.
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
-import { refRunnerKill } from "@plannotator/shared/ref-cards";
+import { childEnv } from "@reviewtrail/shared/child-env";
+import { refRunnerKill } from "@reviewtrail/shared/ref-cards";
 import type {
   PRRef,
   PRMetadata,
@@ -19,7 +19,7 @@ import type {
   PRStackTree,
   PRListItem,
   PRAuthResult,
-} from "@plannotator/shared/pr-types";
+} from "@reviewtrail/shared/pr-types";
 import {
   parsePRUrl as parsePRUrlCore,
   parseFileLevelComments as parseFileLevelCommentsCore,
@@ -31,7 +31,7 @@ import {
   getDisplayRepo,
   getCliName,
   getCliInstallUrl,
-} from "@plannotator/shared/pr-types";
+} from "@reviewtrail/shared/pr-types";
 import {
   checkAuth as checkAuthCore,
   getUser as getUserCore,
@@ -45,11 +45,11 @@ import {
   markPRFilesViewed as markPRFilesViewedCore,
   fetchPRStack as fetchPRStackCore,
   fetchPRList as fetchPRListCore,
-} from "@plannotator/shared/pr-provider";
+} from "@reviewtrail/shared/pr-provider";
 
-export type { PRAuthResult, PRRef, PRMetadata, PRContext, PRReviewFileComment, PRReviewFileLevelComment, PRReviewSubmissionResult, PRStackTree, PRListItem } from "@plannotator/shared/pr-types";
-export { prRefFromMetadata, isSameProject, getPlatformLabel, getMRLabel, getMRNumberLabel, getDisplayRepo, getCliName, getCliInstallUrl, getPRNumber, getPRPlatformCapabilities, getPRHeadFetchSpec, getPRCloneCommand } from "@plannotator/shared/pr-types";
-export type { GithubPRMetadata } from "@plannotator/shared/pr-types";
+export type { PRAuthResult, PRRef, PRMetadata, PRContext, PRReviewFileComment, PRReviewFileLevelComment, PRReviewSubmissionResult, PRStackTree, PRListItem } from "@reviewtrail/shared/pr-types";
+export { prRefFromMetadata, isSameProject, getPlatformLabel, getMRLabel, getMRNumberLabel, getDisplayRepo, getCliName, getCliInstallUrl, getPRNumber, getPRPlatformCapabilities, getPRHeadFetchSpec, getPRCloneCommand } from "@reviewtrail/shared/pr-types";
+export type { GithubPRMetadata } from "@reviewtrail/shared/pr-types";
 
 const bunCommandRuntime: PRRuntime = {
   async runCommand(cmd, args, options) {

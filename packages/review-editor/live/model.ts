@@ -1,6 +1,6 @@
-import { newSideLines, oldSideLines } from '@plannotator/core/line-anchor';
-import { reviewAnchorNow, reviewConversations, REVIEW_ANCHOR_CODE_LINES_MAX, type InboxReviewAnchor, type ReviewConversation, type ReviewThreadNow } from '@plannotator/core/review-threads';
-import type { InboxMessage } from '@plannotator/core/inbox-types';
+import { newSideLines, oldSideLines } from '@reviewtrail/core/line-anchor';
+import { reviewAnchorNow, reviewConversations, REVIEW_ANCHOR_CODE_LINES_MAX, type InboxReviewAnchor, type ReviewConversation, type ReviewThreadNow } from '@reviewtrail/core/review-threads';
+import type { InboxMessage } from '@reviewtrail/core/inbox-types';
 
 export type LiveMessage = InboxMessage;
 

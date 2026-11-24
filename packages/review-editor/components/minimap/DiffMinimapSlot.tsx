@@ -1,9 +1,9 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useConfigValue } from '@plannotator/ui/config';
+import { useConfigValue } from '@reviewtrail/ui/config';
 import type { DiffLayoutSource, LineSide, ScrollElementModel } from './layoutSource';
 import type { RowMetrics } from './rowModel';
 import type { MinimapKind } from './scene';
-import type { DiffMinimapMode } from '@plannotator/ui/config/settings';
+import type { DiffMinimapMode } from '@reviewtrail/ui/config/settings';
 
 export const MINIMAP_LONG_SCREENS = 3;
 export const MINIMAP_BIG_FILE_LINES = 1000;

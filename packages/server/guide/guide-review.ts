@@ -1,8 +1,8 @@
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { mkdir, writeFile, readFile, unlink } from "node:fs/promises";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
-import { codexAskAiConfigArgs, readCodexConfigTexts } from "@plannotator/ai/providers/ask-ai-env";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
+import { codexAskAiConfigArgs, readCodexConfigTexts } from "@reviewtrail/ai/providers/ask-ai-env";
 import { loadConfig, resolveClaudeSandbox, resolveCursorSandbox } from "../config";
 import { claudeJobIsolationArgs, claudeJobToolArgs, findClaudeStructuredOutput, type ClaudeJobCommandOptions } from "../claude-review";
 import {
@@ -13,7 +13,7 @@ import {
   sanitizeGuideSections,
   validateGuideOutput,
   type GuideChangedFile,
-} from "@plannotator/shared/guide-prompt";
+} from "@reviewtrail/shared/guide-prompt";
 import type { DiffType } from "../vcs";
 import { getPRPlatformCapabilities, type PRMetadata } from "../pr";
 import type { WorkspaceReviewPromptContext } from "../agent-review-message";
@@ -29,21 +29,21 @@ import {
   type MarkerEngine,
   type MarkerEngineId,
 } from "../marker-review";
-import { GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from "@plannotator/shared/guide";
+import { GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from "@reviewtrail/shared/guide";
 import type {
   CodeGuideOutput,
   GuideDiffRef,
   GuideSection,
-} from "@plannotator/shared/guide";
-import type { GuideLaunchReview } from "@plannotator/shared/guide-format";
+} from "@reviewtrail/shared/guide";
+import type { GuideLaunchReview } from "@reviewtrail/shared/guide-format";
 
 export type { CodeGuideOutput, GuideDiffRef, GuideSection };
 
 // The prompt, schema, user message and validator moved to
-// @plannotator/core/guide-prompt (browser-safe); re-exported so every existing
+// @reviewtrail/core/guide-prompt (browser-safe); re-exported so every existing
 // importer of this module keeps working unchanged.
 export { GUIDE_NO_SECTIONS_ERROR, GUIDE_REVIEW_PROMPT, GUIDE_SCHEMA_JSON, buildGuideUserMessage, validateGuideOutput };
-export type { GuideChangedFile, GuidePromptPRMetadata } from "@plannotator/shared/guide-prompt";
+export type { GuideChangedFile, GuidePromptPRMetadata } from "@reviewtrail/shared/guide-prompt";
 
 export const GUIDE_EMPTY_OUTPUT_ERROR = "Guide generation returned empty or malformed output";
 
@@ -69,7 +69,7 @@ export function composeGuideMethodology(extraInstructions?: string): string {
   // hijack recovery and fail an otherwise-valid marker run, so tag-shaped
   // sequences are defanged before composition.
   const defanged = bounded.replace(
-    /<\/?plannotator-review-json:pn[0-9a-f]{12}>/g,
+    /<\/?reviewtrail-review-json:pn[0-9a-f]{12}>/g,
     "[marker tag removed]",
   );
   return [
@@ -115,7 +115,7 @@ export function buildGuideClaudeCommand(
 
 /** Materialized schema path under the current data directory. */
 function guideSchemaPath(): string {
-  return join(getPlannotatorDataDir(), "guide-schema.json");
+  return join(getReviewTrailDataDir(), "guide-schema.json");
 }
 
 /** Schema paths this process has already refreshed with its own schema. */
@@ -124,7 +124,7 @@ const materializedGuideSchemaPaths = new Set<string>();
 async function ensureGuideSchemaFile(): Promise<string> {
   const schemaPath = guideSchemaPath();
   // Guarded per resolved path, not per process and not by file existence: a
-  // PLANNOTATOR_DATA_DIR change after import materializes the schema in the
+  // REVIEWTRAIL_DATA_DIR change after import materializes the schema in the
   // new location, and a stale file left by an older binary is overwritten
   // once per process so the agent always gets the current schema.
   if (!materializedGuideSchemaPaths.has(schemaPath)) {
@@ -136,7 +136,7 @@ async function ensureGuideSchemaFile(): Promise<string> {
 }
 
 export function generateGuideOutputPath(): string {
-  return join(tmpdir(), `plannotator-guide-${crypto.randomUUID()}.json`);
+  return join(tmpdir(), `reviewtrail-guide-${crypto.randomUUID()}.json`);
 }
 
 export async function buildGuideCodexCommand(options: {

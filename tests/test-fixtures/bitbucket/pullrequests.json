@@ -6,7 +6,7 @@
       "type": "pullrequest",
       "id": 1,
       "title": "Add mul and greet",
-      "description": "Smoke-test PR for **Plannotator** Bitbucket review.",
+      "description": "Smoke-test PR for **ReviewTrail** Bitbucket review.",
       "state": "OPEN",
       "draft": false,
       "merge_commit": null,
@@ -145,9 +145,9 @@
       },
       "summary": {
         "type": "rendered",
-        "raw": "Smoke-test PR for **Plannotator** Bitbucket review.",
+        "raw": "Smoke-test PR for **ReviewTrail** Bitbucket review.",
         "markup": "markdown",
-        "html": "<p>Smoke-test PR for <strong>Plannotator</strong> Bitbucket review.</p>"
+        "html": "<p>Smoke-test PR for <strong>ReviewTrail</strong> Bitbucket review.</p>"
       },
       "queued": false
     }

@@ -13,9 +13,9 @@ function localhostUrl(port: number): string {
   return `http://localhost:${port}`;
 }
 
-/** The public origin fronts one port: the fixed port or a range's first. PLANNOTATOR_PORT=0 (random) never matches. */
+/** The public origin fronts one port: the fixed port or a range's first. REVIEWTRAIL_PORT=0 (random) never matches. */
 function publicUrlAppliesToPort(port: number): boolean {
-  const configured = process.env.PLANNOTATOR_PORT;
+  const configured = process.env.REVIEWTRAIL_PORT;
   if (!configured) {
     return true;
   }
@@ -26,10 +26,10 @@ function publicUrlAppliesToPort(port: number): boolean {
 /**
  * Resolve a display-only session URL. Precedence:
  *   remote: public URL (fixed/range-start port) → urlHost:<port> → localhost.
- *     A localhost urlHost (`plannotator.localhost`, #2184) counts as unset here:
+ *     A localhost urlHost (`reviewtrail.localhost`, #2184) counts as unset here:
  *     it names this computer's browser only, so remote users never get it.
- *   local: a localhost urlHost (`plannotator.localhost`, Settings' "Open
- *     Plannotator at plannotator.localhost") → localhost. The public URL and any
+ *   local: a localhost urlHost (`reviewtrail.localhost`, Settings' "Open
+ *     ReviewTrail at reviewtrail.localhost") → localhost. The public URL and any
  *     other urlHost are ignored with a once-per-process warning: a local
  *     session binds loopback, so a proxy or tailnet name cannot reach it.
  */
@@ -44,7 +44,7 @@ export function resolveAdvertisedSessionUrl(port: number, isRemote: boolean): st
     if (override !== undefined && !warnedLocalAdvertisedUrlOverride) {
       warnedLocalAdvertisedUrlOverride = true;
       process.stderr.write(
-        `[plannotator] Warning: advertised URL override ${JSON.stringify(override)} ignored — this is a local session, so the server binds loopback and only localhost or *.localhost names are supported. Set PLANNOTATOR_REMOTE=1 to use the override.\n`,
+        `[reviewtrail] Warning: advertised URL override ${JSON.stringify(override)} ignored — this is a local session, so the server binds loopback and only localhost or *.localhost names are supported. Set REVIEWTRAIL_REMOTE=1 to use the override.\n`,
       );
     }
     return localHost === undefined ? localhostUrl(port) : `http://${localHost}:${port}`;

@@ -3,7 +3,7 @@ import type {
   SemanticDiffBinaryChange,
   SemanticDiffChange,
   SemanticDiffOkResponse,
-} from '@plannotator/shared/semantic-diff-types';
+} from '@reviewtrail/shared/semantic-diff-types';
 import { useReviewState } from '../ReviewStateContext';
 import { loadReviewSemanticDiff } from '../../semDiff/semanticDiffSource';
 import { useReviewFileSource } from '../../hooks/useReviewFileSource';

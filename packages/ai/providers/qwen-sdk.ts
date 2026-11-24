@@ -6,7 +6,7 @@
  * one prompt and exits; the conversation lives in Qwen Code's own session
  * store. The first question starts it with `--session-id <uuid>`, later ones
  * continue it with `--resume <uuid>`. The ids start with
- * QWEN_ASK_AI_SESSION_PREFIX, so `plannotator last` can skip these chats.
+ * QWEN_ASK_AI_SESSION_PREFIX, so `reviewtrail last` can skip these chats.
  * When a resume finds no saved session (the user turned Qwen's chat
  * recording off, or a run died before Qwen saved it), the question is sent
  * once more as a new session with the review context.
@@ -20,7 +20,7 @@
  *   allowed: any other tool the user's Qwen settings auto-approve (a
  *   trusted MCP server, or an allow rule), and a shell command Qwen's
  *   plan-mode shell policy accepts.
- * - `exit_plan_mode` is off too: the Plannotator Qwen extension opens a plan
+ * - `exit_plan_mode` is off too: the ReviewTrail Qwen extension opens a plan
  *   review on it, and an Ask AI answer must never do that.
  * - `--max-wall-time` bounds the run; qwen exits with code 55 when it is
  *   over.
@@ -33,7 +33,7 @@ import { spawn, type ChildProcess } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import { qwenCatalogFromSettings, type CatalogModel } from "@plannotator/core/model-catalog";
+import { qwenCatalogFromSettings, type CatalogModel } from "@reviewtrail/core/model-catalog";
 import { BaseSession } from "../base-session.ts";
 import { buildEffectivePrompt, buildSystemPrompt } from "../context.ts";
 import type {
@@ -213,8 +213,8 @@ export class QwenProcess {
 		try {
 			proc = spawn(file!, rest, {
 				cwd,
-				// Plannotator's integration off in this Qwen (ask-ai-env.ts):
-				// the Inbox MCP server Plannotator adds to Qwen's settings.json
+				// ReviewTrail's integration off in this Qwen (ask-ai-env.ts):
+				// the Inbox MCP server ReviewTrail adds to Qwen's settings.json
 				// inherits the env, and so lists no tools.
 				env: askAiChildEnv(),
 				stdio: ["pipe", "pipe", "pipe"],

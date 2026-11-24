@@ -2,10 +2,10 @@
  * Tailscale helpers for remote-friendly sessions.
  *
  * Two consumers:
- *   - urlHost "auto" (PLANNOTATOR_URL_HOST=auto): detect this machine's
+ *   - urlHost "auto" (REVIEWTRAIL_URL_HOST=auto): detect this machine's
  *     tailnet host so remote sessions advertise a reachable URL without the
  *     user hand-copying their MagicDNS name into config. Display-only, like
- *     every urlHost value — binding stays governed by PLANNOTATOR_REMOTE.
+ *     every urlHost value — binding stays governed by REVIEWTRAIL_REMOTE.
  *   - `--tailscale` (Bun CLI): parse/compose the `tailscale serve` commands
  *     that publish a loopback-bound session over the tailnet with HTTPS.
  *
@@ -116,12 +116,12 @@ export interface TailscaleAppLookup {
  * macOS, the Tailscale app's own CLI if the app is installed, so a Mac whose
  * app never had its command-line tool turned on still works. Undefined for
  * any other failure, any other platform, or a test run
- * (`PLANNOTATOR_TEST_SANDBOX`, so no test reaches the real app). PATH always
+ * (`REVIEWTRAIL_TEST_SANDBOX`, so no test reaches the real app). PATH always
  * comes first.
  */
 export function tailscaleAppFallback(result: TailscaleRunResult, lookup: TailscaleAppLookup = {}): string | undefined {
   if ((result.error as NodeJS.ErrnoException | undefined)?.code !== "ENOENT") return undefined;
-  if ((lookup.env ?? process.env).PLANNOTATOR_TEST_SANDBOX) return undefined;
+  if ((lookup.env ?? process.env).REVIEWTRAIL_TEST_SANDBOX) return undefined;
   if ((lookup.platform ?? process.platform) !== "darwin") return undefined;
   return (lookup.exists ?? existsSync)(MAC_TAILSCALE_APP_CLI) ? MAC_TAILSCALE_APP_CLI : undefined;
 }
@@ -210,7 +210,7 @@ export function explainTailscaleSetup(result: TailscaleRunResult): string | unde
   if (enableLink || /\b(?:serve|https)\b[^\n]*\bnot enabled\b/i.test(output)) {
     const link = enableLink ?? links.find((candidate) => /login\.tailscale\.com/.test(candidate));
     return (
-      "Tailscale Serve is off for your tailnet. That is a one-time Tailscale setting, not a Plannotator bug.\n" +
+      "Tailscale Serve is off for your tailnet. That is a one-time Tailscale setting, not a ReviewTrail bug.\n" +
       (link
         ? `Open ${link} and press Enable HTTPS (keep "HTTPS certificates" ticked; Funnel is not needed), then try again.`
         : "Turn on HTTPS certificates in the Tailscale admin console (https://login.tailscale.com/admin/dns), then try again.")
@@ -239,7 +239,7 @@ export function describeTailscaleFailure(result: TailscaleRunResult): string {
   if (result.error) {
     const code = (result.error as NodeJS.ErrnoException).code;
     if (code === "ENOENT") {
-      return "`tailscale` CLI not found on PATH (on a Mac, Plannotator also looks for the app at /Applications/Tailscale.app). With the Tailscale app, turn on its command-line tool (Tailscale → Settings → Install CLI); otherwise install Tailscale from https://tailscale.com/download and sign in.";
+      return "`tailscale` CLI not found on PATH (on a Mac, ReviewTrail also looks for the app at /Applications/Tailscale.app). With the Tailscale app, turn on its command-line tool (Tailscale → Settings → Install CLI); otherwise install Tailscale from https://tailscale.com/download and sign in.";
     }
     if (code === "ETIMEDOUT") {
       return "Timed out waiting for the `tailscale` CLI.";
@@ -545,7 +545,7 @@ export function resolveAutoHostCached(
     } else {
       autoHostResolution = { host: undefined };
       process.stderr.write(
-        `[plannotator] Warning: advertised URL host "auto" could not resolve a tailnet host — ${result.error} Advertising localhost.\n`,
+        `[reviewtrail] Warning: advertised URL host "auto" could not resolve a tailnet host — ${result.error} Advertising localhost.\n`,
       );
     }
   }

@@ -6,7 +6,7 @@
  * where its images load from, and whether the full contents still agree with
  * the patch on screen.
  */
-import { getExtraMarkdownExtensions } from '@plannotator/ui/utils/markdownExtensions';
+import { getExtraMarkdownExtensions } from '@reviewtrail/ui/utils/markdownExtensions';
 import type { DiffFileStatus } from '../types';
 
 /** Built-in extensions the preview renders as Markdown. */

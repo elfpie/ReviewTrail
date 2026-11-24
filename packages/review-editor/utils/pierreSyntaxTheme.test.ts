@@ -8,8 +8,8 @@
  */
 import { afterEach, expect, test } from 'bun:test';
 import * as pierre from '@pierre/diffs';
-import { __setCustomSyntaxFetchForTests, customSyntaxThemeName } from '@plannotator/ui/utils/customSyntaxThemes';
-import { setCustomThemes } from '@plannotator/ui/utils/themeRegistry';
+import { __setCustomSyntaxFetchForTests, customSyntaxThemeName } from '@reviewtrail/ui/utils/customSyntaxThemes';
+import { setCustomThemes } from '@reviewtrail/ui/utils/themeRegistry';
 import { resolvePierreSyntaxTheme as resolveSyntaxTheme } from './pierreSyntaxTheme';
 
 const swatch = { primary: '#66d9ef', secondary: '#a1efe4', accent: '#ae81ff', background: '#272822', foreground: '#f8f8f2' };

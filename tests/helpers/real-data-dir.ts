@@ -1,18 +1,18 @@
 /**
- * The person's real Plannotator data directory, and the refusals that keep
+ * The person's real ReviewTrail data directory, and the refusals that keep
  * every test and dev script out of it.
  *
- * "Real" means every place Plannotator would use when PLANNOTATOR_DATA_DIR is
- * unset (`getDefaultPlannotatorDataDir`: ~/.plannotator when it exists, else
- * $XDG_DATA_HOME/plannotator, else ~/.plannotator), worked out for BOTH the
+ * "Real" means every place ReviewTrail would use when REVIEWTRAIL_DATA_DIR is
+ * unset (`getDefaultReviewTrailDataDir`: ~/.reviewtrail when it exists, else
+ * $XDG_DATA_HOME/reviewtrail, else ~/.reviewtrail), worked out for BOTH the
  * home in $HOME and the account's home from the password database, because a
  * test that points HOME at a temp folder must still never reach the account's
- * own ~/.plannotator. ~/.plannotator and $XDG_DATA_HOME/plannotator are both
+ * own ~/.reviewtrail. ~/.reviewtrail and $XDG_DATA_HOME/reviewtrail are both
  * refused whichever one the product would pick today, and so is any folder
  * inside one of them. Paths compare after `realpath` (as far as they exist)
  * and case-insensitively on macOS and Windows, whose default file systems are.
  *
- * A relocated data dir (PLANNOTATOR_DATA_DIR=/custom in the person's shell) is
+ * A relocated data dir (REVIEWTRAIL_DATA_DIR=/custom in the person's shell) is
  * just as real, and cannot be told from a test's by its path, so the refusals
  * accept only scratch folders: inside the OS temp dir (or /tmp), or the test
  * sandbox the preload marked (`isScratchDataDir`).
@@ -23,7 +23,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, lstatSync, readlinkSync, realpathSync } from "node:fs";
 import { homedir, tmpdir, userInfo } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve, sep } from "node:path";
-import { getDefaultPlannotatorDataDir } from "../../packages/shared/data-dir";
+import { getDefaultReviewTrailDataDir } from "../../packages/shared/data-dir";
 
 let accountHomeCache: string | null | undefined;
 
@@ -63,11 +63,11 @@ function homes(): string[] {
 export function realDataDirs(): string[] {
   const dirs = new Set<string>();
   for (const home of homes()) {
-    dirs.add(join(home, ".plannotator"));
-    dirs.add(getDefaultPlannotatorDataDir(home));
+    dirs.add(join(home, ".reviewtrail"));
+    dirs.add(getDefaultReviewTrailDataDir(home));
   }
   const xdg = process.env.XDG_DATA_HOME?.trim();
-  if (xdg && isAbsolute(xdg)) dirs.add(join(xdg, "plannotator"));
+  if (xdg && isAbsolute(xdg)) dirs.add(join(xdg, "reviewtrail"));
   return [...dirs];
 }
 
@@ -105,7 +105,7 @@ function canonical(path: string, depth = 0): string {
   return process.platform === "darwin" || process.platform === "win32" ? full.toLowerCase() : full;
 }
 
-/** Expand `~` the way Plannotator expands PLANNOTATOR_DATA_DIR, against every home. */
+/** Expand `~` the way ReviewTrail expands REVIEWTRAIL_DATA_DIR, against every home. */
 function expansions(dir: string): string[] {
   const trimmed = dir.trim();
   if (trimmed === "~") return homes();
@@ -127,7 +127,7 @@ export function isRealDataDir(dir: string): boolean {
  * import-time sandbox (tests/setup/sandbox-data-dir.ts) set to the temp data
  * dir they made: a data dir at or inside it is a sandbox whatever TMPDIR says.
  */
-export const TEST_SANDBOX_ENV = "PLANNOTATOR_TEST_SANDBOX";
+export const TEST_SANDBOX_ENV = "REVIEWTRAIL_TEST_SANDBOX";
 
 /** The folders a scratch data dir lives under: the OS temp dir, $TMPDIR, /tmp and /var/tmp. */
 function scratchRoots(): string[] {
@@ -145,8 +145,8 @@ function scratchRoots(): string[] {
 /**
  * `dir` is a scratch folder: strictly inside a temp root (or at/inside the
  * sandbox marker) and not a real data dir. A data dir anywhere else may be
- * the person's own: PLANNOTATOR_DATA_DIR=/custom in their shell IS their
- * real Inbox, so "not ~/.plannotator" is not enough.
+ * the person's own: REVIEWTRAIL_DATA_DIR=/custom in their shell IS their
+ * real Inbox, so "not ~/.reviewtrail" is not enough.
  */
 export function isScratchDataDir(dir: string): boolean {
   if (isRealDataDir(dir)) return false;
@@ -166,10 +166,10 @@ export function isScratchDataDir(dir: string): boolean {
  */
 export function refuseRealDataDir(dir: string | undefined, what: string): string {
   if (!dir || !dir.trim()) {
-    throw new Error(`${what}: no data directory. Set PLANNOTATOR_DATA_DIR to a scratch folder; tests and dev scripts never use the default ~/.plannotator.`);
+    throw new Error(`${what}: no data directory. Set REVIEWTRAIL_DATA_DIR to a scratch folder; tests and dev scripts never use the default ~/.reviewtrail.`);
   }
   if (isRealDataDir(dir)) {
-    throw new Error(`${what}: refusing ${dir}, the real Plannotator data directory (${realDataDirs().join(", ")}). Use a scratch folder.`);
+    throw new Error(`${what}: refusing ${dir}, the real ReviewTrail data directory (${realDataDirs().join(", ")}). Use a scratch folder.`);
   }
   if (!isScratchDataDir(dir)) {
     throw new Error(`${what}: refusing ${dir}: not a scratch folder (inside ${tmpdir()} or /tmp). A data dir anywhere else may be a real Inbox.`);
@@ -178,12 +178,12 @@ export function refuseRealDataDir(dir: string | undefined, what: string): string
 }
 
 /**
- * Throw unless PLANNOTATOR_DATA_DIR is set and is a scratch folder. Every
+ * Throw unless REVIEWTRAIL_DATA_DIR is set and is a scratch folder. Every
  * Inbox test helper calls it before it starts, signals or removes anything,
  * so a test that pointed the env somewhere real fails instead of reaching it.
  */
-export function assertSandboxedDataDir(what = "Plannotator test"): string {
-  return refuseRealDataDir(process.env.PLANNOTATOR_DATA_DIR, what);
+export function assertSandboxedDataDir(what = "ReviewTrail test"): string {
+  return refuseRealDataDir(process.env.REVIEWTRAIL_DATA_DIR, what);
 }
 
 /**

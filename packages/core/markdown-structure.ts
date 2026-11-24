@@ -1,10 +1,10 @@
 /**
- * The structural pieces of Plannotator's markdown block splitter that are
+ * The structural pieces of ReviewTrail's markdown block splitter that are
  * pure and runtime-agnostic: where a leading frontmatter block ends, which
  * lines belong to fenced code or raw HTML blocks, and the link reference
  * resolver that runs before splitting.
  *
- * `@plannotator/ui`'s `parseMarkdownToBlocks` imports these, and so does
+ * `@reviewtrail/ui`'s `parseMarkdownToBlocks` imports these, and so does
  * `findQuestionBlocks` in `./question-block`, so a server that locates
  * `:::question` blocks without the UI parser agrees with it about frontmatter,
  * code fences, HTML blocks and reference links by construction (one copy of

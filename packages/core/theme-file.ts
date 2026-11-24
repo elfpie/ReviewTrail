@@ -1,16 +1,16 @@
 /**
- * A person's own theme, as a file (`plannotator theme add <file>`).
+ * A person's own theme, as a file (`reviewtrail theme add <file>`).
  *
- * The format is Plannotator's: one small JSON object per theme, carrying an id,
+ * The format is ReviewTrail's: one small JSON object per theme, carrying an id,
  * a name, and for each half it supports (`dark`, `light`, or both) the colour
  * tokens the built-in CSS themes set (`packages/ui/themes/<id>.css`), written
  * without the leading `--`:
  *
- *   { "plannotatorTheme": 1, "id": "signal", "name": "Signal",
+ *   { "reviewTrailTheme": 1, "id": "signal", "name": "Signal",
  *     "dark": { "background": "#0b0e14", "foreground": "#d7dce2", ... },
  *     "light": { ... } }
  *
- * A token left out takes the built-in Plannotator theme's value for that half
+ * A token left out takes the built-in ReviewTrail theme's value for that half
  * (DEFAULT_THEME_TOKENS), so a partial file still renders. Fonts and radius are
  * the app's, never the file's.
  *
@@ -83,7 +83,7 @@ export type ThemeFileHalfTokens = Partial<ThemeTokens> & { syntax?: ThemeSyntaxR
 
 /** A validated theme file. Each half is partial as written; `resolveThemeHalf` fills it. */
 export interface ThemeFile {
-  plannotatorTheme: 1;
+  reviewTrailTheme: 1;
   id: string;
   name: string;
   dark?: ThemeFileHalfTokens;
@@ -91,7 +91,7 @@ export interface ThemeFile {
 }
 
 /** The marker key (and its one version) that says a JSON file is in this format. */
-export const THEME_FILE_MARKER = 'plannotatorTheme';
+export const THEME_FILE_MARKER = 'reviewTrailTheme';
 export const THEME_FILE_VERSION = 1;
 
 /** A theme id: what `packages/ui/themes` names its files and the Inbox's settings route accepts. */
@@ -122,7 +122,7 @@ export const CUSTOM_THEME_LIMIT = 32;
  * keeps the two lists equal). A custom theme can never take one of these ids.
  */
 export const BUILT_IN_THEME_IDS: readonly string[] = [
-  'plannotator', 'plannotator-graphite', 'plannotator-modern', 'simple', 'claude-plus', 'adwaita', 'andromeeda',
+  'reviewtrail', 'reviewtrail-graphite', 'reviewtrail-modern', 'simple', 'claude-plus', 'adwaita', 'andromeeda',
   'aurora-x', 'ayu-dark', 'caffeine', 'catppuccin', 'cursor-hc', 'cursor', 'colorblind', 'dark-plus', 'doom-64',
   'dracula', 'everforest', 'everforest-hard', 'everforest-soft', 'github', 'gruvbox', 'houston', 'kanagawa-dragon',
   'kanagawa-lotus', 'kanagawa-wave', 'laserwave', 'material', 'cursor-midnight', 'min', 'monokai-pro', 'night-owl',
@@ -151,7 +151,7 @@ export function builtInThemeModeSupport(id: string): 'both' | 'dark-only' | 'lig
 }
 
 /**
- * The built-in Plannotator theme's tokens (`packages/ui/themes/plannotator.css`),
+ * The built-in ReviewTrail theme's tokens (`packages/ui/themes/reviewtrail.css`),
  * per half: what a token a file leaves out becomes. Its light half sets no
  * `--focus-highlight` (it inherits the dark one), so the dark value is repeated.
  */
@@ -212,7 +212,7 @@ export const DEFAULT_THEME_TOKENS: Record<ThemeFileHalf, ThemeTokens> = {
   },
 };
 
-/** The app's fonts and radius (`plannotator.css`), written into every custom theme: a file never sets them. */
+/** The app's fonts and radius (`reviewtrail.css`), written into every custom theme: a file never sets them. */
 const APP_FONT_AND_RADIUS = [
   "--font-sans: 'Inter Variable', 'Inter', system-ui, sans-serif",
   "--font-mono: 'Geist Mono Variable', 'Geist Mono', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace",
@@ -483,11 +483,15 @@ export function isBuiltInThemeId(id: string): boolean {
  */
 export function validateThemeFile(input: unknown): ThemeFileResult {
   if (!isPlainObject(input)) return refuse('(file)', 'a theme file is one JSON object.');
+  if (!Object.hasOwn(input, THEME_FILE_MARKER) && Object.hasOwn(input, 'plannotatorTheme')) {
+    const { plannotatorTheme, ...fields } = input;
+    return validateThemeFile({ ...fields, [THEME_FILE_MARKER]: plannotatorTheme });
+  }
   if (input[THEME_FILE_MARKER] !== THEME_FILE_VERSION) {
-    return refuse(THEME_FILE_MARKER, `must be ${THEME_FILE_VERSION} (this says the file is a Plannotator theme).`);
+    return refuse(THEME_FILE_MARKER, `must be ${THEME_FILE_VERSION} (this says the file is a ReviewTrail theme).`);
   }
   for (const key of Object.keys(input)) {
-    if (!TOP_LEVEL_KEYS.has(key)) return refuse(key, 'not a theme file field (plannotatorTheme, id, name, dark, light).');
+    if (!TOP_LEVEL_KEYS.has(key)) return refuse(key, 'not a theme file field (reviewTrailTheme, id, name, dark, light).');
   }
   const { id, name } = input;
   if (typeof id !== 'string' || !THEME_ID_PATTERN.test(id)) {
@@ -497,7 +501,7 @@ export function validateThemeFile(input: unknown): ThemeFileResult {
   if (typeof name !== 'string' || name.trim().length === 0 || name.length > THEME_NAME_MAX || CONTROL_CHARS.test(name) || new RegExp(INVISIBLE_NAME_CHARS.source).test(name)) {
     return refuse('name', `${shown(name)} is not a theme name: 1 to ${THEME_NAME_MAX} characters on one line, with no invisible or text-direction characters.`);
   }
-  const theme: ThemeFile = { plannotatorTheme: 1, id, name: name.trim() };
+  const theme: ThemeFile = { reviewTrailTheme: 1, id, name: name.trim() };
   for (const half of ['dark', 'light'] as const) {
     const tokens = input[half];
     if (tokens === undefined) continue;
@@ -551,7 +555,7 @@ export interface ThemeSyntaxHalf {
   rules: ThemeSyntaxRule[];
 }
 
-/** A theme's code colours, per half that has them (`/plannotator-themes.js?syntax=<id>`). */
+/** A theme's code colours, per half that has them (`/reviewtrail-themes.js?syntax=<id>`). */
 export function themeSyntaxPayload(theme: ThemeFile): Partial<Record<ThemeFileHalf, ThemeSyntaxHalf>> {
   const out: Partial<Record<ThemeFileHalf, ThemeSyntaxHalf>> = {};
   for (const half of themeSyntaxHalves(theme)) {

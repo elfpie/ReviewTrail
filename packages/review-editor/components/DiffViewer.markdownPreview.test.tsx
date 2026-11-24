@@ -13,11 +13,11 @@ import { afterAll, afterEach, beforeAll, describe, expect, mock, test } from 'bu
 import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { CodeAnnotation, SelectedLineRange } from '@plannotator/ui/types';
-import { setExtraMarkdownExtensions } from '@plannotator/ui/utils/markdownExtensions';
+import type { CodeAnnotation, SelectedLineRange } from '@reviewtrail/ui/types';
+import { setExtraMarkdownExtensions } from '@reviewtrail/ui/utils/markdownExtensions';
 import { markdownPreviewImageUrl } from '../utils/markdownPreview';
 
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 mock.module('../workerPool', () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,

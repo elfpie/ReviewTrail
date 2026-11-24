@@ -1,8 +1,8 @@
 import type { MutableRefObject } from 'react';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import type { LiveReviewActions } from './useLiveReview';
 import { LiveComposer } from './LiveComposer';
-import type { PRReviewThread } from '@plannotator/shared/pr-types';
+import type { PRReviewThread } from '@reviewtrail/shared/pr-types';
 import { agentLabel, authorName, threadLines, type PlacedThread } from './model';
 import { prThreadPlace } from './PRThreadCard';
 import { LiveAuthorMark } from './LiveMark';

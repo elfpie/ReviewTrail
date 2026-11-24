@@ -1,6 +1,6 @@
-import { SERVER_SESSION_MISMATCH_CODE } from '@plannotator/shared/server-session';
-import { markServerSessionReplaced, withServerSession } from '@plannotator/ui/utils/serverSession';
-import type { PRReviewAction } from '@plannotator/shared/pr-types';
+import { SERVER_SESSION_MISMATCH_CODE } from '@reviewtrail/shared/server-session';
+import { markServerSessionReplaced, withServerSession } from '@reviewtrail/ui/utils/serverSession';
+import type { PRReviewAction } from '@reviewtrail/shared/pr-types';
 import type { SubmissionTarget } from '../components/ReviewSubmissionDialog';
 import { buildPRActionRequest } from '../components/ReviewSubmissionDialog';
 import { parsePRActionSuccess, readPRActionError } from './prActionResponse';
@@ -10,7 +10,7 @@ import {
 } from './reviewSubmissionRecovery';
 
 const UNKNOWN_RESULT_ERROR =
-  'The platform may have accepted part of this review, but Plannotator could not confirm the result. Automatic retry is blocked to avoid duplicate comments. Inspect the pull request or merge request before starting another review.';
+  'The platform may have accepted part of this review, but ReviewTrail could not confirm the result. Automatic retry is blocked to avoid duplicate comments. Inspect the pull request or merge request before starting another review.';
 
 /** Fetch-compatible capability used to submit one platform review target. */
 export type PlatformReviewFetch = (

@@ -374,7 +374,7 @@ describe("the answer and the decision", () => {
   test("Deny tells the agent not to retry and to go on, with the person's reason", () => {
     expect(inboxPermissionDecisionFor(e, { choice: "deny", reason: null })).toEqual({
       behavior: "deny",
-      message: "The person denied this in the Plannotator Inbox. Do not retry it; go on with the next step without it.",
+      message: "The person denied this in the ReviewTrail Inbox. Do not retry it; go on with the next step without it.",
     });
     const why = inboxPermissionDecisionFor(e, { choice: "deny", reason: "Not on main." });
     expect(why?.behavior === "deny" && why.message.endsWith("Their reason: Not on main.")).toBe(true);

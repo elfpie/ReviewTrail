@@ -1,1 +1,1 @@
-export * from "@plannotator/core/guide-format-fixtures";
+export * from "@reviewtrail/core/guide-format-fixtures";

@@ -9,17 +9,17 @@
 import { appendFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { openBrowser as openBrowserImpl } from "./browser";
-import { browserNoneReason, resolveBrowserIntent } from "@plannotator/shared/browser-intent";
-import { isLocalOnlyAdvertisedUrl } from "@plannotator/shared/advertised-url";
+import { browserNoneReason, resolveBrowserIntent } from "@reviewtrail/shared/browser-intent";
+import { isLocalOnlyAdvertisedUrl } from "@reviewtrail/shared/advertised-url";
 import { writeUrlQr } from "./qr";
 import { validateImagePath, validateUploadExtension, UPLOAD_DIR } from "./image";
 import { saveDraft, loadDraft, deleteDraft, getDraftGeneration, missingDraftHeaders } from "./draft";
-import { faviconBody, faviconIcoBody } from "@plannotator/shared/favicon";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
-import { customThemesAnswer, pageWithCustomThemes } from "@plannotator/shared/theme-files";
+import { faviconBody, faviconIcoBody } from "@reviewtrail/shared/favicon";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
+import { customThemesAnswer, pageWithCustomThemes } from "@reviewtrail/shared/theme-files";
 import { getServerConfig } from "./config";
 import { listReferenceSkills, readReferenceSkillContent } from "./review-skill-loader";
-import { localImageContentType, localImageResponseHeaders } from "@plannotator/shared/local-image";
+import { localImageContentType, localImageResponseHeaders } from "@reviewtrail/shared/local-image";
 
 function normalizeDraftGeneration(value: unknown): number | undefined {
   if (typeof value !== "number") return undefined;
@@ -42,7 +42,7 @@ export function readDraftGenerationFromBody(body: unknown): number | undefined {
 /** Serve images from local paths or temp uploads. Used by all 3 servers. */
 export async function handleImage(req: Request): Promise<Response> {
   // Every answer carries the sandbox CSP, nosniff and CORP (see
-  // @plannotator/shared/local-image): an SVG opened directly must not run
+  // @reviewtrail/shared/local-image): an SVG opened directly must not run
   // script on the session origin.
   const text = (body: string, status: number) =>
     new Response(body, { status, headers: localImageResponseHeaders("text/plain; charset=utf-8") });
@@ -173,7 +173,7 @@ export function handleReferenceSkills(): Response {
     return Response.json({ skills: listReferenceSkills() });
   } catch (err) {
     console.error(
-      `[plannotator] Skill catalog failed: ${err instanceof Error ? err.message : String(err)}`,
+      `[reviewtrail] Skill catalog failed: ${err instanceof Error ? err.message : String(err)}`,
     );
     return Response.json({ skills: [] });
   }
@@ -195,7 +195,7 @@ export function handleReferenceSkillContent(req: Request): Response {
     return Response.json({ skill });
   } catch (err) {
     console.error(
-      `[plannotator] Skill content failed: ${err instanceof Error ? err.message : String(err)}`,
+      `[reviewtrail] Skill content failed: ${err instanceof Error ? err.message : String(err)}`,
     );
     return Response.json({ error: "Skill content failed" }, { status: 500 });
   }
@@ -231,7 +231,7 @@ export function handleFavicon(pathname = "/favicon.png"): Response {
 }
 
 /**
- * `/plannotator-themes.js`: the person's own themes for the page's first frame
+ * `/reviewtrail-themes.js`: the person's own themes for the page's first frame
  * (packages/shared/theme-files.ts). Every page links it in its head; it is
  * read from the data dir on every load, so a theme added since shows on reload.
  * With `?syntax=<id>`, that theme's code colours as JSON, which the page asks
@@ -243,11 +243,11 @@ export function handleFavicon(pathname = "/favicon.png"): Response {
  * none (`pageWithCustomThemes`): the `page` option every server's
  * `openPackedApp` takes, so a page load asks for no themes script.
  */
-export function customThemesPage(html: string, dataDir: string = getPlannotatorDataDir()): string {
+export function customThemesPage(html: string, dataDir: string = getReviewTrailDataDir()): string {
   return pageWithCustomThemes(html, dataDir);
 }
 
-export function handleCustomThemesScript(search: URLSearchParams = new URLSearchParams(), dataDir: string = getPlannotatorDataDir()): Response {
+export function handleCustomThemesScript(search: URLSearchParams = new URLSearchParams(), dataDir: string = getReviewTrailDataDir()): Response {
   const answer = customThemesAnswer(dataDir, search);
   return new Response(answer.body, { status: answer.status, headers: answer.headers });
 }
@@ -314,14 +314,14 @@ export function writeServerReadyMetadata(readyFile: string, metadata: ServerRead
 
 /**
  * Stable prefix of the session URL line written to stderr on every start:
- * `  Plannotator session ready: <url>`.
+ * `  ReviewTrail session ready: <url>`.
  *
  * The format is a contract: one line, two leading spaces, this prefix, then
  * the URL last. Agents and host plugins grep it (the OpenCode CLI bridge's
  * stderr filter matches it), so anything else worth saying (port forwarding,
  * a failed browser launch) goes on its own line under it.
  */
-export const SESSION_READY_LINE_PREFIX = "Plannotator session ready: ";
+export const SESSION_READY_LINE_PREFIX = "ReviewTrail session ready: ";
 
 /** Announce the session URL, then attempt to open the browser for it. */
 export async function handleServerReady(
@@ -330,7 +330,7 @@ export async function handleServerReady(
   port: number,
   options: ServerReadyOptions = {},
 ): Promise<void> {
-  const readyFile = options.readyFile ?? process.env.PLANNOTATOR_READY_FILE;
+  const readyFile = options.readyFile ?? process.env.REVIEWTRAIL_READY_FILE;
   if (readyFile) {
     try {
       writeServerReadyMetadata(readyFile, {
@@ -352,9 +352,7 @@ export async function handleServerReady(
   // that never exits (a blocking BROWSER) must not hide it, and a local
   // session whose browser opened fine still needs a way back to a closed tab.
   // The URL appears exactly once; the lines below only add context.
-  const readyPrefix = process.env.PLANNOTATOR_SESSION_BRAND === "ReviewTrail"
-    ? "ReviewTrail session ready: " : SESSION_READY_LINE_PREFIX;
-  if (announce) process.stderr.write(`\n  ${readyPrefix}${url}\n`);
+  if (announce) process.stderr.write(`\n  ${SESSION_READY_LINE_PREFIX}${url}\n`);
 
   // A remote/SSH session can't pop a browser on the user's machine, so say
   // what to do with the URL, independently of whether URL sharing is enabled.
@@ -371,8 +369,8 @@ export async function handleServerReady(
     }
   }
 
-  const skipBrowserOpen = options.skipBrowserOpen ?? process.env.PLANNOTATOR_SKIP_BROWSER_OPEN === "1";
-  // PLANNOTATOR_BROWSER=none (or --browser none): open nothing, anywhere, and
+  const skipBrowserOpen = options.skipBrowserOpen ?? process.env.REVIEWTRAIL_SKIP_BROWSER_OPEN === "1";
+  // REVIEWTRAIL_BROWSER=none (or --browser none): open nothing, anywhere, and
   // say so under the URL instead of reporting a failed launch. A host that
   // opens the browser itself (skipBrowserOpen) has nothing to explain.
   const intent = resolveBrowserIntent(process.env);

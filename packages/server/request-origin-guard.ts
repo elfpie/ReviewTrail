@@ -12,7 +12,7 @@
  * Passes: a request with no Origin (a non-browser client such as an agent's
  * curl, the VS Code extension host, the Claude Code mod), the session's own
  * page, the VS Code panel's cookie proxy (`Sec-Fetch-Site: same-origin`), and
- * an Origin whose hostname `PLANNOTATOR_ALLOWED_HOSTS` names explicitly (a
+ * an Origin whose hostname `REVIEWTRAIL_ALLOWED_HOSTS` names explicitly (a
  * plain-HTTP reverse proxy that rewrites Host; `*` does not count, see
  * `isOriginNamedInAllowedHosts`). GET, HEAD and OPTIONS are left to their
  * routes. The Pi mirror is apps/pi-extension/server/request-origin-guard.ts.
@@ -22,12 +22,12 @@ import {
   crossOriginRefusalBody,
   isSameOriginOrNoOrigin,
   isStateChangingMethod,
-} from "@plannotator/shared/request-origin";
-import { ALLOWED_HOSTS_ENV, isOriginNamedInAllowedHosts, parseAllowedHosts } from "@plannotator/shared/request-host";
+} from "@reviewtrail/shared/request-origin";
+import { ALLOWED_HOSTS_ENV, isOriginNamedInAllowedHosts, parseAllowedHosts } from "@reviewtrail/shared/request-host";
 
 /**
  * Whether a request may change state: no Origin, the session's own origin,
- * the VS Code proxy, or an Origin named in PLANNOTATOR_ALLOWED_HOSTS (read on
+ * the VS Code proxy, or an Origin named in REVIEWTRAIL_ALLOWED_HOSTS (read on
  * each call).
  */
 export function isSameOriginRequest(req: Request): boolean {

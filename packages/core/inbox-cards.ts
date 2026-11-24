@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox: the Board's cards (approval "inbox-board", 2026-10-20).
+ * ReviewTrail Inbox: the Board's cards (approval "inbox-board", 2026-10-20).
  *
  * A card is one piece of work the person asked for (or an agent took on)
  * that outlasts the reply it was asked in. It is its own record, separate
@@ -39,7 +39,7 @@ import type { InboxAuthor } from "./inbox-types";
 
 /**
  * Whether the Inbox serves the agents' `card` action (the MCP tool, so the
- * `plannotator_inbox` action and `plannotator card`). THE one line to change
+ * `reviewtrail_inbox` action and `reviewtrail card`). THE one line to change
  * to hold the action back until the Board page ships: the server stops
  * registering the tool, the agent guide drops its section, and the stated
  * tool cost (INBOX_TOOL_COST) goes back to the size without it. After
@@ -112,20 +112,20 @@ export function inboxCardTitleHint(title: string): string | null {
 }
 
 /** The markers around the Board request an agent receives (approval "inbox-compose-board-chip"), each on its own line. */
-export const INBOX_BOARD_REQUEST_OPEN = "<plannotator-board-request>";
-export const INBOX_BOARD_REQUEST_CLOSE = "</plannotator-board-request>";
+export const INBOX_BOARD_REQUEST_OPEN = "<reviewtrail-board-request>";
+export const INBOX_BOARD_REQUEST_CLOSE = "</reviewtrail-board-request>";
 
 /**
  * When an agent puts a card in an initiative (the owner, q-a9c87ac3,
  * 2026-11-04: "only if it's a true initiative that's going to span a lot of
  * work… Not everything requires an initiative… use smart judgment, don't
- * overthink it"). Fixed text: the card tool's `initiative` field, `plannotator
- * card --help`, `plannotator inbox --help`, the Board request, the Board's
- * prompt and the plannotator skill carry it whole, so they cannot drift.
+ * overthink it"). Fixed text: the card tool's `initiative` field, `reviewtrail
+ * card --help`, `reviewtrail inbox --help`, the Board request, the Board's
+ * prompt and the reviewtrail skill carry it whole, so they cannot drift.
  * Words approved by the owner (q-f1ff983a, msg_01M6MCACRRYAJJ3PNS25BH4AZ7,
  * with "Not all cards need an initiative:" for the draft's opening). Change
  * them here only (the skill, being markdown, pastes the rule;
- * plannotator-skill-reference.test.ts checks it still does).
+ * reviewtrail-skill-reference.test.ts checks it still does).
  */
 export const INBOX_CARD_INITIATIVE_RULE =
   "Not all cards need an initiative: put a card in one only when it is part of an extensive effort that spans several cards or PRs, and reuse an initiative that fits (list shows them) instead of making a near-duplicate. Use good judgement; don't overthink it.";
@@ -133,7 +133,7 @@ export const INBOX_CARD_INITIATIVE_RULE =
 /**
  * Clearing initiatives out. The owner, 2026-11-04: "Only on like a board --help
  * or a hook nudge when agents create initiatives ... Try not to bloat main
- * instruction or main tool description." So it is in `plannotator card --help`
+ * instruction or main tool description." So it is in `reviewtrail card --help`
  * and, per call, in the answer to a call that just made an initiative
  * (inboxCardInitiativeMadeNudge), and nowhere the rule goes.
  */
@@ -160,13 +160,13 @@ export const INBOX_CARD_INITIATIVE_FIELD =
  * user ask"), linked to the thread, and keeps them current. Any session may
  * read it again (read_thread after compaction, a session the thread moved
  * to), so it makes cards only while none links the thread (review of #2249).
- * "Your Inbox card tool" fits every host: plannotator_inbox's card action, or
+ * "Your Inbox card tool" fits every host: reviewtrail_inbox's card action, or
  * Codex's `card`; the CLI covers a session without either.
  */
 export function inboxBoardRequestBlock(threadId: string): string {
   return [
     INBOX_BOARD_REQUEST_OPEN,
-    `The person turned on Board tracking for this thread (thread_id ${threadId}). If no Board card links it yet (card op list, asked_by anyone, shows them), create card(s) for the work they asked for and link each to it; if one does, keep that one current instead of making another. ${INBOX_CARD_INITIATIVE_RULE} How: your Inbox card tool, or \`plannotator card --help\`.`,
+    `The person turned on Board tracking for this thread (thread_id ${threadId}). If no Board card links it yet (card op list, asked_by anyone, shows them), create card(s) for the work they asked for and link each to it; if one does, keep that one current instead of making another. ${INBOX_CARD_INITIATIVE_RULE} How: your Inbox card tool, or \`reviewtrail card --help\`.`,
     INBOX_BOARD_REQUEST_CLOSE,
   ].join("\n");
 }
@@ -391,7 +391,7 @@ export function inboxCardAutoShip(
  * deployment). `kind` and `source` are open strings so an older window shows
  * a source it does not know as a plain link. `ref` is how people write it
  * (`owner/repo#123`, `group/project!12`); `url` opens it. The source adapters
- * live in `@plannotator/shared/inbox/card-refs` (parse) and the server's
+ * live in `@reviewtrail/shared/inbox/card-refs` (parse) and the server's
  * `inbox-card-refs.ts` (resolve, read only).
  */
 export interface InboxCardRef {

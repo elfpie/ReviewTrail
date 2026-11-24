@@ -3,15 +3,15 @@ import { COMPACT_FILE_HEADER_HEIGHT } from '../utils/diffChromeMetrics';
 import { EllipsisName } from './EllipsisName';
 import React, { useRef } from 'react';
 import { CallFlowFileBadge } from './CallFlowFileBadge';
-import { OpenInAppButton } from '@plannotator/ui/components/OpenInAppButton';
+import { OpenInAppButton } from '@reviewtrail/ui/components/OpenInAppButton';
 import { useReviewStateOptional } from '../dock/ReviewStateContext';
 import { useRovingToolbar } from '../hooks/useRovingToolbar';
 import { CompactFileActions } from './CompactFileActions';
 import type { DiffFileStatus } from '../types';
-import { FileKindIcon } from '@plannotator/guide-viewer/FileKindIcon';
-import { fileStatusLetter } from '@plannotator/ui/utils/fileStatusLetter';
-import { formatCount } from '@plannotator/ui/utils/countFormat';
-import { countPatchChanges } from '@plannotator/core/diff-files';
+import { FileKindIcon } from '@reviewtrail/guide-viewer/FileKindIcon';
+import { fileStatusLetter } from '@reviewtrail/ui/utils/fileStatusLetter';
+import { formatCount } from '@reviewtrail/ui/utils/countFormat';
+import { countPatchChanges } from '@reviewtrail/core/diff-files';
 
 interface FileHeaderProps {
   /** Read-only host: no open-in affordance (it probes the review server). */

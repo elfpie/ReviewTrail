@@ -8,11 +8,11 @@
  * ahead of it):
  *
  * - It makes a MessageChannel and offers one end to the host at once
- *   (`plannotator-bridge-link-offer`, with the key of this load). It keeps the
+ *   (`reviewtrail-bridge-link-offer`, with the key of this load). It keeps the
  *   other end in its closure: no page script can ever reach it.
  * - It records, in a capture listener on the window registered before any page
  *   listener, the person's click being dispatched (`isTrusted`).
- * - It exposes one function, `window.__plannotatorLinkGuard.follow(kind, msg)`,
+ * - It exposes one function, `window.__reviewTrailLinkGuard.follow(kind, msg)`,
  *   which the bridge calls from its click handlers. It sends a `link-click` on
  *   its port only while a person's click is being dispatched, and only for the
  *   link that click is on (`kind: 'link'`: the same href, read from the
@@ -37,10 +37,10 @@
  */
 
 /** The frame's one offer per load: `{ type, key }`, with the port the guard keeps the other end of. */
-export const LINK_OFFER_MESSAGE = "plannotator-bridge-link-offer";
+export const LINK_OFFER_MESSAGE = "reviewtrail-bridge-link-offer";
 
 /** What the guard sends on that port for a person's click: `{ type, href }` (the raw href, at most 2048 chars). */
-export const LINK_CLICK_MESSAGE = "plannotator-bridge-link-click";
+export const LINK_CLICK_MESSAGE = "reviewtrail-bridge-link-click";
 
 /** The query parameter that carries a served frame's key (removed by the guard). */
 export const LINK_KEY_PARAM = "__pnk";
@@ -83,7 +83,7 @@ export function isRootPath(url: string): boolean {
 
 /** The guard, as a function expression taking the key of this load. */
 export const LINK_GUARD_FUNCTION = `(function(inlineKey) {
-  if (window.__plannotatorLinkGuard) return;
+  if (window.__reviewTrailLinkGuard) return;
   var host = window.parent;
   if (!host || host === window) return;
   var KEY_PARAM = '${LINK_KEY_PARAM}=';
@@ -129,7 +129,7 @@ export const LINK_GUARD_FUNCTION = `(function(inlineKey) {
   var indexOf = callOf(String.prototype.indexOf);
   var test = callOf(RegExp.prototype.test);
   var scriptHref = /^javascript:/i;
-  var LINK_CLICK = 'plannotator-bridge-link-click';
+  var LINK_CLICK = 'reviewtrail-bridge-link-click';
   // The person's click being dispatched. First on the path of every click: a
   // window capture listener registered before any page script ran.
   var current = null;
@@ -164,14 +164,14 @@ export const LINK_GUARD_FUNCTION = `(function(inlineKey) {
     return true;
   }
   try {
-    Object.defineProperty(window, '__plannotatorLinkGuard', {
+    Object.defineProperty(window, '__reviewTrailLinkGuard', {
       value: Object.freeze({ follow: follow }),
       enumerable: false,
       writable: false,
       configurable: false
     });
   } catch (ex) { return; }
-  try { host.postMessage({ type: 'plannotator-bridge-link-offer', key: key }, '*', [channel.port2]); } catch (ex) {}
+  try { host.postMessage({ type: 'reviewtrail-bridge-link-offer', key: key }, '*', [channel.port2]); } catch (ex) {}
 })`;
 
 /** The guard's inline `<script>` for one load (inline path: first in the document). */

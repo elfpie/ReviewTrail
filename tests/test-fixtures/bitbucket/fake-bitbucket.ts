@@ -15,7 +15,7 @@
  * recorded: each request records only which scheme it used.
  *
  * Run standalone: `bun tests/test-fixtures/bitbucket/fake-bitbucket.ts [port]`
- * (expects `PLANNOTATOR_BITBUCKET_EMAIL` / `PLANNOTATOR_BITBUCKET_TOKEN`).
+ * (expects `REVIEWTRAIL_BITBUCKET_EMAIL` / `REVIEWTRAIL_BITBUCKET_TOKEN`).
  */
 
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -51,7 +51,7 @@ export interface FakeBitbucketOptions {
 }
 
 export interface FakeBitbucket {
-  /** API base to put in PLANNOTATOR_BITBUCKET_API_URL (ends in /2.0). */
+  /** API base to put in REVIEWTRAIL_BITBUCKET_API_URL (ends in /2.0). */
   apiUrl: string;
   requests: RecordedRequest[];
   stop(): void;
@@ -236,14 +236,14 @@ export function startFakeBitbucket(options: FakeBitbucketOptions): FakeBitbucket
 }
 
 if (import.meta.main) {
-  const token = process.env.PLANNOTATOR_BITBUCKET_TOKEN;
+  const token = process.env.REVIEWTRAIL_BITBUCKET_TOKEN;
   if (!token) {
-    console.error("Set PLANNOTATOR_BITBUCKET_TOKEN (and optionally PLANNOTATOR_BITBUCKET_EMAIL) to the fake credentials.");
+    console.error("Set REVIEWTRAIL_BITBUCKET_TOKEN (and optionally REVIEWTRAIL_BITBUCKET_EMAIL) to the fake credentials.");
     process.exit(2);
   }
   const fake = startFakeBitbucket({
     token,
-    email: process.env.PLANNOTATOR_BITBUCKET_EMAIL,
+    email: process.env.REVIEWTRAIL_BITBUCKET_EMAIL,
     port: Number(process.argv[2] ?? 0),
   });
   console.log(fake.apiUrl);

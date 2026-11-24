@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { FileTreeRowDecorationContext, FileTreeRowParts, GitStatusEntry } from '@pierre/trees';
 import { FileTree as PierreFileTree, useFileTree } from '@pierre/trees/react';
-import type { RepoOnDiskChange } from '@plannotator/shared/repo-files';
+import type { RepoOnDiskChange } from '@reviewtrail/shared/repo-files';
 import type { DiffFile } from '../types';
 import type { RepoFilesState } from '../hooks/useRepoFiles';
 import { initialRepoExpansion } from '../utils/repoTree';

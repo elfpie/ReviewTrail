@@ -1,17 +1,17 @@
 /**
  * The "Skills referenced" block: the words both sides of it share.
  *
- * Plannotator's feedback export (`skillReferenceExportBlock` in
- * `@plannotator/ui/utils/skillReferences`) appends this block to a comment
+ * ReviewTrail's feedback export (`skillReferenceExportBlock` in
+ * `@reviewtrail/ui/utils/skillReferences`) appends this block to a comment
  * that references agent skills by name (`$write-better`, `/readback`): a
  * heading, one list line per skill, and the SKILL.md text of every
  * human-only skill between BEGIN/END markers. Plan review and annotate say it
- * on the reviewer's behalf about "this feedback". The Plannotator Inbox
+ * on the reviewer's behalf about "this feedback". The ReviewTrail Inbox
  * composes the same block when the person sends a reply or a New message
  * (approval "inbox-skill-references", Option B as amended): the person's
  * request, about "this reply" or "this message".
  *
- * The renderer stays in `@plannotator/ui`; this module holds the heading and
+ * The renderer stays in `@reviewtrail/ui`; this module holds the heading and
  * the reader the Inbox needs to find the block in a stored body again (the
  * window folds it behind one "Skills: …" line, and the folded line's snippet
  * and the search index read the person's words without it). Browser-safe,
@@ -49,8 +49,8 @@ const INBOX_HEADING_RE = /^\*\*Skills referenced\*\* \(the person is asking you 
 const LIST_LINE_RE = /^- `([^`\n]+)`(.*)$/;
 const BEGIN_RE = /^--- BEGIN SKILL INSTRUCTIONS: (.+) ---$/;
 const END_RE = /^--- END SKILL INSTRUCTIONS: (.+) ---$/;
-const NOTE_BEGIN_RE = /^--- BEGIN PLANNOTATOR NOTE: (.+) ---$/;
-const NOTE_END_RE = /^--- END PLANNOTATOR NOTE: (.+) ---$/;
+const NOTE_BEGIN_RE = /^--- BEGIN REVIEWTRAIL NOTE: (.+) ---$/;
+const NOTE_END_RE = /^--- END REVIEWTRAIL NOTE: (.+) ---$/;
 
 /**
  * The Inbox's own note about a skill the person picked (the grill-me note,
@@ -58,7 +58,7 @@ const NOTE_END_RE = /^--- END PLANNOTATOR NOTE: (.+) ---$/;
  * and named for the skill it is about, so the window folds it with the block.
  */
 export function inboxSkillNoteSection(name: string, text: string): string {
-  return `--- BEGIN PLANNOTATOR NOTE: ${name} ---\n${text}\n--- END PLANNOTATOR NOTE: ${name} ---`;
+  return `--- BEGIN REVIEWTRAIL NOTE: ${name} ---\n${text}\n--- END REVIEWTRAIL NOTE: ${name} ---`;
 }
 
 /** One skill the block names. */
@@ -159,7 +159,7 @@ function readBlockTail(lines: readonly string[], from: number): InboxSkillRefere
  *   the end.
  *
  * Fence parity is not used: the agent controls it (a diff line that is just
- * ``` closes a quote's fence). Plannotator's reviewer wording is not an Inbox
+ * ``` closes a quote's fence). ReviewTrail's reviewer wording is not an Inbox
  * heading. The caller decides whose message it is: only the person's own
  * messages carry a block the window composed.
  */

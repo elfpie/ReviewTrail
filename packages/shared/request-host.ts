@@ -1,5 +1,5 @@
 /**
- * Host-header allowlist every Plannotator server applies to EVERY request
+ * Host-header allowlist every ReviewTrail server applies to EVERY request
  * (API, app HTML, WebSocket upgrades) before routing.
  *
  * The same-origin check on write endpoints (`isSameOriginOrNoOrigin`,
@@ -26,7 +26,7 @@
  *    port proxy (code-server, Coder), read from the `{{port}}` template in the
  *    `VSCODE_PROXY_URI` the IDE sets (`forwardedPortHostPatterns`). Such a
  *    proxy reaches a loopback-bound server and forwards its own Host.
- *  - `PLANNOTATOR_ALLOWED_HOSTS`: a comma list of extra hostnames (a leading
+ *  - `REVIEWTRAIL_ALLOWED_HOSTS`: a comma list of extra hostnames (a leading
  *    dot matches the domain and its subdomains); `*` turns the check off.
  *  - Everything else, including a malformed Host, is refused.
  *
@@ -40,7 +40,7 @@
 
 import { isLoopbackHostname } from "./loopback-host";
 
-export const ALLOWED_HOSTS_ENV = "PLANNOTATOR_ALLOWED_HOSTS";
+export const ALLOWED_HOSTS_ENV = "REVIEWTRAIL_ALLOWED_HOSTS";
 export const HOST_NOT_ALLOWED_CODE = "host_not_allowed";
 
 export interface AllowedHostsSetting {
@@ -63,11 +63,11 @@ export interface RequestHostPolicy {
 	extraHosts?: Iterable<string>;
 	/** Per-port proxy hostnames of a browser IDE (see above). */
 	portHostPatterns?: readonly PortHostPattern[];
-	/** Parsed `PLANNOTATOR_ALLOWED_HOSTS`. */
+	/** Parsed `REVIEWTRAIL_ALLOWED_HOSTS`. */
 	allowed?: AllowedHostsSetting;
 }
 
-/** Parse `PLANNOTATOR_ALLOWED_HOSTS`. Empty or unset allows nothing extra. */
+/** Parse `REVIEWTRAIL_ALLOWED_HOSTS`. Empty or unset allows nothing extra. */
 export function parseAllowedHosts(value: string | null | undefined): AllowedHostsSetting {
 	const names: string[] = [];
 	let any = false;
@@ -155,7 +155,7 @@ const PORT_PLACEHOLDER = "{{port}}";
  * `https://{{port}}--main--ws--me.coder.example.com/`). Only a template whose
  * HOSTNAME holds `{{port}}` yields a pattern: a path-based proxy
  * (`./proxy/{{port}}/`) serves under the IDE's own host and a prefix path,
- * which Plannotator's root-relative URLs do not support anyway. The value
+ * which ReviewTrail's root-relative URLs do not support anyway. The value
  * comes from the environment the IDE started, never from a request, and names
  * the IDE's own proxy domain.
  */
@@ -219,7 +219,7 @@ export function isAllowedRequestHost(hostHeader: string | null | undefined, poli
 /**
  * Whether a state-changing request may pass the cross-origin write guard
  * (request-origin.ts) because its Origin's hostname is NAMED in
- * `PLANNOTATOR_ALLOWED_HOSTS` (an exact entry or a `.suffix` entry).
+ * `REVIEWTRAIL_ALLOWED_HOSTS` (an exact entry or a `.suffix` entry).
  *
  * This is for a plain-HTTP reverse proxy that rewrites Host (nginx's default
  * `proxy_pass http://127.0.0.1:<port>` with no `proxy_set_header Host`): the
@@ -257,8 +257,8 @@ export function hostNotAllowedMessage(hostHeader: string | null | undefined): st
 	const hostname = hostnameFromHostHeader(hostHeader);
 	const named = hostname ? `"${hostname}"` : "in this request";
 	return (
-		`Plannotator refused this request: the hostname ${named} is not one this session answers on. ` +
-		`Open the session at the URL Plannotator printed. If you reach it through a proxy or a forwarded ` +
+		`ReviewTrail refused this request: the hostname ${named} is not one this session answers on. ` +
+		`Open the session at the URL ReviewTrail printed. If you reach it through a proxy or a forwarded ` +
 		`hostname, add that hostname to ${ALLOWED_HOSTS_ENV} (comma-separated; * turns this check off).\n`
 	);
 }

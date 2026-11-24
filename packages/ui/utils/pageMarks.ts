@@ -1,5 +1,5 @@
 /**
- * Page marks (opt-in, `configurePlannotatorUI({ pageMarks: true })`): an attribute ui puts on the page's root
+ * Page marks (opt-in, `configureReviewTrailUI({ pageMarks: true })`): an attribute ui puts on the page's root
  * (`<html>` or `<body>`) while one of its parts is there, so a host's stylesheet can key on the attribute instead
  * of a `:has()` on the root.
  *
@@ -15,7 +15,7 @@
  *   `[data-selection-chooser]`: what comments.css's `html:has([data-selection-chooser])` matches.
  *
  * The stylesheets keep their `:has()` rules, so a host that leaves the flag off sees no change and needs no new
- * rule. A host that turns it on rewrites those selectors to the marks in its own build (the Plannotator Inbox:
+ * rule. A host that turns it on rewrites those selectors to the marks in its own build (the ReviewTrail Inbox:
  * build/inbox-page-marks.ts).
  */
 

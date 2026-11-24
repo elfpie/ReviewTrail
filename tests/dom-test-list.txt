@@ -1,3 +1,4 @@
+packages/ui/utils/storage.cookies.test.ts
 packages/ui/utils/richClipboard.test.ts
 packages/ui/components/html-viewer/srcdoc.test.ts
 packages/ui/components/html-embed/HtmlEmbedBlock.test.tsx

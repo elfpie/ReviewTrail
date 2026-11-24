@@ -1,5 +1,5 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { isCodeFilePath } from "@plannotator/core/code-file";
+import { isCodeFilePath } from "@reviewtrail/core/code-file";
 
 /**
  * What a host makes of a link to a local path (`[the mock](mock.html)`):

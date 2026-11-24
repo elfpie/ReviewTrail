@@ -1,7 +1,7 @@
 import {
   profileHasCustomSection,
   type ResolvedReviewProfile,
-} from "@plannotator/shared/review-profiles";
+} from "@reviewtrail/shared/review-profiles";
 import {
   CURSOR_CLI_SIGNATURE,
   isSameProgram,
@@ -9,7 +9,7 @@ import {
   type ProgramSignature,
   type ResolvedProgram,
   type SameProgramCheck,
-} from "@plannotator/shared/agent-program";
+} from "@reviewtrail/shared/agent-program";
 import {
   transformSeverityFindings,
   type ReviewSeverity,
@@ -41,10 +41,10 @@ import {
 
 // ---------------------------------------------------------------------------
 // Per-job marker — the JSON payload is delimited by tags carrying a random,
-// per-job nonce: <plannotator-review-json:NONCE> … </plannotator-review-json:NONCE>.
+// per-job nonce: <reviewtrail-review-json:NONCE> … </reviewtrail-review-json:NONCE>.
 //
 // Why the nonce: in review mode the diff (and the model's own prose) is
-// untrusted text that routinely contains the bare string "plannotator-review-json"
+// untrusted text that routinely contains the bare string "reviewtrail-review-json"
 // — e.g. when reviewing this very module, or when the model echoes the contract
 // example. A static tag let those echoed mentions be mistaken for the real
 // delimiter, so extraction grabbed prose instead of the payload and valid
@@ -53,7 +53,7 @@ import {
 // parse time, so only the model's genuine payload can match.
 // ---------------------------------------------------------------------------
 
-const MARKER_TAG = "plannotator-review-json";
+const MARKER_TAG = "reviewtrail-review-json";
 
 /** Open delimiter for a job's nonce. */
 export function markerOpen(nonce: string): string {
@@ -209,7 +209,7 @@ export interface MarkerBuildOptions {
    *  otherwise, surfaced as a failed job). */
   thinking?: string;
   /** Cursor: pass `--sandbox enabled` (default true). Callers resolve this via
-   *  resolveCursorSandbox() (PLANNOTATOR_CURSOR_SANDBOX env var / config.json
+   *  resolveCursorSandbox() (REVIEWTRAIL_CURSOR_SANDBOX env var / config.json
    *  `cursorSandbox`) — this module stays env-free. When false the pair is
    *  OMITTED entirely (never `--sandbox disabled`), deferring to the user's
    *  own Cursor Agent sandbox configuration. */
@@ -406,7 +406,7 @@ function cursorFormatLogEvent(event: MarkerStreamEvent): string | null {
  * AppArmor-restricted Linux) the hardcoded `--sandbox enabled` hard-fails the
  * job ("Sandbox mode is enabled but not available on this system") and
  * overrides the user's own `agent sandbox` configuration. `opts.cursorSandbox:
- * false` (resolved from PLANNOTATOR_CURSOR_SANDBOX / config.json
+ * false` (resolved from REVIEWTRAIL_CURSOR_SANDBOX / config.json
  * `cursorSandbox`) OMITS the pair entirely — never `--sandbox disabled` — so
  * the user's Cursor Agent configuration governs. Tradeoff stated plainly:
  * opting out means the review job's write protection rests on `--mode ask`
@@ -1078,7 +1078,7 @@ export function reduceMarkerStream(stdout: string, engine: MarkerEngine): Marker
 
 /**
  * Extract the content of the LAST complete marker block from canonical text.
- * The open/close tags carry the job nonce, so bare `plannotator-review-json`
+ * The open/close tags carry the job nonce, so bare `reviewtrail-review-json`
  * mentions in the diff or the model's prose (which lack the nonce) are ignored
  * rather than mistaken for delimiters.
  */

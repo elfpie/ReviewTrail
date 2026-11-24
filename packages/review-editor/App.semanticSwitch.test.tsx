@@ -1,8 +1,8 @@
 import { afterAll, afterEach, describe, expect, mock, test } from "bun:test";
 import React, { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { resetStorageBackend, setStorageBackend, type StorageBackend } from "@plannotator/ui/utils/storage";
-import { configStore } from "@plannotator/ui/config";
+import { resetStorageBackend, setStorageBackend, type StorageBackend } from "@reviewtrail/ui/utils/storage";
+import { configStore } from "@reviewtrail/ui/config";
 
 mock.module("./workerPool", () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,
@@ -84,7 +84,7 @@ async function settle(times = 1): Promise<void> {
 }
 
 async function mount(): Promise<void> {
-  memory.set("plannotator-plan-look-choice-resolved", "true");
+  memory.set("reviewtrail-plan-look-choice-resolved", "true");
   setStorageBackend(memoryBackend);
   configStore.loadFromBackend();
   globalThis.fetch = fetchStub;
@@ -123,7 +123,7 @@ describe.if(hasDom)("Settings › Analysis › Semantic changes", () => {
   });
 
   test("off: no Semantic diff row, no sem slot, and the engine never loads", async () => {
-    memory.set("plannotator-semantic-diff-enabled", "false");
+    memory.set("reviewtrail-semantic-diff-enabled", "false");
     await mount();
     expect(document.querySelector("[data-changes-tree]")).not.toBeNull();
     expect(document.querySelector("[data-semantic-diff-icon]")).toBeNull();

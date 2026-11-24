@@ -10,7 +10,7 @@ import {
   type ParsedQuestion,
   type QuestionAnswer,
   type QuestionStatus,
-} from '@plannotator/core/question-block';
+} from '@reviewtrail/core/question-block';
 import { InlineMarkdown } from '../InlineMarkdown';
 import { QuestionContext } from './QuestionContext';
 import { QuestionChangeGroups, QuestionChoiceChange, QuestionWhere, questionChoiceHasChange, type QuestionChangeHost } from './QuestionChange';
@@ -41,7 +41,7 @@ import {
  * the pointer barely moved and no text is selected, so a drag across option
  * text makes an annotation, never a pick.
  *
- * State is derived: `answer` comes from the host (Plannotator: the document's
+ * State is derived: `answer` comes from the host (ReviewTrail: the document's
  * annotation carrying `questionAnswer` for this key). Two ways to write:
  * - live (`onAnswer`): every change calls it with the next answer, or null
  *   when it became empty; the host upserts or removes the annotation.
@@ -274,7 +274,7 @@ export interface QuestionBlockProps {
    *  `'card'`. */
   statusTag?: 'card' | 'none';
   /** The host's own words for the card's status tag, per question (ui seam;
-   *  the Plannotator Inbox says "Not sent" for a pick it has saved but not
+   *  the ReviewTrail Inbox says "Not sent" for a pick it has saved but not
    *  sent, where the card would say "Answered"). Return undefined for the
    *  card's own tag. Absent: today's tags. Ignored with `statusTag: 'none'`. */
   statusLabel?: (question: IndexedQuestion, status: QuestionStatus) => QuestionStatusLabel | undefined;
@@ -283,7 +283,7 @@ export interface QuestionBlockProps {
    *  Absent: nothing is drawn there (today's card). */
   renderBelowPrompt?: (question: IndexedQuestion) => React.ReactNode;
   /** Host content right after the choices (and Other), before Why (the
-   *  Plannotator Inbox's "Try prototype" tab). When it draws something, the
+   *  ReviewTrail Inbox's "Try prototype" tab). When it draws something, the
    *  choices sit in a box marked `data-question-tray` with the host's content
    *  right after it, so a host's CSS can draw them as one shape. Return null
    *  for nothing. Absent: today's card. Not drawn on a text question. */
@@ -301,20 +301,20 @@ export interface QuestionBlockProps {
   /** A small label over a picture tile's picture, top left ("Mockup · VS
    *  Code"), from the host; null or absent: none. Display only: never the
    *  answer, never read by the parser. Default absent, so every card draws as
-   *  before (the Plannotator Inbox's onboarding tour labels its pictures). */
+   *  before (the ReviewTrail Inbox's onboarding tour labels its pictures). */
   pictureBadge?: (choice: { label: string; image: { alt: string; src: string } }) => string | null;
   /** The zoom button on a picture tile, told which question and which choice
    *  (its index in the question's choices) as well as the picture: a host can
-   *  open a gallery of that question's choices (the Plannotator Inbox's option
+   *  open a gallery of that question's choices (the ReviewTrail Inbox's option
    *  sets). Absent: the zoom calls `onImageClick(url, alt)` as before. */
   onZoomChoice?: (key: string, index: number, url: string, alt: string) => void;
   /** A picture choice's size in pixels, given the URL its picture loads from,
-   *  when the host knows it before the picture loads (the Plannotator Inbox
+   *  when the host knows it before the picture loads (the ReviewTrail Inbox
    *  records it when the message is sent); null or absent: unknown. The tiles
    *  carry it for the host's CSS (see `QuestionPictureTiles`); nothing is drawn
    *  differently without host CSS. */
   pictureSize?: (url: string) => QuestionPictureSize | null;
-  /** Accept recommended, gentler (opt-in; the Plannotator Inbox). Absent: today's button. */
+  /** Accept recommended, gentler (opt-in; the ReviewTrail Inbox). Absent: today's button. */
   acceptBehavior?: QuestionAcceptBehavior;
 }
 
@@ -1357,7 +1357,7 @@ export const QuestionBlock: React.FC<QuestionBlockProps> = ({
               {skipped ? 'Unskip' : 'Skip'}
             </button>
           )}
-          {/* Plannotator's own footer (no host actions, no save bar) keeps the
+          {/* ReviewTrail's own footer (no host actions, no save bar) keeps the
               Accept button as the one right-aligned item. */}
           {!hasHostFooter && !dirty ? (
             showAccept && (

@@ -6,11 +6,11 @@ import {
 } from './skill-reference-block';
 
 /**
- * Where a skill came from. `plannotator`: one of Plannotator's own skills a
+ * Where a skill came from. `reviewtrail`: one of ReviewTrail's own skills a
  * host serves itself (the Inbox's review skills, while Code review is on):
  * human-only, with no folder on disk; its instructions are the host's text.
  */
-export type SkillRootId = 'claude' | 'codex' | 'universal' | 'plannotator';
+export type SkillRootId = 'claude' | 'codex' | 'universal' | 'reviewtrail';
 
 export interface SkillCatalogEntry {
   name: string;
@@ -42,7 +42,7 @@ const humanOnlyExportNote = (audience: SkillBlockAudience): string =>
 
 /**
  * The structural forms the injection block itself uses: the BEGIN/END markers
- * (a skill's instructions, and the Inbox's PLANNOTATOR NOTE after them) and the truncation notice. A skill body line matching one of these could
+ * (a skill's instructions, and the Inbox's REVIEWTRAIL NOTE after them) and the truncation notice. A skill body line matching one of these could
  * close our block early (everything after it then reads to the receiving
  * agent as the reviewer's own words), forge a BEGIN marker for a skill nobody
  * referenced, or forge a truncation notice pointing at an attacker-chosen
@@ -58,7 +58,7 @@ const humanOnlyExportNote = (audience: SkillBlockAudience): string =>
 const MARKER_LOOKALIKE_RE =
   // Dash run: ASCII hyphen, `=`, the unicode hyphen/dash block U+2010–U+2015
   // (incl. en/em dash), and the minus sign U+2212.
-  /^[\s>*_#`]*(?:[-=‐-―−]{2,}\s*(?:BEGIN|END)\s*(?:SKILL\s*INSTRUCTIONS|PLANNOTATOR\s*NOTE)\b|\[\s*Instructions\s*truncated\b)/i;
+  /^[\s>*_#`]*(?:[-=‐-―−]{2,}\s*(?:BEGIN|END)\s*(?:SKILL\s*INSTRUCTIONS|REVIEWTRAIL\s*NOTE)\b|\[\s*Instructions\s*truncated\b)/i;
 
 /**
  * Invisible format characters (Unicode category Cf: zero-width space/joiners
@@ -73,7 +73,7 @@ const MARKER_LOOKALIKE_RE =
 const INVISIBLE_FORMAT_CHARS_RE = /\p{Cf}/gu;
 
 const NEUTRALIZED_LINE_PREFIX =
-  '[plannotator: the following skill-body line matched an injection marker and was neutralized] ';
+  '[reviewtrail: the following skill-body line matched an injection marker and was neutralized] ';
 
 /**
  * Neutralize body lines that match our own structural markers, visibly: each
@@ -101,8 +101,8 @@ export function neutralizeSkillMarkerLines(body: string): string {
 function injectedSkillSection(name: string, body: SkillExportContent, audience: SkillBlockAudience, builtin = false): string {
   let out = `--- BEGIN SKILL INSTRUCTIONS: ${name} ---\n`;
   if (builtin) {
-    // One of Plannotator's own skills (root `plannotator`): no folder to name, nothing truncated.
-    out += `A Plannotator Inbox skill, included here at the ${audience.requester}'s request. Follow it when acting on this ${audience.subject}.\n\n`;
+    // One of ReviewTrail's own skills (root `reviewtrail`): no folder to name, nothing truncated.
+    out += `A ReviewTrail Inbox skill, included here at the ${audience.requester}'s request. Follow it when acting on this ${audience.subject}.\n\n`;
     out += `${neutralizeSkillMarkerLines(body.content)}\n`;
     out += `--- END SKILL INSTRUCTIONS: ${name} ---\n`;
     return out;
@@ -126,14 +126,14 @@ export interface SkillReferencesBlockOptions {
   injectedNames?: Set<string>;
   /** A comment that did not come from the person in this UI: never injects (see skillReferenceExportBlock). */
   external?: boolean;
-  /** Who is asking, about what. Default: the reviewer, about this feedback (Plannotator's export). */
+  /** Who is asking, about what. Default: the reviewer, about this feedback (ReviewTrail's export). */
   audience?: SkillBlockAudience;
 }
 
 /**
  * The block itself, for references a caller already resolved: the export
  * above per comment, and a host that composes ONE block per message (the
- * Plannotator Inbox, with `INBOX_REPLY_SKILL_AUDIENCE`). '' when `refs` is
+ * ReviewTrail Inbox, with `INBOX_REPLY_SKILL_AUDIENCE`). '' when `refs` is
  * empty. Same rules and markers as skillReferenceExportBlock.
  */
 export function renderSkillReferencesBlock(
@@ -147,14 +147,14 @@ export function renderSkillReferencesBlock(
   const toInject: Array<{ name: string; body: SkillExportContent; builtin?: boolean }> = [];
   let out = `${skillsReferencedHeading(audience)}\n`;
   for (const ref of refs) {
-    if (ref.root === 'plannotator') {
-      // Plannotator's own skill: the host supplies its text; never from an external tool.
+    if (ref.root === 'reviewtrail') {
+      // ReviewTrail's own skill: the host supplies its text; never from an external tool.
       const body = external ? undefined : options.contentOf?.(ref.name);
       if (body) {
         toInject.push({ name: ref.name, body, builtin: true });
-        out += `- \`${ref.name}\` (a Plannotator Inbox skill; ${skillInstructionsIncludedNote(audience)})\n`;
+        out += `- \`${ref.name}\` (a ReviewTrail Inbox skill; ${skillInstructionsIncludedNote(audience)})\n`;
       } else {
-        out += `- \`${ref.name}\` (a Plannotator Inbox skill; its instructions could not be included)\n`;
+        out += `- \`${ref.name}\` (a ReviewTrail Inbox skill; its instructions could not be included)\n`;
       }
       continue;
     }

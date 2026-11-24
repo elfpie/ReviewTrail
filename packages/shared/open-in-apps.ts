@@ -1,1 +1,1 @@
-export * from '@plannotator/core/open-in-apps';
+export * from '@reviewtrail/core/open-in-apps';

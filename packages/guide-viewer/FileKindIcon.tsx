@@ -1,5 +1,5 @@
 import React from 'react';
-import type { FileKind } from '@plannotator/core/file-kind';
+import type { FileKind } from '@reviewtrail/core/file-kind';
 
 /**
  * The three file-kind glyphs (approved design record "review-file-kinds"):

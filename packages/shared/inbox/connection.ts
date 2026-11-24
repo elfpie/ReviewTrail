@@ -1,14 +1,14 @@
 /**
- * Plannotator Inbox: the contract an agent connection (the Claude Code mod,
+ * ReviewTrail Inbox: the contract an agent connection (the Claude Code mod,
  * the Pi extension and the OpenCode plugin) shares with the Inbox server.
  *
- *  - The `plannotator_inbox` agent tool: ONE tool whose `action` is one of the
+ *  - The `reviewtrail_inbox` agent tool: ONE tool whose `action` is one of the
  *    Inbox's MCP tools. It is built from the tool list the running Inbox
  *    serves on `/mcp` (`tools/list`), read once at session start, so an older
  *    Inbox registers only what it offers. The descriptions are the Inbox's
  *    own, except the few long ones the tool words shortly
  *    (INBOX_AGENT_FIELD_DESCRIPTIONS), since Pi and OpenCode send the tool
- *    whole with every request. It is never an action on the `plannotator` tool, whose
+ *    whole with every request. It is never an action on the `reviewtrail` tool, whose
  *    contract is about reviews and shared across hosts.
  *  - The bridge: the connection long-polls `INBOX_BRIDGE_POLL_PATH` with the
  *    registry's bearer token (loopback Host, no Origin, the pull-bridge
@@ -53,7 +53,7 @@ export function inboxStopNoticeReply(id: string): string | null {
 // --- CONTRACT (copied byte for byte into apps/hook/hooks/mod/inbox-contract.ts; edit packages/shared/inbox/connection.ts, then paste) ---
 
 /** The agent tool every connection registers. */
-export const INBOX_TOOL_NAME = 'plannotator_inbox'
+export const INBOX_TOOL_NAME = 'reviewtrail_inbox'
 
 /**
  * The Inbox MCP tools the agent tool may carry, in the order it lists them.
@@ -84,7 +84,7 @@ export type InboxToolAction = (typeof INBOX_TOOL_ACTIONS)[number]
 export const INBOX_REMOVED_ACTION = 'wait_for_reply'
 
 export const INBOX_REMOVED_ACTION_TEXT =
-  'action_removed: The Plannotator Inbox no longer has wait_for_reply. Go on with your work or end your turn. If the reply does not arrive in this session by itself, call read_thread with the thread_id later.'
+  'action_removed: The ReviewTrail Inbox no longer has wait_for_reply. Go on with your work or end your turn. If the reply does not arrive in this session by itself, call read_thread with the thread_id later.'
 
 /**
  * Arguments the connection fills itself, on the Inbox tools that take them:
@@ -125,7 +125,7 @@ export function inboxProjectPathShapeRefusal(value: unknown): string | null {
  * stdio shim, a raw MCP client, OpenCode 1, an older connection) they say to
  * read the thread later. An older Inbox ignores it.
  */
-export const INBOX_WAKES_META_KEY = 'ai.plannotator/inbox-wakes'
+export const INBOX_WAKES_META_KEY = 'ai.reviewtrail/inbox-wakes'
 
 /**
  * The `_meta` key a connection sets on a send (`send_message`,
@@ -138,7 +138,7 @@ export const INBOX_WAKES_META_KEY = 'ai.plannotator/inbox-wakes'
  * the agent named (its relative paths stay relative to it). An older Inbox
  * ignores it; the mod also makes relative attachments absolute itself.
  */
-export const INBOX_WORKING_FOLDER_META_KEY = 'ai.plannotator/working-folder'
+export const INBOX_WORKING_FOLDER_META_KEY = 'ai.reviewtrail/working-folder'
 
 /**
  * The `tools/call` params for an Inbox tool call: `wakes` when this session's
@@ -168,7 +168,7 @@ export const INBOX_REPLY_TO_CHECK = 'Before reply_to into a thread you have not 
 /**
  * How an issue or PR ref in a message links (a bare `#104` meant for another
  * repo once linked into the thread's project). In send_message's `body`, the
- * agent tool's `body`, and `plannotator inbox --help` / `card --help`.
+ * agent tool's `body`, and `reviewtrail inbox --help` / `card --help`.
  * `owner/repo#123` links on the project's own forge, so a GitHub ref from a
  * GitLab project needs its URL.
  */
@@ -184,7 +184,7 @@ export const INBOX_REF_LINK_POINTER = "Refs link as in send_message's body."
  * the rows do not count as the session having looked at those threads
  * (send_message's warning line). An older Inbox ignores it.
  */
-export const INBOX_PEEK_META_KEY = 'ai.plannotator/inbox-peek'
+export const INBOX_PEEK_META_KEY = 'ai.reviewtrail/inbox-peek'
 
 /** How many of the session's open threads the thread list names (the rest are counted). */
 export const INBOX_SESSION_THREADS_MAX = 5
@@ -272,7 +272,7 @@ export function inboxSessionThreadsText(result: unknown, toolName: string = INBO
   const total = typeof structured.total === 'number' && structured.total > lines.length ? structured.total : lines.length
   const count = total > lines.length ? `${lines.length} of ${total}, newest first` : `${lines.length}`
   const check = INBOX_REPLY_TO_CHECK.replace('call read_thread', `call ${toolName} read_thread`)
-  return [`Your open Plannotator Inbox threads in this project (${count}). ${check} ${INBOX_SESSION_THREADS_CHANNEL}`, ...lines, INBOX_SESSION_THREADS_MORE].join('\n')
+  return [`Your open ReviewTrail Inbox threads in this project (${count}). ${check} ${INBOX_SESSION_THREADS_CHANNEL}`, ...lines, INBOX_SESSION_THREADS_MORE].join('\n')
 }
 
 /** The bridge routes on the Inbox server (bearer token, loopback Host, no Origin). */
@@ -329,7 +329,7 @@ function leadOf(description: string): string {
  * there; the chat may say what waits there (redundancy is fine), but never
  * asks it again with a blocking question tool. Fixed text: the agent tool's
  * lead and the Inbox's server instructions carry it whole; the reminder, the
- * session's thread list, the note and `plannotator inbox --help` say the same.
+ * session's thread list, the note and `reviewtrail inbox --help` say the same.
  */
 export const INBOX_CHANNEL_RULE =
   "A decision in the Inbox stays there: when the person writes in the chat, say what waits and link its thread, but never also ask it in the chat with a blocking question tool (AskUserQuestion or similar). Ask in the chat only about something new they raised there that needs no pictures or files, or when they ask."
@@ -350,8 +350,8 @@ export const INBOX_USE_RULE =
  * owner's sentence, word for word, without more instruction around it: the
  * `thread` field says how. Fixed text, one wording everywhere: the agent
  * tool's lead and the Inbox's server instructions (INBOX_AGENT_RULES), the
- * reminder, the note, `plannotator inbox --help`, the skill and every
- * `/plannotator-inbox` briefing (tests/inbox-guidance-parity.test.ts).
+ * reminder, the note, `reviewtrail inbox --help`, the skill and every
+ * `/reviewtrail-inbox` briefing (tests/inbox-guidance-parity.test.ts).
  */
 export const INBOX_THREAD_RULE = "One thread per work stream, unless the person says otherwise."
 
@@ -363,7 +363,7 @@ export const INBOX_THREAD_RULE = "One thread per work stream, unless the person 
  * "the person" as everywhere else): no ban on progress, and no clauses that
  * over-specify it; instructions to a model are kept to the spirit. Fixed
  * text, one wording everywhere: the agent tool's lead, the Inbox's server
- * instructions, the reminder, the note, `plannotator inbox --help` and the
+ * instructions, the reminder, the note, `reviewtrail inbox --help` and the
  * skill (tests/inbox-guidance-parity.test.ts).
  */
 export const INBOX_FOLLOW_THROUGH_RULE =
@@ -386,7 +386,7 @@ export const INBOX_AGENT_RULES = `${INBOX_USE_RULE} ${INBOX_THREAD_RULE} ${INBOX
  * "nothing blocks" by shortening the help line, and from get_guide_brief's lead.
  */
 export const INBOX_TOOL_LEAD =
-  `The Plannotator Inbox on this machine: message the person, get their answer later; nothing blocks. ${INBOX_AGENT_RULES} Set \`action\` to a tool below, with its fields.`
+  `The ReviewTrail Inbox on this machine: message the person, get their answer later; nothing blocks. ${INBOX_AGENT_RULES} Set \`action\` to a tool below, with its fields.`
 
 /**
  * Fixed text: how a reply comes back. The connection delivers the person's
@@ -395,7 +395,7 @@ export const INBOX_TOOL_LEAD =
  * OpenCode 2 as a user message, and all three carry the wake's first line.
  */
 export const INBOX_TOOL_WAKE_NOTE =
-  "A reply arrives in this session by itself once it is idle, headed `Plannotator Inbox: <title> (<reply id>)`: end your turn or keep working. To answer it, send_message with reply_to set to that reply id, never one from memory."
+  "A reply arrives in this session by itself once it is idle, headed `ReviewTrail Inbox: <title> (<reply id>)`: end your turn or keep working. To answer it, send_message with reply_to set to that reply id, never one from memory."
 
 /**
  * Fixed text, the description's last line: where everything the tool's short
@@ -403,16 +403,16 @@ export const INBOX_TOOL_WAKE_NOTE =
  * examples), so an agent that needs more reads it once instead of every
  * request carrying it.
  */
-export const INBOX_TOOL_HELP_NOTE = "Every field and question syntax: `plannotator inbox --help`."
+export const INBOX_TOOL_HELP_NOTE = "Every field and question syntax: `reviewtrail inbox --help`."
 
 /**
  * Fixed text, one line: the agent tool's description carries it while the
  * Inbox lists no `card` action, the Board being off (approval "inbox-board",
  * the owner's answer of 2026-10-27: agents get one short line saying the
- * Board exists, and `plannotator card --help`). With the Board on, the card
+ * Board exists, and `reviewtrail card --help`). With the Board on, the card
  * action's own line says it and this one is left out.
  */
-export const INBOX_TOOL_BOARD_OFF_NOTE = "The Board (cards for work that outlasts a reply) is off until the person turns it on; see `plannotator card --help`."
+export const INBOX_TOOL_BOARD_OFF_NOTE = "The Board (cards for work that outlasts a reply) is off until the person turns it on; see `reviewtrail card --help`."
 
 /**
  * Thread steps (approval "inbox-thread-steps", 2026-11-03): the owner's
@@ -445,7 +445,7 @@ export function inboxStepsWakeLine(steps: { done: number; total: number; doing: 
 /**
  * A thread's PRs (approval "inbox-pr-binding", 2026-11-08; the owner's
  * approved text, word for word). send_message's `pulls` field: through the
- * MCP server's field, every connection's `plannotator_inbox` tool carries it.
+ * MCP server's field, every connection's `reviewtrail_inbox` tool carries it.
  */
 export const INBOX_PULLS_FIELD_DESCRIPTION =
   "Pull/merge requests this thread is responsible for: added to the thread, so the person sees their live state on its row. You own your thread's list. Full refs, any repo: `owner/repo#123` (GitHub), `group/sub/project!45` (GitLab), or the URL (Bitbucket: the URL only). Pass it when you open or take on one for this work, not on later messages. Merged ones stay. To remove one that is no longer part of the work, or add without a message: action thread_pulls."
@@ -456,7 +456,7 @@ export const INBOX_THREAD_PULLS_DESCRIPTION =
 
 /**
  * Thread priority (approval "inbox-thread-priority"). send_message's `priority` field: through the MCP server's
- * field, every connection's `plannotator_inbox` tool carries it. The agent's mark is the person's own mark.
+ * field, every connection's `reviewtrail_inbox` tool carries it. The agent's mark is the person's own mark.
  */
 export const INBOX_PRIORITY_FIELD_DESCRIPTION =
   "`true` puts this thread in the person's Priority, the top of their list; `false` takes it out. Follow the person: use it when they told you this matters most to them, or when what they asked for plainly makes it so, and take it out when that is over. It is theirs to change at any time."
@@ -584,7 +584,7 @@ export const INBOX_THREAD_NEW_ISSUE_RULE =
  * a message's screenshots and the pictures of its options as attachments at
  * the bottom, so the person had to scroll there to see what each option
  * was). Fixed text: the agent tool's `body` field, the MCP server's `body`
- * field and `plannotator inbox --help` carry it whole.
+ * field and `reviewtrail inbox --help` carry it whole.
  */
 /**
  * Option lines (approval "inbox-question-tradeoffs"; DRAFT words, awaiting the owner's OK): `Pros:`, `Cons:` and
@@ -602,7 +602,7 @@ export const INBOX_PICTURES_RULE =
  * after the pictures rule.
  */
 export const INBOX_CHANGE_RULE =
-  'A question that proposes a change (words, a screen, code, a setting) shows it: `Where: <what it is and where the person sees it>`, then `Before:` and `After:`, each the whole sentence, paragraph or screenshot it sits in (the card marks the change; `Before: none` when nothing is there). Several places: repeat the three lines per place. A choice that is its own version or change gets its own `After:` (and `Before:`) under it. A new feature or a prototype skips these (send pictures), and so does a choice the person never sees, such as a library. More forms (several places, pictures, a version per choice): `plannotator inbox --help before-after`.'
+  'A question that proposes a change (words, a screen, code, a setting) shows it: `Where: <what it is and where the person sees it>`, then `Before:` and `After:`, each the whole sentence, paragraph or screenshot it sits in (the card marks the change; `Before: none` when nothing is there). Several places: repeat the three lines per place. A choice that is its own version or change gets its own `After:` (and `Before:`) under it. A new feature or a prototype skips these (send pictures), and so does a choice the person never sees, such as a library. More forms (several places, pictures, a version per choice): `reviewtrail inbox --help before-after`.'
 
 /**
  * Options another agent designs (the owner approved these words 2026-11-11, from the clean-room eval of picture
@@ -651,7 +651,7 @@ export function inboxToolsWithoutBro(tools: InboxToolInfo[]): InboxToolInfo[] {
  * The agent tool's own words for the fields whose Inbox description is long
  * (the MCP server's are written for a raw MCP client, which has no other
  * guide): every Pi and OpenCode request carries the tool whole, so these keep
- * only what an agent needs to call it well, and `plannotator inbox --help`
+ * only what an agent needs to call it well, and `reviewtrail inbox --help`
  * keeps the rest. Keyed by action, then field: applied only to a field that
  * action of the running Inbox offers (a field several actions share is
  * described once, from the first action that has it, `send_message` for `body`).
@@ -703,12 +703,12 @@ export const INBOX_AGENT_FIELD_DESCRIPTIONS: Readonly<Record<string, Readonly<Re
   },
   submit_guide: {
     guide: "The guide in get_guide_brief's output_schema, as an object or its JSON.",
-    snapshot: 'Instead of guide and patch: a complete Plannotator guide snapshot, as an object or its JSON.',
+    snapshot: 'Instead of guide and patch: a complete ReviewTrail guide snapshot, as an object or its JSON.',
   },
 }
 
 /**
- * The one-line reminder a session that has `plannotator_inbox` gets once, at
+ * The one-line reminder a session that has `reviewtrail_inbox` gets once, at
  * its start (the Claude Code mod's first-prompt context, Pi's hidden
  * before_agent_start message, OpenCode's fixed system line), when the
  * `inboxReminder` switch allows it. Fixed text: it sits in the cached prompt
@@ -717,18 +717,18 @@ export const INBOX_AGENT_FIELD_DESCRIPTIONS: Readonly<Record<string, Readonly<Re
  * the send, before anything about the chat, so it reads as about the Inbox.
  */
 export const INBOX_REMINDER_TEXT =
-  `Plannotator Inbox is on: when you finish long work, or need a decision only the person can make, send it with plannotator_inbox send_message (each decision as a \`:::question\` block) and keep going. ${INBOX_FOLLOW_THROUGH_RULE} ${INBOX_THREAD_RULE} Their reply comes back here. A decision in the Inbox stays there: when the person writes here, say what waits and link its thread, but never also ask it in the chat with a blocking question tool (AskUserQuestion or similar). Run \`plannotator inbox --help\` for how it works.`
+  `ReviewTrail Inbox is on: when you finish long work, or need a decision only the person can make, send it with reviewtrail_inbox send_message (each decision as a \`:::question\` block) and keep going. ${INBOX_FOLLOW_THROUGH_RULE} ${INBOX_THREAD_RULE} Their reply comes back here. A decision in the Inbox stays there: when the person writes here, say what waits and link its thread, but never also ask it in the chat with a blocking question tool (AskUserQuestion or similar). Run \`reviewtrail inbox --help\` for how it works.`
 
 /**
  * The same line for a host without the wake (OpenCode 1): the reply does not
  * come back by itself there, so it says to read the thread.
  */
 export const INBOX_REMINDER_TEXT_NO_WAKE =
-  `Plannotator Inbox is on: when you finish long work, or need a decision only the person can make, send it with plannotator_inbox send_message (each decision as a \`:::question\` block) and keep going. ${INBOX_FOLLOW_THROUGH_RULE} ${INBOX_THREAD_RULE} Their reply does not come back here by itself: read the thread later with read_thread. A decision in the Inbox stays there: when the person writes here, say what waits and link its thread, but never also ask it in the chat with a blocking question tool (AskUserQuestion or similar). Run \`plannotator inbox --help\` for how it works.`
+  `ReviewTrail Inbox is on: when you finish long work, or need a decision only the person can make, send it with reviewtrail_inbox send_message (each decision as a \`:::question\` block) and keep going. ${INBOX_FOLLOW_THROUGH_RULE} ${INBOX_THREAD_RULE} Their reply does not come back here by itself: read the thread later with read_thread. A decision in the Inbox stays there: when the person writes here, say what waits and link its thread, but never also ask it in the chat with a blocking question tool (AskUserQuestion or similar). Run \`reviewtrail inbox --help\` for how it works.`
 
 /**
  * The reminder naming the tool as the host registered it. Claude Code defers
- * plugin tools behind tool search and names them `mcp__<server>__plannotator_inbox`,
+ * plugin tools behind tool search and names them `mcp__<server>__reviewtrail_inbox`,
  * so the line carries that full name for the search to find; other hosts use
  * the plain name. Fixed per process: the name never changes under a session.
  */
@@ -739,18 +739,18 @@ export function inboxReminderText(toolName: string = INBOX_TOOL_NAME, options: {
 
 /**
  * The Inbox's guide line on the briefing, the command copies' bullet word for
- * word: never run the window's command to send (the `plannotator` skill's
+ * word: never run the window's command to send (the `reviewtrail` skill's
  * wording). Fixed text.
  */
 export const INBOX_BRIEFING_NEVER_RUN =
-  "Never run `plannotator inbox` just to send: send_message starts a stopped Inbox itself, and bare `plannotator inbox` opens the window for the person."
+  "Never run `reviewtrail inbox` just to send: send_message starts a stopped Inbox itself, and bare `reviewtrail inbox` opens the window for the person."
 
-/** The briefing's last line, and every `/plannotator-inbox` copy's: what the agent does with the Inbox from now on. Fixed text. */
+/** The briefing's last line, and every `/reviewtrail-inbox` copy's: what the agent does with the Inbox from now on. Fixed text. */
 export const INBOX_BRIEFING_FROM_NOW_ON =
   'For the rest of this session, use the Inbox as above: for a decision the person is not here to make, and to hand over long work you finished.'
 
 /**
- * What `/plannotator-inbox` gives the model where the host answers the
+ * What `/reviewtrail-inbox` gives the model where the host answers the
  * command itself and starts no turn (the Claude Code mod, Pi, OpenCode 2;
  * OpenCode 1 puts it in the command's own turn): people type the command to
  * teach their agent the Inbox (the owner, 2026-10-28), so the agent reads
@@ -762,22 +762,22 @@ export const INBOX_BRIEFING_FROM_NOW_ON =
  * comes back by itself.
  */
 export const INBOX_COMMAND_BRIEFING = [
-  'The person opened their Plannotator Inbox with /plannotator-inbox and has its address. The Plannotator Inbox is one window on this computer where you leave the person messages, `:::question` blocks they answer with a click, and files. They answer when they can. Nothing blocks: you send, then keep working or end your turn.',
+  'The person opened their ReviewTrail Inbox with /reviewtrail-inbox and has its address. The ReviewTrail Inbox is one window on this computer where you leave the person messages, `:::question` blocks they answer with a click, and files. They answer when they can. Nothing blocks: you send, then keep working or end your turn.',
   '',
   `- ${INBOX_USE_RULE}`,
   `- ${INBOX_THREAD_RULE}`,
-  '- Send with a `plannotator_inbox` tool when you have one (it can be listed with a prefix and may need loading through tool search first): `action` `send_message`, with a markdown `body`. Otherwise call `send_message` on the Inbox\'s MCP server, `plannotator inbox mcp`.',
+  '- Send with a `reviewtrail_inbox` tool when you have one (it can be listed with a prefix and may need loading through tool search first): `action` `send_message`, with a markdown `body`. Otherwise call `send_message` on the Inbox\'s MCP server, `reviewtrail inbox mcp`.',
   "- send_message's result says whether the person's reply arrives in this session by itself. When it does, do not wait or poll for it: end your turn or go on with other work. When it does not, go on with your work and read the thread later with read_thread.",
   `- ${INBOX_CHANNEL_RULE}`,
   `- ${INBOX_FOLLOW_THROUGH_RULE}`,
   `- ${INBOX_BRIEFING_NEVER_RUN}`,
-  '- Before your first send, run `plannotator inbox --help` and read it: every field, the full question syntax, and how to connect the MCP server.',
-  '- The `plannotator` skill, where you have it, has more.',
+  '- Before your first send, run `reviewtrail inbox --help` and read it: every field, the full question syntax, and how to connect the MCP server.',
+  '- The `reviewtrail` skill, where you have it, has more.',
   '',
   `Opening the Inbox asks for no work by itself. ${INBOX_BRIEFING_FROM_NOW_ON}`,
 ].join('\n')
 
-/** The briefing naming the tool as the host registered it (Claude Code: `mcp__plannotator__plannotator_inbox`), like the reminder. */
+/** The briefing naming the tool as the host registered it (Claude Code: `mcp__reviewtrail__reviewtrail_inbox`), like the reminder. */
 export function inboxCommandBriefing(toolName: string = INBOX_TOOL_NAME): string {
   return INBOX_COMMAND_BRIEFING.replace(INBOX_TOOL_NAME, toolName)
 }
@@ -812,11 +812,11 @@ export function inboxReminderCustomText(config: unknown, host: string): string |
 }
 
 function withToolName(text: string, toolName: string): string {
-  return text.replace(/(^|[^A-Za-z0-9_])plannotator_inbox(?![A-Za-z0-9_])/g, (_match: string, before: string) => before + toolName)
+  return text.replace(/(^|[^A-Za-z0-9_])reviewtrail_inbox(?![A-Za-z0-9_])/g, (_match: string, before: string) => before + toolName)
 }
 
 export const INBOX_RULES_LEAD =
-  "The person's own rules for how you use the Plannotator Inbox. They come from the person, so where they differ from the lines above (being proactive included), follow these:"
+  "The person's own rules for how you use the ReviewTrail Inbox. They come from the person, so where they differ from the lines above (being proactive included), follow these:"
 
 export const INBOX_RULES_MARGIN = 100
 
@@ -842,7 +842,7 @@ export function inboxReminderWithRules(reminder: string, rules: string | null | 
 /**
  * The reminder a host sends: the person's own text when there is one (it
  * REPLACES the line, for hosts with the wake and without it alike, every
- * whole word `plannotator_inbox` in it renamed to the tool as the host
+ * whole word `reviewtrail_inbox` in it renamed to the tool as the host
  * registered it), else exactly `inboxReminderText(toolName, options)`.
  */
 export function inboxReminderFor(custom: string | null | undefined, toolName: string = INBOX_TOOL_NAME, options: { wakes?: boolean; rules?: string | null } = {}): string {
@@ -942,7 +942,7 @@ export function inboxUnreadInputText(input: unknown, tools: readonly InboxToolIn
     const named = keys.slice(0, 3).map((key) => JSON.stringify(key.slice(0, 40))).join(', ')
     got = keys.length === 0 ? 'it arrived empty' : `it arrived as ${named}${keys.length > 3 ? ` and ${keys.length - 3} more` : ''}`
   }
-  return `Invalid plannotator_inbox call: its input could not be read as fields (${got}). Check the JSON quoting and call again: every field is its own key and every string value is in double quotes, e.g. {"action": "send_message", "body": "…", "supersedes": ["msg_…/q-…"]}. action is one of ${tools.map((tool) => tool.name).join(', ')}.`
+  return `Invalid reviewtrail_inbox call: its input could not be read as fields (${got}). Check the JSON quoting and call again: every field is its own key and every string value is in double quotes, e.g. {"action": "send_message", "body": "…", "supersedes": ["msg_…/q-…"]}. action is one of ${tools.map((tool) => tool.name).join(', ')}.`
 }
 
 /**
@@ -1106,7 +1106,7 @@ function readUnparsedInput(
     }
   }
   const failure = jsonFailure(raw)
-  const prefix = 'Invalid plannotator_inbox call: '
+  const prefix = 'Invalid reviewtrail_inbox call: '
   if (raw.length < len && (!failure || failure.at >= raw.length - 1 || failure.kind === 'unterminated')) {
     const where = failure?.field ? `inside ${failure.field}` : 'past what arrived'
     const what = failure?.field ?? 'the long text'
@@ -1159,7 +1159,7 @@ export function inboxToolCall(
   if (!tool) {
     if (inboxInputUnread(input as Record<string, unknown>, tools)) return { error: inboxUnreadInputText(input, tools) }
     return {
-      error: `Invalid plannotator_inbox call: action must be one of ${tools.map((candidate) => candidate.name).join(', ')}${typeof action === 'string' && (INBOX_TOOL_ACTIONS as readonly string[]).includes(action) ? ` (this Plannotator Inbox has no ${action}; update Plannotator for it)` : ''}.`,
+      error: `Invalid reviewtrail_inbox call: action must be one of ${tools.map((candidate) => candidate.name).join(', ')}${typeof action === 'string' && (INBOX_TOOL_ACTIONS as readonly string[]).includes(action) ? ` (this ReviewTrail Inbox has no ${action}; update ReviewTrail for it)` : ''}.`,
     }
   }
   const own = propertiesOf(tool)
@@ -1169,13 +1169,13 @@ export function inboxToolCall(
     if (value === undefined) continue
     if (name === INBOX_AGENT_PROJECT_PATH && name in own) {
       const refusal = inboxProjectPathShapeRefusal(value)
-      if (refusal) return { error: `Invalid plannotator_inbox call: ${refusal}` }
+      if (refusal) return { error: `Invalid reviewtrail_inbox call: ${refusal}` }
       projectPath = value as string
       continue
     }
     if (!(name in own) || isFilled(name)) {
       const fields = Object.keys(own).filter((field) => !isFilled(field) || field === INBOX_AGENT_PROJECT_PATH)
-      return { error: `Invalid plannotator_inbox call: ${tool.name} takes no "${name}" (its fields: ${fields.join(', ') || 'none'}).` }
+      return { error: `Invalid reviewtrail_inbox call: ${tool.name} takes no "${name}" (its fields: ${fields.join(', ') || 'none'}).` }
     }
     args[name] = value
   }
@@ -1196,7 +1196,7 @@ export function inboxResultWithNote(text: string, note: string | undefined): str
  * not know the key and appends the structured content as before, which the
  * Inbox keeps to the same trimmed shape.
  */
-export const INBOX_TEXT_COMPLETE_META_KEY = 'ai.plannotator/text-complete'
+export const INBOX_TEXT_COMPLETE_META_KEY = 'ai.reviewtrail/text-complete'
 
 /**
  * An MCP `tools/call` result as the text the agent tool answers with: the
@@ -1256,7 +1256,7 @@ export const INBOX_MAX_REQUEST_BYTES = 128 * 1024 * 1024
 /** The refusal for a request over {@link INBOX_MAX_REQUEST_BYTES}, naming the bound. */
 export function inboxRequestTooLargeMessage(bytes?: number): string {
   const size = bytes === undefined ? '' : ` (${bytes} bytes)`
-  return `The message is too large for the Plannotator Inbox${size}: one request may carry at most ${INBOX_MAX_REQUEST_BYTES} bytes (128 MiB). Send a smaller message, or attach the content as a file.`
+  return `The message is too large for the ReviewTrail Inbox${size}: one request may carry at most ${INBOX_MAX_REQUEST_BYTES} bytes (128 MiB). Send a smaller message, or attach the content as a file.`
 }
 
 /** {@link mcpAnswerOf} with the HTTP status: an unreadable 413 (the server's own refusal, no body) is the request bound. */
@@ -1520,7 +1520,7 @@ export interface InboxWakeReplyingTo {
  * The poll field (`true`) by which a connection says it understands a reply
  * it was tagged in (`tagged` on a command): only such a session can be tagged,
  * and only it is handed what it was tagged in. An older connection never sends
- * it; the window then says to update Plannotator to tag that session.
+ * it; the window then says to update ReviewTrail to tag that session.
  */
 export const INBOX_TAGS_POLL_FIELD = 'tags'
 
@@ -1536,14 +1536,14 @@ export const INBOX_SESSION_LABEL_INPUT_MAX = 200
  * thread another session owns: not a reply to anything it asked.
  */
 export const INBOX_TAGGED_INSTRUCTION =
-  "The person tagged you in a Plannotator Inbox thread that another session owns. Their reply follows as they wrote it; parts of it may be meant for the other session, not for you."
+  "The person tagged you in a ReviewTrail Inbox thread that another session owns. Their reply follows as they wrote it; parts of it may be meant for the other session, not for you."
 
 /**
  * The line under INBOX_TAGGED_INSTRUCTION: whose thread it is, read it first,
  * and answer only your part, in the thread.
  */
 export function inboxTaggedLine(owner: string, id: string): string {
-  return `The thread belongs to another session (${owner}); you have not seen it. Read it first with read_thread (message_id ${id}). Answer only what is addressed to you, in the same thread: plannotator_inbox send_message with reply_to ${id}.`
+  return `The thread belongs to another session (${owner}); you have not seen it. Read it first with read_thread (message_id ${id}). Answer only what is addressed to you, in the same thread: reviewtrail_inbox send_message with reply_to ${id}.`
 }
 
 /** The line under the instruction on the owner's wake of a reply that tags other sessions. */
@@ -1557,11 +1557,11 @@ export function inboxAlsoTaggedLine(names: readonly string[]): string {
  * thread another session owns ("Add instead", approval "inbox-tag-handoff").
  */
 export const INBOX_ADDED_INSTRUCTION =
-  "The person added you to a Plannotator Inbox thread that another session owns: you work on it alongside that session, and their later replies in it come to you too. Their reply follows as they wrote it; parts of it may be meant for the other session."
+  "The person added you to a ReviewTrail Inbox thread that another session owns: you work on it alongside that session, and their later replies in it come to you too. Their reply follows as they wrote it; parts of it may be meant for the other session."
 
 /** The line under INBOX_ADDED_INSTRUCTION: whose thread it is, read it first, answer in it. */
 export function inboxAddedLine(owner: string, id: string): string {
-  return `The thread's owner is ${owner}. If you have not read the thread yet, read it first with read_thread (message_id ${id}). Answer your part in the same thread: plannotator_inbox send_message with reply_to ${id}.`
+  return `The thread's owner is ${owner}. If you have not read the thread yet, read it first with read_thread (message_id ${id}). Answer your part in the same thread: reviewtrail_inbox send_message with reply_to ${id}.`
 }
 
 /**
@@ -1569,11 +1569,11 @@ export function inboxAddedLine(owner: string, id: string): string {
  * to ("Hand off instead", approval "inbox-tag-handoff").
  */
 export const INBOX_HANDOFF_INSTRUCTION =
-  "The person handed you this Plannotator Inbox thread: it is yours now, and their later replies in it come to you. Their reply follows as they wrote it."
+  "The person handed you this ReviewTrail Inbox thread: it is yours now, and their later replies in it come to you. Their reply follows as they wrote it."
 
 /** The line under INBOX_HANDOFF_INSTRUCTION: who had it, read it first, answer in it. */
 export function inboxHandoffLine(from: string, id: string): string {
-  return `Another session (${from}) had this thread before; you have not seen it. Read it first with read_thread (message_id ${id}), then answer in it: plannotator_inbox send_message with reply_to ${id}.`
+  return `Another session (${from}) had this thread before; you have not seen it. Read it first with read_thread (message_id ${id}), then answer in it: reviewtrail_inbox send_message with reply_to ${id}.`
 }
 
 /** The whole notice the former owner of a handed-off thread gets (and the body of its command). */
@@ -1670,7 +1670,7 @@ export function parseInboxPlace(value: unknown): InboxPlace | null {
  * when Rex's terminal runs it directly (TERM_PROGRAM is `rex`; a tmux or
  * another terminal inside Rex sets its own, and then nothing is said), with
  * REX_SESSION and REX_BLOCK. REX_SERVER is never read. Null otherwise, and
- * always under test (NODE_ENV `test`, or PLANNOTATOR_TEST_SANDBOX): a test
+ * always under test (NODE_ENV `test`, or REVIEWTRAIL_TEST_SANDBOX): a test
  * run from a Rex pane never sends the person's pane.
  */
 export function inboxPlaceFromEnv(env: {
@@ -1678,9 +1678,9 @@ export function inboxPlaceFromEnv(env: {
   REX_SESSION?: string | undefined
   REX_BLOCK?: string | undefined
   NODE_ENV?: string | undefined
-  PLANNOTATOR_TEST_SANDBOX?: string | undefined
+  REVIEWTRAIL_TEST_SANDBOX?: string | undefined
 }): InboxPlace | null {
-  if (env.TERM_PROGRAM !== 'rex' || env.NODE_ENV === 'test' || env.PLANNOTATOR_TEST_SANDBOX) return null
+  if (env.TERM_PROGRAM !== 'rex' || env.NODE_ENV === 'test' || env.REVIEWTRAIL_TEST_SANDBOX) return null
   return parseInboxPlace({ kind: 'rex', session: env.REX_SESSION, block: env.REX_BLOCK })
 }
 
@@ -1733,7 +1733,7 @@ export function parseInboxAskWaits(text: string): boolean {
 
 /**
  * The poll field (`true`) by which a Claude Code connection says it reloads
- * Plannotator by itself (`/reload-plugins`, owner approval "cc-auto-reload")
+ * ReviewTrail by itself (`/reload-plugins`, owner approval "cc-auto-reload")
  * when a poll answer carries INBOX_RELOAD_FIELD. An older connection never
  * sends it, so it is never told.
  */
@@ -1770,7 +1770,7 @@ export function parseInboxReloadOffer(text: string): InboxReloadOffer | null {
  */
 export function inboxSentNowFollowUpText(command: Pick<InboxReplyCommand, 'id' | 'subject' | 'type'>): string {
   const subject = (command.subject ?? '').replace(/\s+/g, ' ').trim() || (command.type === 'message' ? 'a message' : 'a reply')
-  return `Plannotator Inbox: ${subject} (${command.id})\nThe person's ${command.type === 'message' ? 'message' : 'reply'} above (${command.id}) arrived as your last turn was ending. If you have not answered it yet, answer it now.`
+  return `ReviewTrail Inbox: ${subject} (${command.id})\nThe person's ${command.type === 'message' ? 'message' : 'reply'} above (${command.id}) arrived as your last turn was ending. If you have not answered it yet, answer it now.`
 }
 
 export function parseInboxBridgeCommands(text: string): InboxReplyCommand[] {
@@ -1789,14 +1789,14 @@ export function parseInboxBridgeCommands(text: string): InboxReplyCommand[] {
 
 /** The fixed second line of every wake: who is speaking, and how to answer. */
 export const INBOX_WAKE_INSTRUCTION =
-  "This is a user reply from Plannotator Inbox. Their reply follows as they wrote it: it is their answer to you. When they need to hear back, answer in the same thread: plannotator_inbox send_message with reply_to set to the id in parentheses on the line above."
+  "This is a user reply from ReviewTrail Inbox. Their reply follows as they wrote it: it is their answer to you. When they need to hear back, answer in the same thread: reviewtrail_inbox send_message with reply_to set to the id in parentheses on the line above."
 
 /**
  * The fixed second line of a Re-ask wake (approval "inbox-reask"): the person
  * asked for the open questions again, in one message, and how to answer.
  */
 export const INBOX_REASK_INSTRUCTION =
-  "The person asked, from the Plannotator Inbox, for the open questions in this thread to be asked again, together in one new message. The questions and what to do with each follow. Answer in the same thread: plannotator_inbox send_message with reply_to set to the id in parentheses on the line above."
+  "The person asked, from the ReviewTrail Inbox, for the open questions in this thread to be asked again, together in one new message. The questions and what to do with each follow. Answer in the same thread: reviewtrail_inbox send_message with reply_to set to the id in parentheses on the line above."
 
 /** What a Re-ask note lists: only questions (absent), only action items, or both (#2059). */
 export type InboxReaskItems = 'actions' | 'both' | undefined
@@ -1823,11 +1823,11 @@ export function inboxReaskItemsOf(ids: readonly string[] | undefined): InboxReas
 export function inboxReaskInstruction(items: InboxReaskItems, one = false): string {
   if (one && items !== 'both') {
     const what = items === 'actions' ? 'action item' : 'question'
-    return `The person asked, from the Plannotator Inbox, for the open ${what} in this thread to be asked again, in one new message. The ${what} and what to do with it follow. Answer in the same thread: plannotator_inbox send_message with reply_to set to the id in parentheses on the line above.`
+    return `The person asked, from the ReviewTrail Inbox, for the open ${what} in this thread to be asked again, in one new message. The ${what} and what to do with it follow. Answer in the same thread: reviewtrail_inbox send_message with reply_to set to the id in parentheses on the line above.`
   }
   if (items !== 'actions' && items !== 'both') return INBOX_REASK_INSTRUCTION
   const { what, they } = reaskWords(items)
-  return `The person asked, from the Plannotator Inbox, for the ${what} in this thread to be asked again, together in one new message. ${they} and what to do with each follow. Answer in the same thread: plannotator_inbox send_message with reply_to set to the id in parentheses on the line above.`
+  return `The person asked, from the ReviewTrail Inbox, for the ${what} in this thread to be asked again, together in one new message. ${they} and what to do with each follow. Answer in the same thread: reviewtrail_inbox send_message with reply_to set to the id in parentheses on the line above.`
 }
 
 /**
@@ -1846,7 +1846,7 @@ export function inboxReaskRedirectedLine(asker: string, id: string, items?: Inbo
 
 /** The fixed second line of a New message wake: the person wrote first, and how to answer. */
 export const INBOX_MESSAGE_INSTRUCTION =
-  "The person wrote to you from the Plannotator Inbox. Their message follows as they wrote it: it is from them, not from the Inbox. When they need to hear back, answer in the same thread: plannotator_inbox send_message with reply_to set to the id in parentheses on the line above."
+  "The person wrote to you from the ReviewTrail Inbox. Their message follows as they wrote it: it is from them, not from the Inbox. When they need to hear back, answer in the same thread: reviewtrail_inbox send_message with reply_to set to the id in parentheses on the line above."
 
 /**
  * The fixed second line of a wake for a thread the person started from the
@@ -1854,7 +1854,7 @@ export const INBOX_MESSAGE_INSTRUCTION =
  * agent asked, and possibly unrelated to its current work.
  */
 export const INBOX_NEW_THREAD_INSTRUCTION =
-  "The person started a new thread with you in the Plannotator Inbox: an idea or a request of their own, not an answer to something you asked. Their message follows as they wrote it. It may be unrelated to what you were doing; say how you will handle it before you start. When they need to hear back, answer in the same thread: plannotator_inbox send_message with reply_to set to the id in parentheses on the line above."
+  "The person started a new thread with you in the ReviewTrail Inbox: an idea or a request of their own, not an answer to something you asked. Their message follows as they wrote it. It may be unrelated to what you were doing; say how you will handle it before you start. When they need to hear back, answer in the same thread: reviewtrail_inbox send_message with reply_to set to the id in parentheses on the line above."
 
 /**
  * The line under the instruction (and any redirected or continues line) on a
@@ -1872,7 +1872,7 @@ export const INBOX_NAME_THREAD_LINE =
  * and no one is at its terminal.
  */
 export const INBOX_LAUNCHED_LINE =
-  "You joined the person's Plannotator Inbox: they started this session from it. They read the Inbox, not this chat, and no one is at this terminal, so send there what they should see and ask there as `:::question` blocks, never in the chat (AskUserQuestion or similar)."
+  "You joined the person's ReviewTrail Inbox: they started this session from it. They read the Inbox, not this chat, and no one is at this terminal, so send there what they should see and ask there as `:::question` blocks, never in the chat (AskUserQuestion or similar)."
 
 /** Under INBOX_LAUNCHED_LINE when a Claude Code session was launched into a project folder (Claude Code keeps its own edits apart). */
 export const INBOX_LAUNCHED_PROJECT_LINE_CLAUDE =
@@ -1965,7 +1965,7 @@ function wakeThreadId(value: unknown): string {
 }
 
 /** The closing line of every wake but a 👍's, after the body: how to read more, and where the Inbox explains itself. */
-export const INBOX_WAKE_CLOSING_LINE = '[for context: read_thread (opt: set limit) or search · help: plannotator inbox --help]'
+export const INBOX_WAKE_CLOSING_LINE = '[for context: read_thread (opt: set limit) or search · help: reviewtrail inbox --help]'
 
 /** How long ago `at` was, in short plain words ("a minute ago", "11 hours ago"), or '' when it is not a time. */
 export function inboxWakeAgo(at: unknown, now: number): string {
@@ -2068,7 +2068,7 @@ export function inboxWakeCommand<T extends { body: string; thread_id?: unknown; 
 }
 
 /**
- * The turn a reply or a message becomes: `Plannotator Inbox: <title> (<id>)`
+ * The turn a reply or a message becomes: `ReviewTrail Inbox: <title> (<id>)`
  * (the title is the command's `subject`, or `a reply` / `a message` without
  * one), the fixed instruction line for its type (a reply, a New message, or a
  * thread the person started; on a redirected reply, the line
@@ -2109,12 +2109,12 @@ export function inboxWakeText(
 ): string {
   // Tidy: the body is the wake; it spans threads, so the closing line names none.
   if (command.tidy === true) {
-    return `Plannotator Inbox: ${(command.subject ?? '').replace(/\s+/g, ' ').trim() || 'Tidy'} (${command.id})\n${command.body}\n\n${INBOX_WAKE_CLOSING_LINE}`
+    return `ReviewTrail Inbox: ${(command.subject ?? '').replace(/\s+/g, ' ').trim() || 'Tidy'} (${command.id})\n${command.body}\n\n${INBOX_WAKE_CLOSING_LINE}`
   }
   if (typeof command.ack_of === 'string' && command.ack_of !== '') {
     const ackSubject = (command.subject ?? '').replace(/\s+/g, ' ').trim() || 'a message'
     const thread = wakeThreadId(command.thread_id)
-    return `Plannotator Inbox: ${ackSubject} (${command.id})\n${inboxAckLine(command.ack_of, command.ack_reaction)}${thread ? `\n\n[thread ${thread}]` : ''}`
+    return `ReviewTrail Inbox: ${ackSubject} (${command.id})\n${inboxAckLine(command.ack_of, command.ack_reaction)}${thread ? `\n\n[thread ${thread}]` : ''}`
   }
   // The session's steps in this thread (approval "inbox-thread-steps"), its own paragraph before the closing line;
   // with none there yet and the person's answers in this reply, the line that says when to start one.
@@ -2134,20 +2134,20 @@ export function inboxWakeText(
   // The thread was handed to another session: the notice alone.
   if (command.handed_away && typeof command.handed_away === 'object') {
     const to = wakeName(command.handed_away.to) || 'another agent'
-    return `Plannotator Inbox: ${subject} (${command.id})\n${inboxHandedAwayLine(to)}${facts}${closing}`
+    return `ReviewTrail Inbox: ${subject} (${command.id})\n${inboxHandedAwayLine(to)}${facts}${closing}`
   }
   // Handed this thread: it is this session's now; read it first.
   if (command.handoff && typeof command.handoff === 'object') {
     const from = wakeName(command.handoff.from) || 'another agent'
-    return `Plannotator Inbox: ${subject} (${command.id})\n${INBOX_HANDOFF_INSTRUCTION}\n${inboxHandoffLine(from, command.id)}${facts}\n\n${body}${closing}`
+    return `ReviewTrail Inbox: ${subject} (${command.id})\n${INBOX_HANDOFF_INSTRUCTION}\n${inboxHandoffLine(from, command.id)}${facts}\n\n${body}${closing}`
   }
   // Tagged into a thread another session owns: what it is, then read the thread first.
   if (command.tagged && typeof command.tagged === 'object') {
     const owner = wakeName(command.tagged.owner) || 'another agent'
     if (command.added === true) {
-      return `Plannotator Inbox: ${subject} (${command.id})\n${INBOX_ADDED_INSTRUCTION}\n${inboxAddedLine(owner, command.id)}${facts}\n\n${body}${closing}`
+      return `ReviewTrail Inbox: ${subject} (${command.id})\n${INBOX_ADDED_INSTRUCTION}\n${inboxAddedLine(owner, command.id)}${facts}\n\n${body}${closing}`
     }
-    return `Plannotator Inbox: ${subject} (${command.id})\n${INBOX_TAGGED_INSTRUCTION}\n${inboxTaggedLine(owner, command.id)}${facts}\n\n${body}${closing}`
+    return `ReviewTrail Inbox: ${subject} (${command.id})\n${INBOX_TAGGED_INSTRUCTION}\n${inboxTaggedLine(owner, command.id)}${facts}\n\n${body}${closing}`
   }
   const others = Array.isArray(command.also_tagged)
     ? command.also_tagged
@@ -2178,7 +2178,7 @@ export function inboxWakeText(
   const naming = command.name_thread === true ? `\n${INBOX_NAME_THREAD_LINE}` : ''
   // A session the Inbox launched, on its first wake: where the person reads, and (in a project folder) other agents.
   const launched = inboxLaunchedLines(command.launched).map((line) => `\n${line}`).join('')
-  return `Plannotator Inbox: ${subject} (${command.id})\n${instruction}${redirected}${also}${naming}${launched}${facts}\n\n${body}${closing}`
+  return `ReviewTrail Inbox: ${subject} (${command.id})\n${instruction}${redirected}${also}${naming}${launched}${facts}\n\n${body}${closing}`
 }
 
 /**
@@ -2247,14 +2247,14 @@ export const INBOX_BLOCKED_STALE_MS = 45_000
 
 /**
  * Whether the person has turned the Inbox on on this computer: a mark in the
- * Inbox folder (`inbox/turned-on`) that only a person's run of `plannotator
- * inbox` writes (bare, `--no-open`, `--open`: the `/plannotator-inbox`
+ * Inbox folder (`inbox/turned-on`) that only a person's run of `reviewtrail
+ * inbox` writes (bare, `--no-open`, `--open`: the `/reviewtrail-inbox`
  * commands run `--open`). Until it says on, no host registers the agents' tool
- * or its reminder, and nothing Plannotator starts by itself (`--background`, a
+ * or its reminder, and nothing ReviewTrail starts by itself (`--background`, a
  * detached start, `restart`, the MCP server, `inbox call` and the other
  * commands that start the Inbox) starts it. Where an
  * Inbox already ran (`inbox/inbox.json`, from before the mark or from an older
- * `plannotator`), the first reader writes the mark on. Its text is
+ * `reviewtrail`), the first reader writes the mark on. Its text is
  * `{"on":true,"by":...,"at":...}`; only `"on":false` reads off, so a mark that
  * cannot be read keeps the Inbox on.
  */
@@ -2265,10 +2265,10 @@ export const INBOX_TURNED_ON_FILE = 'turned-on'
  * turns the Inbox on, starts it detached, opens it, prints the URL and
  * returns, with or without a screen. Swap it here only.
  */
-export const INBOX_SETUP_COMMAND = 'plannotator inbox --open'
+export const INBOX_SETUP_COMMAND = 'reviewtrail inbox --open'
 
 /** What an agent gets when it reaches for the Inbox before the person turned it on. */
-export const INBOX_OFF_LINE = `The Plannotator Inbox is off on this computer. \`${INBOX_SETUP_COMMAND}\` turns it on. If you are an agent, ask the person in the chat instead, and turn it on only if they ask you to.`
+export const INBOX_OFF_LINE = `The ReviewTrail Inbox is off on this computer. \`${INBOX_SETUP_COMMAND}\` turns it on. If you are an agent, ask the person in the chat instead, and turn it on only if they ask you to.`
 
 /** Whether a mark's text says on: anything but `"on": false` does (in doubt, on). */
 export function inboxMarkSaysOn(text: string): boolean {

@@ -29,7 +29,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { buildEmbedDocument, EMBED_SANDBOX, embedFragment, embedThemeMessage, readEmbedMessage, type EmbedTheme } from '@plannotator/core/html-embed';
+import { buildEmbedDocument, EMBED_SANDBOX, embedFragment, embedThemeMessage, readEmbedMessage, type EmbedTheme } from '@reviewtrail/core/html-embed';
 import type { Annotation } from '../../types';
 import { HtmlViewer, type HtmlViewerFrame } from '../html-viewer/HtmlViewer';
 import type { ViewerHandle } from '../Viewer';

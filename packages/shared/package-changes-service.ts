@@ -6,7 +6,7 @@
  * The server works out everything a card shows and everything a lookup
  * sends. The page names a card by path; it never supplies package names.
  * The lookup answers 403 unless the reviewer turned it on (config.json
- * `packageChanges.lookup`, PLANNOTATOR_PACKAGE_LOOKUP=0 wins), and sends only
+ * `packageChanges.lookup`, REVIEWTRAIL_PACKAGE_LOOKUP=0 wins), and sends only
  * the names `analysis` listed for that card under `lookup.names`. The page's
  * consent button counts `lookup.total`: every name any card would send.
  *
@@ -19,7 +19,7 @@
  */
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join, parse as parsePath } from "node:path";
-import type { DiffFileStatus } from "@plannotator/core/diff-files";
+import type { DiffFileStatus } from "@reviewtrail/core/diff-files";
 import {
   analyzePackageChanges,
   packageChangeReads,
@@ -27,7 +27,7 @@ import {
   type PackageChangeCard,
   type PackageFileSide,
   type PackageSourceFile,
-} from "@plannotator/core/package-changes";
+} from "@reviewtrail/core/package-changes";
 import { parsePackageLookupEnv } from "./config";
 import {
   isSendable,

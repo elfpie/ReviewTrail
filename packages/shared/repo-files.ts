@@ -22,7 +22,7 @@ import {
   type RepoRevisionInfo,
   type ReviewGitRuntime,
 } from "./review-core";
-import { parseDiffToFiles } from "@plannotator/core/diff-files";
+import { parseDiffToFiles } from "@reviewtrail/core/diff-files";
 import { fuzzySearchPaths, type FuzzyPathMatch } from "./fuzzy-path";
 
 export type { RepoFileListing, RepoRevisionInfo } from "./review-core";

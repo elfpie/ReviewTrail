@@ -152,7 +152,7 @@ export async function answerSemDiffRequest(
         body = await encode(file, encoding);
         headers["Content-Encoding"] = encoding;
       } catch (err) {
-        console.error("[plannotator] Semantic diff asset compression failed; serving uncompressed:", err);
+        console.error("[reviewtrail] Semantic diff asset compression failed; serving uncompressed:", err);
       }
     }
   }

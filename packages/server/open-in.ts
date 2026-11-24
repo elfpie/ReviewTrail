@@ -11,13 +11,13 @@
  * waits a short grace for instant failures. See runArgv.
  *
  * The app catalog is the single source of truth at
- * `@plannotator/shared/open-in-apps`. `kind` drives launch semantics:
+ * `@reviewtrail/shared/open-in-apps`. `kind` drives launch semantics:
  *   - file-manager (reveal)  -> reveal the file in the OS file manager
  *   - editor                 -> open the file itself
  *   - terminal               -> open the file's parent directory
  */
 
-import { childEnv, childPath } from "@plannotator/shared/child-env";
+import { childEnv, childPath } from "@reviewtrail/shared/child-env";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import {
@@ -31,11 +31,11 @@ import {
   type OpenInApp,
   type OpenInKind,
   type OpenInPlatform,
-} from "@plannotator/shared/open-in-apps";
-import { resolveOpenInTarget } from "@plannotator/shared/html-assets-node";
-import { locateOpenInApp } from "@plannotator/shared/open-in-locate";
-import { isSameOriginOrNoOrigin } from "@plannotator/shared/request-origin";
-import { checkServerSession, serverSessionMismatchBody } from "@plannotator/shared/server-session";
+} from "@reviewtrail/shared/open-in-apps";
+import { resolveOpenInTarget } from "@reviewtrail/shared/html-assets-node";
+import { locateOpenInApp } from "@reviewtrail/shared/open-in-locate";
+import { isSameOriginOrNoOrigin } from "@reviewtrail/shared/request-origin";
+import { checkServerSession, serverSessionMismatchBody } from "@reviewtrail/shared/server-session";
 import { isRemoteSession } from "./remote";
 
 export type OpenInLaunchResult = { ok: true } | { ok: false; error: string };
@@ -394,7 +394,7 @@ export interface HandleOpenInOptions {
    * Server-supplied resolution root, used INSTEAD of the client-provided
    * `base`. The review server passes `resolveAgentCwd()` here so repo-relative
    * `git diff` paths resolve against the VCS root rather than the launch cwd
-   * (which differs when `plannotator review` runs from a subdirectory).
+   * (which differs when `reviewtrail` runs from a subdirectory).
    * When omitted, the handler falls back to the client `base`. May return
    * several roots (annotate passes the session's reference roots).
    */

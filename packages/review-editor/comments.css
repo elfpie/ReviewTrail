@@ -1,7 +1,7 @@
 /* The review app's comment surfaces: inline comment cards, the line
    selection, the annotation toolbar, Conventional Comments labels, suggested
    code and suggestion blocks. Imported by this package's index.css and by the
-   Plannotator Inbox window (apps/inbox/index.css), whose guide reader takes
+   ReviewTrail Inbox window (apps/inbox/index.css), whose guide reader takes
    line comments on a guided review's diffs with the same components. */
 
 /* Review comment thread styling */

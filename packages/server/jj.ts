@@ -1,4 +1,4 @@
-import { childEnv } from "@plannotator/shared/child-env";
+import { childEnv } from "@reviewtrail/shared/child-env";
 import { readCappedBytes } from "./git";
 import {
   type DiffResult,
@@ -7,7 +7,7 @@ import {
   type GitCommandResult,
   type GitContext,
   type GitDiffOptions,
-} from "@plannotator/shared/review-core";
+} from "@reviewtrail/shared/review-core";
 import {
   JJ_COLOR_FREE_ARGS,
   type ReviewJjRuntime,
@@ -15,7 +15,7 @@ import {
   getJjContext as getJjContextCore,
   getJjFileContentsForDiff as getJjFileContentsForDiffCore,
   runJjDiff as runJjDiffCore,
-} from "@plannotator/shared/jj-core";
+} from "@reviewtrail/shared/jj-core";
 
 export {
   JJ_TRUNK_REVSET,
@@ -26,7 +26,7 @@ export {
   parseJjRemoteBookmarkList,
   parseRemoteBookmark,
   selectDefaultJjCompareTarget,
-} from "@plannotator/shared/jj-core";
+} from "@reviewtrail/shared/jj-core";
 
 /**
  * Read stdout with a byte ceiling, killing the command the moment it is passed.

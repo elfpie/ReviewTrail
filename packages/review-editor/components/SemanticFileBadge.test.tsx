@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { SemanticDiffChange } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffChange } from '@reviewtrail/shared/semantic-diff-types';
 import { ReviewStateProvider, type ReviewState } from '../dock/ReviewStateContext';
 import type { SemanticFileState } from '../semDiff/semanticFileState';
 import { SemanticFileBadge } from './SemanticFileBadge';

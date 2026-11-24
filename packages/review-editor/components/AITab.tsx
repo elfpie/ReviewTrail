@@ -1,20 +1,20 @@
 import React, { useRef, useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { PanelEmptyState } from './PanelEmptyState';
 import type { AIChatEntry, PendingPermission } from '../hooks/useAIChat';
-import { hasPendingBusyChoice } from '@plannotator/ui/hooks/useAIChat';
+import { hasPendingBusyChoice } from '@reviewtrail/ui/hooks/useAIChat';
 import { renderChatMarkdown } from '../utils/renderChatMarkdown';
 import { formatLineRange } from '../utils/formatLineRange';
 import { formatRelativeTime } from '../utils/formatRelativeTime';
 import { FileNameChip } from './FileNameChip';
-import { CountBadge } from '@plannotator/ui/components/sidebar/CountBadge';
+import { CountBadge } from '@reviewtrail/ui/components/sidebar/CountBadge';
 import { CopyButton } from './CopyButton';
 import { PermissionCard } from './PermissionCard';
 import { AIConfigBar } from './AIConfigBar';
-import { submitHint } from '@plannotator/ui/utils/platform';
-import { OverlayScrollArea } from '@plannotator/ui/components/OverlayScrollArea';
-import { findSessionBridge, hasNonInterruptibleSession, type AIProviderOption } from '@plannotator/ui/utils/aiProvider';
-import { NewChatButton } from '@plannotator/ui/components/ai/NewChatButton';
-import { SessionAskActions, SessionAskNote, SessionAskStatus, sessionAskErrorTone, type SessionAskAction } from '@plannotator/ui/components/ai/SessionAskNotice';
+import { submitHint } from '@reviewtrail/ui/utils/platform';
+import { OverlayScrollArea } from '@reviewtrail/ui/components/OverlayScrollArea';
+import { findSessionBridge, hasNonInterruptibleSession, type AIProviderOption } from '@reviewtrail/ui/utils/aiProvider';
+import { NewChatButton } from '@reviewtrail/ui/components/ai/NewChatButton';
+import { SessionAskActions, SessionAskNote, SessionAskStatus, sessionAskErrorTone, type SessionAskAction } from '@reviewtrail/ui/components/ai/SessionAskNotice';
 
 interface AITabProps {
   messages: AIChatEntry[];

@@ -1,7 +1,7 @@
 import type { SecondOpinionReport, SemanticDiffFold, SemanticDiffOperation } from '@plannotator/sem-jiff';
 import { languageForPath } from '@plannotator/sem-jiff/languages';
 import { reviewSummary, SKIM_KINDS, type ReviewSummary } from '@plannotator/sem-jiff/summary';
-import type { SemDiffAdvert } from '@plannotator/shared/sem-diff-assets';
+import type { SemDiffAdvert } from '@reviewtrail/shared/sem-diff-assets';
 import { SEM_DIFF_GRAMMARS } from '@plannotator/sem-jiff/grammars';
 import type { SemDiffDownload, SemDiffReply, SemDiffRequest } from './protocol';
 

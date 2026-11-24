@@ -36,7 +36,7 @@ export async function postGlFileThreads(
     const position = { position_type: "file", base_sha: refs.base_sha, start_sha: refs.start_sha, head_sha: headSha, new_path: comment.path, old_path: comment.path };
     const result = await run("glab", api(`${mrEndpoint}/discussions`, POST_JSON), JSON.stringify({ body: comment.body, position })).catch(() => null);
     if (result?.exitCode === 0) continue;
-    console.error(`[plannotator] file comment on ${comment.path} could not be posted as a file thread on GitLab; posting it in the review body`);
+    console.error(`[reviewtrail] file comment on ${comment.path} could not be posted as a file thread on GitLab; posting it in the review body`);
     folded.push(comment);
   }
   return { posted: comments.length - folded.length, folded };

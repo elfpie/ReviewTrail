@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AIContext } from '@plannotator/core';
+import type { AIContext } from '@reviewtrail/core';
 import type { AIQuestion, AIResponse } from '../types';
 import { generateId } from '../utils/generateId';
 import { SESSION_ASK_ERROR_CODES } from '../utils/aiProvider';
@@ -186,7 +186,7 @@ function createAbortError(message: string): Error {
 }
 
 /**
- * Transport for the AI chat wire. Each method maps to one Plannotator
+ * Transport for the AI chat wire. Each method maps to one ReviewTrail
  * `/api/ai/*` endpoint. The default reproduces today's fetches verbatim;
  * a host (e.g. Workspaces) calls `setAITransport` once at startup to route
  * AI traffic through its own backend. The SSE reader loop, epoch guards, and
@@ -205,7 +205,7 @@ export interface AITransport {
   permission(body: unknown): void;
 }
 
-/** Default transport — Plannotator's local `/api/ai/*` fetches, verbatim. */
+/** Default transport — ReviewTrail's local `/api/ai/*` fetches, verbatim. */
 const defaultAITransport: AITransport = {
   session: (body, signal) =>
     fetch('/api/ai/session', {
@@ -236,7 +236,7 @@ const defaultAITransport: AITransport = {
   },
 };
 
-// Module-level transport, stable identity. Defaults to Plannotator's behavior so
+// Module-level transport, stable identity. Defaults to ReviewTrail's behavior so
 // the hook and its callers are unchanged. A host overrides it once at startup.
 let aiTransport: AITransport = defaultAITransport;
 
@@ -245,7 +245,7 @@ export const setAITransport = (transport: AITransport): void => {
   aiTransport = transport;
 };
 
-/** Reset to the default (Plannotator local `/api/ai/*`) transport. Mainly for tests. */
+/** Reset to the default (ReviewTrail local `/api/ai/*`) transport. Mainly for tests. */
 export const resetAITransport = (): void => {
   aiTransport = defaultAITransport;
 };
@@ -354,7 +354,7 @@ export function useAIChat({
   const paramsByQuestionRef = useRef(new Map<string, AskAIParams>());
   // The draft list the agent session last RECEIVED, so an unchanged list is
   // not pasted into it again on every question. Kept for the page, not per
-  // Plannotator AI session: every Ask AI session (a new thread, a document
+  // ReviewTrail AI session: every Ask AI session (a new thread, a document
   // switch in a folder or bundle) reaches the SAME host agent session through
   // the bridge, which keeps what it already read. Per AI session, a new thread
   // re-sent the whole list, and drafts cleared after one never reached the
@@ -679,7 +679,7 @@ export function useAIChat({
     setError(null);
   }, [postServerAbort, threadTitle]);
 
-  // The panel's "New chat": clears the thread and forgets the Plannotator AI
+  // The panel's "New chat": clears the thread and forgets the ReviewTrail AI
   // session, so the next question starts a fresh one (a separate AI then gets
   // the full context again). Unlike `resetThread` (a document switch), it never
   // stops anything: while a question is in flight (streaming, creating its

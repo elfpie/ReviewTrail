@@ -1,12 +1,12 @@
-import { AGENT_CONFIG, type Origin } from "@plannotator/shared/agents";
+import { AGENT_CONFIG, type Origin } from "@reviewtrail/shared/agents";
 
 
 /**
  * Detect the calling agent from environment variables set by agent runtimes.
  * Priority:
- *   PLANNOTATOR_ORIGIN (explicit override, validated against AGENT_CONFIG)
- *   > Amp plugin wrappers (PLANNOTATOR_ORIGIN=amp)
- *   > Droid command wrappers (PLANNOTATOR_ORIGIN=droid)
+ *   REVIEWTRAIL_ORIGIN (explicit override, validated against AGENT_CONFIG)
+ *   > Amp plugin wrappers (REVIEWTRAIL_ORIGIN=amp)
+ *   > Droid command wrappers (REVIEWTRAIL_ORIGIN=droid)
  *   > Codex (CODEX_THREAD_ID)
  *   > Copilot CLI (COPILOT_CLI)
  *   > OpenCode (OPENCODE)
@@ -14,7 +14,7 @@ import { AGENT_CONFIG, type Origin } from "@plannotator/shared/agents";
  *   > Qwen Code (QWEN_CODE_SESSION_ID, which Qwen sets for its hooks and its
  *     shell tool; QWEN_CODE=1 is set for the shell tool only). The plan hook
  *     also knows Qwen from its payload (PermissionRequest + exit_plan_mode),
- *     and the extension's hook entry sets PLANNOTATOR_ORIGIN=qwen-code.
+ *     and the extension's hook entry sets REVIEWTRAIL_ORIGIN=qwen-code.
  *     Known limit: Qwen exports QWEN_CODE_SESSION_ID to every child, so a
  *     Claude Code started from a Qwen shell reads as Qwen here (and Qwen
  *     started from a Claude shell carries CLAUDECODE, so env alone cannot
@@ -37,14 +37,14 @@ import { AGENT_CONFIG, type Origin } from "@plannotator/shared/agents";
  *
  *   > Mistral Vibe — detected from the pre_tool hook payload (hook_event_name
  *     "pre_tool" + tool_name "exit_plan_mode" is unambiguous vs Claude/Gemini),
- *     so the installer's hook command needs no env prefix. PLANNOTATOR_ORIGIN=
+ *     so the installer's hook command needs no env prefix. REVIEWTRAIL_ORIGIN=
  *     mistral-vibe remains the manual override above.
  *
  * To add a new agent, also add an entry to AGENT_CONFIG in
  * packages/core/agents.ts (see header comment there).
  */
 export function detectOrigin(env: Record<string, string | undefined>): Origin {
-  const originOverride = env.PLANNOTATOR_ORIGIN as Origin | undefined;
+  const originOverride = env.REVIEWTRAIL_ORIGIN as Origin | undefined;
   return (originOverride && originOverride in AGENT_CONFIG) ? originOverride :
     env.CODEX_THREAD_ID ? "codex" :
     env.COPILOT_CLI ? "copilot-cli" :
@@ -68,9 +68,9 @@ export function detectOrigin(env: Record<string, string | undefined>): Origin {
 const NON_DSH_AGENT_MARKERS = ["CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT", "PI_SESSION_ID", "CURSOR_AGENT"] as const;
 
 function hasNonDshAgentMarker(env: Record<string, string | undefined>): boolean {
-  // PLANNOTATOR_SESSION_TAG: the Claude Code mod tags every process of its
+  // REVIEWTRAIL_SESSION_TAG: the Claude Code mod tags every process of its
   // session (`claude-code:<id>`), its detached CLI included. Counted only when
   // it is a well-formed tag, by the rule the Inbox shim uses.
-  if (env.PLANNOTATOR_SESSION_TAG) return true;
+  if (env.REVIEWTRAIL_SESSION_TAG) return true;
   return NON_DSH_AGENT_MARKERS.some((key) => !!env[key]);
 }

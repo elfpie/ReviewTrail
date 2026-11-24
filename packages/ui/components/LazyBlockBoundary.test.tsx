@@ -28,7 +28,7 @@ const mermaidBlock: Block = { id: 'm1', type: 'code', language: 'mermaid', conte
 
 type HappyWindow = { happyDOM: { setURL: (url: string) => void } };
 let previousUrl = '';
-// A page served from a local port, as Plannotator's are: about:blank has no origin to compare against.
+// A page served from a local port, as ReviewTrail's are: about:blank has no origin to compare against.
 beforeAll(() => {
   if (!hasDom) return;
   previousUrl = window.location.href;

@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Square } from 'lucide-react';
 import type { AgentJobInfo, AgentCapabilities } from '../types';
-import { isTerminalStatus } from '@plannotator/core/agent-jobs';
-import { GUIDE_ENGINE_LABEL } from '@plannotator/core/guide';
-import { CLAUDE_FALLBACK_MODELS, CODEX_FALLBACK_MODELS, modelLabel } from '@plannotator/core/model-catalog';
+import { isTerminalStatus } from '@reviewtrail/core/agent-jobs';
+import { GUIDE_ENGINE_LABEL } from '@reviewtrail/core/guide';
+import { CLAUDE_FALLBACK_MODELS, CODEX_FALLBACK_MODELS, modelLabel } from '@reviewtrail/core/model-catalog';
 import type { ReviewEngine } from '../hooks/useAgentSettings';
 import type { AgentLaunchParams } from '../hooks/useAgentJobs';
 import { useLaunchConfig, PI_THINKING } from '../hooks/useLaunchConfig';

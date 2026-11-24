@@ -1,8 +1,8 @@
 import React from 'react';
 import { CircleCheck, CircleSlash, CircleX, Loader2, PanelRight, RotateCcw, X } from 'lucide-react';
 import type { AgentJobInfo } from '../../types';
-import { isTerminalStatus } from '@plannotator/core/agent-jobs';
-import { GUIDE_ENGINE_LABEL } from '@plannotator/core/guide';
+import { isTerminalStatus } from '@reviewtrail/core/agent-jobs';
+import { GUIDE_ENGINE_LABEL } from '@reviewtrail/core/guide';
 import { cn } from '../../lib/utils';
 import { findingCountsLine, type FindingLike } from './jobFindings';
 

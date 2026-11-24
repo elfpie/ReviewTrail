@@ -14,7 +14,7 @@
 
 /**
  * A name under `.localhost` with at least one non-empty label in front
- * (`plannotator.localhost`, `a.b.localhost`), the shape browsers resolve to
+ * (`reviewtrail.localhost`, `a.b.localhost`), the shape browsers resolve to
  * loopback themselves (RFC 6761). Not `localhost` itself, not `.localhost`,
  * not `a..localhost`. Used for a dedicated cookie hostname (#2184).
  */
@@ -70,7 +70,7 @@ export function isLoopbackForwardedFor(headerValue: string | null | undefined): 
  * A missing port, another port, or any other name is refused.
  *
  * `localName` is the localhost subdomain the session was advertised at
- * (`urlHost: "plannotator.localhost"`, #2184): that one name is accepted
+ * (`urlHost: "reviewtrail.localhost"`, #2184): that one name is accepted
  * too. No other subdomain is, and without it the check is the plain
  * loopback one.
  */

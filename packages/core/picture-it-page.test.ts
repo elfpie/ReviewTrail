@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { isPictureItPage, pictureItPageTitle } from "./picture-it-page";
 
-const META = '<meta name="plannotator-page" content="picture-it">';
+const META = '<meta name="reviewtrail-page" content="picture-it">';
 
 test("a meta inside an HTML comment marks nothing, and a comment never hides a real one or names the page", () => {
   expect(isPictureItPage(`<html><head><!-- ${META} --><title>Notes</title></head><body></body></html>`)).toBe(false);
@@ -13,7 +13,7 @@ test("a meta inside an HTML comment marks nothing, and a comment never hides a r
 test("only a real head meta marks the page, and only the head's title names it", () => {
   expect(isPictureItPage(`<head><script>const s = '${META}';</script></head><body></body>`)).toBe(false);
   expect(isPictureItPage(`<head><template>${META}</template></head><body></body>`)).toBe(false);
-  expect(isPictureItPage(`<head><meta data-name="plannotator-page" data-content="picture-it"></head><body></body>`)).toBe(false);
+  expect(isPictureItPage(`<head><meta data-name="reviewtrail-page" data-content="picture-it"></head><body></body>`)).toBe(false);
   expect(isPictureItPage(`<head><script>if (a <!--b) c("<body")</script>${META}</head><body></body>`)).toBe(true);
   expect(pictureItPageTitle(`<head>${META}</head><body><svg><title>Arrow tip</title></svg></body>`)).toBe("");
 });

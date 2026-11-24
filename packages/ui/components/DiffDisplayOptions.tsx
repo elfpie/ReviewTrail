@@ -1,7 +1,7 @@
 /**
  * The "Diff display" popover behind a gear (approval "diff-controls-headers":
  * "The popover looks good"): how every diff is drawn, from the settings code
- * review keeps (`diff*` in the config store: a `plannotator-diff-*` cookie
+ * review keeps (`diff*` in the config store: a `reviewtrail-diff-*` cookie
  * and config.json `diffOptions`), so a choice made in one surface holds in
  * the others. Split / Unified is not here: the header's one button
  * (DiffLayoutToggle) sets it.

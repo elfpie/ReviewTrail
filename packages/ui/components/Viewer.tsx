@@ -16,8 +16,8 @@ import { BlockRenderer } from './BlockRenderer';
 import { FootnoteList, FootnoteProvider, useFootnotes } from './footnotes/Footnotes';
 import { sourceLineAttrs } from '../utils/sourceLineAttrs';
 import { BELOW_TITLE_SLOT_MARKER } from '../utils/belowTitleSlot';
-import { indexQuestionBlocks, isQuestionDirectiveKind, type IndexedQuestion, type ParsedQuestion, type QuestionAnswer } from '@plannotator/core/question-block';
-import { diagramTargetText, type DiagramAnchor } from '@plannotator/core/diagram-anchor';
+import { indexQuestionBlocks, isQuestionDirectiveKind, type IndexedQuestion, type ParsedQuestion, type QuestionAnswer } from '@reviewtrail/core/question-block';
+import { diagramTargetText, type DiagramAnchor } from '@reviewtrail/core/diagram-anchor';
 import type { QuestionAcceptBehavior, QuestionBlockProps } from './blocks/QuestionBlock';
 import { resolveQuestionAnswers } from '../utils/questionAnswers';
 import { CodeBlock } from './blocks/CodeBlock';
@@ -176,7 +176,7 @@ export interface ViewerProps {
   inputMethod?: InputMethod;
   /**
    * Click a word (Select input method): one click on a word highlights it.
-   * Absent: `configurePlannotatorUI({ clickAWord })`, default on. This prop
+   * Absent: `configureReviewTrailUI({ clickAWord })`, default on. This prop
    * wins over that.
    */
   clickAWord?: boolean;
@@ -252,7 +252,7 @@ export interface ViewerProps {
    *  resolve against the doc's own directory rather than only cwd. */
   codePathBaseDir?: string;
   /** Opt out of `/api/doc/exists` code-path validation (host without that
-   *  endpoint). Default undefined for Plannotator => validation stays on. */
+   *  endpoint). Default undefined for ReviewTrail => validation stays on. */
   disableCodePathValidation?: boolean;
   linkedDocInfo?: LinkedDocBadgeInfo | null;
   // Plan diff props
@@ -302,7 +302,7 @@ export interface ViewerProps {
    *  `indexQuestionBlocks` / `findQuestionBlocks`. When given, the cards read
    *  their answers from here and never from `annotations`; entries that fail
    *  `parseQuestionAnswer` are ignored. Absent: answers come from the
-   *  annotations carrying `questionAnswer` (Plannotator's own path). */
+   *  annotations carrying `questionAnswer` (ReviewTrail's own path). */
   questionAnswers?: ReadonlyMap<string, QuestionAnswer> | Readonly<Record<string, QuestionAnswer>>;
   /** Explicit save mode for question cards: edits stay a draft in the card,
    *  which shows Save answer and Cancel (and no Skip); Save calls this with
@@ -334,7 +334,7 @@ export interface ViewerProps {
    *  line, when `questionDecisionRecording` returns a boolean for it. */
   questionDecisionScope?: 'when-answered' | 'any';
   /** Whether `:::question` cards read `Decision:` lines (default true). False
-   *  (a host that records no decisions, such as the Plannotator Inbox): a
+   *  (a host that records no decisions, such as the ReviewTrail Inbox): a
    *  `Decision:` line is shown as context and no question carries a decision
    *  tag or row from it. The prompt, key and numbering are unchanged. */
   questionDecisionLines?: boolean;
@@ -342,7 +342,7 @@ export interface ViewerProps {
    *  `Shows:`, `Why:`, `Reversible:`) into the card's Stakes line, Shows
    *  chip, Why line and "Can't be undone" tag. Default false: the lines show
    *  as context (plain text), as plan review and annotate draw them. The
-   *  Plannotator Inbox passes true. The prompt, key, choices and numbering
+   *  ReviewTrail Inbox passes true. The prompt, key, choices and numbering
    *  are the same either way. */
   questionContractLines?: boolean;
   /** Whether `:::question` cards read option lines (core
@@ -351,7 +351,7 @@ export interface ViewerProps {
    *  `Prototype:` line. A card whose choices have Pros or Cons then draws a
    *  closed "Trade-offs" line under Why that opens into a table (see
    *  `QuestionBlock`). Default false: each line shows as text, as before
-   *  (today's card). The Plannotator Inbox passes true. */
+   *  (today's card). The ReviewTrail Inbox passes true. */
   questionOptionLines?: boolean;
   /** Whether `:::question` cards read change lines (core
    *  `ParseQuestionBlockOptions.changeLines`): `Where:`, `Before:`, `After:`
@@ -359,9 +359,9 @@ export interface ViewerProps {
    *  `- [ ]` choice. The card then draws the Where with a pin, each place's
    *  Now / After, and each choice's own version (see `QuestionChange`).
    *  Default false: each line shows as text, as before (today's card). The
-   *  Plannotator Inbox passes true. */
+   *  ReviewTrail Inbox passes true. */
   questionChangeLines?: boolean;
-  /** Host content right after a question's choices (the Plannotator Inbox's
+  /** Host content right after a question's choices (the ReviewTrail Inbox's
    *  "Try prototype" tab; see `QuestionBlock` `renderAfterChoices`). Absent:
    *  today's card. */
   renderQuestionAfterChoices?: (question: IndexedQuestion) => React.ReactNode;
@@ -411,11 +411,11 @@ export interface ViewerProps {
    *  Default `'card'`. */
   questionStatusTag?: 'card' | 'none';
   /** The host's own words for a question's status tag (ui seam, see
-   *  `QuestionBlock` `statusLabel`): the Plannotator Inbox says "Not sent" for
+   *  `QuestionBlock` `statusLabel`): the ReviewTrail Inbox says "Not sent" for
    *  a saved, unsent pick. Absent: the card's own tags. */
   questionStatusLabel?: QuestionBlockProps['statusLabel'];
   /** A host's own card in place of a question's (ui seam for a question the
-   *  host no longer lets anyone answer, such as the Plannotator Inbox's
+   *  host no longer lets anyone answer, such as the ReviewTrail Inbox's
    *  replaced questions). Called per question; a returned node is drawn
    *  instead of the answer card, inside a wrapper carrying the block's
    *  `data-block-id`; `undefined` keeps the answer card. Absent: every
@@ -425,7 +425,7 @@ export interface ViewerProps {
    *  "Replaces <an earlier question>"); null for none. Absent: nothing there. */
   renderQuestionBelowPrompt?: (question: IndexedQuestion) => React.ReactNode;
   /** A host's own drawing of a directive block that is not a question (ui
-   *  seam for a host's own directives, such as the Plannotator Inbox's
+   *  seam for a host's own directives, such as the ReviewTrail Inbox's
    *  `:::action` action item card). Called per `:::kind` block; a returned node is
    *  drawn in place of the block's callout, inside a wrapper carrying the
    *  block's `data-block-id`; `undefined` keeps the callout. Absent: every
@@ -453,7 +453,7 @@ export interface ViewerProps {
   answerOnly?: boolean;
   /**
    * Opt-in host capability (approval "inbox-inline-html"): a host that serves
-   * embed documents (see `HtmlEmbedHost`, @plannotator/core/html-embed) draws
+   * embed documents (see `HtmlEmbedHost`, @reviewtrail/core/html-embed) draws
    * a ```html fence as a live, sandboxed page and a ```svg fence as an
    * image, each with a Code button for the source. Absent → both stay code,
    * unchanged (plan review, annotate and code review pass nothing).
@@ -469,7 +469,7 @@ export interface ViewerProps {
    * (their text is not commented on), and nothing else of authoring comes
    * back (no pinpoint, code-block toolbar, Global comment or Copy, no Vim).
    * For a host that shows a message whose words can be commented on (the
-   * Plannotator Inbox's agent messages). Ignored without `answerOnly` and
+   * ReviewTrail Inbox's agent messages). Ignored without `answerOnly` and
    * under `readOnly`. Absent → unchanged.
    */
   textComments?: boolean;
@@ -488,7 +488,7 @@ export interface ViewerProps {
    * choice still picks it at once; a drag across its words, or a double-click
    * on one, selects them and never picks (the card's own guard). For a host
    * whose reader comments on a whole message, questions included (the
-   * Plannotator Inbox). A host's own card (`renderQuestionCard`) stays out.
+   * ReviewTrail Inbox). A host's own card (`renderQuestionCard`) stays out.
    * Absent → unchanged (cards are left out of selection).
    */
   questionTextComments?: boolean;
@@ -1166,7 +1166,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(({
     );
   }, []);
 
-  // Visible comment drafts (opt-in, `configurePlannotatorUI({ visibleCommentDrafts })`): a selection's comment closed
+  // Visible comment drafts (opt-in, `configureReviewTrailUI({ visibleCommentDrafts })`): a selection's comment closed
   // with words keeps its highlight and a "Draft" badge (CommentDraftBadges). The draft's key is the popover's below;
   // the shelf (utils/commentDraftShelf) keeps what each is on, per document, so they come back on the next mount.
   const [visibleDrafts] = useState(getVisibleCommentDrafts);
@@ -1438,7 +1438,7 @@ export const Viewer = forwardRef<ViewerHandle, ViewerProps>(({
   });
   clearPinpointHoverRef.current = clearPinpointHover;
   // Click a word, part of Select: one click on a word highlights it; a drag is the browser's own
-  // selection, as always. Off with the `clickAWord` prop, else `configurePlannotatorUI({ clickAWord })`.
+  // selection, as always. Off with the `clickAWord` prop, else `configureReviewTrailUI({ clickAWord })`.
   // Redline makes nothing of a click: a stray click must not delete a word. Pinpoint owns its
   // clicks; off under read-only, a plan diff and vim focus.
   const [clickAWordDefault] = useState(getClickAWord);

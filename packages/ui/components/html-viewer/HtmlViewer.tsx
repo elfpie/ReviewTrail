@@ -1,4 +1,4 @@
-import { SERVED_FRAME_GONE } from "@plannotator/core/html-embed";
+import { SERVED_FRAME_GONE } from "@reviewtrail/core/html-embed";
 import {
   forwardRef,
   useCallback,
@@ -75,7 +75,7 @@ import {
 } from "./srcdoc";
 import { newLinkKey, withLinkKey } from "./linkGuard";
 
-const PREFIX = "plannotator-bridge-";
+const PREFIX = "reviewtrail-bridge-";
 
 function readThemeTokens(): Record<string, string> {
   const style = getComputedStyle(document.documentElement);
@@ -204,7 +204,7 @@ export function formatBridgeUnavailableMessage(info: BridgeUnavailableInfo): str
     return `Annotation tools did not load: the bridge script at ${info.url} sent no ready signal within ${info.timeoutMs} ms. The page is shown without annotation. Check that the URL is reachable and that your Content Security Policy allows script-src for that origin.`;
   }
   const reported = info.reportedVersion === undefined ? "no version" : `version ${info.reportedVersion}`;
-  return `Annotation tools may not work: this viewer expects bridge protocol version ${info.expectedVersion}, but the script at ${info.url} reported ${reported}. Serve the bridge-script asset from the same @plannotator/ui version as the viewer.`;
+  return `Annotation tools may not work: this viewer expects bridge protocol version ${info.expectedVersion}, but the script at ${info.url} reported ${reported}. Serve the bridge-script asset from the same @reviewtrail/ui version as the viewer.`;
 }
 
 function parseVimBridgeCopy(value: unknown): string | null {
@@ -412,7 +412,7 @@ export interface HtmlViewerProps {
    * classic `<script src>` from this URL (the package's generated
    * `components/html-viewer/bridge-script.asset.js`, served by the host)
    * instead of inlining the 185 KB script into every document. Absent (the
-   * default, and Plannotator's only path): inline, unchanged. The tag lands
+   * default, and ReviewTrail's only path): inline, unchanged. The tag lands
    * where the inline script does, at the end of `<head>`, before the body.
    * The URL is resolved against THIS document's base (`document.baseURI`)
    * before it is written, never against the framed page, so a page's own
@@ -528,7 +528,7 @@ export interface HtmlViewerProps {
   /**
    * Opt-out: `false` draws the page's comment boxes (a pin, a selection, the
    * global comment) with no image button, for a host whose upload refuses
-   * every image (the Plannotator Inbox). Absent → `true`, the image button as
+   * every image (the ReviewTrail Inbox). Absent → `true`, the image button as
    * always.
    */
   allowCommentImages?: boolean;
@@ -542,14 +542,14 @@ export interface HtmlViewerProps {
    * frame keeps the same `sandbox`, so it is still an opaque origin and the
    * bridge speaks as before. Called again whenever the document changes, and
    * once more when the served page says it is gone
-   * (`{ type: "plannotator-frame-gone" }`, a host restart). Null or a failure:
+   * (`{ type: "reviewtrail-frame-gone" }`, a host restart). Null or a failure:
    * the frame stays empty; never a srcdoc fallback, which would load under
    * the host's policy. Ignored in live (`src`) mode. Absent → srcdoc, unchanged.
    */
   frameUrl?: (document: string) => Promise<string | null>;
   /**
    * Opt-in: the page sits in the host's own text, as tall as the host says,
-   * with none of the viewer's own chrome around it (the Plannotator Inbox: a
+   * with none of the viewer's own chrome around it (the ReviewTrail Inbox: a
    * live `html` block of a message, commented in place). With it:
    * - no card (background, rounded corners, shadow), no bar above the frame
    *   (the global Comment button, attachments, the diff toggle) and no ring
@@ -582,7 +582,7 @@ export interface HtmlViewerProps {
   /**
    * Opt-in, and a promise the host makes: the document shown is, byte for
    * byte, the one every annotation in `annotations` was made on (the
-   * Plannotator Inbox checks a live `html` block's source hash before it
+   * ReviewTrail Inbox checks a live `html` block's source hash before it
    * hands a comment over). Then an element with no text and no stable id (an
    * SVG chart's bar) is anchored by its place in the document, a child-index
    * path from the root element, together with its signature (tag, namespace,
@@ -597,7 +597,7 @@ export interface HtmlViewerProps {
 }
 
 /** `inline`: the pinned element's box, drawn as a ring 2 px off the element instead of a border on its edge. */
-const INLINE_PIN_BOX_CSS = `<style>html [data-plannotator-pinpoint-box][data-pinned]{border-color:transparent;background:transparent;outline:2px solid var(--pn-accent,#d97757);outline-offset:2px}</style>`;
+const INLINE_PIN_BOX_CSS = `<style>html [data-reviewtrail-pinpoint-box][data-pinned]{border-color:transparent;background:transparent;outline:2px solid var(--pn-accent,#d97757);outline-offset:2px}</style>`;
 
 /** What a host may have open over its text (`inline`'s Escape steps aside for it): a dialog, modal or not, a sheet, a
  *  menu, a list of choices, an open popover. */
@@ -833,7 +833,7 @@ export const HtmlViewer = forwardRef<ViewerHandle, HtmlViewerProps>(
     // In the host's own text (`inline`), never with `fullViewport` or in live mode.
     const inlineMode = !fullViewport && !liveMode && !!inline;
 
-    // Host theming is opt-in per document (Plannotator-generated artifacts tag
+    // Host theming is opt-in per document (ReviewTrail-generated artifacts tag
     // themselves); arbitrary HTML renders untouched, like a standalone tab.
     const hostTheme = useMemo(() => !liveMode && hasHostThemeOptIn(rawHtml), [liveMode, rawHtml]);
 
@@ -1615,7 +1615,7 @@ export const HtmlViewer = forwardRef<ViewerHandle, HtmlViewerProps>(
         if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
         const target = e.target as HTMLElement | null;
         if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-        if (document.querySelector('[data-plannotator-confirm-dialog="true"]')) return;
+        if (document.querySelector('[data-reviewtrail-confirm-dialog="true"]')) return;
         e.preventDefault();
         handleCommentCloseRef.current();
       };
@@ -1638,7 +1638,7 @@ export const HtmlViewer = forwardRef<ViewerHandle, HtmlViewerProps>(
         // A text field or dialog owns its own Escape.
         const target = e.target as HTMLElement | null;
         if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-        if (document.querySelector('[data-plannotator-confirm-dialog="true"]')) return;
+        if (document.querySelector('[data-reviewtrail-confirm-dialog="true"]')) return;
         if (inlineMode) {
           // In the host's text: something of the host's that is open anywhere in the window (a menu, a list, a
           // dialog, a sheet, a popover) closes first, wherever the focus is.

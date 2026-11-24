@@ -2,15 +2,15 @@
  * Remote session detection and port configuration
  *
  * Environment variables:
- *   PLANNOTATOR_REMOTE - Set to "1"/"true" to force remote, "0"/"false" to force local
- *   PLANNOTATOR_PORT   - Fixed port or inclusive range (default: random locally, 19432 for remote)
+ *   REVIEWTRAIL_REMOTE - Set to "1"/"true" to force remote, "0"/"false" to force local
+ *   REVIEWTRAIL_PORT   - Fixed port or inclusive range (default: random locally, 19432 for remote)
  *
  * Legacy (still supported): SSH_TTY, SSH_CONNECTION
  */
 
-import { parsePortSelection } from "@plannotator/shared/port-range";
-import { loadConfig, resolveLocalUrlHostname } from "@plannotator/shared/config";
-import { resolveAdvertisedSessionUrl } from "@plannotator/shared/advertised-url";
+import { parsePortSelection } from "@reviewtrail/shared/port-range";
+import { loadConfig, resolveLocalUrlHostname } from "@reviewtrail/shared/config";
+import { resolveAdvertisedSessionUrl } from "@reviewtrail/shared/advertised-url";
 
 const DEFAULT_REMOTE_PORT = 19432;
 const LOOPBACK_HOST = "127.0.0.1";
@@ -34,9 +34,9 @@ export class PortInUseError extends Error {
   constructor(
     message: string,
     readonly port: number,
-    /** The configured range, when PLANNOTATOR_PORT names one. */
+    /** The configured range, when REVIEWTRAIL_PORT names one. */
     readonly range: readonly [number, number] | null,
-    /** True when the port came from PLANNOTATOR_PORT, false for the remote-mode default. */
+    /** True when the port came from REVIEWTRAIL_PORT, false for the remote-mode default. */
     readonly fromEnv: boolean,
   ) {
     super(message);
@@ -45,18 +45,18 @@ export class PortInUseError extends Error {
 
   get cliMessage(): string {
     if (this.range) {
-      return `Plannotator: every port in PLANNOTATOR_PORT ${this.range[0]}-${this.range[1]} is already in use, most likely by other Plannotator sessions. Finish or close one, or widen the range.`;
+      return `ReviewTrail: every port in REVIEWTRAIL_PORT ${this.range[0]}-${this.range[1]} is already in use, most likely by other ReviewTrail sessions. Finish or close one, or widen the range.`;
     }
     const what = this.fromEnv
-      ? `port ${this.port} (PLANNOTATOR_PORT)`
+      ? `port ${this.port} (REVIEWTRAIL_PORT)`
       : `port ${this.port}`;
     const why = this.fromEnv ? "" : " (remote mode uses a fixed port so it can be forwarded)";
-    return `Plannotator: ${what} is already in use, most likely by another Plannotator session${why}. Finish or close that session, or set PLANNOTATOR_PORT to a different port.`;
+    return `ReviewTrail: ${what} is already in use, most likely by another ReviewTrail session${why}. Finish or close that session, or set REVIEWTRAIL_PORT to a different port.`;
   }
 }
 
 function getRemoteOverride(): boolean | null {
-  const remote = process.env.PLANNOTATOR_REMOTE;
+  const remote = process.env.REVIEWTRAIL_REMOTE;
   if (remote === undefined) {
     return null;
   }
@@ -90,11 +90,11 @@ export function isRemoteSession(): boolean {
 }
 
 /**
- * Remote mode that only SSH turned on (`PLANNOTATOR_REMOTE` unset, `SSH_TTY`
+ * Remote mode that only SSH turned on (`REVIEWTRAIL_REMOTE` unset, `SSH_TTY`
  * or `SSH_CONNECTION` set). The server binds and advertises exactly as in any
  * remote mode, but a request that comes over loopback (the person's own SSH
  * tunnel, or a browser on that machine) is answered as in a local session:
- * `isSshTunnelRequest` in this-machine.ts. `PLANNOTATOR_REMOTE=1` keeps
+ * `isSshTunnelRequest` in this-machine.ts. `REVIEWTRAIL_REMOTE=1` keeps
  * remote mode whole (a proxy on this machine also arrives over loopback).
  */
 export function isSshDetectedRemote(): boolean {
@@ -112,14 +112,14 @@ function getServerPortConfiguration(): {
   ports: number[];
   isRange: boolean;
 } {
-  const envPort = process.env.PLANNOTATOR_PORT;
+  const envPort = process.env.REVIEWTRAIL_PORT;
   if (envPort) {
     const parsed = parsePortSelection(envPort);
     if (parsed) {
       return { ports: parsed.ports, isRange: parsed.kind === "range" };
     }
     console.error(
-      `[Plannotator] Warning: Invalid PLANNOTATOR_PORT "${envPort}", using default`
+      `[ReviewTrail] Warning: Invalid REVIEWTRAIL_PORT "${envPort}", using default`
     );
   }
 
@@ -147,7 +147,7 @@ export async function startBunServerOnAvailablePort<TServer>(
   startServer: (port: number) => TServer,
 ): Promise<TServer> {
   const { ports: configuredPorts, isRange } = getServerPortConfiguration();
-  const fromEnv = Boolean(process.env.PLANNOTATOR_PORT && parsePortSelection(process.env.PLANNOTATOR_PORT));
+  const fromEnv = Boolean(process.env.REVIEWTRAIL_PORT && parsePortSelection(process.env.REVIEWTRAIL_PORT));
   const portsToTry = isRange
     ? configuredPorts
     : Array(MAX_FIXED_PORT_RETRIES).fill(configuredPorts[0]);
@@ -169,7 +169,7 @@ export async function startBunServerOnAvailablePort<TServer>(
 
       if (!isRange) {
         const hint = isRemoteSession()
-          ? " (set PLANNOTATOR_PORT to use different port)"
+          ? " (set REVIEWTRAIL_PORT to use different port)"
           : "";
         throw new PortInUseError(
           `Port ${port} in use after ${MAX_FIXED_PORT_RETRIES} retries${hint}`,
@@ -182,7 +182,7 @@ export async function startBunServerOnAvailablePort<TServer>(
       const first = configuredPorts[0] as number;
       const last = configuredPorts.at(-1) as number;
       const hint = isRemoteSession()
-        ? " (set PLANNOTATOR_PORT to use a different port or range)"
+        ? " (set REVIEWTRAIL_PORT to use a different port or range)"
         : "";
       throw new PortInUseError(
         `Port selection ${first}-${last} exhausted${hint}`,
@@ -207,7 +207,7 @@ export function getServerHostname(): string {
 
 /**
  * The localhost subdomain sessions are advertised at (`urlHost:
- * "plannotator.localhost"`, #2184), or undefined. Servers read it once at
+ * "reviewtrail.localhost"`, #2184), or undefined. Servers read it once at
  * start and hand it to the loopback Host checks of the routes a page calls
  * (Ask this session, `/api/update`), so a page at that name is "this computer".
  */

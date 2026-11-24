@@ -82,8 +82,8 @@ describe('word marks', () => {
 
   test('lines pair by their text: unchanged neighbours stay unchanged, an added line is its own row', () => {
     const rows = diffQuestionChange(
-      '**Plannotator Inbox**\nThe person keeps an Inbox.\nUse send_message to ask.',
-      '**Plannotator Inbox**\nWhile the person is away, send decisions to the Inbox.\nThe person keeps an Inbox.\nUse send_message to ask.',
+      '**ReviewTrail Inbox**\nThe person keeps an Inbox.\nUse send_message to ask.',
+      '**ReviewTrail Inbox**\nWhile the person is away, send decisions to the Inbox.\nThe person keeps an Inbox.\nUse send_message to ask.',
     );
     expect(rows.map((r) => r.type)).toEqual(['same', 'add', 'same', 'same']);
     const list = diffQuestionChange('- One\n- Two\n- Three', '- One\n- Two, changed\n- Three');

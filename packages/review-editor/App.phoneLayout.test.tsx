@@ -5,8 +5,8 @@ import {
   resetStorageBackend,
   setStorageBackend,
   type StorageBackend,
-} from "@plannotator/ui/utils/storage";
-import { configStore } from "@plannotator/ui/config";
+} from "@reviewtrail/ui/utils/storage";
+import { configStore } from "@reviewtrail/ui/config";
 
 // Vite-only virtual module (`?worker&inline`), stubbed like App.panelView.test.tsx.
 mock.module("./workerPool", () => ({
@@ -110,14 +110,14 @@ async function waitFor(check: () => boolean, what: string): Promise<void> {
 }
 
 function seedUnrelatedAnnouncementsSeen(): void {
-  memory.set("plannotator-plan-look-choice-resolved", "true");
-  memory.set("plannotator-announce-tui-herdr-seen", "1");
-  memory.set("plannotator-announce-inbox-seen", "1");
-  memory.set("plannotator-guide-intro-seen", "2");
-  memory.set("plannotator-guide-hint-acked", "true");
-  memory.set("plannotator-edit-mode-announcement-seen", "3");
-  memory.set("plannotator-token-hover-announcement-seen", "1");
-  memory.set("plannotator-review-dest-spotlight-seen", "1");
+  memory.set("reviewtrail-plan-look-choice-resolved", "true");
+  memory.set("reviewtrail-announce-tui-herdr-seen", "1");
+  memory.set("reviewtrail-announce-inbox-seen", "1");
+  memory.set("reviewtrail-guide-intro-seen", "2");
+  memory.set("reviewtrail-guide-hint-acked", "true");
+  memory.set("reviewtrail-edit-mode-announcement-seen", "3");
+  memory.set("reviewtrail-token-hover-announcement-seen", "1");
+  memory.set("reviewtrail-review-dest-spotlight-seen", "1");
 }
 
 async function mount(): Promise<void> {

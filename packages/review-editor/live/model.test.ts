@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { InboxMessage } from '@plannotator/core/inbox-types';
+import type { InboxMessage } from '@reviewtrail/core/inbox-types';
 import { anchorOfComment, deliveryWord, openThreadIds, placeThreads, stepThread, unsentComments } from './model';
 
 const patch = ['@@ -1,6 +1,7 @@', ' export const RETRIES = 3;', ' ', ' export function charge(amount) {', '-  if (amount < 0) throw new Error("bad");', '+  if (amount < 0) throw new RangeError("amount");', '+  if (!Number.isInteger(amount)) throw new Error("cents");', '   return stripe.charge(amount);', ' }'].join('\n');

@@ -232,7 +232,7 @@ test("a saved model the CLI no longer offers gets one quiet line; the same model
 
 test("cliVersionFrom reads the version from claude --version and the codex userAgent", () => {
   expect(cliVersionFrom("2.1.282 (Claude Code)\n")).toBe("2.1.282");
-  expect(cliVersionFrom("plannotator/0.155.1 (Mac OS 26.3.0; arm64) ghostty/1.3.1 (plannotator; 0)")).toBe("0.155.1");
+  expect(cliVersionFrom("reviewtrail/0.155.1 (Mac OS 26.3.0; arm64) ghostty/1.3.1 (reviewtrail; 0)")).toBe("0.155.1");
   expect(cliVersionFrom("codex_cli_rs/0.156.0-alpha.2 (Linux)")).toBe("0.156.0-alpha.2");
   expect(cliVersionFrom("")).toBeUndefined();
   expect(cliVersionFrom(undefined)).toBeUndefined();

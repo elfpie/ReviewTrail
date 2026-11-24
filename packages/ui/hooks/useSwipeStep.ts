@@ -1,6 +1,6 @@
 /**
  * A one-finger swipe that steps between files or images on a touch screen
- * (the Plannotator Inbox's phone viewer, approval "mobile-file-stepping",
+ * (the ReviewTrail Inbox's phone viewer, approval "mobile-file-stepping",
  * and its images, approval "inbox-image-swipe"; ui's `ImageLightbox` with its
  * `swipe` prop). The thing on screen follows the finger and the neighbour
  * comes in from the edge; past a third of the width, or on a flick, it

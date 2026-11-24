@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Block } from '@plannotator/ui/types';
+import type { Block } from '@reviewtrail/ui/types';
 import { artifactContentProxyUrl } from '../dock/panels/artifactDocument';
 import { OpenInArtifactsButton } from './OpenInArtifactsButton';
 

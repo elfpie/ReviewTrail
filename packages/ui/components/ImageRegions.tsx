@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { imageRegionFileName, imageRegionSize, parseImageRegion, type ImageRegion } from '@plannotator/core/image-region';
+import { imageRegionFileName, imageRegionSize, parseImageRegion, type ImageRegion } from '@reviewtrail/core/image-region';
 import type { Annotation } from '../types';
 import type { NaturalBox, StageRect, ZoomSize, ZoomViewport } from './imageZoom';
 import { naturalBoxToStage } from './imageZoom';

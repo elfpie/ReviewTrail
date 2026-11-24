@@ -1,22 +1,22 @@
 // Eager renderer registration (side-effect imports, evaluated before every
-// other module below). These keep Plannotator's first paint and identity
-// minting byte-identical now that @plannotator/ui loads KaTeX and the username
+// other module below). These keep ReviewTrail's first paint and identity
+// minting byte-identical now that @reviewtrail/ui loads KaTeX and the username
 // dictionary lazily for hosts: math is typeset on the first commit and names
 // come from the full dictionary. Guarded by tests/entry-assets.test.ts; do not
 // drop or reorder either line.
-import '@plannotator/ui/utils/math-eager';
-import '@plannotator/ui/utils/identity-tater';
+import '@reviewtrail/ui/utils/math-eager';
+import '@reviewtrail/ui/utils/identity-tater';
 import { primeImageSizes, type ImageSizes } from './components/image-diff/imageSizes';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { type Origin, getAgentName } from '@plannotator/shared/agents';
-import { ThemeProvider, useTheme } from '@plannotator/ui/components/ThemeProvider';
-import { TooltipProvider } from '@plannotator/ui/components/Tooltip';
-import { ConfirmDialog } from '@plannotator/ui/components/ConfirmDialog';
-import { Settings } from '@plannotator/ui/components/Settings';
-import { ExitButton } from '@plannotator/ui/components/ToolbarButtons';
-import { buildDecisionSpec, type DecisionActionId, type DecisionMenuItem } from '@plannotator/ui/utils/decisionSpec';
-import { installPlainTextPaste } from '@plannotator/ui/utils/pasteInsert';
-import { DecisionControl, DecisionNoteDialog, type DecisionHandler } from '@plannotator/ui/components/DecisionControl';
+import { type Origin, getAgentName } from '@reviewtrail/shared/agents';
+import { ThemeProvider, useTheme } from '@reviewtrail/ui/components/ThemeProvider';
+import { TooltipProvider } from '@reviewtrail/ui/components/Tooltip';
+import { ConfirmDialog } from '@reviewtrail/ui/components/ConfirmDialog';
+import { Settings } from '@reviewtrail/ui/components/Settings';
+import { ExitButton } from '@reviewtrail/ui/components/ToolbarButtons';
+import { buildDecisionSpec, type DecisionActionId, type DecisionMenuItem } from '@reviewtrail/ui/utils/decisionSpec';
+import { installPlainTextPaste } from '@reviewtrail/ui/utils/pasteInsert';
+import { DecisionControl, DecisionNoteDialog, type DecisionHandler } from '@reviewtrail/ui/components/DecisionControl';
 import {
   buildReviewApprovalBody,
   compactPrimaryIdForReviewDecision,
@@ -27,12 +27,12 @@ import {
   resolvePlatformDecisionAction,
   resolveReviewDecisionAction,
 } from './reviewDecision';
-import { useCookieHostSetting } from '@plannotator/ui/hooks/useCookieHostSetting';
-import { adoptPackageChangesConfig, usePackageChangesSetting } from '@plannotator/ui/hooks/usePackageChangesSetting';
-import { storage } from '@plannotator/ui/utils/storage';
-import { RefHoverCards } from '@plannotator/ui/components/RefHoverCard';
-import { refCardRouteTransport, setRefCardTransport } from '@plannotator/ui/utils/refCard';
-import { CompletionOverlay } from '@plannotator/ui/components/CompletionOverlay';
+import { useCookieHostSetting } from '@reviewtrail/ui/hooks/useCookieHostSetting';
+import { adoptPackageChangesConfig, usePackageChangesSetting } from '@reviewtrail/ui/hooks/usePackageChangesSetting';
+import { storage } from '@reviewtrail/ui/utils/storage';
+import { RefHoverCards } from '@reviewtrail/ui/components/RefHoverCard';
+import { refCardRouteTransport, setRefCardTransport } from '@reviewtrail/ui/utils/refCard';
+import { CompletionOverlay } from '@reviewtrail/ui/components/CompletionOverlay';
 import {
   closePendingTab,
   openPendingTab,
@@ -40,29 +40,29 @@ import {
   type PendingTabWindow,
   type TabOpener,
 } from './utils/pendingExternalTab';
-import { PRPlatformIcon } from '@plannotator/ui/components/PRPlatformIcon';
-import { RepoIcon } from '@plannotator/ui/components/RepoIcon';
-import { getPlatformLabel, getMRLabel, getMRNumberLabel, getDisplayRepo, getPRNumber, getPRPlatformCapabilities, prBlobPermalink } from '@plannotator/shared/pr-types';
-import type { CallFlowAdvert, CallFlowNode } from '@plannotator/shared/call-flow-types';
-import { configStore, useConfigValue, setReviewPanelView } from '@plannotator/ui/config';
-import { repoLabel } from '@plannotator/ui/utils/repoLabel';
-import { loadDiffFont } from '@plannotator/ui/utils/diffFonts';
-import { monoFontStack, normalizeCssFontSize } from '@plannotator/ui/utils/cssFontFamily';
-import { getAgentSwitchSettings, getEffectiveAgentName } from '@plannotator/ui/utils/agentSwitch';
-import { adoptServerSession, noteServerSessionMismatch, withServerSession, withServerSessionQuery } from '@plannotator/ui/utils/serverSession';
-import { assertSendOk, throwUnreachable } from '@plannotator/ui/utils/sendFailure';
-import { dismissSendFailureToast, sendSettled, sendStarted, showSendFailureToast } from '@plannotator/ui/components/SendFailureToast';
-import { ServerSessionReplacedBanner } from '@plannotator/ui/components/ServerSessionReplacedBanner';
-import { useAIProviderConfig } from '@plannotator/ui/hooks/useAIProviderConfig';
-import { useAIProviderActivation } from '@plannotator/ui/hooks/useAIProviderActivation';
-import { isSessionBridgeProvider } from '@plannotator/ui/utils/aiProvider';
-import type { SessionAskAction } from '@plannotator/ui/components/ai/SessionAskNotice';
-import { askSessionSetupHint } from '@plannotator/ui/utils/askSessionSetupHint';
-import { useAgentToolSetting } from '@plannotator/ui/hooks/useAgentToolSetting';
-import { CodeAnnotation, CodeAnnotationType, SelectedLineRange, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration, Annotation, CommentAnnotation, AgentJobInfo, type ArtifactAnnotationMeta, type CallFlowAnnotationTarget, type ImageAttachment, type MarkdownPreviewAnchor } from '@plannotator/ui/types';
-import type { CommentAskAIHandler } from '@plannotator/ui/components/CommentPopover';
-import { useResizablePanel } from '@plannotator/ui/hooks/useResizablePanel';
-import { useCodeAnnotationDraft, type CodeDraftMergeItems, type CodeDraftTargetState } from '@plannotator/ui/hooks/useCodeAnnotationDraft';
+import { PRPlatformIcon } from '@reviewtrail/ui/components/PRPlatformIcon';
+import { RepoIcon } from '@reviewtrail/ui/components/RepoIcon';
+import { getPlatformLabel, getMRLabel, getMRNumberLabel, getDisplayRepo, getPRNumber, getPRPlatformCapabilities, prBlobPermalink } from '@reviewtrail/shared/pr-types';
+import type { CallFlowAdvert, CallFlowNode } from '@reviewtrail/shared/call-flow-types';
+import { configStore, useConfigValue, setReviewPanelView } from '@reviewtrail/ui/config';
+import { repoLabel } from '@reviewtrail/ui/utils/repoLabel';
+import { loadDiffFont } from '@reviewtrail/ui/utils/diffFonts';
+import { monoFontStack, normalizeCssFontSize } from '@reviewtrail/ui/utils/cssFontFamily';
+import { getAgentSwitchSettings, getEffectiveAgentName } from '@reviewtrail/ui/utils/agentSwitch';
+import { adoptServerSession, noteServerSessionMismatch, withServerSession, withServerSessionQuery } from '@reviewtrail/ui/utils/serverSession';
+import { assertSendOk, throwUnreachable } from '@reviewtrail/ui/utils/sendFailure';
+import { dismissSendFailureToast, sendSettled, sendStarted, showSendFailureToast } from '@reviewtrail/ui/components/SendFailureToast';
+import { ServerSessionReplacedBanner } from '@reviewtrail/ui/components/ServerSessionReplacedBanner';
+import { useAIProviderConfig } from '@reviewtrail/ui/hooks/useAIProviderConfig';
+import { useAIProviderActivation } from '@reviewtrail/ui/hooks/useAIProviderActivation';
+import { isSessionBridgeProvider } from '@reviewtrail/ui/utils/aiProvider';
+import type { SessionAskAction } from '@reviewtrail/ui/components/ai/SessionAskNotice';
+import { askSessionSetupHint } from '@reviewtrail/ui/utils/askSessionSetupHint';
+import { useAgentToolSetting } from '@reviewtrail/ui/hooks/useAgentToolSetting';
+import { CodeAnnotation, CodeAnnotationType, SelectedLineRange, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration, Annotation, CommentAnnotation, AgentJobInfo, type ArtifactAnnotationMeta, type CallFlowAnnotationTarget, type ImageAttachment, type MarkdownPreviewAnchor } from '@reviewtrail/ui/types';
+import type { CommentAskAIHandler } from '@reviewtrail/ui/components/CommentPopover';
+import { useResizablePanel } from '@reviewtrail/ui/hooks/useResizablePanel';
+import { useCodeAnnotationDraft, type CodeDraftMergeItems, type CodeDraftTargetState } from '@reviewtrail/ui/hooks/useCodeAnnotationDraft';
 import { useGitAdd } from './hooks/useGitAdd';
 import { useHasSavedGuides } from './hooks/guide/useHasSavedGuides';
 import { generateId } from './utils/generateId';
@@ -72,11 +72,11 @@ import { createSemDiffClient } from './semDiff/semDiffClient';
 import { loadSemDiffWorker } from './semDiff/loadSemDiffWorker';
 import { readPowerUpRejected, writePowerUpRejected, type PowerUpConfig, type PowerUpStatus } from './semDiff/powerUp';
 import { PowerUpStatusSlot } from './semDiff/PowerUpStatusSlot';
-import { POWER_UP_CHANGED_EVENT } from '@plannotator/ui/components/settings/SemanticDiffsTab';
+import { POWER_UP_CHANGED_EVENT } from '@reviewtrail/ui/components/settings/SemanticDiffsTab';
 import { computeReviewSemanticDiff, loadReviewSemanticDiff, setSemanticDiffSource, type ReadFileContents } from './semDiff/semanticDiffSource';
-import type { SemanticDiffChange, SemanticDiffResponse } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffChange, SemanticDiffResponse } from '@reviewtrail/shared/semantic-diff-types';
 
-import type { SemDiffAdvert } from '@plannotator/shared/sem-diff-assets';
+import type { SemDiffAdvert } from '@reviewtrail/shared/sem-diff-assets';
 import type { DiagramEngineUrls } from './utils/diagramEngineContract';
 import type { SuggestionHunk } from './edit/deriveSuggestions';
 import type { EditSelectionComment } from './edit/useEditSession';
@@ -109,14 +109,14 @@ import {
   buildExplainFindingRequest,
   isAgentGeneratedFinding,
 } from './utils/explainFinding';
-import { useEditorAnnotations } from '@plannotator/ui/hooks/useEditorAnnotations';
-import { useExternalAnnotations } from '@plannotator/ui/hooks/useExternalAnnotations';
-import { AGENT_CLOSED_TITLE, agentClosedSubtitle } from '@plannotator/ui/utils/agentClosed';
-import { useUndoHistory } from '@plannotator/ui/hooks/useUndoHistory';
-import { useHistoryShortcuts } from '@plannotator/ui/shortcuts';
+import { useEditorAnnotations } from '@reviewtrail/ui/hooks/useEditorAnnotations';
+import { useExternalAnnotations } from '@reviewtrail/ui/hooks/useExternalAnnotations';
+import { AGENT_CLOSED_TITLE, agentClosedSubtitle } from '@reviewtrail/ui/utils/agentClosed';
+import { useUndoHistory } from '@reviewtrail/ui/hooks/useUndoHistory';
+import { useHistoryShortcuts } from '@reviewtrail/ui/shortcuts';
 import { useReviewEditorDoubleTap } from './shortcuts';
-import { useReviewExplorerShortcuts } from '@plannotator/ui/shortcuts';
-import { isVSCodePanel } from '@plannotator/ui/utils/vscodePanel';
+import { useReviewExplorerShortcuts } from '@reviewtrail/ui/shortcuts';
+import { isVSCodePanel } from '@reviewtrail/ui/utils/vscodePanel';
 import { createTokenTargetTracker, type TokenTargetHandler } from './utils/tokenTarget';
 import {
   EMPTY_NAV_HISTORY,
@@ -133,7 +133,7 @@ import {
 import { changeRuns, changeStepQueue, stepChange, type ChangeStep } from './utils/explorerChangeNavigation';
 import { GoToFile } from './components/GoToFile';
 import type { FileTokenHandlers } from './components/RepoFileView';
-import type { CodeNavLocation, CodeNavResponse } from '@plannotator/shared/code-nav';
+import type { CodeNavLocation, CodeNavResponse } from '@reviewtrail/shared/code-nav';
 import { clickJumpStep, createJumpGate, oneDefinition } from './utils/definitionJump';
 import {
   applyCollectionMutations,
@@ -142,11 +142,11 @@ import {
   isNativeHistoryOwner,
   type CollectionMutation,
   type HistoryDirection,
-} from '@plannotator/ui/utils/undoHistory';
-import { useAgentJobs, jobMatchesReviewContext } from '@plannotator/ui/hooks/useAgentJobs';
-import { exportEditorAnnotations } from '@plannotator/ui/utils/parser';
-import { buildReviewAgentInstructions } from '@plannotator/ui/utils/reviewAgentInstructions';
-import { ResizeHandle } from '@plannotator/ui/components/ResizeHandle';
+} from '@reviewtrail/ui/utils/undoHistory';
+import { useAgentJobs, jobMatchesReviewContext } from '@reviewtrail/ui/hooks/useAgentJobs';
+import { exportEditorAnnotations } from '@reviewtrail/ui/utils/parser';
+import { buildReviewAgentInstructions } from '@reviewtrail/ui/utils/reviewAgentInstructions';
+import { ResizeHandle } from '@reviewtrail/ui/components/ResizeHandle';
 import { FolderTree } from 'lucide-react';
 import type { DockviewReadyEvent, DockviewApi, IDockviewPanel } from 'dockview-react';
 import {
@@ -156,10 +156,10 @@ import {
 } from './components/ReviewHeaderMenu';
 import { ReviewSidebar } from './components/ReviewSidebar';
 import type { ReviewSidebarTab } from './components/ReviewSidebar';
-import { useSidebar } from '@plannotator/ui/hooks/useSidebar';
-import { useViewportEnvironment } from '@plannotator/ui/hooks/useViewportEnvironment';
+import { useSidebar } from '@reviewtrail/ui/hooks/useSidebar';
+import { useViewportEnvironment } from '@reviewtrail/ui/hooks/useViewportEnvironment';
 import { opensNavigatorOnLoad, phoneDiffStyle } from './utils/phoneLayout';
-import { CompactLayoutQueryProvider, PHONE_REVIEW_LAYOUT_MEDIA_QUERY, useCompactTouchLayout } from '@plannotator/ui/hooks/useIsMobile';
+import { CompactLayoutQueryProvider, PHONE_REVIEW_LAYOUT_MEDIA_QUERY, useCompactTouchLayout } from '@reviewtrail/ui/hooks/useIsMobile';
 import { FileTree } from './components/FileTree';
 import { StackedPRLabel } from './components/StackedPRLabel';
 import { PRSelector } from './components/PRSelector';
@@ -234,12 +234,12 @@ import {
 } from './dock/reviewPanelTypes';
 import { useFileViews } from './hooks/useFileViews';
 import { useOneSidePanelWhenNarrow } from './hooks/useOneSidePanelWhenNarrow';
-import type { CodeFileAnnotationInput, CodeFileTokenTarget } from '@plannotator/ui/components/CodeFilePopout';
+import type { CodeFileAnnotationInput, CodeFileTokenTarget } from '@reviewtrail/ui/components/CodeFilePopout';
 import type { DiffFile, AnnotationScrollTarget } from './types';
 import { annotationMatchesPrScope, proseAnnotationMatchesPr } from './utils/annotationScope';
-import { annotationNavigation, reanchorCodeAnnotations, restorableViewedFiles } from '@plannotator/ui/utils/codeAnnotationAnchor';
+import { annotationNavigation, reanchorCodeAnnotations, restorableViewedFiles } from '@reviewtrail/ui/utils/codeAnnotationAnchor';
 import { localReviewDraftTransport, withLocalReviewTarget } from './utils/localReviewDraft';
-import type { DiffOption, GitContext, SinceBaseSections, CommitDiffInfo, ReviewSourceKind } from '@plannotator/shared/types';
+import type { DiffOption, GitContext, SinceBaseSections, CommitDiffInfo, ReviewSourceKind } from '@reviewtrail/shared/types';
 import { diffWords, type ReviewPanelHeaderModel } from './components/ReviewPanelHeader';
 import { CommitsPanel } from './components/CommitsPanel';
 import { useCommitsView } from './hooks/useCommitsView';
@@ -248,10 +248,10 @@ import { resolvePanelView } from './utils/resolvePanelView';
 import { isCommitDiffType, resolveCommitExitDiff, type CommitViewRestoreTarget } from './utils/commitViewRestore';
 import { needsGuideHint, markGuideHintSeen } from './utils/guideIntro';
 import { ExternalLineAnnotationComposer } from './components/ExternalLineAnnotationComposer';
-import type { PRMetadata, PRReviewAction } from '@plannotator/shared/pr-types';
-import type { PRDiffScope, PRDiffScopeOption, PRStackInfo, PRStackTree } from '@plannotator/shared/pr-stack';
-import { altKey, isMac } from '@plannotator/ui/utils/platform';
-import { copyTextToClipboard } from '@plannotator/ui/utils/clipboard';
+import type { PRMetadata, PRReviewAction } from '@reviewtrail/shared/pr-types';
+import type { PRDiffScope, PRDiffScopeOption, PRStackInfo, PRStackTree } from '@reviewtrail/shared/pr-stack';
+import { altKey, isMac } from '@reviewtrail/ui/utils/platform';
+import { copyTextToClipboard } from '@reviewtrail/ui/utils/clipboard';
 import { flushGuideProgress } from './hooks/guide/useGuideData';
 import { ReviewFollowUp } from './components/ReviewFollowUp';
 import { GuideScreen } from './components/guide/GuideScreen';
@@ -259,8 +259,8 @@ import { useAgentsPanelSlots, reviewScopeText } from './components/AgentsPanelSl
 import { DEMO_GUIDE_ID } from './demoGuide';
 import { buildPRArtifacts } from './utils/prArtifacts';
 import { useMarkdownPreview, useMarkdownPreviewKeys } from './hooks/useMarkdownPreview';
-import { setExtraMarkdownExtensions } from '@plannotator/ui/utils/markdownExtensions';
-import { configurePlannotatorUI } from '@plannotator/ui/configure';
+import { setExtraMarkdownExtensions } from '@reviewtrail/ui/utils/markdownExtensions';
+import { configureReviewTrailUI } from '@reviewtrail/ui/configure';
 import {
   submitPlatformReviewTargets,
 } from './utils/platformReviewSubmission';
@@ -274,11 +274,11 @@ import {
 
 declare const __APP_VERSION__: string;
 
-// Plannotator's own code review: the selection toolbar's Copy copies rich
+// ReviewTrail's own code review: the selection toolbar's Copy copies rich
 // text, and on a touch screen the toolbar sits below the selection (clear of
 // iOS's edit menu), inside the screen, with thumb-sized buttons;
-// @plannotator/ui hosts keep both unchanged unless they opt in.
-configurePlannotatorUI({ richCopy: true, touchSelectionToolbar: true });
+// @reviewtrail/ui hosts keep both unchanged unless they opt in.
+configureReviewTrailUI({ richCopy: true, touchSelectionToolbar: true });
 
 function getReviewRecoveryStorage(): ReviewRecoveryStorage | null {
   try {
@@ -881,13 +881,13 @@ const ReviewApp: React.FC = () => {
     return () => setSemanticDiffSource(null);
   }, [semDiffClient]);
   // Session-constant capability advert from `/api/diff`: 'patch' means the
-  // diff is caller-supplied bytes (`plannotator review --patch-file`) with no
+  // diff is caller-supplied bytes (`reviewtrail --patch-file`) with no
   // repository behind it. ABSENT reads as 'vcs', so an old server keeps every
   // affordance exactly as before.
   const [sourceKind, setSourceKind] = useState<ReviewSourceKind>('vcs');
   const isStaticPatch = sourceKind === 'patch';
   const [repoInfo, setRepoInfo] = useState<{ display: string; branch?: string } | null>(null);
-  // `plannotator review --title` (#2289): the whole tab title, in place of `<repo> · Code Review`.
+  // `reviewtrail --title` (#2289): the whole tab title, in place of `<repo> · Code Review`.
   const [sessionTitle, setSessionTitle] = useState<string | null>(null);
   /** The region the issue / PR / MR hover cards listen on (the whole app). */
   const refCardRootRef = useRef<HTMLDivElement>(null);
@@ -979,7 +979,7 @@ const ReviewApp: React.FC = () => {
     handlePRSwitch,
   } = usePRStack(prStackCallbacksRef);
   const [reviewDestination, setReviewDestination] = useState<'agent' | 'platform'>(() => {
-    const stored = storage.getItem('plannotator-review-dest');
+    const stored = storage.getItem('reviewtrail-review-dest');
     return stored === 'agent' ? 'agent' : 'platform'; // 'github' (legacy) → 'platform'
   });
   const [showDestinationMenu, setShowDestinationMenu] = useState(false);
@@ -1001,12 +1001,12 @@ const ReviewApp: React.FC = () => {
   } | null>(null);
   const [platformRecoveryPersistsRefresh, setPlatformRecoveryPersistsRefresh] = useState(false);
   const [platformOpenPR, setPlatformOpenPR] = useState(() => {
-    const platformSetting = storage.getItem('plannotator-platform-open-pr');
+    const platformSetting = storage.getItem('reviewtrail-platform-open-pr');
     if (platformSetting !== null) return platformSetting !== 'false';
 
-    const legacyGitHubSetting = storage.getItem('plannotator-github-open-pr');
+    const legacyGitHubSetting = storage.getItem('reviewtrail-github-open-pr');
     if (legacyGitHubSetting !== null) {
-      storage.setItem('plannotator-platform-open-pr', legacyGitHubSetting);
+      storage.setItem('reviewtrail-platform-open-pr', legacyGitHubSetting);
       return legacyGitHubSetting !== 'false';
     }
 
@@ -1774,13 +1774,13 @@ const ReviewApp: React.FC = () => {
 
   // Resizable panels
   const panelResize = useResizablePanel({
-    storageKey: 'plannotator-review-panel-width',
+    storageKey: 'reviewtrail-review-panel-width',
     onSnapClose: () => reviewSidebar.close(),
     // Single click on the handle (no drag) collapses it.
     onClick: () => reviewSidebar.close(),
   });
   const fileTreeResize = useResizablePanel({
-    storageKey: 'plannotator-filetree-width',
+    storageKey: 'reviewtrail-filetree-width',
     defaultWidth: 256, minWidth: 160, maxWidth: 400, side: 'left',
     onSnapClose: () => setIsFileTreeOpen(false),
     // Single click on the handle (no drag) collapses it.
@@ -5402,7 +5402,7 @@ const ReviewApp: React.FC = () => {
       toggleDestination: prMetadata ? () => {
         setReviewDestination(prev => {
           const next = prev === 'platform' ? 'agent' : 'platform';
-          storage.setItem('plannotator-review-dest', next);
+          storage.setItem('reviewtrail-review-dest', next);
           setPlatformActionError(null);
           return next;
         });
@@ -5518,7 +5518,7 @@ const ReviewApp: React.FC = () => {
       // cannot stop same-target listeners — without this guard one keystroke
       // over the discard confirm would post TWO contradictory decisions
       // (this effect's Send Feedback plus the confirm's LGTM approve).
-      if (document.querySelector('[data-plannotator-confirm-dialog="true"]')) return;
+      if (document.querySelector('[data-reviewtrail-confirm-dialog="true"]')) return;
 
       // If the platform post dialog is open, Cmd+Enter submits it
       if (platformCommentDialog) {
@@ -5626,7 +5626,7 @@ const ReviewApp: React.FC = () => {
           platformLabel,
           onChange: (destination) => {
                 setReviewDestination(destination);
-            storage.setItem('plannotator-review-dest', destination);
+            storage.setItem('reviewtrail-review-dest', destination);
             setPlatformActionError(null);
           },
         }
@@ -6009,7 +6009,7 @@ const ReviewApp: React.FC = () => {
                             data-pn-touch-target={isCompactTouchLayout || undefined}
                             onClick={() => {
                               setReviewDestination('platform');
-                              storage.setItem('plannotator-review-dest', 'platform');
+                              storage.setItem('reviewtrail-review-dest', 'platform');
                               setShowDestinationMenu(false);
                               setPlatformActionError(null);
                             }}
@@ -6026,7 +6026,7 @@ const ReviewApp: React.FC = () => {
                             data-pn-touch-target={isCompactTouchLayout || undefined}
                             onClick={() => {
                               setReviewDestination('agent');
-                              storage.setItem('plannotator-review-dest', 'agent');
+                              storage.setItem('reviewtrail-review-dest', 'agent');
                               setShowDestinationMenu(false);
                               setPlatformActionError(null);
                             }}
@@ -6726,7 +6726,7 @@ const ReviewApp: React.FC = () => {
           platformOpenPR={platformOpenPR}
           onPlatformOpenPRChange={(checked) => {
             setPlatformOpenPR(checked);
-            storage.setItem('plannotator-platform-open-pr', String(checked));
+            storage.setItem('reviewtrail-platform-open-pr', String(checked));
           }}
           onConfirm={() => {
             if (!platformCommentDialog) return;

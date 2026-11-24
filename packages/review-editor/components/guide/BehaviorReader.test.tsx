@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { parseDiffToFiles } from '@plannotator/core/diff-files';
+import { parseDiffToFiles } from '@reviewtrail/core/diff-files';
 import { BehaviorReader } from './BehaviorReader';
-import { isReviewTest, readPassages } from '@plannotator/core/reading-path';
+import { isReviewTest, readPassages } from '@reviewtrail/core/reading-path';
 
 const patch = ['a.ts', 'b.ts', 'b.spec.ts', 'other.ts'].map(path =>
   `diff --git a/${path} b/${path}\n--- a/${path}\n+++ b/${path}\n@@ -1,2 +1,2 @@\n-old();\n+newCode();\n done();\n`

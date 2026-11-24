@@ -5,11 +5,11 @@ import { isTextCut, noHover } from '../utils/textCut';
 /**
  * Hover text for a ui control or label, drawn the way the host chooses.
  *
- * Default (every host that does not opt in, Plannotator's plan review,
+ * Default (every host that does not opt in, ReviewTrail's plan review,
  * annotate and code review included): the child gets a native `title`,
  * exactly as before.
  *
- * With `configurePlannotatorUI({ componentTooltips: true })` (the Plannotator
+ * With `configureReviewTrailUI({ componentTooltips: true })` (the ReviewTrail
  * Inbox): the child gets ui's `Tooltip` instead, and no native title. `name`
  * marks a title that is also the control's accessible name (an icon button
  * with no `aria-label`): the child then gets it as its `aria-label`, so the

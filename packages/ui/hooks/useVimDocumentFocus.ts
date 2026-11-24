@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const VIM_DOCUMENT_FOCUS_REQUEST = 'plannotator:vim-document-focus-request';
+const VIM_DOCUMENT_FOCUS_REQUEST = 'reviewtrail:vim-document-focus-request';
 
 const EDITABLE_FOCUS_SELECTOR = [
   'input',
@@ -14,7 +14,7 @@ const EDITABLE_FOCUS_SELECTOR = [
 const BLOCKING_OVERLAY_SELECTOR = [
   '[role="dialog"]',
   '[aria-modal="true"]',
-  // Some legacy Plannotator modals predate explicit dialog semantics. Keep
+  // Some legacy ReviewTrail modals predate explicit dialog semantics. Keep
   // Vim from focusing the obscured document underneath those full-screen
   // overlays while they are brought onto the shared dialog primitive.
   '.fixed.inset-0',

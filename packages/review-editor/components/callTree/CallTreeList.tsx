@@ -1,6 +1,6 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
-import type { CallTreeDoc } from '@plannotator/shared/call-tree';
+import type { CallTreeDoc } from '@reviewtrail/shared/call-tree';
 import { CallFlowSearchControls } from '../CallFlowSearchControls';
 import { useCallFlowFindShortcut } from '../../hooks/useCallFlowFindShortcut';
 import { CallTree, type CallTreeProps } from './CallTree';

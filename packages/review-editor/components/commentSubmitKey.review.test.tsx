@@ -12,7 +12,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import {
   describeCommentSubmitKeys,
   pressKey,

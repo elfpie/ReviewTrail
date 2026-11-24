@@ -1,5 +1,5 @@
 /**
- * The plannotator_inbox contract's optional project_path: in the agent's
+ * The reviewtrail_inbox contract's optional project_path: in the agent's
  * schema (optional, never the other filled arguments), and returned apart
  * from the filled working folder so the connection resolves it.
  */

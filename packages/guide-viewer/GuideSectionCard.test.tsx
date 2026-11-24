@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { GuideSection } from '@plannotator/core/guide';
+import type { GuideSection } from '@reviewtrail/core/guide';
 import type { DiffFile } from './types';
 import { GuideHostProvider, type GuideHostValue } from './host';
 import { GuideViewportProvider } from './GuideViewportManager';

@@ -12,21 +12,21 @@ import {
 } from "./browser-intent";
 
 describe("resolveBrowserIntent", () => {
-  // A "none" value on PLANNOTATOR_BROWSER (or --browser, which sets it) opens
+  // A "none" value on REVIEWTRAIL_BROWSER (or --browser, which sets it) opens
   // nothing, whatever BROWSER says. Before #756 every one of these opened
   // nothing; #756 made them fall through to the system default by mistake.
   const none: [Record<string, string>, string][] = [
-    [{ PLANNOTATOR_BROWSER: "none" }, "none"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: "false" }, "false"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: "0" }, "0"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: "off" }, "off"],
-    [{ PLANNOTATOR_BROWSER: "no" }, "no"],
-    [{ PLANNOTATOR_BROWSER: "true" }, "true"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: "1" }, "1"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: ":" }, ":"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: "  NONE  " }, "NONE"], // no-browser-guard: sentinel under test
-    [{ PLANNOTATOR_BROWSER: "Off" }, "Off"],
-    [{ PLANNOTATOR_BROWSER: "none", BROWSER: "/usr/bin/firefox" }, "none"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "none" }, "none"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "false" }, "false"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "0" }, "0"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "off" }, "off"],
+    [{ REVIEWTRAIL_BROWSER: "no" }, "no"],
+    [{ REVIEWTRAIL_BROWSER: "true" }, "true"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "1" }, "1"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: ":" }, ":"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "  NONE  " }, "NONE"], // no-browser-guard: sentinel under test
+    [{ REVIEWTRAIL_BROWSER: "Off" }, "Off"],
+    [{ REVIEWTRAIL_BROWSER: "none", BROWSER: "/usr/bin/firefox" }, "none"], // no-browser-guard: sentinel under test
   ];
   test.each(none)("%p opens nothing", (env, value) => {
     expect(resolveBrowserIntent(env)).toEqual({ kind: "none", value });
@@ -41,8 +41,8 @@ describe("resolveBrowserIntent", () => {
   // default chain still runs.
   const defaults: Record<string, string>[] = [
     {},
-    { PLANNOTATOR_BROWSER: "" },
-    { PLANNOTATOR_BROWSER: "   " },
+    { REVIEWTRAIL_BROWSER: "" },
+    { REVIEWTRAIL_BROWSER: "   " },
     { BROWSER: "true" },
     { BROWSER: "none" },
     { BROWSER: " FALSE " },
@@ -56,13 +56,13 @@ describe("resolveBrowserIntent", () => {
   });
 
   const explicit: [Record<string, string>, BrowserIntent][] = [
-    [{ PLANNOTATOR_BROWSER: "Google Chrome" }, { kind: "explicit", browser: "Google Chrome", source: "PLANNOTATOR_BROWSER" }],
-    [{ PLANNOTATOR_BROWSER: "/usr/bin/true" }, { kind: "explicit", browser: "/usr/bin/true", source: "PLANNOTATOR_BROWSER" }],
-    [{ PLANNOTATOR_BROWSER: "open-in-vscode", BROWSER: "firefox" }, { kind: "explicit", browser: "open-in-vscode", source: "PLANNOTATOR_BROWSER" }],
+    [{ REVIEWTRAIL_BROWSER: "Google Chrome" }, { kind: "explicit", browser: "Google Chrome", source: "REVIEWTRAIL_BROWSER" }],
+    [{ REVIEWTRAIL_BROWSER: "/usr/bin/true" }, { kind: "explicit", browser: "/usr/bin/true", source: "REVIEWTRAIL_BROWSER" }],
+    [{ REVIEWTRAIL_BROWSER: "open-in-vscode", BROWSER: "firefox" }, { kind: "explicit", browser: "open-in-vscode", source: "REVIEWTRAIL_BROWSER" }],
     [{ BROWSER: "firefox" }, { kind: "explicit", browser: "firefox", source: "BROWSER" }],
     // BROWSER keeps #756's six values only: anything else is a command.
     [{ BROWSER: "off" }, { kind: "explicit", browser: "off", source: "BROWSER" }],
-    [{ PLANNOTATOR_BROWSER: "", BROWSER: "firefox" }, { kind: "explicit", browser: "firefox", source: "BROWSER" }],
+    [{ REVIEWTRAIL_BROWSER: "", BROWSER: "firefox" }, { kind: "explicit", browser: "firefox", source: "BROWSER" }],
   ];
   test.each(explicit)("%p launches a handler", (env, intent) => {
     expect(resolveBrowserIntent(env)).toEqual(intent);
@@ -82,6 +82,6 @@ describe("isNoOpBrowserSentinel (BROWSER)", () => {
 
 describe("browserNoneReason", () => {
   test("names the variable and the value", () => {
-    expect(browserNoneReason({ value: "none" })).toBe("Not opening a browser (PLANNOTATOR_BROWSER=none)."); // no-browser-guard: sentinel under test (expected text, nothing is set)
+    expect(browserNoneReason({ value: "none" })).toBe("Not opening a browser (REVIEWTRAIL_BROWSER=none)."); // no-browser-guard: sentinel under test (expected text, nothing is set)
   });
 });

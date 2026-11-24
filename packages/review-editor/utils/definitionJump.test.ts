@@ -7,7 +7,7 @@
  * elsewhere or clicked again.
  */
 import { describe, expect, test } from 'bun:test';
-import type { CodeNavLocation } from '@plannotator/shared/code-nav';
+import type { CodeNavLocation } from '@reviewtrail/shared/code-nav';
 import { clickJumpStep, createJumpGate, oneDefinition } from './definitionJump';
 
 const def = (filePath: string, line: number, column = 1): CodeNavLocation => ({ kind: 'definition', confidence: 'likely', filePath, line, column, snippet: '' });

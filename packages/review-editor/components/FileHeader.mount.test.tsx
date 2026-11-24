@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act, Profiler } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { FileHeader } from './FileHeader';
-import { loadOpenInApps } from '@plannotator/ui/hooks/useOpenInApps';
+import { loadOpenInApps } from '@reviewtrail/ui/hooks/useOpenInApps';
 
 const hasDom = typeof document !== 'undefined';
 let host: HTMLDivElement | null = null;

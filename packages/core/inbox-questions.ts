@@ -1,12 +1,12 @@
 /**
- * Plannotator Inbox: question blocks in a message, their derived state, the
+ * ReviewTrail Inbox: question blocks in a message, their derived state, the
  * person's picks, and the reply text a Send writes.
  *
- * The blocks are found and read with Plannotator's own parser
+ * The blocks are found and read with ReviewTrail's own parser
  * (`./question-block`), so the card the window draws and the record the store
  * keeps are one and the same, with one key. Two plain lines inside a block are
  * read here, as Workspaces reads them (they stay in the block's context, so
- * Plannotator renders them as text):
+ * ReviewTrail renders them as text):
  *
  *   Stopped: <why>                the asker cannot go on until this is answered
  *   Holds up: <name>; <name>      the asker goes on; these pieces of work wait
@@ -637,7 +637,7 @@ export type InboxAnswerRefusal =
   | { code: "question_superseded"; key: string; superseded_by: { message_id: string; key: string | null } };
 
 /**
- * Plannotator's record checked against its question: the fail-closed parser
+ * ReviewTrail's record checked against its question: the fail-closed parser
  * first, then key, kind and prompt, then every picked label (read through the
  * choice's older names first). Returns the canonical answer to store.
  */
@@ -696,7 +696,7 @@ function exportItem(record: InboxQuestionRecord, number: number): QuestionExport
  * The body a Send writes: "Answered N questions.", "Skipped N questions." or
  * "Answered N questions, skipped M." when it carries answers or skips,
  * the person's words if any, then the line saying which questions stay open
- * (when any do), then Plannotator's "Answers to your questions" section over
+ * (when any do), then ReviewTrail's "Answers to your questions" section over
  * every question of the message, with the answers this Send carries and
  * earlier sent answers that still stand. Empty when there is nothing to send.
  *

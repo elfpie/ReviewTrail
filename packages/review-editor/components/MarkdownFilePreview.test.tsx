@@ -16,7 +16,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test
 import React, { useMemo, useState } from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { CodeAnnotation, MarkdownPreviewAnchor } from '@plannotator/ui/types';
+import type { CodeAnnotation, MarkdownPreviewAnchor } from '@reviewtrail/ui/types';
 import type { ReviewState } from '../dock/ReviewStateContext';
 import type { MarkdownPreviewView } from '../hooks/useMarkdownPreview';
 import type { DiagramEngineUrls } from '../utils/diagramEngineContract';

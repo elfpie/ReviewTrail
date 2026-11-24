@@ -2,17 +2,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { IDockviewPanelProps } from 'dockview-react';
 import { EyeOff, ExternalLink, LayoutGrid, MessageSquarePlus, Paperclip, RotateCcw } from 'lucide-react';
-import { CommentPopover } from '@plannotator/ui/components/CommentPopover';
-import { HtmlViewer } from '@plannotator/ui/components/html-viewer';
-import { OverlayScrollArea } from '@plannotator/ui/components/OverlayScrollArea';
-import { RenderedMarkdown } from '@plannotator/ui/components/RenderedMarkdown';
-import { useAnnotationHighlighter } from '@plannotator/ui/hooks/useAnnotationHighlighter';
+import { CommentPopover } from '@reviewtrail/ui/components/CommentPopover';
+import { HtmlViewer } from '@reviewtrail/ui/components/html-viewer';
+import { OverlayScrollArea } from '@reviewtrail/ui/components/OverlayScrollArea';
+import { RenderedMarkdown } from '@reviewtrail/ui/components/RenderedMarkdown';
+import { useAnnotationHighlighter } from '@reviewtrail/ui/hooks/useAnnotationHighlighter';
 import type {
   Annotation,
   ArtifactAnnotationAnchor,
   ArtifactAnnotationMeta,
-} from '@plannotator/ui/types';
-import { AnnotationType } from '@plannotator/ui/types';
+} from '@reviewtrail/ui/types';
+import { AnnotationType } from '@reviewtrail/ui/types';
 import {
   commentAnnotationAsDocument,
   documentAnchorFromAnnotation,

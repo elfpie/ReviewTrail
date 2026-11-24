@@ -24,7 +24,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import type { DiffFile } from '../types';
 
 const realPierreDiffsReact = { ...(await import('@pierre/diffs/react')) };
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 const ROW = 30;
 const FILE = 3000;

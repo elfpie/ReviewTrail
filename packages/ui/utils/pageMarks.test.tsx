@@ -1,6 +1,6 @@
 /**
- * Page marks (`configurePlannotatorUI({ pageMarks: true })`): the attributes a host keys its stylesheet on in place
- * of theme.css's `body:has([data-popout="true"])` (the Plannotator Inbox, build/inbox-page-marks.ts). What regresses
+ * Page marks (`configureReviewTrailUI({ pageMarks: true })`): the attributes a host keys its stylesheet on in place
+ * of theme.css's `body:has([data-popout="true"])` (the ReviewTrail Inbox, build/inbox-page-marks.ts). What regresses
  * if these fail: with the mark gone too early or never set, a popout's page no longer lowers the annotation panel
  * under the dialog; with it left behind, the panel stays lowered after the dialog closed; with two holders, the
  * first to go takes the mark from the other. Off, no host sees an attribute it never asked for.

@@ -1,5 +1,5 @@
 /** Load the locally built diagram assets on demand. */
-import type { DiagramEngineSources } from "@plannotator/shared/diagram-engine-assets";
+import type { DiagramEngineSources } from "@reviewtrail/shared/diagram-engine-assets";
 
 let pending: Promise<DiagramEngineSources | null> | null = null;
 

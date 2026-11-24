@@ -331,8 +331,8 @@ describe('ThemeProvider', () => {
   });
 
   test.skipIf(!hasDom)('persists System and follows live OS changes across reloads', async () => {
-    stored.set('plannotator-theme', 'system');
-    stored.set('plannotator-color-theme', 'plannotator');
+    stored.set('reviewtrail-theme', 'system');
+    stored.set('reviewtrail-color-theme', 'reviewtrail');
     const media = installMatchMedia(false);
 
     await mountTheme();
@@ -345,7 +345,7 @@ describe('ThemeProvider', () => {
     expect(themeState().preferredMode).toBe('light');
     expect(themeState().resolvedMode).toBe('light');
     expect(document.documentElement.classList.contains('light')).toBe(true);
-    expect(stored.get('plannotator-theme')).toBe('system');
+    expect(stored.get('reviewtrail-theme')).toBe('system');
 
     await unmountTheme();
     media.setMatches(false);
@@ -354,14 +354,14 @@ describe('ThemeProvider', () => {
     expect(themeState().resolvedMode).toBe('dark');
   });
 
-  // Plannotator's packed pages set the scheme inline before any script runs
+  // ReviewTrail's packed pages set the scheme inline before any script runs
   // (build/pack-app.ts), so the empty page never paints white under a dark
   // theme. What regresses: the value goes stale after a theme switch (native
   // controls and the page canvas in the wrong scheme), or a host page that set
   // none suddenly gets one.
   test.skipIf(!hasDom)('takes over an inline color-scheme set before it mounted, and adds none where there was none', async () => {
-    stored.set('plannotator-theme', 'system');
-    stored.set('plannotator-color-theme', 'plannotator');
+    stored.set('reviewtrail-theme', 'system');
+    stored.set('reviewtrail-color-theme', 'reviewtrail');
     const media = installMatchMedia(false);
     document.documentElement.style.colorScheme = 'dark';
     try {
@@ -381,9 +381,9 @@ describe('ThemeProvider', () => {
   });
 
   test.skipIf(!hasDom)('flips between the two halves of the pair when the OS scheme changes', async () => {
-    stored.set('plannotator-theme', 'system');
-    stored.set('plannotator-light-theme', 'kanagawa-lotus');
-    stored.set('plannotator-dark-theme', 'kanagawa-wave');
+    stored.set('reviewtrail-theme', 'system');
+    stored.set('reviewtrail-light-theme', 'kanagawa-lotus');
+    stored.set('reviewtrail-dark-theme', 'kanagawa-wave');
     const media = installMatchMedia(true);
 
     await mountTheme();
@@ -402,12 +402,12 @@ describe('ThemeProvider', () => {
 
     // Older releases read the single-palette key, so it keeps tracking the
     // palette actually on screen — a downgrade never lands unstyled.
-    expect(stored.get('plannotator-color-theme')).toBe('kanagawa-wave');
+    expect(stored.get('reviewtrail-color-theme')).toBe('kanagawa-wave');
   });
 
   test.skipIf(!hasDom)('migrates a stored dark-only palette into the dark half only', async () => {
-    stored.set('plannotator-theme', 'system');
-    stored.set('plannotator-color-theme', 'kanagawa-wave');
+    stored.set('reviewtrail-theme', 'system');
+    stored.set('reviewtrail-color-theme', 'kanagawa-wave');
     installMatchMedia(true);
 
     await mountTheme();
@@ -422,15 +422,15 @@ describe('ThemeProvider', () => {
 
     // The migrated pair is persisted on arrival — the legacy key it was
     // derived from is immediately overwritten with the active palette.
-    expect(stored.get('plannotator-light-theme')).toBe(DEFAULT_COLOR_THEME);
-    expect(stored.get('plannotator-dark-theme')).toBe('kanagawa-wave');
-    expect(stored.get('plannotator-color-theme')).toBe(DEFAULT_COLOR_THEME);
+    expect(stored.get('reviewtrail-light-theme')).toBe(DEFAULT_COLOR_THEME);
+    expect(stored.get('reviewtrail-dark-theme')).toBe('kanagawa-wave');
+    expect(stored.get('reviewtrail-color-theme')).toBe(DEFAULT_COLOR_THEME);
   });
 
   test.skipIf(!hasDom)('keeps every mode selectable while a dark-only palette owns the dark half', async () => {
-    stored.set('plannotator-theme', 'dark');
-    stored.set('plannotator-light-theme', 'rose-pine');
-    stored.set('plannotator-dark-theme', 'dracula');
+    stored.set('reviewtrail-theme', 'dark');
+    stored.set('reviewtrail-light-theme', 'rose-pine');
+    stored.set('reviewtrail-dark-theme', 'dracula');
     installMatchMedia(false);
 
     await mountTheme(<ThemeTab />);
@@ -446,15 +446,15 @@ describe('ThemeProvider', () => {
     expect(themeState().mode).toBe('light');
     expect(themeState().colorTheme).toBe('rose-pine');
     expect(themeState().resolvedMode).toBe('light');
-    expect(stored.get('plannotator-theme')).toBe('light');
-    expect(stored.get('plannotator-dark-theme')).toBe('dracula');
+    expect(stored.get('reviewtrail-theme')).toBe('light');
+    expect(stored.get('reviewtrail-dark-theme')).toBe('dracula');
   });
 
   test.skipIf(!hasDom)('repairs invalid persisted values before exposing state', async () => {
-    stored.set('plannotator-theme', 'sepia');
-    stored.set('plannotator-light-theme', 'dracula');
-    stored.set('plannotator-dark-theme', 'gone-in-this-build');
-    stored.set('plannotator-color-theme', 'andromeeda');
+    stored.set('reviewtrail-theme', 'sepia');
+    stored.set('reviewtrail-light-theme', 'dracula');
+    stored.set('reviewtrail-dark-theme', 'gone-in-this-build');
+    stored.set('reviewtrail-color-theme', 'andromeeda');
     installMatchMedia(true);
 
     await mountTheme();
@@ -462,13 +462,13 @@ describe('ThemeProvider', () => {
     expect(themeState().lightTheme).toBe(DEFAULT_COLOR_THEME);
     expect(themeState().darkTheme).toBe('andromeeda');
     expect(themeState().resolvedMode).toBe('dark');
-    expect(stored.get('plannotator-theme')).toBe('dark');
+    expect(stored.get('reviewtrail-theme')).toBe('dark');
   });
 
   test.skipIf(!hasDom)('assigns one half at a time from its own grid', async () => {
-    stored.set('plannotator-theme', 'light');
-    stored.set('plannotator-light-theme', DEFAULT_COLOR_THEME);
-    stored.set('plannotator-dark-theme', DEFAULT_COLOR_THEME);
+    stored.set('reviewtrail-theme', 'light');
+    stored.set('reviewtrail-light-theme', DEFAULT_COLOR_THEME);
+    stored.set('reviewtrail-dark-theme', DEFAULT_COLOR_THEME);
     installMatchMedia(true);
 
     await mountTheme(<ThemeTab />);
@@ -510,7 +510,7 @@ describe('ThemeProvider', () => {
   // classes without the hold, so every element fades again and the page
   // freezes first; or the hold staying, so hovers stop fading for good.
   test.skipIf(!hasDom)('the first paint holds nothing: a class change on <html> after the page drew would restyle every element', async () => {
-    stored.set('plannotator-theme', 'dark');
+    stored.set('reviewtrail-theme', 'dark');
     installMatchMedia(false);
     const html = document.documentElement;
     const seen: string[] = [];
@@ -526,9 +526,9 @@ describe('ThemeProvider', () => {
   });
 
   test.skipIf(!hasDom)('every change of what is shown lands without the colour fade, and the hold then goes', async () => {
-    stored.set('plannotator-theme', 'dark');
-    stored.set('plannotator-light-theme', DEFAULT_COLOR_THEME);
-    stored.set('plannotator-dark-theme', DEFAULT_COLOR_THEME);
+    stored.set('reviewtrail-theme', 'dark');
+    stored.set('reviewtrail-light-theme', DEFAULT_COLOR_THEME);
+    stored.set('reviewtrail-dark-theme', DEFAULT_COLOR_THEME);
     const media = installMatchMedia(false);
     const html = document.documentElement;
     const held = () => html.classList.contains('pn-theme-switching');
@@ -593,20 +593,20 @@ describe('ThemeProvider', () => {
     expect(themeState().mode).toBe('system');
     expect(themeState().darkTheme).toBe('kanagawa-wave');
     expect(themeState().colorTheme).toBe('kanagawa-wave');
-    // And the mirror keeps writing the host's keys, not Plannotator's.
+    // And the mirror keeps writing the host's keys, not ReviewTrail's.
     expect(stored.get('host-mode')).toBe('system');
     expect(stored.get('host-palette')).toBe('kanagawa-wave');
   });
 
-  // A custom theme from the page's `/plannotator-themes.js` (theme-files.ts): its tile comes first, is drawn from its
+  // A custom theme from the page's `/reviewtrail-themes.js` (theme-files.ts): its tile comes first, is drawn from its
   // own colours, and assigning it applies its class like a built-in's. A cookie naming it survives the first render.
   test.skipIf(!hasDom)('a custom theme is a tile of its own colours, first in the grid, and selectable', async () => {
     const swatch = { primary: '#4cc2ff', secondary: '#5fd4c4', accent: '#ffb547', background: '#0c0f14', foreground: '#d9dee7' };
     setCustomThemes([{ id: 'instrument', name: 'Instrument', modeSupport: 'both', colors: { dark: swatch, light: swatch } }]);
     try {
-      stored.set('plannotator-theme', 'dark');
-      stored.set('plannotator-dark-theme', 'instrument');
-      stored.set('plannotator-light-theme', DEFAULT_COLOR_THEME);
+      stored.set('reviewtrail-theme', 'dark');
+      stored.set('reviewtrail-dark-theme', 'instrument');
+      stored.set('reviewtrail-light-theme', DEFAULT_COLOR_THEME);
       installMatchMedia(false);
 
       await mountTheme(<ThemeTab />);
@@ -622,11 +622,11 @@ describe('ThemeProvider', () => {
       const dots = Array.from(palette('Instrument').querySelectorAll<HTMLElement>('.rounded-full')).map(dot => hex(dot.style.backgroundColor));
       expect(dots).toEqual([swatch.primary, swatch.secondary, swatch.accent, swatch.background, swatch.foreground]);
 
-      await act(async () => clickButton(palette('Plannotator')));
+      await act(async () => clickButton(palette('ReviewTrail')));
       expect(themeState().darkTheme).toBe(DEFAULT_COLOR_THEME);
       await act(async () => clickButton(palette('Instrument')));
       expect(themeState().darkTheme).toBe('instrument');
-      expect(stored.get('plannotator-dark-theme')).toBe('instrument');
+      expect(stored.get('reviewtrail-dark-theme')).toBe('instrument');
     } finally {
       setCustomThemes([]);
     }
@@ -673,7 +673,7 @@ describe('ThemeProvider server write-back', () => {
   });
 
   // A cookie-less visit (fresh profile, incognito, cleared cookies) must not
-  // write anything to ~/.plannotator/config.json: that POST would land after
+  // write anything to ~/.reviewtrail/config.json: that POST would land after
   // the server config arrives and reset the user's real theme to defaults.
   test.skipIf(!hasDom)('posts nothing when mounting with no stored preference', async () => {
     // Drain anything an earlier test's debounce still had in flight.
@@ -686,7 +686,7 @@ describe('ThemeProvider server write-back', () => {
     expect(posts).toEqual([]);
     // The pair still resolved and was persisted locally.
     expect(themeState().colorTheme).toBe(DEFAULT_COLOR_THEME);
-    expect(stored.get('plannotator-light-theme')).toBe(DEFAULT_COLOR_THEME);
+    expect(stored.get('reviewtrail-light-theme')).toBe(DEFAULT_COLOR_THEME);
   });
 
   test.skipIf(!hasDom)('posts a real choice, so the pair still reaches config.json', async () => {
@@ -715,7 +715,7 @@ describe('ThemeProvider server write-back', () => {
 
     expect(posts).toEqual([]);
     expect(themeState().darkTheme).toBe('vesper');
-    expect(stored.get('plannotator-dark-theme')).toBe('vesper');
+    expect(stored.get('reviewtrail-dark-theme')).toBe('vesper');
   });
 });
 
@@ -752,9 +752,9 @@ describe('ThemeProvider legacy setColorTheme', () => {
   });
 
   test.skipIf(!hasDom)('assigns a both-mode palette to the half on screen only', async () => {
-    stored.set('plannotator-theme', 'dark');
-    stored.set('plannotator-light-theme', 'one-light');
-    stored.set('plannotator-dark-theme', 'vesper');
+    stored.set('reviewtrail-theme', 'dark');
+    stored.set('reviewtrail-light-theme', 'one-light');
+    stored.set('reviewtrail-dark-theme', 'vesper');
     installMatchMedia(false);
 
     await mountTheme();
@@ -767,9 +767,9 @@ describe('ThemeProvider legacy setColorTheme', () => {
   });
 
   test.skipIf(!hasDom)('assigns a mode-restricted palette without moving the mode', async () => {
-    stored.set('plannotator-theme', 'system');
-    stored.set('plannotator-light-theme', 'one-light');
-    stored.set('plannotator-dark-theme', 'nord');
+    stored.set('reviewtrail-theme', 'system');
+    stored.set('reviewtrail-light-theme', 'one-light');
+    stored.set('reviewtrail-dark-theme', 'nord');
     const media = installMatchMedia(true);
 
     await mountTheme();
@@ -788,9 +788,9 @@ describe('ThemeProvider legacy setColorTheme', () => {
   });
 
   test.skipIf(!hasDom)('assigns a light-only palette to the light half from dark mode', async () => {
-    stored.set('plannotator-theme', 'dark');
-    stored.set('plannotator-light-theme', 'one-light');
-    stored.set('plannotator-dark-theme', 'nord');
+    stored.set('reviewtrail-theme', 'dark');
+    stored.set('reviewtrail-light-theme', 'one-light');
+    stored.set('reviewtrail-dark-theme', 'nord');
     installMatchMedia(false);
 
     await mountTheme();
@@ -847,13 +847,13 @@ describe('ThemeProvider print mode', () => {
   });
 
   async function mountDarkPair(): Promise<void> {
-    stored.set('plannotator-theme', 'dark');
-    stored.set('plannotator-light-theme', 'one-light');
-    stored.set('plannotator-dark-theme', 'plannotator');
+    stored.set('reviewtrail-theme', 'dark');
+    stored.set('reviewtrail-light-theme', 'one-light');
+    stored.set('reviewtrail-dark-theme', 'reviewtrail');
     installMatchMedia(false);
     await mountTheme();
     expect(themeState().resolvedMode).toBe('dark');
-    expect(themeState().colorTheme).toBe('plannotator');
+    expect(themeState().colorTheme).toBe('reviewtrail');
   }
 
   test.skipIf(!hasDom)('beforeprint flips to the light half and afterprint restores', async () => {
@@ -868,13 +868,13 @@ describe('ThemeProvider print mode', () => {
     expect(document.documentElement.classList.contains('theme-one-light')).toBe(true);
     // The stored preference is untouched: this is a rendering override.
     expect(themeState().mode).toBe('dark');
-    expect(themeState().darkTheme).toBe('plannotator');
+    expect(themeState().darkTheme).toBe('reviewtrail');
 
     await act(async () => {
       window.dispatchEvent(new Event('afterprint'));
     });
     expect(themeState().resolvedMode).toBe('dark');
-    expect(themeState().colorTheme).toBe('plannotator');
+    expect(themeState().colorTheme).toBe('reviewtrail');
     expect(document.documentElement.classList.contains('light')).toBe(false);
   });
 
@@ -897,9 +897,9 @@ describe('ThemeProvider print mode', () => {
   });
 
   test.skipIf(!hasDom)('the print media query drives it too (headless print emulation)', async () => {
-    stored.set('plannotator-theme', 'dark');
-    stored.set('plannotator-light-theme', 'one-light');
-    stored.set('plannotator-dark-theme', 'plannotator');
+    stored.set('reviewtrail-theme', 'dark');
+    stored.set('reviewtrail-light-theme', 'one-light');
+    stored.set('reviewtrail-dark-theme', 'reviewtrail');
     const media = installMatchMedia(false);
     await mountTheme();
     expect(themeState().resolvedMode).toBe('dark');
@@ -910,13 +910,13 @@ describe('ThemeProvider print mode', () => {
 
     await act(async () => media.setPrintMedia(false));
     expect(themeState().resolvedMode).toBe('dark');
-    expect(themeState().colorTheme).toBe('plannotator');
+    expect(themeState().colorTheme).toBe('reviewtrail');
   });
 
   test.skipIf(!hasDom)('a light-mode user sees no change at all', async () => {
-    stored.set('plannotator-theme', 'light');
-    stored.set('plannotator-light-theme', 'one-light');
-    stored.set('plannotator-dark-theme', 'plannotator');
+    stored.set('reviewtrail-theme', 'light');
+    stored.set('reviewtrail-light-theme', 'one-light');
+    stored.set('reviewtrail-dark-theme', 'reviewtrail');
     installMatchMedia(true);
     await mountTheme();
     const before = { ...themeState() };

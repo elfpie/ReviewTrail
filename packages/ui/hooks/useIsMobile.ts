@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-/** Maximum CSS viewport width that can enter Plannotator's compact touch shell. */
+/** Maximum CSS viewport width that can enter ReviewTrail's compact touch shell. */
 export const COMPACT_TOUCH_LAYOUT_MAX_WIDTH = 1024;
 
 /**
@@ -35,7 +35,7 @@ export function useIsMobile(breakpoint = 768): boolean {
 }
 
 /**
- * Reports whether the current viewport needs Plannotator's compact touch shell.
+ * Reports whether the current viewport needs ReviewTrail's compact touch shell.
  */
 export function useCompactTouchLayout(override?: string): boolean {
   const inherited = useContext(CompactLayoutQuery);

@@ -203,7 +203,7 @@ export function chromiumPasteBugAffected(nav: PasteEngineNavigator | undefined |
  * Tests (the e2e simulation, in a Chromium that is not 155 or 156) set this
  * to `true` on the window to turn the workaround on whatever the engine.
  */
-export const FORCE_PLAIN_TEXT_PASTE_FLAG = '__plannotatorForcePlainTextPaste';
+export const FORCE_PLAIN_TEXT_PASTE_FLAG = '__reviewTrailForcePlainTextPaste';
 
 export interface PlainTextPasteOptions {
   /** Whether the workaround runs. Default: the engine gate, or the window's force flag. */

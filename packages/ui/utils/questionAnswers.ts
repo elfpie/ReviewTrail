@@ -1,9 +1,9 @@
 /**
- * Glue between `:::question` answers (`@plannotator/core/question-block`)
+ * Glue between `:::question` answers (`@reviewtrail/core/question-block`)
  * and the UI's `Annotation` list. An answer is ONE annotation carrying
  * `questionAnswer`, id `ann-question-<key>`, so drafts, reload, the panel and
  * host persistence carry it with no second store. These helpers are pure; a
- * host (or Plannotator's editor) calls `upsertQuestionAnswerAnnotation` from
+ * host (or ReviewTrail's editor) calls `upsertQuestionAnswerAnnotation` from
  * the Viewer's `onAnswerQuestion` and stores the returned list.
  */
 import {
@@ -18,7 +18,7 @@ import {
   type QuestionAnswer,
   type QuestionSourceBlock,
   type QuestionStatus,
-} from '@plannotator/core/question-block';
+} from '@reviewtrail/core/question-block';
 import { AnnotationType, type Annotation } from '../types';
 
 /** The answer annotation for a question block, typed for the UI. */

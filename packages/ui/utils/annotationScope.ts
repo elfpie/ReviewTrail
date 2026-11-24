@@ -10,14 +10,14 @@
  * shared storage backend (cookies by default) like the other panel prefs.
  */
 
-import { normalizeBrowserPath, pathIsInsideDir } from '@plannotator/core/browser-paths';
+import { normalizeBrowserPath, pathIsInsideDir } from '@reviewtrail/core/browser-paths';
 import type { Annotation } from '../types';
 import { getItem, setItem } from './storage';
 
 /** `current` = only the open document (the incumbent view). `all` = every document. */
 export type AnnotationScope = 'current' | 'all';
 
-const ANNOTATION_SCOPE_KEY = 'plannotator-annotation-scope';
+const ANNOTATION_SCOPE_KEY = 'reviewtrail-annotation-scope';
 
 /** The user's explicit last choice, or null when they have never chosen. */
 export function getAnnotationScopePreference(): AnnotationScope | null {
@@ -38,7 +38,7 @@ export function setAnnotationScopePreference(scope: AnnotationScope): void {
  * keep it from colliding with a real file path (illegal in Windows paths, and
  * absent from the absolute paths these groups carry).
  */
-export const ROOT_DOCUMENT_GROUP_KEY = '<plannotator-root-document>';
+export const ROOT_DOCUMENT_GROUP_KEY = '<reviewtrail-root-document>';
 
 export interface AnnotationDocumentInput {
   /** Absolute path of the document. */

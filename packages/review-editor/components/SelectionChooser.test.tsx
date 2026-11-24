@@ -17,7 +17,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act, createRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { resetPageMarks, setPageMarks } from '@plannotator/ui/utils/pageMarks';
+import { resetPageMarks, setPageMarks } from '@reviewtrail/ui/utils/pageMarks';
 import type { DiffSelection } from './SelectionChooser';
 import type { ToolbarHostHandle } from './ToolbarHost';
 

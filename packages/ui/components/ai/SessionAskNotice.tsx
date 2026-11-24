@@ -77,8 +77,8 @@ export const SessionAskActions: React.FC<{
         data-session-ask-unreachable={gone ? 'gone' : 'blocked'}
       >
         {gone
-          ? 'Ask AI answers only from the session that opened Plannotator, and that session is gone, so Ask AI can\'t reach it.'
-          : 'Ask AI answers only from the session that opened Plannotator, and that session is waiting on this decision, so Ask AI can\'t reach it until you decide.'}
+          ? 'Ask AI answers only from the session that opened ReviewTrail, and that session is gone, so Ask AI can\'t reach it.'
+          : 'Ask AI answers only from the session that opened ReviewTrail, and that session is waiting on this decision, so Ask AI can\'t reach it until you decide.'}
       </p>
     );
   }

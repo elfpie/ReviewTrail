@@ -10,9 +10,9 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
-import { resolveOpenInTarget } from "@plannotator/shared/html-assets-node";
+import { resolveOpenInTarget } from "@reviewtrail/shared/html-assets-node";
 import { getAvailableOpenInApps, openFileInApp, openWithApp } from "./open-in";
-import { getOpenInApp } from "@plannotator/core/open-in-apps";
+import { getOpenInApp } from "@reviewtrail/core/open-in-apps";
 
 // resolveOpenInTarget is the security boundary for POST /api/open-in: it decides
 // which absolute file a launch is allowed to touch. Real temp dirs/files are

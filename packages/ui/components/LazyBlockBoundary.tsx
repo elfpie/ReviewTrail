@@ -26,7 +26,7 @@ export class LazyBlockBoundary extends React.Component<
   }
 
   componentDidCatch(error: unknown) {
-    console.error('[plannotator] A part of the page could not load:', error);
+    console.error('[reviewtrail] A part of the page could not load:', error);
   }
 
   render() {

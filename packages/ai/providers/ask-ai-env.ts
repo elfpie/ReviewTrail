@@ -1,22 +1,22 @@
 /**
  * The environment of every agent process Ask AI starts (Claude, Codex,
- * OpenCode, Pi, Qwen Code): the live env with Plannotator's own integration
+ * OpenCode, Pi, Qwen Code): the live env with ReviewTrail's own integration
  * switched off inside it.
  *
  * Ask AI drives an agent headlessly, and that agent loads the person's
- * configuration, Plannotator's integration included: the Inbox MCP server
- * (`plannotator inbox mcp`), the agent tool, and the plan hooks (Claude Code's
+ * configuration, ReviewTrail's integration included: the Inbox MCP server
+ * (`reviewtrail inbox mcp`), the agent tool, and the plan hooks (Claude Code's
  * ExitPlanMode PermissionRequest, the Codex Stop hook, Qwen Code's
  * exit_plan_mode). Left on, a question could post to the person's Inbox or
  * block on a plan review nobody is waiting for. So the child gets:
  *
- *  - `PLANNOTATOR_INBOX_TOOL=0` and `PLANNOTATOR_AGENT_TOOL=0`: the switches
+ *  - `REVIEWTRAIL_INBOX_TOOL=0` and `REVIEWTRAIL_AGENT_TOOL=0`: the switches
  *    the Claude Code mod, the OpenCode plugin and the Pi extension already
  *    read, and which win over config.json (`resolveInboxTool` /
  *    `resolveAgentTool` in packages/shared/config.ts).
- *  - `PLANNOTATOR_ASK_AI_CHILD=1`: the marker the rest honours
+ *  - `REVIEWTRAIL_ASK_AI_CHILD=1`: the marker the rest honours
  *    (`isAskAiChild` in packages/shared/child-env.ts): the Inbox MCP shim
- *    lists no tools, the plan-review hook (`plannotator` with no arguments)
+ *    lists no tools, the plan-review hook (`reviewtrail` with no arguments)
  *    exits 0 at once, and the OpenCode plugin stands down.
  *
  * Codex does not pass the env to a stdio MCP server, so codex-app-server.ts
@@ -25,7 +25,7 @@
  *
  * The review server's agent jobs (code review, Guided Review,
  * `agent-jobs.ts` in both runtimes) get the same env and, for `codex exec`,
- * the same `-c` override: none of them uses Plannotator's integration (each
+ * the same `-c` override: none of them uses ReviewTrail's integration (each
  * returns its result on stdout or in its `-o` file).
  *
  * Bun-free and Node-safe: vendored into the Pi extension.
@@ -36,16 +36,20 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
 /** The marker's name. Only the exact value "1" counts. */
-export const ASK_AI_CHILD_ENV = "PLANNOTATOR_ASK_AI_CHILD";
+export const ASK_AI_CHILD_ENV = "REVIEWTRAIL_ASK_AI_CHILD";
 
 /** What `askAiChildEnv` lays over the env it copies. */
 export const ASK_AI_CHILD_SWITCHES: Readonly<Record<string, string>> = {
+	// Silence an independently installed upstream integration in this child too.
 	PLANNOTATOR_INBOX_TOOL: "0",
 	PLANNOTATOR_AGENT_TOOL: "0",
+	PLANNOTATOR_ASK_AI_CHILD: "1",
+	REVIEWTRAIL_INBOX_TOOL: "0",
+	REVIEWTRAIL_AGENT_TOOL: "0",
 	[ASK_AI_CHILD_ENV]: "1",
 };
 
-/** A copy of `env` (default: the LIVE process.env) with Plannotator's integration off. */
+/** A copy of `env` (default: the LIVE process.env) with ReviewTrail's integration off. */
 export function askAiChildEnv(
 	env: Readonly<Record<string, string | undefined>> = process.env,
 ): Record<string, string | undefined> {
@@ -75,7 +79,7 @@ export function withAskAiChildEnv<T>(start: () => T): T {
 	}
 }
 
-/** The Inbox MCP server Plannotator connects to Codex (`INBOX_MCP_SERVER_NAME` in packages/server/inbox-agents.ts). */
+/** The Inbox MCP server ReviewTrail connects to Codex (`INBOX_MCP_SERVER_NAME` in packages/server/inbox-agents.ts). */
 const CODEX_INBOX_SERVER = "plannotator-inbox";
 
 /**

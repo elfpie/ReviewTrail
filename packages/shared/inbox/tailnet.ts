@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox over the tailnet: the pure checks every request that
+ * ReviewTrail Inbox over the tailnet: the pure checks every request that
  * arrives through `tailscale serve` passes before the window's own routes
  * (packages/server/inbox-tailscale.ts runs them on the tailnet listener).
  *

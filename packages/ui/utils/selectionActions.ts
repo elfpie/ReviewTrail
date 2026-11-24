@@ -4,8 +4,8 @@
  *
  * The package renders the button and the dropdown and hands back the
  * selection context; it creates NO annotation of its own. What an action does
- * is entirely the host's business. Plannotator supplies none of these, so
- * nothing here runs in Plannotator's apps.
+ * is entirely the host's business. ReviewTrail supplies none of these, so
+ * nothing here runs in ReviewTrail's apps.
  */
 
 import type React from 'react';

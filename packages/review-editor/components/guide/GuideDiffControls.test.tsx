@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { configStore, useConfigValue } from '@plannotator/ui/config';
+import { configStore, useConfigValue } from '@reviewtrail/ui/config';
 
 // The diff worker is a Vite `?worker&inline` import Bun cannot load; the
 // sibling AllFilesCodeView tests stub the pool the same way.

@@ -1,4 +1,4 @@
-import { QUESTION_ANSWER_ANNOTATION_PREFIX } from '@plannotator/core/question-block';
+import { QUESTION_ANSWER_ANNOTATION_PREFIX } from '@reviewtrail/core/question-block';
 import { AnnotationType, type Annotation } from '../types';
 
 /** Ids of checkbox-toggle annotations: keyed by their list item's block,

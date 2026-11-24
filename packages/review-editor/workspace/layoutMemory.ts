@@ -1,7 +1,7 @@
-import { storage } from '@plannotator/ui/utils/storage';
+import { storage } from '@reviewtrail/ui/utils/storage';
 import type { PaneLayout, PaneTab } from './paneLayout';
 
-export const LAYOUT_MEMORY_KEY = 'plannotator-review-layouts';
+export const LAYOUT_MEMORY_KEY = 'reviewtrail-review-layouts';
 const MAX_REVIEWS = 6;
 const MAX_TABS_PER_PANE = 8;
 const RESTORABLE = new Set(['review-all-files', 'review-diff', 'review-file', 'review-pr-overview', 'review-pr-artifacts', 'review-semantic-diff', 'review-call-flow']);

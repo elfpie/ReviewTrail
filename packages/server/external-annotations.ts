@@ -21,9 +21,9 @@ import {
   type AnnotationStore,
   type StorableAnnotation,
   type ExternalAnnotationEvent,
-} from "@plannotator/shared/external-annotation";
+} from "@reviewtrail/shared/external-annotation";
 
-export type { ExternalAnnotationEvent } from "@plannotator/shared/external-annotation";
+export type { ExternalAnnotationEvent } from "@reviewtrail/shared/external-annotation";
 
 // ---------------------------------------------------------------------------
 // Handler interface (matches existing EditorAnnotationHandler pattern)

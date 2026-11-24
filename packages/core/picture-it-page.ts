@@ -9,7 +9,7 @@ export const PICTURE_IT_HEAD_MAX = 256 * 1024;
 const TAG_MAX = 4096;
 const RAW_BLOCKS = ["script", "style", "template"] as const;
 
-const NAME = /(?<![-\w])name\s*=\s*["']?plannotator-page["']?(?=[\s/>])/i;
+const NAME = /(?<![-\w])name\s*=\s*["']?reviewtrail-page["']?(?=[\s/>])/i;
 const CONTENT = /(?<![-\w])content\s*=\s*["']?picture-it["']?(?=[\s/>])/i;
 
 function opens(lower: string, at: number, name: string): boolean {

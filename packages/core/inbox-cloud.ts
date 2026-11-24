@@ -109,7 +109,7 @@ export interface InboxCloudWakeInput {
 
 export function inboxCloudWakeText(input: InboxCloudWakeInput): string {
   const lines: string[] = [];
-  lines.push(`Plannotator Inbox: the person wrote to you (${input.name}).`);
+  lines.push(`ReviewTrail Inbox: the person wrote to you (${input.name}).`);
   lines.push(`Thread: ${input.thread.subject.replace(/\s+/g, " ").trim() || "(no subject)"}`);
   lines.push(`Thread id: ${input.thread.id}`);
   lines.push(`Thread link (opens only on the person's computer): ${input.thread.url}`);
@@ -136,7 +136,7 @@ export function inboxCloudWakeBody(preset: InboxCloudPreset, input: InboxCloudWa
   if (preset === "claude-routine") return { text };
   return {
     text,
-    source: "plannotator-inbox",
+    source: "reviewtrail-inbox",
     agent: input.name,
     thread: { id: input.thread.id, subject: input.thread.subject, url: input.thread.url },
     still_open: { questions: input.open.questions, actions: input.open.actions },
@@ -145,8 +145,8 @@ export function inboxCloudWakeBody(preset: InboxCloudPreset, input: InboxCloudWa
 }
 
 export function inboxCloudTestBody(preset: InboxCloudPreset, name: string): Record<string, unknown> {
-  const text = `Plannotator Inbox: a test from Settings, to check that ${name} can be woken. There is no message and nothing to do. End the run.`;
-  return preset === "claude-routine" ? { text } : { text, source: "plannotator-inbox", agent: name, test: true };
+  const text = `ReviewTrail Inbox: a test from Settings, to check that ${name} can be woken. There is no message and nothing to do. End the run.`;
+  return preset === "claude-routine" ? { text } : { text, source: "reviewtrail-inbox", agent: name, test: true };
 }
 
 export function inboxCloudWakeHeaders(preset: InboxCloudPreset, key: string): Record<string, string> {
@@ -238,11 +238,11 @@ export function inboxCloudSetup(preset: InboxCloudPreset, pairing: string, relay
   if (preset === "claude-routine") {
     return {
       kind: "claude-routine",
-      variable: `PLANNOTATOR_PAIRING=${pairing}`,
+      variable: `REVIEWTRAIL_PAIRING=${pairing}`,
       domains: ["plannotator.ai", relayHost].filter((host, index, all) => all.indexOf(host) === index).join("\n"),
-      instructions: `On every run, follow the instructions at ${INBOX_CLOUD_SETUP_PAGE} to read and answer my Plannotator Inbox. A wake's text in the routine-fire-payload block is my message from the Inbox: act on it.`,
+      instructions: `On every run, follow the instructions at ${INBOX_CLOUD_SETUP_PAGE} to read and answer my ReviewTrail Inbox. A wake's text in the routine-fire-payload block is my message from the Inbox: act on it.`,
     };
   }
   const page = preset === "muse" ? INBOX_CLOUD_MUSE_PAGE : INBOX_CLOUD_SETUP_PAGE;
-  return { kind: "message", message: `Set up Plannotator Inbox for me by following the instructions at ${page}\n\nPairing: ${pairing}` };
+  return { kind: "message", message: `Set up ReviewTrail Inbox for me by following the instructions at ${page}\n\nPairing: ${pairing}` };
 }

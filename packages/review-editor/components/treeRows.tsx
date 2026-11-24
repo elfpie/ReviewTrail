@@ -1,8 +1,8 @@
 import React from 'react';
-import { plural, shortCount } from '@plannotator/ui/utils/countFormat';
+import { plural, shortCount } from '@reviewtrail/ui/utils/countFormat';
 import type { FileTreeRowPart, FileTreeRowParts, GitStatusEntry } from '@pierre/trees';
 import type { DiffFile } from '../types';
-import { copyTextToClipboard } from '@plannotator/ui/utils/clipboard';
+import { copyTextToClipboard } from '@reviewtrail/ui/utils/clipboard';
 import { useReviewStateOptional } from '../dock/ReviewStateContext';
 
 interface SectionEntry {

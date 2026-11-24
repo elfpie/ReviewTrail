@@ -1,19 +1,17 @@
 import { describe, expect, test } from 'bun:test';
-import { askSessionSetupHint, OMP_EXTENSION_INSTALL_COMMAND } from './askSessionSetupHint';
+import { askSessionSetupHint } from './askSessionSetupHint';
 
 const sdk = { name: 'claude-agent-sdk' };
 const bridge = { name: 'session-bridge', sessionBridge: { host: 'pi', status: 'ready' as const, modes: { turn: true, transient: false } } };
 
 describe('askSessionSetupHint (#1814)', () => {
-  test('the CLI run from Oh My Pi (no bridge) names the OMP extension install command', () => {
+  test('the CLI run from Oh My Pi (no bridge) explains the available feedback path', () => {
     const hint = askSessionSetupHint('oh-my-pi', [sdk]);
-    expect(hint).toContain(OMP_EXTENSION_INSTALL_COMMAND);
-    // The command is what the user must run; pinned on purpose.
-    expect(OMP_EXTENSION_INSTALL_COMMAND).toBe('omp plugin install @plannotator/pi-extension');
+    expect(hint).toContain("send feedback");
   });
 
   test('also with no providers at all, the state where Ask AI otherwise offers nothing', () => {
-    expect(askSessionSetupHint('oh-my-pi', [])).toContain(OMP_EXTENSION_INSTALL_COMMAND);
+    expect(askSessionSetupHint('oh-my-pi', [])).toContain("configured provider");
   });
 
   test('a session that already has a bridge gets no hint', () => {

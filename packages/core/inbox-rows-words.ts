@@ -1,7 +1,7 @@
 /**
  * "Tell your agent" for Settings → Rows (approval "inbox-rows-settings-page"): the one place for every word an agent
  * reads about the Inbox list's rows. The instruction block a Rows ask carries, the setting names and values an agent
- * can use, what `plannotator inbox rows` / `rows set` / `rows undo` print, and their help text all live here, so an
+ * can use, what `reviewtrail inbox rows` / `rows set` / `rows undo` print, and their help text all live here, so an
  * edit of the owner's is one line in this file. The record of the approved words is
  * `.product/approved/inbox-rows-settings-page/`; they change only with the owner.
  *
@@ -14,16 +14,16 @@
 import { inboxRowsCanonical, type InboxRowsOption } from "./inbox-types";
 
 /** The markers around what an agent receives with an ask from Settings → Rows, each on its own line. */
-export const INBOX_ROWS_ASK_OPEN = "<plannotator-rows-ask>";
-export const INBOX_ROWS_ASK_CLOSE = "</plannotator-rows-ask>";
+export const INBOX_ROWS_ASK_OPEN = "<reviewtrail-rows-ask>";
+export const INBOX_ROWS_ASK_CLOSE = "</reviewtrail-rows-ask>";
 
 /** What the agent receives after the person's words when they ask from Settings → Rows. Goes out only with that ask. */
 export const INBOX_ROWS_ASK_BLOCK = [
   INBOX_ROWS_ASK_OPEN,
   "The person asked this from Settings > Rows in the Inbox. They want the rows of their thread list to look different. Do only that.",
   "- First reply in this thread, in one line, that you are on it.",
-  "- Run `plannotator inbox rows`. It prints every row option, what it changes and its value now.",
-  "- Change the options that do what they asked, in one command: `plannotator inbox rows set <name>=<value> ...`. Change nothing else: no files, no config.json, no other setting.",
+  "- Run `reviewtrail inbox rows`. It prints every row option, what it changes and its value now.",
+  "- Change the options that do what they asked, in one command: `reviewtrail inbox rows set <name>=<value> ...`. Change nothing else: no files, no config.json, no other setting.",
   "- If part of what they asked has no row option (a colour, a font, text size, a new column), say so and leave it. Do not work around it.",
   "- If two options would give clearly different lists and you can't tell which they mean, ask them, and change nothing until they answer.",
   "- Then reply here with what changed, in the words the command printed, and say that Undo is on the Rows page. If the command failed, quote its error and say that nothing changed.",
@@ -271,20 +271,20 @@ export function inboxRowsChangeLines(before: readonly InboxRowsOption[], after: 
 
 /** Every fixed line the commands print. Functions take the parts that vary. */
 export const INBOX_ROWS_WORDS = {
-  listHead: "Your Inbox rows now. Change them with: plannotator inbox rows set <name>=<value> ...",
+  listHead: "Your Inbox rows now. Change them with: reviewtrail inbox rows set <name>=<value> ...",
   listFoot: "Not row options: text size and theme (Settings > General), colours, fonts, columns, sorting.",
   changedHead: "Changed your Inbox rows:",
-  changedFoot: "Every open Inbox window shows it now, with Undo. To undo from here: plannotator inbox rows undo",
+  changedFoot: "Every open Inbox window shows it now, with Undo. To undo from here: reviewtrail inbox rows undo",
   nothingChanged: "Nothing changed: the rows already look like that.",
   undoneHead: "Put your Inbox rows back:",
   nothingToUndo: "Nothing to undo.",
-  unknownName: (name: string) => `'${name}' is not a row option. Run 'plannotator inbox rows' for the names. Nothing changed.`,
+  unknownName: (name: string) => `'${name}' is not a row option. Run 'reviewtrail inbox rows' for the names. Nothing changed.`,
   badValue: (name: string, values: string, given: string) => `${name} takes ${values}, not '${given}'. Nothing changed.`,
   twice: (name: string) => `'${name}' is given twice. Nothing changed.`,
   setNeedsPairs: "inbox rows set needs at least one <name>=<value>.",
 } as const;
 
-/** `plannotator inbox rows`: every option with its value now, its choices and what it changes. */
+/** `reviewtrail inbox rows`: every option with its value now, its choices and what it changes. */
 export function inboxRowsListing(rows: readonly InboxRowsOption[]): string {
   const on = new Set(inboxRowsCanonical(rows));
   const line = (name: string, value: string, values: readonly { value: string }[], changes: string) => `${`${name}=${value}`.padEnd(24)} ${values.map((entry) => entry.value).join(" | ").padEnd(35)} ${changes}`;
@@ -309,12 +309,12 @@ export function inboxRowsListingJson(rows: readonly InboxRowsOption[]) {
   };
 }
 
-/** `plannotator inbox rows --help`. */
+/** `reviewtrail inbox rows --help`. */
 export const INBOX_ROWS_USAGE = [
   "Usage:",
-  "  plannotator inbox rows [--json]",
-  "  plannotator inbox rows set <name>=<value> ... [--json]",
-  "  plannotator inbox rows undo [--json]",
+  "  reviewtrail inbox rows [--json]",
+  "  reviewtrail inbox rows set <name>=<value> ... [--json]",
+  "  reviewtrail inbox rows undo [--json]",
   "",
   "Shows and changes how the rows of the person's Inbox list look.",
   "'rows' prints every option, what it changes and its value now.",
@@ -323,14 +323,14 @@ export const INBOX_ROWS_USAGE = [
   "It changes row options only, except agent-icons=project, which also shows in the Agents list and threads.",
 ].join("\n");
 
-/** The line in `plannotator inbox --help`'s usage. */
-export const INBOX_ROWS_USAGE_LINE = "  plannotator inbox rows [set <name>=<value>... | undo] [--json]";
+/** The line in `reviewtrail inbox --help`'s usage. */
+export const INBOX_ROWS_USAGE_LINE = "  reviewtrail inbox rows [set <name>=<value>... | undo] [--json]";
 
-/** The section in `plannotator inbox --help`'s agent help. */
+/** The section in `reviewtrail inbox --help`'s agent help. */
 export const INBOX_ROWS_HELP_SECTION = [
   "## When the person asks you to change how their Inbox list looks",
   "",
-  "Run `plannotator inbox rows`: it prints every row option, what it changes and its value now. Change what they asked with `plannotator inbox rows set <name>=<value> ...`; every open window shows it at once. `plannotator inbox rows undo` puts the last change back. Tell them what changed, in the words the command printed. An ask with no row option (a colour, a font, text size) stays as it is: say so.",
+  "Run `reviewtrail inbox rows`: it prints every row option, what it changes and its value now. Change what they asked with `reviewtrail inbox rows set <name>=<value> ...`; every open window shows it at once. `reviewtrail inbox rows undo` puts the last change back. Tell them what changed, in the words the command printed. An ask with no row option (a colour, a font, text size) stays as it is: say so.",
 ];
 
 /** Who made a rows save, when an agent's command did (the window's own saves carry none). */

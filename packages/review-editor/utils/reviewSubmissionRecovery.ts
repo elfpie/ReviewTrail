@@ -1,12 +1,12 @@
-import type { PRReviewAction, PRReviewSubmissionPartial } from '@plannotator/shared/pr-types';
-import { parsePRReviewAction } from '@plannotator/shared/pr-types';
+import type { PRReviewAction, PRReviewSubmissionPartial } from '@reviewtrail/shared/pr-types';
+import { parsePRReviewAction } from '@reviewtrail/shared/pr-types';
 import type {
   ReviewSubmission,
   SubmissionTarget,
 } from '../components/ReviewSubmissionDialog';
 import { parsePRReviewSubmissionPartial } from './prActionResponse';
 
-const STORAGE_KEY_PREFIX = 'plannotator-pr-review-recovery-v1:';
+const STORAGE_KEY_PREFIX = 'reviewtrail-pr-review-recovery-v1:';
 
 /** Minimal session-storage capability used by review recovery. */
 export interface ReviewRecoveryStorage {
@@ -141,7 +141,7 @@ function blockedCorruptRecovery(rootPrUrl: string): ReviewSubmissionRecovery {
       fileCount: 0,
       annotationCount: 0,
       status: 'blocked',
-      error: 'Plannotator found saved review progress but could not read its retry contract. Automatic replay is blocked to avoid duplicate comments; inspect the platform review before starting again.',
+      error: 'ReviewTrail found saved review progress but could not read its retry contract. Automatic replay is blocked to avoid duplicate comments; inspect the platform review before starting again.',
     }],
   };
 }

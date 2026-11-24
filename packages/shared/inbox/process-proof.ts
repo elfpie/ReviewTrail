@@ -1,6 +1,6 @@
 /**
  * Is this pid the Inbox that `inbox/inbox.json` names? Asked before
- * `plannotator inbox stop` signals anything, because a pid in a record proves
+ * `reviewtrail inbox stop` signals anything, because a pid in a record proves
  * nothing on its own: the record outlives its Inbox and pids are reused.
  *
  * Two proofs, either one enough (`proveInboxProcess`):
@@ -8,7 +8,7 @@
  *  - health: `GET /api/inbox/health` on the record's port answers with the
  *    record's pid AND serverSession. Only that Inbox knows its serverSession.
  *  - process (POSIX only, read from `ps`): the pid runs an Inbox server
- *    command line (`plannotator inbox`, `… index.ts inbox`, with only
+ *    command line (`reviewtrail inbox`, `… index.ts inbox`, with only
  *    `--no-open` / `--tailscale` after it; never `inbox mcp`), AND it started
  *    no later than the record's `startedAt`. The Inbox writes `startedAt`
  *    once it listens, so the process that wrote the record was already
@@ -26,7 +26,7 @@
  * does not answer is never signalled there.
  *
  * The command-line classifier follows rmohta's `classifyInboxCommand`
- * (rmohta/plannotator, branch feat/plan-library, inbox-processes.ts), matched
+ * (rmohta/reviewtrail, branch feat/plan-library, inbox-processes.ts), matched
  * on the whole line so a binary in a folder whose name holds a space still
  * reads.
  */
@@ -40,11 +40,11 @@ const START_SLACK_MS = 2_000;
 /** The flags an Inbox server runs with (a detached start runs `inbox --no-open [--tailscale]`). */
 const SERVER_TAIL = /\sinbox((?:\s+(?:--no-open|--tailscale))*)\s*$/;
 /**
- * What runs the Inbox: the `plannotator` binary itself (bare, or a path to
+ * What runs the Inbox: the `reviewtrail` binary itself (bare, or a path to
  * it), or a script after its interpreter (`bun …/index.ts inbox`). Not
- * `grep plannotator inbox`: a word before a bare `plannotator` is not a path.
+ * `grep reviewtrail inbox`: a word before a bare `reviewtrail` is not a path.
  */
-const RUNNER = /^(?:plannotator|.*[\\/]plannotator)(?:\.exe)?$|\.[cm]?[jt]s$/;
+const RUNNER = /^(?:reviewtrail|.*[\\/]reviewtrail)(?:\.exe)?$|\.[cm]?[jt]s$/;
 
 /** Whether one command line is an Inbox server (never `inbox mcp`, `inbox stop` or another subcommand). */
 export function isInboxServerCommand(command: string): boolean {

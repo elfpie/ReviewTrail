@@ -8,10 +8,10 @@
  *
  * Why: in `pierre-light` 12 of its 17 colours were under 4.5:1 on a white
  * block (the operator cyan `#08c0ef` 2.1:1, the constant yellow `#d5a910`
- * 2.2:1), lower still on Plannotator's light code block (`bg-muted/50`,
+ * 2.2:1), lower still on ReviewTrail's light code block (`bg-muted/50`,
  * `#eaedf2`); in `pierre-dark` the comment grey was 3.8:1 and punctuation
  * 3.0:1 on the dark block. Each colour below now reads at least 4.5:1 on the
- * theme's own background AND on Plannotator's code block in that mode
+ * theme's own background AND on ReviewTrail's code block in that mode
  * (`fenceSyntaxThemes.test.ts` computes it for every token of both themes).
  * Where two colours of one hue would have met (dark comment and
  * punctuation; light number and operator), the one that was darker or
@@ -28,8 +28,8 @@ export type FenceHalf = 'light' | 'dark';
 
 /** The Shiki theme names fences draw in when no palette names one. */
 export const FENCE_SYNTAX_THEME: Readonly<Record<FenceHalf, string>> = {
-  light: 'plannotator-fence-light',
-  dark: 'plannotator-fence-dark',
+  light: 'reviewtrail-fence-light',
+  dark: 'reviewtrail-fence-dark',
 };
 
 /** The Pierre theme each fence theme is made from. */
@@ -43,7 +43,7 @@ export const FENCE_BASE_THEME: Readonly<Record<FenceHalf, string>> = {
  * Generated once from Pierre 2.0.0's themes: OKLCH lightness only (chroma
  * eased only where the darker colour leaves the sRGB gamut), to 4.6:1 against
  * the worse of the theme's own background (`#ffffff`, `#0a0a0a`) and the
- * default palette's `--muted` (themes/plannotator.css: oklch(0.92 0.01 260)
+ * default palette's `--muted` (themes/reviewtrail.css: oklch(0.92 0.01 260)
  * light, oklch(0.26 0.02 260) dark). A code block draws `bg-muted/50` over the
  * page, so it is never darker (light) or lighter (dark) than `--muted` itself.
  * Where two colours of one hue had an order, it is kept (light number vs

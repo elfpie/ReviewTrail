@@ -11,9 +11,9 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test
 import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { GUIDE_SNAPSHOT_SCRIPT_ID, parseGuideSnapshotJson } from "@plannotator/shared/guide-format";
-import { FIXTURE_PATCH_TS_JSON } from "@plannotator/shared/guide-format-fixtures";
-import { deriveGuideRepoKeyFallback, listGuides } from "@plannotator/shared/guide-store";
+import { GUIDE_SNAPSHOT_SCRIPT_ID, parseGuideSnapshotJson } from "@reviewtrail/shared/guide-format";
+import { FIXTURE_PATCH_TS_JSON } from "@reviewtrail/shared/guide-format-fixtures";
+import { deriveGuideRepoKeyFallback, listGuides } from "@reviewtrail/shared/guide-store";
 import { startReviewServer } from "./review";
 
 const SPA_HTML = "<!doctype html><html><body>SPA fallback</body></html>";
@@ -32,7 +32,7 @@ let previousPort: string | undefined;
 let previousRemote: string | undefined;
 
 beforeAll(() => {
-  binDir = mkdtempSync(join(tmpdir(), "plannotator-fake-claude-"));
+  binDir = mkdtempSync(join(tmpdir(), "reviewtrail-fake-claude-"));
   // A fake claude: swallow stdin (the prompt) and print one stream-json result line.
   const script = `#!/bin/sh
 cat >/dev/null
@@ -42,25 +42,25 @@ printf '%s\\n' '{"type":"result","is_error":false,"structured_output":${JSON.str
   chmodSync(join(binDir, "claude"), 0o755);
   previousPath = process.env.PATH;
   process.env.PATH = `${binDir}:${process.env.PATH ?? ""}`;
-  previousPort = process.env.PLANNOTATOR_PORT;
-  previousRemote = process.env.PLANNOTATOR_REMOTE;
-  delete process.env.PLANNOTATOR_PORT;
-  process.env.PLANNOTATOR_REMOTE = "0";
+  previousPort = process.env.REVIEWTRAIL_PORT;
+  previousRemote = process.env.REVIEWTRAIL_REMOTE;
+  delete process.env.REVIEWTRAIL_PORT;
+  process.env.REVIEWTRAIL_REMOTE = "0";
 });
 
 afterAll(() => {
   if (previousPath === undefined) delete process.env.PATH;
   else process.env.PATH = previousPath;
-  if (previousPort === undefined) delete process.env.PLANNOTATOR_PORT;
-  else process.env.PLANNOTATOR_PORT = previousPort;
-  if (previousRemote === undefined) delete process.env.PLANNOTATOR_REMOTE;
-  else process.env.PLANNOTATOR_REMOTE = previousRemote;
+  if (previousPort === undefined) delete process.env.REVIEWTRAIL_PORT;
+  else process.env.REVIEWTRAIL_PORT = previousPort;
+  if (previousRemote === undefined) delete process.env.REVIEWTRAIL_REMOTE;
+  else process.env.REVIEWTRAIL_REMOTE = previousRemote;
   rmSync(binDir, { recursive: true, force: true });
 });
 
 afterEach(() => {
-  if (previousDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = previousDataDir;
+  if (previousDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = previousDataDir;
   if (dataDir) rmSync(dataDir, { recursive: true, force: true });
   dataDir = "";
 });
@@ -85,9 +85,9 @@ function embeddedSnapshot(html: string) {
 
 describe("guide export end to end (Bun review server)", () => {
   test("live job → export carries the launch-time diff; after restart the saved guide exports the same", async () => {
-    dataDir = mkdtempSync(join(tmpdir(), "plannotator-guide-e2e-"));
-    previousDataDir = process.env.PLANNOTATOR_DATA_DIR;
-    process.env.PLANNOTATOR_DATA_DIR = dataDir;
+    dataDir = mkdtempSync(join(tmpdir(), "reviewtrail-guide-e2e-"));
+    previousDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+    process.env.REVIEWTRAIL_DATA_DIR = dataDir;
     const repoKey = deriveGuideRepoKeyFallback(process.cwd());
 
     let server = await startReviewServer({ rawPatch: FIXTURE_PATCH_TS_JSON, gitRef: "test..HEAD", origin: "claude-code", htmlContent: SPA_HTML });

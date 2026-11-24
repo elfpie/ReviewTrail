@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { storage } from '@plannotator/ui/utils/storage';
+import { storage } from '@reviewtrail/ui/utils/storage';
 import type { ImageZoom } from './geometry';
 
 export type ImageDiffMode = 'side' | 'swipe' | 'onion';
@@ -13,8 +13,8 @@ export interface ImageDiffSettings {
   background: ImageBackground;
 }
 
-export const IMAGE_DIFF_MODE_COOKIE = 'plannotator-image-diff-view';
-export const IMAGE_BACKGROUND_COOKIE = 'plannotator-image-background';
+export const IMAGE_DIFF_MODE_COOKIE = 'reviewtrail-image-diff-view';
+export const IMAGE_BACKGROUND_COOKIE = 'reviewtrail-image-background';
 export const IMAGE_BACKGROUNDS: readonly ImageBackground[] = ['checker', 'light', 'dark'];
 export const IMAGE_BACKGROUND_LABEL: Record<ImageBackground, string> = { checker: 'Checkerboard', light: 'Light', dark: 'Dark' };
 

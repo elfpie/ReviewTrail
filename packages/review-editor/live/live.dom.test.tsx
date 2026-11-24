@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { InboxMessage } from '@plannotator/core/inbox-types';
+import type { InboxMessage } from '@reviewtrail/core/inbox-types';
 import { LiveComposer } from './LiveComposer';
 import { LiveThreadCard } from './LiveThreadCard';
 import { placeThreads, type LiveAgent } from './model';

@@ -2,7 +2,7 @@
  * Code navigation — Bun runtime adapter and request handler.
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
+import { childEnv } from "@reviewtrail/shared/child-env";
 import {
   type CodeNavRequest,
   type CodeNavRuntime,
@@ -13,9 +13,9 @@ import {
   resolveCodeNavHover,
   validateCodeNavRequest,
   extractChangedFiles,
-} from "@plannotator/shared/code-nav";
+} from "@reviewtrail/shared/code-nav";
 
-import { readFileCapped } from "@plannotator/shared/repo-file";
+import { readFileCapped } from "@reviewtrail/shared/repo-file";
 import { resolve } from "node:path";
 import { decodeBunText } from "./git";
 

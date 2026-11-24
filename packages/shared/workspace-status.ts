@@ -4,7 +4,7 @@ import { readFileSync, realpathSync, statSync } from "node:fs";
 import { readFile, realpath, stat } from "node:fs/promises";
 import { isAbsolute, relative, resolve } from "node:path";
 
-import type { WorkspaceFileChange, WorkspaceStatusPayload, GitRepositoryInfo, WorkspaceFileStatus } from '@plannotator/core/workspace-status-types';
+import type { WorkspaceFileChange, WorkspaceStatusPayload, GitRepositoryInfo, WorkspaceFileStatus } from '@reviewtrail/core/workspace-status-types';
 export type { WorkspaceFileChange, WorkspaceStatusPayload, GitRepositoryInfo, WorkspaceFileStatus };
 
 const TEXT_FILE_MAX_BYTES = 2 * 1024 * 1024;
@@ -18,7 +18,7 @@ interface WorkspaceStatusFlight {
 const workspaceStatusFlights = new Map<string, WorkspaceStatusFlight>();
 
 function getGitTimeoutMs(): number {
-	const timeout = Number.parseInt(process.env.PLANNOTATOR_GIT_TIMEOUT_MS ?? "", 10);
+	const timeout = Number.parseInt(process.env.REVIEWTRAIL_GIT_TIMEOUT_MS ?? "", 10);
 	return Number.isFinite(timeout) && timeout > 0 ? timeout : DEFAULT_GIT_TIMEOUT_MS;
 }
 

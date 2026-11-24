@@ -13,7 +13,7 @@
  *     resolver's fallback loader, which throws in a worker first ("Themes
  *     must be pre-resolved on the main thread").
  *
- * Plannotator builds the worker with `inlineDynamicImports` (the single-file
+ * ReviewTrail builds the worker with `inlineDynamicImports` (the single-file
  * apps inline it as a string in the entry chunk), so those catalogs were
  * inlined too: about 11 MB more in the review app's entry chunk, which loads
  * up front. 1.5.2's worker had neither. Each id resolves to a module whose
@@ -33,14 +33,14 @@ const PREFIX = '\0diffs-worker-catalog:';
 
 export function diffsWorkerCatalogs() {
   return {
-    name: 'plannotator:diffs-worker-catalogs',
+    name: 'reviewtrail:diffs-worker-catalogs',
     enforce: 'pre' as const,
     resolveId(id: string) {
       return CATALOGS.has(id) ? PREFIX + id : null;
     },
     load(id: string) {
       if (!id.startsWith(PREFIX)) return null;
-      const message = `${id.slice(PREFIX.length)} is not bundled in Plannotator's highlight worker: Pierre resolves languages and themes on the main thread (build/diffs-worker-catalogs.ts).`;
+      const message = `${id.slice(PREFIX.length)} is not bundled in ReviewTrail's highlight worker: Pierre resolves languages and themes on the main thread (build/diffs-worker-catalogs.ts).`;
       return [
         `const fail = () => { throw new Error(${JSON.stringify(message)}); };`,
         'const unavailable = new Proxy({}, { get: fail, has: fail, ownKeys: fail, getOwnPropertyDescriptor: fail });',

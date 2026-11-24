@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { CallFlowNode } from '@plannotator/shared/call-flow-types';
+import type { CallFlowNode } from '@reviewtrail/shared/call-flow-types';
 import type { ReviewState } from '../dock/ReviewStateContext';
 import {
   createReviewFileSourceLoader,

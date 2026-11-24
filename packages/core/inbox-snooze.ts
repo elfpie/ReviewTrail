@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox: snoozing a thread (approval "inbox-snooze",
+ * ReviewTrail Inbox: snoozing a thread (approval "inbox-snooze",
  * .product/approved/inbox-snooze/). Pure, and shared with Workspaces: the
  * times the menu offers, the day and half-hour lists of Pick a time, and the
  * one rule for whether a thread is snoozed.

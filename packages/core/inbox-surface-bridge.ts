@@ -1,7 +1,7 @@
 /**
  * The surface bridge (adr/implementation/inbox-mobile.md, section 5): the
  * messages between a native shell (the iPhone app's WKWebView) and the
- * surface, the single-file build of Plannotator's viewers that the shell
+ * surface, the single-file build of ReviewTrail's viewers that the shell
  * loads (`apps/hook/dist/surface.html`, built by `apps/inbox`'s
  * `build:surface`).
  *
@@ -9,16 +9,16 @@
  * Inbox's device door and hands it over here. Picks and Send are native and
  * never cross the bridge.
  *
- * - Shell to surface: `window.plannotatorSurface.receive(message)`.
- * - Surface to shell: `window.webkit.messageHandlers.plannotatorSurface.postMessage(message)`
- *   on iOS; on Android (no `window.webkit`), `window.plannotatorShell.postMessage(JSON.stringify(message))`
+ * - Shell to surface: `window.reviewTrailSurface.receive(message)`.
+ * - Surface to shell: `window.webkit.messageHandlers.reviewTrailSurface.postMessage(message)`
+ *   on iOS; on Android (no `window.webkit`), `window.reviewTrailShell.postMessage(JSON.stringify(message))`
  *   (section 10). The shell takes messages from the main frame only, so an agent's HTML,
  *   drawn in its sandboxed frame, cannot reach the bridge.
  *
  * Every message is `{ v: 1, type, ... }`. A surface given another `v`
  * answers `error` with `code: "bridge_version"`.
  *
- * Reaches the Inbox through `@plannotator/core/inbox-types` (re-exported
+ * Reaches the Inbox through `@reviewtrail/core/inbox-types` (re-exported
  * there), so core's export map is unchanged.
  */
 
@@ -29,7 +29,7 @@ import type { InboxGuideRef } from "./inbox-types";
 export const INBOX_SURFACE_BRIDGE_VERSION = 1 as const;
 
 /**
- * Plannotator's `Annotation` (`packages/ui/types.ts`), as the viewer made it.
+ * ReviewTrail's `Annotation` (`packages/ui/types.ts`), as the viewer made it.
  * Opaque here, as in the store (`InboxAnnotationRecord.annotation`). A draft
  * is one with an empty `text`: the shell fills the person's words in and
  * saves it through the door (exchange 7.17).
@@ -122,9 +122,9 @@ export interface SurfaceRemoveAnnotation {
 }
 
 /**
- * Send asks for the annotations as Plannotator's feedback text (the window's
+ * Send asks for the annotations as ReviewTrail's feedback text (the window's
  * `attachmentFeedback`): the reply's `feedback` field (exchange 7.11). The
- * text is built here because only Plannotator's parser can number the lines
+ * text is built here because only ReviewTrail's parser can number the lines
  * the person read; nothing is drawn.
  */
 export interface SurfaceExportFeedback {
@@ -174,7 +174,7 @@ export interface SurfaceReady {
   v: 1;
   type: "ready";
   bridge: typeof INBOX_SURFACE_BRIDGE_VERSION;
-  /** The Plannotator version the surface was built from. */
+  /** The ReviewTrail version the surface was built from. */
   build: string;
 }
 
@@ -190,7 +190,7 @@ export interface SurfaceSelection {
 export interface SurfacePin {
   v: 1;
   type: "pin";
-  /** `label` is the element as the sheet names it (Plannotator's pinpoint label: "Button", a heading's words); `selector` finds it again. */
+  /** `label` is the element as the sheet names it (ReviewTrail's pinpoint label: "Button", a heading's words); `selector` finds it again. */
   target: { label: string; selector: string };
   draft: SurfaceAnnotation;
 }

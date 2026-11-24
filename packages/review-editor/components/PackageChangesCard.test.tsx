@@ -2,9 +2,9 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { PackageChangesCard } from './PackageChangesCard';
-import { adoptPackageChangesConfig, resetPackageChangesSetting } from '@plannotator/ui/hooks/usePackageChangesSetting';
+import { adoptPackageChangesConfig, resetPackageChangesSetting } from '@reviewtrail/ui/hooks/usePackageChangesSetting';
 import { resetPackageChangesCache, type PackageCard } from '../hooks/usePackageChanges';
-import { resetStorageBackend, setStorageBackend } from '@plannotator/ui/utils/storage';
+import { resetStorageBackend, setStorageBackend } from '@reviewtrail/ui/utils/storage';
 
 const hasDom = typeof document !== 'undefined';
 const originalFetch = globalThis.fetch;
@@ -163,7 +163,7 @@ describe('PackageChangesCard', () => {
     expect(document.body.textContent).toContain('43.2M');
   });
 
-  test.skipIf(!hasDom)('PLANNOTATOR_PACKAGE_LOOKUP=0 offers no lookup; the card switch off fetches nothing at all', async () => {
+  test.skipIf(!hasDom)('REVIEWTRAIL_PACKAGE_LOOKUP=0 offers no lookup; the card switch off fetches nothing at all', async () => {
     const calls: Call[] = [];
     stubServer(calls);
     adoptPackageChangesConfig({ packageChanges: { card: true, lookup: false, lookupEnv: false } });

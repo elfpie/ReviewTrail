@@ -1,1 +1,1 @@
-export * from "@plannotator/core/call-tree";
+export * from "@reviewtrail/core/call-tree";

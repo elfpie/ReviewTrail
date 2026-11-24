@@ -1,6 +1,6 @@
 /**
  * The Call tree: one function and the calls it makes, as one small versioned
- * document (`plannotator.callTree/1`). Browser-safe and dependency-free, so
+ * document (`reviewtrail.callTree/1`). Browser-safe and dependency-free, so
  * the classic review app, a Guided Review chapter, the Inbox review and the
  * commercial app can all feed the same component from it.
  *
@@ -10,7 +10,7 @@
  * file adds, removes or moves a call.
  */
 
-export const CALL_TREE_SCHEMA = "plannotator.callTree/1" as const;
+export const CALL_TREE_SCHEMA = "reviewtrail.callTree/1" as const;
 
 export type CallTreeNodeStatus = "same" | "added" | "removed";
 export type CallTreeNodeKind = "call" | "branch";

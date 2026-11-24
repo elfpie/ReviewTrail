@@ -40,7 +40,7 @@ interface CompletionOverlayProps {
    */
   links?: ReadonlyArray<{ href: string; label: string }>;
   /**
-   * Optional content in place under the done message (Plannotator's "Star the repo" card, `useStarAskDoneScreen`).
+   * Optional content in place under the done message (ReviewTrail's "Star the repo" card, `useStarAskDoneScreen`).
    * With it, the done block moves to the top of the screen (480 px wide) to make room, and the screen scrolls. Omitted
    * or null: the done screen is exactly as before.
    */

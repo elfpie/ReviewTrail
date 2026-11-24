@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useSyncExternalStore } from "react";
-import { isCodeFilePath, isCodeFilePathStrict, CODE_PATH_BARE_REGEX, parseCodePath } from "@plannotator/core/code-file";
-import { findCrossRepoRef, forgeRefLinks, gitlabHostsSnapshot, matchCrossRepoRef, subscribeGitlabHosts, type CrossRepoRef } from "@plannotator/core/forge-refs";
+import { isCodeFilePath, isCodeFilePathStrict, CODE_PATH_BARE_REGEX, parseCodePath } from "@reviewtrail/core/code-file";
+import { findCrossRepoRef, forgeRefLinks, gitlabHostsSnapshot, matchCrossRepoRef, subscribeGitlabHosts, type CrossRepoRef } from "@reviewtrail/core/forge-refs";
 import { CodeSnippetPreview } from "./CodeSnippetPreview";
 import { useHoverPreview } from "../hooks/useHoverPreview";
 import { matchInlineHtml } from '../utils/inlineHtmlTags';
@@ -29,7 +29,7 @@ export interface DocPreviewResult {
 export type DocPreviewFetcher = (path: string, base?: string) => Promise<DocPreviewResult | null>;
 
 /**
- * Default code-file hover-preview fetcher — Plannotator's `/api/doc` behavior, verbatim.
+ * Default code-file hover-preview fetcher — ReviewTrail's `/api/doc` behavior, verbatim.
  */
 const defaultDocPreviewFetcher: DocPreviewFetcher = async (path, base) => {
   const params = new URLSearchParams({ path });
@@ -38,7 +38,7 @@ const defaultDocPreviewFetcher: DocPreviewFetcher = async (path, base) => {
   return await res.json();
 };
 
-// Module-level fetcher, stable identity. Defaults to Plannotator's `/api/doc`.
+// Module-level fetcher, stable identity. Defaults to ReviewTrail's `/api/doc`.
 // A host (e.g. Workspaces) calls setDocPreviewFetcher once at startup to load
 // hover previews from its own backend.
 let docPreviewFetcher: DocPreviewFetcher = defaultDocPreviewFetcher;
@@ -48,7 +48,7 @@ export const setDocPreviewFetcher = (fetcher: DocPreviewFetcher): void => {
   docPreviewFetcher = fetcher;
 };
 
-/** Reset to the default (Plannotator `/api/doc`) fetcher. Mainly for tests. */
+/** Reset to the default (ReviewTrail `/api/doc`) fetcher. Mainly for tests. */
 export const resetDocPreviewFetcher = (): void => {
   docPreviewFetcher = defaultDocPreviewFetcher;
 };
@@ -540,8 +540,8 @@ const HostResolvedMedia: React.FC<{ src: string; alt: string; writtenSrc: string
 /**
  * Whether a digit-only 6/8-digit `#123456` is an issue ref (when a ref link can
  * be built) rather than a hex swatch. Off by default: every host renders such
- * values as colours. The Plannotator Inbox turns it on through
- * `configurePlannotatorUI({ digitHexIssueRefs: true })` (#1932).
+ * values as colours. The ReviewTrail Inbox turns it on through
+ * `configureReviewTrailUI({ digitHexIssueRefs: true })` (#1932).
  */
 let digitHexIssueRefs = false;
 
@@ -578,8 +578,8 @@ export function getDigitHexIssueRefs(): boolean {
  * (`forgeRefLinks`' rule for a repo with no host). `{ host }`: they link on
  * that host by the same rule (GitLab's `/-/issues/N`; a host `forgeRefLinks`
  * cannot form a link for leaves them plain). A caller that names its repo is
- * unchanged either way (that repo's forge host decides). The Plannotator
- * Inbox turns it on through `configurePlannotatorUI({ crossRepoRefsWithoutRepo })`
+ * unchanged either way (that repo's forge host decides). The ReviewTrail
+ * Inbox turns it on through `configureReviewTrailUI({ crossRepoRefsWithoutRepo })`
  * with the host most of its projects use: a thread whose project has no git
  * origin still links the refs agents are told to write. Changing it re-renders
  * every mounted `InlineMarkdown`.
@@ -1143,8 +1143,8 @@ export const InlineMarkdown: React.FC<{
     // Hex color swatch — 3/4-digit forms need an a-f letter to avoid matching issue refs like #123.
     // 6/8-digit forms with no letter (#186379) are ambiguous. By default they
     // stay swatches (greys like #333333 are common in docs; six-digit issues are
-    // rare). A host that opts in with `configurePlannotatorUI({ digitHexIssueRefs:
-    // true })` (the Plannotator Inbox, #1932) gets an issue ref instead, but only
+    // rare). A host that opts in with `configureReviewTrailUI({ digitHexIssueRefs:
+    // true })` (the ReviewTrail Inbox, #1932) gets an issue ref instead, but only
     // when a ref link can actually be built (`refLinks`: a repo path on a known
     // forge) and the ref branch below would take it: a word boundary and no
     // leading zero (issue numbers never start with 0, so #000000 stays a colour).

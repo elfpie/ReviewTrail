@@ -30,7 +30,7 @@
  * stylesheet (not Tailwind classes) for the reason `QuestionContext` gives.
  */
 import React, { useState } from 'react';
-import type { ParsedQuestion, QuestionChange, QuestionChangeGroup, QuestionChangeValue, QuestionChoice } from '@plannotator/core/question-block';
+import type { ParsedQuestion, QuestionChange, QuestionChangeGroup, QuestionChangeValue, QuestionChoice } from '@reviewtrail/core/question-block';
 import {
   diffQuestionChange,
   questionChangeLines,
@@ -109,7 +109,7 @@ del.qc-del { color: inherit; text-decoration: line-through; text-decoration-thic
 `;
 
 /** The stylesheet, hoisted into <head> once (React 19), whatever renders first. */
-const Style = () => <style href="plannotator-question-change" precedence="default">{QUESTION_CHANGE_CSS}</style>;
+const Style = () => <style href="reviewtrail-question-change" precedence="default">{QUESTION_CHANGE_CSS}</style>;
 
 const PinGlyph = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">

@@ -31,7 +31,7 @@ let codeViewItems: Array<{ id: string }> = [];
 // Spread-captured before the mock replaces the module record (see
 // DiffViewer.compactTouchSelection.test.tsx for why).
 const realPierreDiffsReact = { ...(await import('@pierre/diffs/react')) };
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 mock.module('../workerPool', () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,

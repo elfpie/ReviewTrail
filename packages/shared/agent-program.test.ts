@@ -15,7 +15,7 @@ import {
 } from "./agent-program";
 
 const posix = process.platform !== "win32";
-const root = realpathSync(mkdtempSync(join(tmpdir(), "plannotator-agent-program-")));
+const root = realpathSync(mkdtempSync(join(tmpdir(), "reviewtrail-agent-program-")));
 const bin = join(root, "bin");
 mkdirSync(bin);
 const log = join(root, "ran.log");

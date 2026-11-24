@@ -1,12 +1,12 @@
 import React from 'react';
 import { ArrowDownLeft, ArrowUpDown, ArrowUpRight, Minus, MoveRight, PenLine, Pilcrow, Plus, type LucideIcon } from 'lucide-react';
-import type { SelectedLineRange } from '@plannotator/ui/types';
+import type { SelectedLineRange } from '@reviewtrail/ui/types';
 import type {
   SemanticDiffBinaryChange,
   SemanticDiffChange,
-} from '@plannotator/shared/semantic-diff-types';
-import { CodeSnippetPreview } from '@plannotator/ui/components/CodeSnippetPreview';
-import { useHoverPreview } from '@plannotator/ui/hooks/useHoverPreview';
+} from '@reviewtrail/shared/semantic-diff-types';
+import { CodeSnippetPreview } from '@reviewtrail/ui/components/CodeSnippetPreview';
+import { useHoverPreview } from '@reviewtrail/ui/hooks/useHoverPreview';
 import type { ReviewFileSource, ReviewFileSourceLoader } from '../../hooks/useReviewFileSource';
 
 const CHANGE_ICONS: Record<string, LucideIcon> = {

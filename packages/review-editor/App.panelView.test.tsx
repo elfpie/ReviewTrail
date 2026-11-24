@@ -19,8 +19,8 @@ import {
   resetStorageBackend,
   setStorageBackend,
   type StorageBackend,
-} from "@plannotator/ui/utils/storage";
-import { configStore } from "@plannotator/ui/config";
+} from "@reviewtrail/ui/utils/storage";
+import { configStore } from "@reviewtrail/ui/config";
 
 // Vite-only virtual module (`?worker&inline`) — bun cannot resolve it, so the
 // pool hooks are stubbed exactly like App.decisionControl.test.tsx does.
@@ -140,14 +140,14 @@ async function settle(): Promise<void> {
  *  Deliberately seeds NO panel-view or review-setup key: what these tests
  *  measure is what a profile that never chose a view opens on. */
 function seedUnrelatedAnnouncementsSeen(): void {
-  memory.set("plannotator-plan-look-choice-resolved", "true");
-  memory.set("plannotator-announce-tui-herdr-seen", "1");
-  memory.set("plannotator-announce-inbox-seen", "1");
-  memory.set("plannotator-guide-intro-seen", "2");
-  memory.set("plannotator-guide-hint-acked", "true");
-  memory.set("plannotator-edit-mode-announcement-seen", "3");
-  memory.set("plannotator-token-hover-announcement-seen", "1");
-  memory.set("plannotator-review-dest-spotlight-seen", "1");
+  memory.set("reviewtrail-plan-look-choice-resolved", "true");
+  memory.set("reviewtrail-announce-tui-herdr-seen", "1");
+  memory.set("reviewtrail-announce-inbox-seen", "1");
+  memory.set("reviewtrail-guide-intro-seen", "2");
+  memory.set("reviewtrail-guide-hint-acked", "true");
+  memory.set("reviewtrail-edit-mode-announcement-seen", "3");
+  memory.set("reviewtrail-token-hover-announcement-seen", "1");
+  memory.set("reviewtrail-review-dest-spotlight-seen", "1");
 }
 
 async function mount(seed: () => void = () => {}): Promise<void> {
@@ -208,14 +208,14 @@ describe.if(hasDom)("opening panel view", () => {
     expect(document.querySelector('[class*="fixed inset-0"][class*="z-[100]"]')).toBeNull();
     // The removal is not a server-config change: reviewPanelView is a
     // cookie-only setting, so a fresh profile must POST nothing to /api/config.
-    expect(memory.get("plannotator-review-panel-view")).toBe("tree");
+    expect(memory.get("reviewtrail-review-panel-view")).toBe("tree");
   });
 
   test("a persisted sections cookie opens the tree grouped by git status", async () => {
     // Failure caught: the default flip reaching existing users. Anyone who
     // chose Git status in Settings keeps it.
     await mount(() => {
-      memory.set("plannotator-review-panel-view", "sections");
+      memory.set("reviewtrail-review-panel-view", "sections");
     });
 
     expect(selectedPanelSegment()).toBe("Tree");
@@ -227,8 +227,8 @@ describe.if(hasDom)("opening panel view", () => {
     // Failure caught: removing the initializer taking the memo with it — the
     // panel toggle's only persistence.
     await mount(() => {
-      memory.set("plannotator-review-panel-view", "tree");
-      memory.set("plannotator-review-panel-view-last-used", "sections");
+      memory.set("reviewtrail-review-panel-view", "tree");
+      memory.set("reviewtrail-review-panel-view-last-used", "sections");
     });
 
     expect(selectedPanelSegment()).toBe("Tree");

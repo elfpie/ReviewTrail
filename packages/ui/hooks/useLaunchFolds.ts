@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { getItem, setItem } from '../utils/storage';
 import type { LaunchKind } from './useLaunchConfig';
 
-export const LAUNCH_FOLDS_KEY = 'plannotator.launchpad';
+export const LAUNCH_FOLDS_KEY = 'reviewtrail.launchpad';
 
 type Folds = Record<LaunchKind, boolean>;
 

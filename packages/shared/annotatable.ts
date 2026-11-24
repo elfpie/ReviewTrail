@@ -1,1 +1,1 @@
-export * from "@plannotator/core/annotatable";
+export * from "@reviewtrail/core/annotatable";

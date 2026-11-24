@@ -1,8 +1,8 @@
 import { afterAll, afterEach, describe, expect, mock, test } from "bun:test";
 import React, { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { resetStorageBackend, setStorageBackend, type StorageBackend } from "@plannotator/ui/utils/storage";
-import { configStore } from "@plannotator/ui/config";
+import { resetStorageBackend, setStorageBackend, type StorageBackend } from "@reviewtrail/ui/utils/storage";
+import { configStore } from "@reviewtrail/ui/config";
 
 mock.module("./workerPool", () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,
@@ -103,11 +103,11 @@ async function waitFor(check: () => boolean, what: string): Promise<void> {
 
 async function mount(phone: boolean): Promise<void> {
   setStorageBackend(memoryBackend);
-  for (const name of ["plannotator-announce-tui-herdr-seen", "plannotator-announce-inbox-seen", "plannotator-token-hover-announcement-seen", "plannotator-review-dest-spotlight-seen"]) memory.set(name, "1");
-  memory.set("plannotator-plan-look-choice-resolved", "true");
-  memory.set("plannotator-guide-intro-seen", "2");
-  memory.set("plannotator-guide-hint-acked", "true");
-  memory.set("plannotator-edit-mode-announcement-seen", "3");
+  for (const name of ["reviewtrail-announce-tui-herdr-seen", "reviewtrail-announce-inbox-seen", "reviewtrail-token-hover-announcement-seen", "reviewtrail-review-dest-spotlight-seen"]) memory.set(name, "1");
+  memory.set("reviewtrail-plan-look-choice-resolved", "true");
+  memory.set("reviewtrail-guide-intro-seen", "2");
+  memory.set("reviewtrail-guide-hint-acked", "true");
+  memory.set("reviewtrail-edit-mode-announcement-seen", "3");
   configStore.loadFromBackend();
   window.matchMedia = media(phone);
   globalThis.fetch = makeFetch();

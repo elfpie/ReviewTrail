@@ -1,7 +1,7 @@
 import { afterAll, afterEach, describe, expect, mock, test } from 'bun:test';
 import React, { act, useCallback, useImperativeHandle, useRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { configStore } from '@plannotator/ui/config';
+import { configStore } from '@reviewtrail/ui/config';
 import type { DiffFile } from '../types';
 import type { SemDiffClient, SemDiffResult } from '../semDiff/semDiffClient';
 
@@ -10,7 +10,7 @@ let items = new Map<string, { id: string; type: string; fileDiff: Record<string,
 
 const realPierreDiffs = { ...(await import('@pierre/diffs')) };
 const realPierreDiffsReact = { ...(await import('@pierre/diffs/react')) };
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 mock.module('../workerPool', () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,

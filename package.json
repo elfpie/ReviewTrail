@@ -8,14 +8,6 @@
   "bin": {
     "reviewtrail": "bin/reviewtrail"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/backnotprop/plannotator.git"
-  },
-  "homepage": "https://github.com/backnotprop/plannotator",
-  "bugs": {
-    "url": "https://github.com/backnotprop/plannotator/issues"
-  },
   "workspaces": [
     "apps/*",
     "packages/*"

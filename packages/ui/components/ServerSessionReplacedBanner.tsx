@@ -3,7 +3,7 @@ import { useServerSessionReplaced } from '../utils/serverSession';
 
 /**
  * The stale-tab prompt (packages/ui/utils/serverSession.ts): shown once a
- * decision was refused with `409 session_mismatch`, i.e. the Plannotator
+ * decision was refused with `409 session_mismatch`, i.e. the ReviewTrail
  * session this tab was opened for is gone and a newer one owns the address.
  * Nothing was submitted; reloading shows what is open there now.
  */

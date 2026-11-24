@@ -1,5 +1,5 @@
 {
-  "name": "@plannotator/shared",
+  "name": "@reviewtrail/shared",
   "version": "0.0.1",
   "private": true,
   "exports": {
@@ -101,7 +101,7 @@
     "./local-image": "./local-image.ts",
     "./browser-intent": "./browser-intent.ts",
     "./host-control": "./host-control.ts",
-    "./plannotator-server-marker": "./plannotator-server-marker.ts",
+    "./reviewtrail-server-marker": "./reviewtrail-server-marker.ts",
     "./inbox/schema": "./inbox/schema.ts",
     "./inbox/registry": "./inbox/registry.ts",
     "./inbox/connection": "./inbox/connection.ts",
@@ -112,7 +112,7 @@
     "./review-live": "./review-live.ts"
   },
   "dependencies": {
-    "@plannotator/core": "workspace:*",
+    "@reviewtrail/core": "workspace:*",
     "@plannotator/sem-jiff": "0.2.0",
     "chokidar": "^5.0.0",
     "diff": "^8.0.4",

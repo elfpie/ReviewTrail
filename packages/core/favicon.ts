@@ -257,7 +257,7 @@ export const FAVICON_PNG_BYTES = /* @__PURE__ */ Uint8Array.from(
 
 /**
  * @deprecated Prefer FAVICON_PNG_DATA_URL for UI and FAVICON_PNG_BYTES for servers.
- * Kept so published @plannotator/core consumers retain the existing export.
+ * Retained for consumers of the original favicon export.
  */
 export const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <image width="64" height="64" href="${FAVICON_PNG_DATA_URL}"/>
@@ -614,7 +614,7 @@ export const YELLOW_FAVICON_PNG_BYTES = /* @__PURE__ */ Uint8Array.from(
  * Exact historical pre-Totman dark-navy favicon SVG with gold highlight.
  * Byte-identical to the FAVICON_SVG that shipped at 5b91c543^.
  * No longer offered, and 'classic' is no longer a style (favicon-style.ts).
- * Kept exported so published @plannotator/core consumers keep the export.
+ * Retained for consumers of the historical favicon export.
  * Source SHA-256: 27d33cff3d4515801f48e1cbaceec777ba802a7d341b22b2c0444d82b303cb49
  */
 export const CLASSIC_FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">

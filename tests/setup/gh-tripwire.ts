@@ -59,7 +59,7 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, 
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 
-const scratch = realpathSync(mkdtempSync(join(tmpdir(), "plannotator-test-gh-")));
+const scratch = realpathSync(mkdtempSync(join(tmpdir(), "reviewtrail-test-gh-")));
 const bin = join(scratch, "bin");
 const log = join(scratch, "gh-calls.log");
 const configDir = join(scratch, "gh-config");
@@ -67,7 +67,7 @@ mkdirSync(bin);
 mkdirSync(configDir);
 writeFileSync(log, "");
 
-const MESSAGE = "plannotator test tripwire: a test ran `gh`. Tests never run the real GitHub CLI; inject a fake (tests/helpers/fake-pr-runtime.ts, or a fake gh first on the child's PATH).";
+const MESSAGE = "reviewtrail test tripwire: a test ran `gh`. Tests never run the real GitHub CLI; inject a fake (tests/helpers/fake-pr-runtime.ts, or a fake gh first on the child's PATH).";
 
 function shellQuote(value: string): string {
   return `'${value.replace(/'/g, `'\\''`)}'`;
@@ -94,7 +94,7 @@ if (process.platform === "win32") {
     script,
     [
       "#!/bin/sh",
-      "# Plannotator's test tripwire (tests/setup/gh-tripwire.ts): never the real gh.",
+      "# ReviewTrail's test tripwire (tests/setup/gh-tripwire.ts): never the real gh.",
       // One line per call, written at once, so calls running side by side never interleave.
       "line=gh",
       `for arg in "$@"; do line="$line $(printf '%s' "$arg" | tr '\\n\\t' '  ')"; done`,
@@ -115,7 +115,7 @@ export const GH_TRIPWIRE_CONFIG_DIR = configDir;
 process.env.PATH = `${bin}${delimiter}${process.env.PATH ?? ""}`;
 process.env.GH_CONFIG_DIR = configDir;
 /** What GH_TOKEN and GH_ENTERPRISE_TOKEN hold in every test: never a real token, and never the keyring's. */
-export const GH_FAKE_TOKEN = "plannotator-test-fake-token";
+export const GH_FAKE_TOKEN = "reviewtrail-test-fake-token";
 process.env.GH_TOKEN = GH_FAKE_TOKEN;
 process.env.GH_ENTERPRISE_TOKEN = GH_FAKE_TOKEN;
 for (const name of ["GITHUB_TOKEN", "GITHUB_ENTERPRISE_TOKEN"]) delete process.env[name];

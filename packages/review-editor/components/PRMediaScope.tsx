@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ImageLightbox } from '@plannotator/ui/components/ImageLightbox';
+import { ImageLightbox } from '@reviewtrail/ui/components/ImageLightbox';
 import { useReviewStateOptional } from '../dock/ReviewStateContext';
 import { mediaArtifact } from '../utils/prMediaTarget';
 

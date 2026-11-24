@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { modKey } from '@plannotator/ui/utils/platform';
+import { modKey } from '@reviewtrail/ui/utils/platform';
 import type { TokenHoverState } from '../hooks/useTokenHover';
 
 /** Fixed width, so the horizontal clamp can be computed before measuring. */

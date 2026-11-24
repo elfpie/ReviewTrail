@@ -1,4 +1,4 @@
-import type { SavedGuideListEntry, SavedGuideWhere } from '@plannotator/shared/guide';
+import type { SavedGuideListEntry, SavedGuideWhere } from '@reviewtrail/shared/guide';
 
 export const GUIDE_SEARCH_THRESHOLD = 8;
 

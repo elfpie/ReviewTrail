@@ -10,11 +10,11 @@ import {
   writeServerReadyMetadata,
 } from "./shared-handlers";
 import { saveConfig } from "./config";
-import { FACE_FAVICON_PNG_BYTES, FAVICON_ICO_BYTES, FAVICON_PNG_BYTES, YELLOW_FAVICON_ICO_BYTES, YELLOW_FAVICON_PNG_BYTES } from "@plannotator/shared/favicon";
+import { FACE_FAVICON_PNG_BYTES, FAVICON_ICO_BYTES, FAVICON_PNG_BYTES, YELLOW_FAVICON_ICO_BYTES, YELLOW_FAVICON_PNG_BYTES } from "@reviewtrail/shared/favicon";
 
 describe("writeServerReadyMetadata", () => {
   test("writes host-plugin ready metadata", () => {
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-ready-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-ready-"));
     const readyFile = join(dir, "nested", "ready.jsonl");
 
     try {
@@ -68,14 +68,14 @@ async function captureStreams(fn: () => Promise<void>): Promise<{ stdout: string
  */
 function expectSingleReadyLine(output: string, url: string): void {
   expect(output.split(url).length - 1).toBe(1);
-  expect(output).toContain(`\n  Plannotator session ready: ${url}\n`);
+  expect(output).toContain(`\n  ReviewTrail session ready: ${url}\n`);
 }
 
 describe("SESSION_READY_LINE_PREFIX", () => {
   // A cross-component contract: the OpenCode CLI bridge matches it with its
   // own regex and the docs quote it as the line to grep.
   test("is the exact text consumers match on", () => {
-    expect(SESSION_READY_LINE_PREFIX).toBe("Plannotator session ready: ");
+    expect(SESSION_READY_LINE_PREFIX).toBe("ReviewTrail session ready: ");
   });
 });
 
@@ -106,7 +106,7 @@ describe("handleServerReady", () => {
         },
       });
     });
-    expect(stderr).toBe("\n  Plannotator session ready: http://localhost:3000\n\n");
+    expect(stderr).toBe("\n  ReviewTrail session ready: http://localhost:3000\n\n");
     expect(opened).toBe("http://localhost:3000");
   });
 
@@ -140,7 +140,7 @@ describe("handleServerReady", () => {
       await handleServerReady("http://localhost:19432", true, 19432, { skipBrowserOpen: true });
     });
     expect(stderr).toBe(
-      "\n  Plannotator session ready: http://localhost:19432\n" +
+      "\n  ReviewTrail session ready: http://localhost:19432\n" +
         "  Open it on your local machine (forward port 19432 if needed).\n\n",
     );
   });
@@ -158,11 +158,11 @@ describe("handleServerReady", () => {
   });
 
   test("an overridden host gets the device line, not the forwarding advice", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-ready-host-"));
-    const savedHost = process.env.PLANNOTATOR_URL_HOST;
-    const savedDataDir = process.env.PLANNOTATOR_DATA_DIR;
-    process.env.PLANNOTATOR_URL_HOST = "vps-1.tail1234.ts.net";
-    process.env.PLANNOTATOR_DATA_DIR = dir;
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-ready-host-"));
+    const savedHost = process.env.REVIEWTRAIL_URL_HOST;
+    const savedDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+    process.env.REVIEWTRAIL_URL_HOST = "vps-1.tail1234.ts.net";
+    process.env.REVIEWTRAIL_DATA_DIR = dir;
     try {
       const url = "http://vps-1.tail1234.ts.net:19432";
       const { stderr } = await captureStreams(async () => {
@@ -172,17 +172,17 @@ describe("handleServerReady", () => {
       expect(stderr).toContain("  Open it on your device (the URL above).\n");
       expect(stderr).not.toContain("forward port");
     } finally {
-      if (savedHost === undefined) delete process.env.PLANNOTATOR_URL_HOST;
-      else process.env.PLANNOTATOR_URL_HOST = savedHost;
-      if (savedDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-      else process.env.PLANNOTATOR_DATA_DIR = savedDataDir;
+      if (savedHost === undefined) delete process.env.REVIEWTRAIL_URL_HOST;
+      else process.env.REVIEWTRAIL_URL_HOST = savedHost;
+      if (savedDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+      else process.env.REVIEWTRAIL_DATA_DIR = savedDataDir;
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   // A reverse-proxy origin has no port to forward; the advice would be wrong.
   test("a public proxy URL gets the device line, not the forwarding advice", async () => {
-    const url = "https://plannotator.example.com";
+    const url = "https://reviewtrail.example.com";
     const { stderr } = await captureStreams(async () => {
       await handleServerReady(url, true, 19432, { skipBrowserOpen: true });
     });
@@ -191,15 +191,15 @@ describe("handleServerReady", () => {
     expect(stderr).not.toContain("forward port");
   });
 
-  // PLANNOTATOR_BROWSER=none (or --browser none) opens nothing: the reason
+  // REVIEWTRAIL_BROWSER=none (or --browser none) opens nothing: the reason
   // goes under the URL, and no launch (so no failure line) follows.
   test.each([
     ["local", false, ""],
     ["remote", true, "  Open it on your local machine (forward port 6000 if needed).\n"],
-  ])("PLANNOTATOR_BROWSER=none: a %s session says why and never calls the opener", async (_label, isRemote, middle) => { // no-browser-guard: sentinel under test (expected text, nothing is set)
-    const saved = process.env.PLANNOTATOR_BROWSER;
+  ])("REVIEWTRAIL_BROWSER=none: a %s session says why and never calls the opener", async (_label, isRemote, middle) => { // no-browser-guard: sentinel under test (expected text, nothing is set)
+    const saved = process.env.REVIEWTRAIL_BROWSER;
     // no-browser-guard: sentinel under test (in process; the opener is a stub that records)
-    process.env.PLANNOTATOR_BROWSER = "none";
+    process.env.REVIEWTRAIL_BROWSER = "none";
     let called = false;
     try {
       const { stdout, stderr } = await captureStreams(async () => {
@@ -213,29 +213,29 @@ describe("handleServerReady", () => {
       expect(called).toBe(false);
       expect(stdout).toBe("");
       expect(stderr).toBe(
-        "\n  Plannotator session ready: http://localhost:6000\n" +
+        "\n  ReviewTrail session ready: http://localhost:6000\n" +
           middle +
-          "  Not opening a browser (PLANNOTATOR_BROWSER=none).\n\n", // no-browser-guard: sentinel under test (expected text, nothing is set)
+          "  Not opening a browser (REVIEWTRAIL_BROWSER=none).\n\n", // no-browser-guard: sentinel under test (expected text, nothing is set)
       );
     } finally {
-      if (saved === undefined) delete process.env.PLANNOTATOR_BROWSER;
-      else process.env.PLANNOTATOR_BROWSER = saved;
+      if (saved === undefined) delete process.env.REVIEWTRAIL_BROWSER;
+      else process.env.REVIEWTRAIL_BROWSER = saved;
     }
   });
 
   // A host that opens the browser itself (skipBrowserOpen) has nothing to explain.
-  test("PLANNOTATOR_BROWSER=none with skipBrowserOpen prints no reason line", async () => { // no-browser-guard: sentinel under test (expected text, nothing is set)
-    const saved = process.env.PLANNOTATOR_BROWSER;
+  test("REVIEWTRAIL_BROWSER=none with skipBrowserOpen prints no reason line", async () => { // no-browser-guard: sentinel under test (expected text, nothing is set)
+    const saved = process.env.REVIEWTRAIL_BROWSER;
     // no-browser-guard: sentinel under test (in process; nothing is launched)
-    process.env.PLANNOTATOR_BROWSER = "none";
+    process.env.REVIEWTRAIL_BROWSER = "none";
     try {
       const { stderr } = await captureStreams(async () => {
         await handleServerReady("http://localhost:6100", false, 6100, { skipBrowserOpen: true });
       });
-      expect(stderr).toBe("\n  Plannotator session ready: http://localhost:6100\n\n");
+      expect(stderr).toBe("\n  ReviewTrail session ready: http://localhost:6100\n\n");
     } finally {
-      if (saved === undefined) delete process.env.PLANNOTATOR_BROWSER;
-      else process.env.PLANNOTATOR_BROWSER = saved;
+      if (saved === undefined) delete process.env.REVIEWTRAIL_BROWSER;
+      else process.env.REVIEWTRAIL_BROWSER = saved;
     }
   });
 
@@ -243,7 +243,7 @@ describe("handleServerReady", () => {
   // itself: announce: false prints nothing but still writes the ready file
   // and opens the browser.
   test("announce: false prints nothing but still writes the ready file and opens the browser", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-announce-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-announce-"));
     const readyFile = join(dir, "ready.jsonl");
     let opened = "";
     try {
@@ -293,17 +293,17 @@ describe("handleServerReady", () => {
  * break the moment someone added one (happy-dom replaces global fetch).
  */
 describe("handleFavicon", () => {
-  const savedDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const savedDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "plannotator-favicon-handler-"));
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    tempDir = mkdtempSync(join(tmpdir(), "reviewtrail-favicon-handler-"));
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
   });
 
   afterEach(() => {
-    if (savedDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-    else process.env.PLANNOTATOR_DATA_DIR = savedDataDir;
+    if (savedDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+    else process.env.REVIEWTRAIL_DATA_DIR = savedDataDir;
     rmSync(tempDir, { recursive: true, force: true });
   });
 

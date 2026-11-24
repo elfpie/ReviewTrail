@@ -17,13 +17,13 @@ export type WorkspaceDiffType =
   | "workspace-unstaged"
   | "workspace-last";
 
-// The prompt-context types moved to @plannotator/core/review-prompt
+// The prompt-context types moved to @reviewtrail/core/review-prompt
 // (browser-safe); re-exported so existing importers keep working unchanged.
 import type {
   WorkspaceChildVcsType,
   WorkspacePromptRepoContext,
   WorkspaceReviewPromptContext,
-} from "@plannotator/core/review-prompt";
+} from "@reviewtrail/core/review-prompt";
 export type { WorkspaceChildVcsType, WorkspacePromptRepoContext, WorkspaceReviewPromptContext };
 
 export interface WorkspaceRepoState {

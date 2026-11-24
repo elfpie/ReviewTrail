@@ -11,7 +11,7 @@
  * A request from another address gets exactly what remote mode gives.
  */
 
-import { isLoopbackPeerAddress, isThisMachineReader } from "@plannotator/shared/this-machine-reader";
+import { isLoopbackPeerAddress, isThisMachineReader } from "@reviewtrail/shared/this-machine-reader";
 import { isRemoteSession, isSshDetectedRemote } from "./remote";
 
 /** The TCP peer of each request a server saw, noted at the top of its fetch (Bun's Request does not carry it). */

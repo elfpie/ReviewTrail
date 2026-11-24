@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CodeFileView } from '@plannotator/ui/components/CodeFilePopout';
+import { CodeFileView } from '@reviewtrail/ui/components/CodeFilePopout';
 import { useOriginalFileText } from '../hooks/useOriginalFileText';
 import { removedLinesCss, removedOldLines } from '../utils/wholeFileMarks';
 import { FileTextState, type FileTokenHandlers } from './RepoFileView';

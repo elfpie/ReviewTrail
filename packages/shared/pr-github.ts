@@ -992,7 +992,7 @@ export async function submitGhPRReview(
     // Throws with the pre-#1599 error when the single call fails too (e.g. an
     // invalid line comment), so only a successful fallback is logged.
     const result = await submitAtomic(foldFileLevelComments(body, fileLevelComments));
-    console.error(`[plannotator] pending review could not be created (${commandError(created)}); file comments were posted in the review body`);
+    console.error(`[reviewtrail] pending review could not be created (${commandError(created)}); file comments were posted in the review body`);
     return result;
   }
 
@@ -1019,7 +1019,7 @@ export async function submitGhPRReview(
       }
     }
     if (typeof threadId !== "string") {
-      console.error(`[plannotator] file comment on ${comment.path} could not be posted as a file thread (${commandError(result)}); posting it in the review body`);
+      console.error(`[reviewtrail] file comment on ${comment.path} could not be posted as a file thread (${commandError(result)}); posting it in the review body`);
       folded.push(comment);
     }
   }

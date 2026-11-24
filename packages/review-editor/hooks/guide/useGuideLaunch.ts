@@ -1,10 +1,10 @@
-import type { AgentCapabilities } from '@plannotator/ui/types';
-import type { AgentLaunchParams } from '@plannotator/ui/hooks/useAgentJobs';
+import type { AgentCapabilities } from '@reviewtrail/ui/types';
+import type { AgentLaunchParams } from '@reviewtrail/ui/hooks/useAgentJobs';
 import { useEffect } from 'react';
-import { useAgentSettings } from '@plannotator/ui/hooks/useAgentSettings';
-import { useModelCatalogs, type ModelCatalogs } from '@plannotator/ui/hooks/useModelCatalogs';
-import type { ReviewEngine } from '@plannotator/ui/hooks/useAgentSettings';
-import { REVIEW_ENGINE_LABEL } from '@plannotator/ui/components/AgentsTab';
+import { useAgentSettings } from '@reviewtrail/ui/hooks/useAgentSettings';
+import { useModelCatalogs, type ModelCatalogs } from '@reviewtrail/ui/hooks/useModelCatalogs';
+import type { ReviewEngine } from '@reviewtrail/ui/hooks/useAgentSettings';
+import { REVIEW_ENGINE_LABEL } from '@reviewtrail/ui/components/AgentsTab';
 
 export const GUIDE_ENGINES = Object.keys(REVIEW_ENGINE_LABEL) as ReviewEngine[];
 

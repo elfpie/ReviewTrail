@@ -11,7 +11,7 @@ import {
   unionToolbarRect,
   type ToolbarRect,
 } from './touchToolbarPlacement';
-import { configurePlannotatorUI } from '../configure';
+import { configureReviewTrailUI } from '../configure';
 
 /**
  * The selection toolbar on a phone: iOS Safari draws its own edit menu above a
@@ -210,11 +210,11 @@ describe('unionToolbarRect', () => {
 });
 
 describe('touchSelectionToolbar seam', () => {
-  test('is off unless a host opts in, and configurePlannotatorUI turns it on and off', () => {
+  test('is off unless a host opts in, and configureReviewTrailUI turns it on and off', () => {
     expect(getTouchSelectionToolbar()).toBe(false);
-    configurePlannotatorUI({ touchSelectionToolbar: true });
+    configureReviewTrailUI({ touchSelectionToolbar: true });
     expect(getTouchSelectionToolbar()).toBe(true);
-    configurePlannotatorUI({ touchSelectionToolbar: false });
+    configureReviewTrailUI({ touchSelectionToolbar: false });
     expect(getTouchSelectionToolbar()).toBe(false);
     setTouchSelectionToolbar(true);
     resetTouchSelectionToolbar();

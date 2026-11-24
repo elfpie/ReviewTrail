@@ -1,6 +1,6 @@
 import { useLayoutEffect, useState } from 'react';
-import { useTheme } from '@plannotator/ui/components/ThemeProvider';
-import { readThemeTokenValues } from '@plannotator/ui/utils/themeTokens';
+import { useTheme } from '@reviewtrail/ui/components/ThemeProvider';
+import { readThemeTokenValues } from '@reviewtrail/ui/utils/themeTokens';
 import { DIFF_COUNT_TOKEN_NAMES, diffCountColors } from '../utils/diffCountColors';
 
 /**

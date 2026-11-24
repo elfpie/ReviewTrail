@@ -11,7 +11,7 @@ import { useSyncExternalStore } from 'react';
 export interface PackageChangesSettingState {
   card: boolean;
   lookup: boolean;
-  /** PLANNOTATOR_PACKAGE_LOOKUP=0: the lookup is off and Settings cannot turn it on. */
+  /** REVIEWTRAIL_PACKAGE_LOOKUP=0: the lookup is off and Settings cannot turn it on. */
   lookupEnv?: false;
 }
 

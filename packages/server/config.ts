@@ -18,6 +18,6 @@ export {
   agentToolSaveFailed,
   agentSwitchConfigToSave,
   cookieHostConfigWrite,
-  type PlannotatorConfig,
+  type ReviewTrailConfig,
   type DiffOptions,
-} from "@plannotator/shared/config";
+} from "@reviewtrail/shared/config";

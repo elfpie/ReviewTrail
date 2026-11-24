@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { RenderedMarkdown } from '@plannotator/ui/components/RenderedMarkdown';
-import { AnnotationType, type Annotation } from '@plannotator/ui/types';
+import { RenderedMarkdown } from '@reviewtrail/ui/components/RenderedMarkdown';
+import { AnnotationType, type Annotation } from '@reviewtrail/ui/types';
 import type { ReviewState } from '../dock/ReviewStateContext';
 import { renderPRDescriptionVideo } from './PRDescriptionVideo';
 
@@ -164,7 +164,7 @@ describe.if(hasDom)('PR description comments next to an attachment video', () =>
       selectedDescriptionAnnotationId: null,
       onAddDescriptionAnnotation: () => {},
       onSelectDescriptionAnnotation: () => {},
-      prMetadata: { platform: 'github', url: 'https://github.com/backnotprop/plannotator/pull/1' },
+      prMetadata: { platform: 'github', url: 'https://github.com/backnotprop/reviewtrail/pull/1' },
     } as unknown as ReviewState;
     host = document.createElement('div');
     document.body.appendChild(host);

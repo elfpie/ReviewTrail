@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { diagramTargetName } from '@plannotator/core/diagram-anchor';
+import { diagramTargetName } from '@reviewtrail/core/diagram-anchor';
 import { cn } from '../../lib/utils';
 import { projectElement, type ScreenRect } from '../../utils/diagram-projection';
 import type { DiagramCanvasHandle } from './DiagramCanvas';

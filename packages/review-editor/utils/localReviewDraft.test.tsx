@@ -2,11 +2,11 @@ import { expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useAnnotationFactory } from '../hooks/useAnnotationFactory';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import { parseDiffToFiles } from './diffParser';
-import { reanchorCodeAnnotations } from '@plannotator/ui/utils/codeAnnotationAnchor';
+import { reanchorCodeAnnotations } from '@reviewtrail/ui/utils/codeAnnotationAnchor';
 import { localReviewDraftTransport, withLocalReviewTarget } from './localReviewDraft';
-import { DraftTargetChangedError } from '@plannotator/ui/hooks/useCodeAnnotationDraft';
+import { DraftTargetChangedError } from '@reviewtrail/ui/hooks/useCodeAnnotationDraft';
 
 const hasDom = typeof document !== 'undefined';
 
@@ -24,7 +24,7 @@ test('generation conflicts do not masquerade as target changes, and missing draf
     const error = await transport.save({}, { keepalive: false }).catch(error => error);
     expect(error).toBeInstanceOf(Error);
     expect(error).not.toBeInstanceOf(DraftTargetChangedError);
-    globalThis.fetch = (async () => new Response(null, { status: 204, headers: { "Plannotator-Draft-Generation": "40" } })) as typeof fetch;
+    globalThis.fetch = (async () => new Response(null, { status: 204, headers: { "ReviewTrail-Draft-Generation": "40" } })) as typeof fetch;
     expect(await transport.load()).toEqual({ data: null, generation: 40 });
   } finally { globalThis.fetch = previousFetch; }
 });

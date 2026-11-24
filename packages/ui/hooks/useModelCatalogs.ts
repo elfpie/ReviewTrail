@@ -4,11 +4,11 @@ import {
   CODEX_FALLBACK_MODELS,
   type CatalogModel,
   type ModelsSource,
-} from '@plannotator/core/model-catalog';
+} from '@reviewtrail/core/model-catalog';
 import type { AgentCapabilities } from '../types';
 
-// Picker helpers, re-exported for launch surfaces outside @plannotator/ui.
-export { effortSelectOptions, modelSelectOptions } from '@plannotator/core/model-catalog';
+// Picker helpers, re-exported for launch surfaces outside @reviewtrail/ui.
+export { effortSelectOptions, modelSelectOptions } from '@reviewtrail/core/model-catalog';
 
 /**
  * Claude / Codex model catalogs for the agent launchers (review,

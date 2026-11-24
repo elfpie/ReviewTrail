@@ -4,7 +4,7 @@
  * Each SettingDef describes:
  *   - defaultValue: fallback (can be a lazy factory for expensive defaults)
  *   - fromCookie/toCookie: serialization to/from cookie storage
- *   - serverKey + fromServer/toServer: opt-in sync to ~/.plannotator/config.json
+ *   - serverKey + fromServer/toServer: opt-in sync to ~/.reviewtrail/config.json
  *
  * Add new settings here. Cookie-only settings omit serverKey.
  */
@@ -12,22 +12,22 @@
 import {
   isAnnotateAgentTerminalSide,
   type AnnotateAgentTerminalSide,
-} from '@plannotator/core/agent-terminal';
-import type { DiffLineBgIntensity, ReviewDefaults } from '@plannotator/core/config-types';
-import { DEFAULT_FAVICON_STYLE, isFaviconStyle, type FaviconStyle } from '@plannotator/core/favicon-style';
+} from '@reviewtrail/core/agent-terminal';
+import type { DiffLineBgIntensity, ReviewDefaults } from '@reviewtrail/core/config-types';
+import { DEFAULT_FAVICON_STYLE, isFaviconStyle, type FaviconStyle } from '@reviewtrail/core/favicon-style';
 import {
   agentSwitchConfigValue,
   isAgentSwitchName,
   parseAgentSwitchConfig,
   type AgentSwitchChoice,
-} from '@plannotator/core/agent-switch';
+} from '@reviewtrail/core/agent-switch';
 import {
   DEFAULT_TOKEN_HOVER_DELAY_MS,
   isTokenHoverDelay,
   resolveStoredTokenHoverTrigger,
   type TokenHoverDelay,
   type TokenHoverTrigger,
-} from '@plannotator/core/token-hover';
+} from '@reviewtrail/core/token-hover';
 import { DEFAULT_DIAGRAM_SHADOW, isDiagramShadow } from '../utils/diagramShadow';
 import {
   DEFAULT_DOCUMENT_TEXT_SIZE,
@@ -47,20 +47,20 @@ import {
 import { parseThemeMode } from '../components/themeModes';
 
 /** Legacy single-palette key, still written so a downgrade renders styled. */
-const COLOR_THEME_COOKIE = 'plannotator-color-theme';
-const MODE_COOKIE = 'plannotator-theme';
-const LIGHT_THEME_COOKIE = 'plannotator-light-theme';
-const DARK_THEME_COOKIE = 'plannotator-dark-theme';
+const COLOR_THEME_COOKIE = 'reviewtrail-color-theme';
+const MODE_COOKIE = 'reviewtrail-theme';
+const LIGHT_THEME_COOKIE = 'reviewtrail-light-theme';
+const DARK_THEME_COOKIE = 'reviewtrail-dark-theme';
 
 /**
- * Where a host keeps the two PRE-PAIR values, if not under Plannotator's own
+ * Where a host keeps the two PRE-PAIR values, if not under ReviewTrail's own
  * keys. These mirror ThemeProvider's `storageKey` / `colorThemeStorageKey`
  * props, which existed before the pair and are what a host's already-stored
  * user preference lives under.
  *
  * Only these two legacy keys are overridable. The pair halves are a new
  * concept with no pre-existing host data, so they always use the fixed
- * `plannotator-light-theme` / `plannotator-dark-theme` keys; two hosts sharing
+ * `reviewtrail-light-theme` / `reviewtrail-dark-theme` keys; two hosts sharing
  * one origin with different key prefixes would share those halves.
  */
 export interface ThemePairLegacyKeys {
@@ -103,8 +103,8 @@ export function readThemePairCookies(keys?: ThemePairLegacyKeys): ThemePair | un
 }
 
 /** Pre-registry cookie keys of the agent switch, kept so an upgrade keeps the choice. */
-const AGENT_SWITCH_COOKIE = 'plannotator-agent-switch';
-const AGENT_SWITCH_CUSTOM_COOKIE = 'plannotator-agent-custom';
+const AGENT_SWITCH_COOKIE = 'reviewtrail-agent-switch';
+const AGENT_SWITCH_CUSTOM_COOKIE = 'reviewtrail-agent-custom';
 
 function readAgentSwitchCookies(): AgentSwitchChoice | undefined {
   const choice = parseAgentSwitchConfig(storage.getItem(AGENT_SWITCH_COOKIE));
@@ -161,8 +161,8 @@ export interface SettingDef<T> {
 export const SETTINGS = {
   displayName: {
     defaultValue: () => generateIdentity(),
-    fromCookie: () => storage.getItem('plannotator-identity') || undefined,
-    toCookie: (v: string) => storage.setItem('plannotator-identity', v),
+    fromCookie: () => storage.getItem('reviewtrail-identity') || undefined,
+    toCookie: (v: string) => storage.setItem('reviewtrail-identity', v),
     serverKey: 'displayName',
     fromServer: (sc: Record<string, unknown>) =>
       typeof sc.displayName === 'string' && sc.displayName ? sc.displayName : undefined,
@@ -174,13 +174,13 @@ export const SETTINGS = {
    * Stored as one value because the three fields are only meaningful together —
    * `mode: system` picks between `light` and `dark` at render time.
    *
-   * Cookies: `plannotator-theme` (mode) keeps its meaning, joined by
-   * `plannotator-light-theme` / `plannotator-dark-theme`. A user arriving from
+   * Cookies: `reviewtrail-theme` (mode) keeps its meaning, joined by
+   * `reviewtrail-light-theme` / `reviewtrail-dark-theme`. A user arriving from
    * an older release has neither half, so the pair is seeded from the single
-   * `plannotator-color-theme` palette they were on (ThemeProvider keeps writing
+   * `reviewtrail-color-theme` palette they were on (ThemeProvider keeps writing
    * that key, so a downgrade still finds a palette and never renders unstyled).
    *
-   * Server: round-trips through `theme` in ~/.plannotator/config.json exactly
+   * Server: round-trips through `theme` in ~/.reviewtrail/config.json exactly
    * like `diffOptions` does, so the choice survives the random port each hook
    * invocation runs on.
    */
@@ -200,10 +200,10 @@ export const SETTINGS = {
   faviconStyle: {
     defaultValue: DEFAULT_FAVICON_STYLE as FaviconStyle,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-favicon');
+      const v = storage.getItem('reviewtrail-favicon');
       return isFaviconStyle(v) ? v : undefined;
     },
-    toCookie: (v: FaviconStyle) => storage.setItem('plannotator-favicon', v),
+    toCookie: (v: FaviconStyle) => storage.setItem('reviewtrail-favicon', v),
     serverKey: 'favicon',
     fromServer: (sc: Record<string, unknown>) => {
       const v = sc.favicon;
@@ -225,10 +225,10 @@ export const SETTINGS = {
       // a v1 marker with Grid stored is moved to Clean once, see
       // utils/lookAndFeelAnnouncement); until then they get Clean.
       if (!isLookChoiceResolved()) return undefined;
-      const v = storage.getItem('plannotator-grid-enabled');
+      const v = storage.getItem('reviewtrail-grid-enabled');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-grid-enabled', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-grid-enabled', String(v)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -244,12 +244,12 @@ export const SETTINGS = {
       // `Number(null)` and `Number('')` are 0, which is a VALID amount here
       // (unlike the token-hover steps), so an absent cookie must be rejected
       // before the guard sees it — otherwise no cookie reads as "no shadow".
-      const raw = storage.getItem('plannotator-diagram-shadow');
+      const raw = storage.getItem('reviewtrail-diagram-shadow');
       if (raw === null || raw.trim() === '') return undefined;
       const parsed = Number(raw);
       return isDiagramShadow(parsed) ? parsed : undefined;
     },
-    toCookie: (value: number) => storage.setItem('plannotator-diagram-shadow', String(value)),
+    toCookie: (value: number) => storage.setItem('reviewtrail-diagram-shadow', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -261,13 +261,13 @@ export const SETTINGS = {
   documentTextSize: {
     defaultValue: DEFAULT_DOCUMENT_TEXT_SIZE as DocumentTextSize,
     fromCookie: () => {
-      const raw = storage.getItem('plannotator-document-text-size');
+      const raw = storage.getItem('reviewtrail-document-text-size');
       if (raw === null || raw.trim() === '') return undefined;
       const parsed = Number(raw);
       return isDocumentTextSize(parsed) ? parsed : undefined;
     },
     toCookie: (value: DocumentTextSize) =>
-      storage.setItem('plannotator-document-text-size', String(value)),
+      storage.setItem('reviewtrail-document-text-size', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -279,8 +279,8 @@ export const SETTINGS = {
   documentFontFamily: {
     defaultValue: '' as string,
     fromCookie: () =>
-      normalizeFontFamilyName(storage.getItem('plannotator-document-font-family') ?? '') || undefined,
-    toCookie: (value: string) => storage.setItem('plannotator-document-font-family', value),
+      normalizeFontFamilyName(storage.getItem('reviewtrail-document-font-family') ?? '') || undefined,
+    toCookie: (value: string) => storage.setItem('reviewtrail-document-font-family', value),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -292,11 +292,11 @@ export const SETTINGS = {
   documentSourceLineNumbers: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-document-source-line-numbers');
+      const value = storage.getItem('reviewtrail-document-source-line-numbers');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-document-source-line-numbers', String(value)),
+      storage.setItem('reviewtrail-document-source-line-numbers', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -309,11 +309,11 @@ export const SETTINGS = {
   enterSavesComment: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-enter-saves-comment');
+      const value = storage.getItem('reviewtrail-enter-saves-comment');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-enter-saves-comment', String(value)),
+      storage.setItem('reviewtrail-enter-saves-comment', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -327,11 +327,11 @@ export const SETTINGS = {
   hideRepoOwner: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-hide-repo-owner');
+      const value = storage.getItem('reviewtrail-hide-repo-owner');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-hide-repo-owner', String(value)),
+      storage.setItem('reviewtrail-hide-repo-owner', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -341,11 +341,11 @@ export const SETTINGS = {
     // navigation from Settings > Vim.
     defaultValue: false as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-vim-mode-enabled');
+      const value = storage.getItem('reviewtrail-vim-mode-enabled');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-vim-mode-enabled', String(value)),
+      storage.setItem('reviewtrail-vim-mode-enabled', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -354,11 +354,11 @@ export const SETTINGS = {
     // controls. It has no effect while Vim mode itself is disabled.
     defaultValue: false as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-vim-hud-enabled');
+      const value = storage.getItem('reviewtrail-vim-hud-enabled');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-vim-hud-enabled', String(value)),
+      storage.setItem('reviewtrail-vim-hud-enabled', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -367,11 +367,11 @@ export const SETTINGS = {
     // bottom-right key panel to be hidden independently from the reticle.
     defaultValue: true as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-vim-hud-key-panel-enabled');
+      const value = storage.getItem('reviewtrail-vim-hud-key-panel-enabled');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-vim-hud-key-panel-enabled', String(value)),
+      storage.setItem('reviewtrail-vim-hud-key-panel-enabled', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -395,10 +395,10 @@ export const SETTINGS = {
   reviewPanelView: {
     defaultValue: 'tree' as 'sections' | 'tree',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-review-panel-view');
+      const v = storage.getItem('reviewtrail-review-panel-view');
       return v === 'tree' || v === 'sections' ? v : undefined;
     },
-    toCookie: (v: string) => storage.setItem('plannotator-review-panel-view', v),
+    toCookie: (v: string) => storage.setItem('reviewtrail-review-panel-view', v),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -412,14 +412,14 @@ export const SETTINGS = {
   reviewPanelViewLastUsed: {
     defaultValue: null as 'sections' | 'tree' | null,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-review-panel-view-last-used');
+      const v = storage.getItem('reviewtrail-review-panel-view-last-used');
       return v === 'tree' || v === 'sections' ? v : undefined;
     },
     toCookie: (v: 'sections' | 'tree' | null) => {
       // The null default seeds through here on first load — "unrecorded" has
       // no cookie representation, so write nothing.
       if (v === 'sections' || v === 'tree') {
-        storage.setItem('plannotator-review-panel-view-last-used', v);
+        storage.setItem('reviewtrail-review-panel-view-last-used', v);
       }
     },
     serverKey: undefined, fromServer: undefined, toServer: undefined,
@@ -431,11 +431,11 @@ export const SETTINGS = {
   reviewShowViewedControls: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-review-show-viewed-controls');
+      const value = storage.getItem('reviewtrail-review-show-viewed-controls');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-review-show-viewed-controls', String(value)),
+      storage.setItem('reviewtrail-review-show-viewed-controls', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -446,11 +446,11 @@ export const SETTINGS = {
   reviewAutoViewed: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-review-auto-viewed');
+      const value = storage.getItem('reviewtrail-review-auto-viewed');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-review-auto-viewed', String(value)),
+      storage.setItem('reviewtrail-review-auto-viewed', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -470,11 +470,11 @@ export const SETTINGS = {
   tokenHoverTrigger: {
     defaultValue: 'hover' as TokenHoverTrigger,
     fromCookie: () => resolveStoredTokenHoverTrigger(
-      storage.getItem('plannotator-token-hover-trigger'),
-      storage.getItem('plannotator-token-hover-cards'),
+      storage.getItem('reviewtrail-token-hover-trigger'),
+      storage.getItem('reviewtrail-token-hover-cards'),
     ),
     toCookie: (value: TokenHoverTrigger) =>
-      storage.setItem('plannotator-token-hover-trigger', value),
+      storage.setItem('reviewtrail-token-hover-trigger', value),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
@@ -484,29 +484,29 @@ export const SETTINGS = {
   tokenHoverDelay: {
     defaultValue: DEFAULT_TOKEN_HOVER_DELAY_MS as TokenHoverDelay,
     fromCookie: () => {
-      const parsed = Number(storage.getItem('plannotator-token-hover-delay'));
+      const parsed = Number(storage.getItem('reviewtrail-token-hover-delay'));
       return isTokenHoverDelay(parsed) ? parsed : undefined;
     },
     toCookie: (value: TokenHoverDelay) =>
-      storage.setItem('plannotator-token-hover-delay', String(value)),
+      storage.setItem('reviewtrail-token-hover-delay', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
   reviewShowStageControls: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-review-show-stage-controls');
+      const value = storage.getItem('reviewtrail-review-show-stage-controls');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-review-show-stage-controls', String(value)),
+      storage.setItem('reviewtrail-review-show-stage-controls', String(value)),
     serverKey: undefined, fromServer: undefined, toServer: undefined,
   },
 
   reviewDefaults: {
     defaultValue: {} as ReviewDefaults,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-review-defaults');
+      const value = storage.getItem('reviewtrail-review-defaults');
       if (!value) return undefined;
       try {
         return parseReviewDefaults(JSON.parse(value));
@@ -515,7 +515,7 @@ export const SETTINGS = {
       }
     },
     toCookie: (value: ReviewDefaults) =>
-      storage.setItem('plannotator-review-defaults', JSON.stringify(value)),
+      storage.setItem('reviewtrail-review-defaults', JSON.stringify(value)),
     serverKey: 'reviewDefaults',
     fromServer: (serverConfig: Record<string, unknown>) =>
       parseReviewDefaults(serverConfig.reviewDefaults),
@@ -525,11 +525,11 @@ export const SETTINGS = {
   defaultDiffType: {
     defaultValue: 'since-base' as 'since-base' | 'local-vs-remote' | 'uncommitted' | 'unstaged' | 'staged' | 'merge-base' | 'all',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-default-diff-type');
+      const v = storage.getItem('reviewtrail-default-diff-type');
       if (v === 'branch') return 'merge-base' as const;
       return v === 'since-base' || v === 'local-vs-remote' || v === 'uncommitted' || v === 'unstaged' || v === 'staged' || v === 'merge-base' || v === 'all' ? v : undefined;
     },
-    toCookie: (v: string) => storage.setItem('plannotator-default-diff-type', v),
+    toCookie: (v: string) => storage.setItem('reviewtrail-default-diff-type', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.defaultDiffType;
@@ -542,10 +542,10 @@ export const SETTINGS = {
   diffStyle: {
     defaultValue: 'split' as 'split' | 'unified',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-style') ?? storage.getItem('review-diff-style');
+      const v = storage.getItem('reviewtrail-diff-style') ?? storage.getItem('review-diff-style');
       return v === 'split' || v === 'unified' ? v : undefined;
     },
-    toCookie: (v: string) => storage.setItem('plannotator-diff-style', v),
+    toCookie: (v: string) => storage.setItem('reviewtrail-diff-style', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.diffStyle;
@@ -557,10 +557,10 @@ export const SETTINGS = {
   diffOverflow: {
     defaultValue: 'scroll' as 'scroll' | 'wrap',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-overflow');
+      const v = storage.getItem('reviewtrail-diff-overflow');
       return v === 'scroll' || v === 'wrap' ? v : undefined;
     },
-    toCookie: (v: string) => storage.setItem('plannotator-diff-overflow', v),
+    toCookie: (v: string) => storage.setItem('reviewtrail-diff-overflow', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.overflow;
@@ -572,10 +572,10 @@ export const SETTINGS = {
   diffIndicators: {
     defaultValue: 'bars' as 'bars' | 'classic' | 'none',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-indicators');
+      const v = storage.getItem('reviewtrail-diff-indicators');
       return v === 'bars' || v === 'classic' || v === 'none' ? v : undefined;
     },
-    toCookie: (v: string) => storage.setItem('plannotator-diff-indicators', v),
+    toCookie: (v: string) => storage.setItem('reviewtrail-diff-indicators', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.diffIndicators;
@@ -587,10 +587,10 @@ export const SETTINGS = {
   diffLineDiffType: {
     defaultValue: 'word-alt' as 'word-alt' | 'word' | 'char' | 'none',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-line-diff-type');
+      const v = storage.getItem('reviewtrail-diff-line-diff-type');
       return v === 'word-alt' || v === 'word' || v === 'char' || v === 'none' ? v : undefined;
     },
-    toCookie: (v: string) => storage.setItem('plannotator-diff-line-diff-type', v),
+    toCookie: (v: string) => storage.setItem('reviewtrail-diff-line-diff-type', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.lineDiffType;
@@ -602,10 +602,10 @@ export const SETTINGS = {
   diffShowLineNumbers: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-show-line-numbers');
+      const v = storage.getItem('reviewtrail-diff-show-line-numbers');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-diff-show-line-numbers', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-diff-show-line-numbers', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.showLineNumbers;
@@ -617,10 +617,10 @@ export const SETTINGS = {
   diffShowBackground: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-show-background');
+      const v = storage.getItem('reviewtrail-diff-show-background');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-diff-show-background', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-diff-show-background', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.showDiffBackground;
@@ -631,8 +631,8 @@ export const SETTINGS = {
 
   diffFontFamily: {
     defaultValue: '' as string, // empty = theme default
-    fromCookie: () => storage.getItem('plannotator-diff-font-family') || undefined,
-    toCookie: (v: string) => storage.setItem('plannotator-diff-font-family', v),
+    fromCookie: () => storage.getItem('reviewtrail-diff-font-family') || undefined,
+    toCookie: (v: string) => storage.setItem('reviewtrail-diff-font-family', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.fontFamily;
@@ -644,10 +644,10 @@ export const SETTINGS = {
   diffSemantic: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-semantic');
+      const v = storage.getItem('reviewtrail-diff-semantic');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-diff-semantic', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-diff-semantic', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.semantic;
@@ -659,10 +659,10 @@ export const SETTINGS = {
   diffPowerUp: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-power-up');
+      const v = storage.getItem('reviewtrail-diff-power-up');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-diff-power-up', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-diff-power-up', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.powerUp;
@@ -674,10 +674,10 @@ export const SETTINGS = {
   diffPowerUpMotion: {
     defaultValue: 'still' as 'stream' | 'still',
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-power-up-motion');
+      const v = storage.getItem('reviewtrail-diff-power-up-motion');
       return v === 'stream' || v === 'still' ? v : undefined;
     },
-    toCookie: (v: 'stream' | 'still') => storage.setItem('plannotator-diff-power-up-motion', v),
+    toCookie: (v: 'stream' | 'still') => storage.setItem('reviewtrail-diff-power-up-motion', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.powerUpMotion;
@@ -689,10 +689,10 @@ export const SETTINGS = {
   diffHideWhitespace: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-hide-whitespace');
+      const v = storage.getItem('reviewtrail-diff-hide-whitespace');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-diff-hide-whitespace', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-diff-hide-whitespace', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.hideWhitespace;
@@ -704,10 +704,10 @@ export const SETTINGS = {
   diffExpandUnchanged: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-expand-unchanged');
+      const v = storage.getItem('reviewtrail-diff-expand-unchanged');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-diff-expand-unchanged', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-diff-expand-unchanged', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.expandUnchanged;
@@ -718,8 +718,8 @@ export const SETTINGS = {
 
   diffFontSize: {
     defaultValue: '' as string, // empty = theme default
-    fromCookie: () => storage.getItem('plannotator-diff-font-size') || undefined,
-    toCookie: (v: string) => storage.setItem('plannotator-diff-font-size', v),
+    fromCookie: () => storage.getItem('reviewtrail-diff-font-size') || undefined,
+    toCookie: (v: string) => storage.setItem('reviewtrail-diff-font-size', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.fontSize;
@@ -730,11 +730,11 @@ export const SETTINGS = {
   diffTabSize: {
     defaultValue: 2 as number,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-tab-size');
+      const v = storage.getItem('reviewtrail-diff-tab-size');
       const n = v ? parseInt(v, 10) : NaN;
       return Number.isFinite(n) && n >= 1 && n <= 8 ? n : undefined;
     },
-    toCookie: (v: number) => storage.setItem('plannotator-diff-tab-size', String(v)),
+    toCookie: (v: number) => storage.setItem('reviewtrail-diff-tab-size', String(v)),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.tabSize;
@@ -745,11 +745,11 @@ export const SETTINGS = {
   diffLineBgIntensity: {
     defaultValue: 'subtle' as DiffLineBgIntensity,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-line-bg-intensity');
+      const v = storage.getItem('reviewtrail-diff-line-bg-intensity');
       return isDiffLineBgIntensity(v) ? v : undefined;
     },
     toCookie: (v: DiffLineBgIntensity) =>
-      storage.setItem('plannotator-diff-line-bg-intensity', v),
+      storage.setItem('reviewtrail-diff-line-bg-intensity', v),
     serverKey: 'diffOptions',
     fromServer: (sc: Record<string, unknown>) => {
       const v = (sc.diffOptions as Record<string, unknown> | undefined)?.lineBgIntensity;
@@ -760,10 +760,10 @@ export const SETTINGS = {
   diffMinimap: {
     defaultValue: 'auto' as DiffMinimapMode,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-diff-minimap');
+      const v = storage.getItem('reviewtrail-diff-minimap');
       return isDiffMinimapMode(v) ? v : undefined;
     },
-    toCookie: (v: DiffMinimapMode) => storage.setItem('plannotator-diff-minimap', v),
+    toCookie: (v: DiffMinimapMode) => storage.setItem('reviewtrail-diff-minimap', v),
     serverKey: undefined,
     fromServer: undefined,
     toServer: undefined,
@@ -772,17 +772,17 @@ export const SETTINGS = {
    *  all-files view. Cookie-only (no server sync) while the feature is
    *  experimental — default OFF, and when off no edit UI renders and no
    *  editor is ever constructed. (In code-split hosts the editor chunk is
-   *  never fetched; Plannotator's single-file production build inlines all
+   *  never fetched; ReviewTrail's single-file production build inlines all
    *  dynamic imports, so there the module namespace exists at page load —
    *  audited free of top-level side effects — but stays inert.) */
   editSuggestions: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-experimental-edit-suggestions');
+      const v = storage.getItem('reviewtrail-experimental-edit-suggestions');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
     toCookie: (v: boolean) =>
-      storage.setItem('plannotator-experimental-edit-suggestions', String(v)),
+      storage.setItem('reviewtrail-experimental-edit-suggestions', String(v)),
     serverKey: undefined,
     fromServer: undefined,
     toServer: undefined,
@@ -790,11 +790,11 @@ export const SETTINGS = {
   semanticDiffEnabled: {
     defaultValue: true as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-semantic-diff-enabled');
+      const value = storage.getItem('reviewtrail-semantic-diff-enabled');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-semantic-diff-enabled', String(value)),
+      storage.setItem('reviewtrail-semantic-diff-enabled', String(value)),
     serverKey: 'reviewAnalysis',
     fromServer: (serverConfig: Record<string, unknown>) => {
       const value = (serverConfig.reviewAnalysis as Record<string, unknown> | undefined)?.semanticDiff;
@@ -805,11 +805,11 @@ export const SETTINGS = {
   callFlowEnabled: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const value = storage.getItem('plannotator-call-flow-enabled');
+      const value = storage.getItem('reviewtrail-call-flow-enabled');
       return value === 'true' ? true : value === 'false' ? false : undefined;
     },
     toCookie: (value: boolean) =>
-      storage.setItem('plannotator-call-flow-enabled', String(value)),
+      storage.setItem('reviewtrail-call-flow-enabled', String(value)),
     serverKey: 'reviewAnalysis',
     fromServer: (serverConfig: Record<string, unknown>) => {
       const value = (serverConfig.reviewAnalysis as Record<string, unknown> | undefined)?.callFlow;
@@ -825,10 +825,10 @@ export const SETTINGS = {
   autoUpdate: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-auto-update');
+      const v = storage.getItem('reviewtrail-auto-update');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-auto-update', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-auto-update', String(v)),
     serverKey: 'autoUpdate',
     fromServer: (sc: Record<string, unknown>) =>
       typeof sc.autoUpdate === 'boolean' ? sc.autoUpdate : undefined,
@@ -837,10 +837,10 @@ export const SETTINGS = {
   conventionalComments: {
     defaultValue: false as boolean,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-conventional-comments');
+      const v = storage.getItem('reviewtrail-conventional-comments');
       return v === 'true' ? true : v === 'false' ? false : undefined;
     },
-    toCookie: (v: boolean) => storage.setItem('plannotator-conventional-comments', String(v)),
+    toCookie: (v: boolean) => storage.setItem('reviewtrail-conventional-comments', String(v)),
     serverKey: 'conventionalComments',
     fromServer: (sc: Record<string, unknown>) => {
       const v = sc.conventionalComments;
@@ -849,13 +849,13 @@ export const SETTINGS = {
     toServer: (v: boolean) => ({ conventionalComments: v }),
   },
   /** JSON-serialized array of label configs, or null for defaults.
-   *  Synced to ~/.plannotator/config.json as a parsed array (not a string). */
+   *  Synced to ~/.reviewtrail/config.json as a parsed array (not a string). */
   conventionalLabels: {
     defaultValue: null as string | null,
-    fromCookie: () => storage.getItem('plannotator-cc-labels') || undefined,
+    fromCookie: () => storage.getItem('reviewtrail-cc-labels') || undefined,
     toCookie: (v: string | null) => {
-      if (v) storage.setItem('plannotator-cc-labels', v);
-      else storage.removeItem('plannotator-cc-labels');
+      if (v) storage.setItem('reviewtrail-cc-labels', v);
+      else storage.removeItem('reviewtrail-cc-labels');
     },
     serverKey: 'conventionalLabels',
     fromServer: (sc: Record<string, unknown>) => {
@@ -878,7 +878,7 @@ export const SETTINGS = {
    * null = never chosen: each surface applies its own default (plan approval
    * switches to "build", review feedback stays), see utils/agentSwitch.
    *
-   * Server-synced to `agentSwitch` in ~/.plannotator/config.json because some
+   * Server-synced to `agentSwitch` in ~/.reviewtrail/config.json because some
    * webviews (Glimpse's WKWebView) keep no cookies between runs, and a lost
    * choice silently hands the session to the build agent. The cookie keys
    * are the pre-registry ones, so an upgrade keeps an existing choice.
@@ -916,11 +916,11 @@ export const SETTINGS = {
   agentTerminalSide: {
     defaultValue: 'left' as AnnotateAgentTerminalSide,
     fromCookie: () => {
-      const v = storage.getItem('plannotator-annotate-agent-terminal-side');
+      const v = storage.getItem('reviewtrail-annotate-agent-terminal-side');
       return isAnnotateAgentTerminalSide(v) ? v : undefined;
     },
     toCookie: (v: AnnotateAgentTerminalSide) =>
-      storage.setItem('plannotator-annotate-agent-terminal-side', v),
+      storage.setItem('reviewtrail-annotate-agent-terminal-side', v),
     serverKey: 'agentTerminalSide',
     fromServer: (sc: Record<string, unknown>) =>
       isAnnotateAgentTerminalSide(sc.agentTerminalSide) ? sc.agentTerminalSide : undefined,
@@ -934,10 +934,10 @@ export const SETTINGS = {
   agentTerminalDefaultAgent: {
     defaultValue: '' as string,
     fromCookie: () =>
-      storage.getItem('plannotator-annotate-agent-terminal-default') || undefined,
+      storage.getItem('reviewtrail-annotate-agent-terminal-default') || undefined,
     toCookie: (v: string) => {
-      if (v) storage.setItem('plannotator-annotate-agent-terminal-default', v);
-      else storage.removeItem('plannotator-annotate-agent-terminal-default');
+      if (v) storage.setItem('reviewtrail-annotate-agent-terminal-default', v);
+      else storage.removeItem('reviewtrail-annotate-agent-terminal-default');
     },
     serverKey: 'agentTerminalDefaultAgent',
     fromServer: (sc: Record<string, unknown>) =>

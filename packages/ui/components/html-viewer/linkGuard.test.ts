@@ -73,7 +73,7 @@ describe.if(hasDom)('the link guard in a frame', () => {
     // A page script, after the guard: it listens for messages on its window.
     window.addEventListener('message', pageListener, true);
     document.addEventListener('click', bridge, true);
-    guard = (window as unknown as { __plannotatorLinkGuard: Guard }).__plannotatorLinkGuard;
+    guard = (window as unknown as { __reviewTrailLinkGuard: Guard }).__reviewTrailLinkGuard;
     hostPort = (offers[0]?.transfer?.[0] as MessagePort | undefined) ?? null;
     if (hostPort) hostPort.onmessage = (event) => sent.push(event.data as Record<string, unknown>);
     await new Promise((resolve) => setTimeout(resolve, 20));
@@ -109,7 +109,7 @@ describe.if(hasDom)('the link guard in a frame', () => {
 
   test('it offers the host one port, with the load key, and the page never sees the offer', async () => {
     expect(offers).toHaveLength(1);
-    expect(offers[0]!.data).toEqual({ type: 'plannotator-bridge-link-offer', key: KEY });
+    expect(offers[0]!.data).toEqual({ type: 'reviewtrail-bridge-link-offer', key: KEY });
     expect(offers[0]!.transfer).toHaveLength(1);
     await settle();
     expect(pageMessages).toEqual([]);
@@ -117,10 +117,10 @@ describe.if(hasDom)('the link guard in a frame', () => {
 
   test("a person's click on a link goes out on the port, for that link", async () => {
     page('<a id="go" href="next.html?v=2#top"><span id="inner">Next</span></a>');
-    bridgeCall = () => guard.follow('link', { type: 'plannotator-bridge-link-click', href: 'next.html?v=2#top' });
+    bridgeCall = () => guard.follow('link', { type: 'reviewtrail-bridge-link-click', href: 'next.html?v=2#top' });
     click(document.querySelector('#inner')!);
     await settle();
-    expect(sent).toEqual([{ type: 'plannotator-bridge-link-click', href: 'next.html?v=2#top' }]);
+    expect(sent).toEqual([{ type: 'reviewtrail-bridge-link-click', href: 'next.html?v=2#top' }]);
   });
 
   test("the page's own call with no click, and a script's a.click(), send nothing", async () => {
@@ -160,7 +160,7 @@ describe.if(hasDom)('the link guard in a frame', () => {
     bridgeCall = () => guard.follow('form', { href: '?q=x' });
     click(document.querySelector('#link')!);
     await settle();
-    expect(sent).toEqual([{ type: 'plannotator-bridge-link-click', href: 'results.html?q=x' }]);
+    expect(sent).toEqual([{ type: 'reviewtrail-bridge-link-click', href: 'results.html?q=x' }]);
   });
 
   test('a page listener that stops the click first does not hide it from the guard', async () => {
@@ -178,14 +178,14 @@ describe.if(hasDom)('the link guard in a frame', () => {
     }
     await settle();
     // The guard saw the click first: a real click on that link follows, as the person meant.
-    expect(sent).toEqual([{ type: 'plannotator-bridge-link-click', href: 'ok.html' }]);
+    expect(sent).toEqual([{ type: 'reviewtrail-bridge-link-click', href: 'ok.html' }]);
   });
 
   test('the page cannot replace the guard, and a second run makes no second offer', () => {
     const w = window as unknown as Record<string, unknown>;
-    expect(() => Object.defineProperty(window, '__plannotatorLinkGuard', { value: { follow: () => true } })).toThrow();
-    try { w.__plannotatorLinkGuard = { follow: () => true }; } catch { /* strict-mode assignment to a read-only property */ }
-    expect(w.__plannotatorLinkGuard).toBe(guard);
+    expect(() => Object.defineProperty(window, '__reviewTrailLinkGuard', { value: { follow: () => true } })).toThrow();
+    try { w.__reviewTrailLinkGuard = { follow: () => true }; } catch { /* strict-mode assignment to a read-only property */ }
+    expect(w.__reviewTrailLinkGuard).toBe(guard);
     new Function(`${LINK_GUARD_FUNCTION}('${'c'.repeat(32)}');`)();
     expect(offers).toHaveLength(1);
   });

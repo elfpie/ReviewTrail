@@ -130,7 +130,7 @@ describe("describeTailscaleFailure", () => {
 
   test("Serve off for the tailnet without a link points at the admin console", () => {
     const text = failed("", "Serve is not enabled on your tailnet.\n");
-    expect(text).toContain("Tailscale setting, not a Plannotator bug");
+    expect(text).toContain("Tailscale setting, not a ReviewTrail bug");
     expect(text).toContain("https://login.tailscale.com/admin/dns");
   });
 
@@ -238,8 +238,8 @@ describe("the Mac app's CLI when `tailscale` is not on PATH", () => {
     expect(detectTailnetHost(createTailscaleRunner(spawn, mac, () => ({})))).toEqual({ error: describeTailscaleFailure(result) });
   });
 
-  test("a test run (PLANNOTATOR_TEST_SANDBOX) never reaches the real app", () => {
-    expect(tailscaleAppFallback(enoent(), { ...mac, env: { PLANNOTATOR_TEST_SANDBOX: "/tmp/x" } })).toBeUndefined();
+  test("a test run (REVIEWTRAIL_TEST_SANDBOX) never reaches the real app", () => {
+    expect(tailscaleAppFallback(enoent(), { ...mac, env: { REVIEWTRAIL_TEST_SANDBOX: "/tmp/x" } })).toBeUndefined();
     expect(tailscaleAppFallback(enoent(), mac)).toBe(MAC_TAILSCALE_APP_CLI);
   });
 });

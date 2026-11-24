@@ -7,8 +7,8 @@
  *   the first render-time settings read, so an async or malformed name would
  *   be a visible identity change);
  * - importing `identity-tater` no longer registers the full dictionary, which
- *   would silently move Plannotator's names onto the 16 x 16 pool;
- * - `configurePlannotatorUI({ identityGenerator })` is ignored.
+ *   would silently move ReviewTrail's names onto the 16 x 16 pool;
+ * - `configureReviewTrailUI({ identityGenerator })` is ignored.
  *
  * Bun shares one process across files: the generator is restored after each
  * test so files that rely on the dictionary keep it.
@@ -23,7 +23,7 @@ import {
   setIdentityGenerator,
 } from './generateIdentity';
 import { generateTaterIdentity } from './identity-tater';
-import { configurePlannotatorUI } from '../configure';
+import { configureReviewTrailUI } from '../configure';
 
 const TATER = /^[a-z]+(?:-[a-z]+)*-[a-z]+(?:-[a-z]+)*-tater$/;
 const saved = getIdentityGenerator();
@@ -67,9 +67,9 @@ describe('identity-tater eager entry', () => {
   });
 });
 
-describe('configurePlannotatorUI({ identityGenerator })', () => {
+describe('configureReviewTrailUI({ identityGenerator })', () => {
   test('installs the host generator', () => {
-    configurePlannotatorUI({ identityGenerator: () => 'host-picked-tater' });
+    configureReviewTrailUI({ identityGenerator: () => 'host-picked-tater' });
     expect(generateIdentity()).toBe('host-picked-tater');
   });
 });

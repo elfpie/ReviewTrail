@@ -97,7 +97,7 @@ const aiTransport: AITransport = {
 };
 const serverSync = (_payload: Record<string, unknown>) => {};
 
-describe('configurePlannotatorUI routing', () => {
+describe('configureReviewTrailUI routing', () => {
   // Install mock.module() replacements HERE (in beforeAll, not at top-level)
   // so that sibling seam test files' top-level captures (which happen at module
   // evaluation time, BEFORE this beforeAll runs) see the real exports.
@@ -221,9 +221,9 @@ describe('configurePlannotatorUI routing', () => {
   });
 
   it('routes each provided seam to its underlying setter', async () => {
-    const { configurePlannotatorUI } = await import('./configure');
+    const { configureReviewTrailUI } = await import('./configure');
 
-    configurePlannotatorUI({
+    configureReviewTrailUI({
       imageSrcResolver,
       storageBackend,
       uploadTransport,
@@ -258,7 +258,7 @@ describe('configurePlannotatorUI routing', () => {
   });
 
   it('skips setters for omitted fields', async () => {
-    const { configurePlannotatorUI } = await import('./configure');
+    const { configureReviewTrailUI } = await import('./configure');
 
     [
       setImageSrcResolver, setDocPreviewFetcher, setStorageBackend, setUploadTransport,
@@ -266,7 +266,7 @@ describe('configurePlannotatorUI routing', () => {
       setAITransport, setServerSync, loadFromBackend, setWebMcpPolicy,
     ].forEach((m) => m.mockClear());
 
-    configurePlannotatorUI({ storageBackend });
+    configureReviewTrailUI({ storageBackend });
 
     expect(setStorageBackend).toHaveBeenCalledTimes(1);
     expect(setWebMcpPolicy).not.toHaveBeenCalled();

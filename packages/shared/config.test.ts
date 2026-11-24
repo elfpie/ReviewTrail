@@ -49,14 +49,14 @@ import {
   __setConfigSaveMergeWindowHookForTest,
   __setConfigWriteForTest,
 } from "./config";
-import type { PlannotatorConfig } from "./config";
+import type { ReviewTrailConfig } from "./config";
 
 describe("resolveInboxLaunch", () => {
   test("on unless enabled is false; the model only when it is a plain model name, never settings of another shape", () => {
     // fullPermissions null: never set (a launch follows the login shell); a value once set, either way.
     expect(resolveInboxLaunch({}, "darwin")).toEqual({ enabled: true, fullPermissions: null, model: null, settingsFile: null, scratchDir: null, startIn: "inbox" });
     // Absent is on (0.29's default) on macOS and Linux; an explicit false, as Settings → Agents' switch writes it, is off.
-    const on = (config: unknown, platform: NodeJS.Platform = "linux") => resolveInboxLaunch(config as PlannotatorConfig, platform).enabled;
+    const on = (config: unknown, platform: NodeJS.Platform = "linux") => resolveInboxLaunch(config as ReviewTrailConfig, platform).enabled;
     expect(on({ inboxLaunch: {} })).toBe(true);
     expect(on({ inboxLaunch: { fullPermissions: true } })).toBe(true);
     expect(on({ inboxLaunch: { enabled: "nonsense" } })).toBe(true);
@@ -73,19 +73,19 @@ describe("resolveInboxLaunch", () => {
     expect(resolveInboxLaunch({ inboxLaunch: { enabled: true, model: "haiku" } })).toEqual({ enabled: true, fullPermissions: null, model: "haiku", settingsFile: null, scratchDir: null, startIn: "inbox" });
     // Rex only when it says exactly that: anything else starts in the background.
     expect(resolveInboxLaunch({ inboxLaunch: { startIn: "rex" } }).startIn).toBe("rex");
-    for (const startIn of ["REX", "inbox", true, 1, null]) expect(resolveInboxLaunch({ inboxLaunch: { startIn } } as unknown as PlannotatorConfig).startIn).toBe("inbox");
+    for (const startIn of ["REX", "inbox", true, 1, null]) expect(resolveInboxLaunch({ inboxLaunch: { startIn } } as unknown as ReviewTrailConfig).startIn).toBe("inbox");
     expect(resolveInboxLaunch({ inboxLaunch: { fullPermissions: false } }).fullPermissions).toBe(false);
     expect(resolveInboxLaunch({ inboxLaunch: { fullPermissions: true } }).fullPermissions).toBe(true);
     expect(resolveInboxLaunch({ inboxLaunch: { model: "opus[1m]" } }).model).toBe("opus[1m]");
     for (const model of ["haiku --dangerously-skip-permissions", "a\"b", "", { hooks: {} }, "x".repeat(65)]) {
-      expect(resolveInboxLaunch({ inboxLaunch: { model } } as unknown as PlannotatorConfig).model).toBeNull();
+      expect(resolveInboxLaunch({ inboxLaunch: { model } } as unknown as ReviewTrailConfig).model).toBeNull();
     }
   });
 
   test("the scratch root only as an absolute path other than /; a relative path or / is the default", () => {
     expect(resolveInboxLaunch({ inboxLaunch: { scratchDir: "/tmp/scratch/../work" } }).scratchDir).toBe("/tmp/work");
     for (const scratchDir of ["scratch", "~/scratch", "", "/", "//", 42]) {
-      expect(resolveInboxLaunch({ inboxLaunch: { scratchDir } } as unknown as PlannotatorConfig).scratchDir).toBeNull();
+      expect(resolveInboxLaunch({ inboxLaunch: { scratchDir } } as unknown as ReviewTrailConfig).scratchDir).toBeNull();
     }
   });
 });
@@ -100,7 +100,7 @@ describe("resolveDefaultDiffType", () => {
 
 describe("resolveDefaultDiffTypeFor", () => {
   test("Git and Jujutsu each open on their own saved default", () => {
-    const config: PlannotatorConfig = {
+    const config: ReviewTrailConfig = {
       diffOptions: { defaultDiffType: "merge-base" },
       reviewDefaults: { jj: { defaultDiffType: "jj-line" } },
     };
@@ -112,7 +112,7 @@ describe("resolveDefaultDiffTypeFor", () => {
   });
 
   test("a config saved before jj defaults opens jj on jj-current and keeps Git's value", () => {
-    const legacy = { diffOptions: { defaultDiffType: "branch" } } as unknown as PlannotatorConfig;
+    const legacy = { diffOptions: { defaultDiffType: "branch" } } as unknown as ReviewTrailConfig;
     expect(resolveDefaultDiffTypeFor(legacy, "git")).toBe("merge-base");
     expect(resolveDefaultDiffTypeFor(legacy, "jj")).toBe("jj-current");
     expect(resolveDefaultDiffTypeFor(undefined, "jj")).toBe("jj-current");
@@ -126,19 +126,19 @@ describe("resolveDefaultDiffTypeFor", () => {
 });
 
 describe("reviewDefaults persistence", () => {
-  const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "plannotator-config-test-"));
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    tempDir = mkdtempSync(join(tmpdir(), "reviewtrail-config-test-"));
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
   });
 
   afterEach(() => {
     if (originalDataDir !== undefined) {
-      process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
+      process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
     } else {
-      delete process.env.PLANNOTATOR_DATA_DIR;
+      delete process.env.REVIEWTRAIL_DATA_DIR;
     }
     rmSync(tempDir, { recursive: true, force: true });
   });
@@ -154,17 +154,17 @@ describe("reviewDefaults persistence", () => {
 });
 
 describe("annotateView (the view an annotate session opens in)", () => {
-  const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "plannotator-config-annotate-view-"));
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    tempDir = mkdtempSync(join(tmpdir(), "reviewtrail-config-annotate-view-"));
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
   });
 
   afterEach(() => {
-    if (originalDataDir !== undefined) process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
-    else delete process.env.PLANNOTATOR_DATA_DIR;
+    if (originalDataDir !== undefined) process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
+    else delete process.env.REVIEWTRAIL_DATA_DIR;
     rmSync(tempDir, { recursive: true, force: true });
   });
 
@@ -216,17 +216,17 @@ describe("resolveAIEnabled", () => {
   });
 
   test("disabled is case-insensitive", () => {
-    expect(resolveAIEnabled({ PLANNOTATOR_AI: "disabled" })).toBe(false);
-    expect(resolveAIEnabled({ PLANNOTATOR_AI: "Disabled" })).toBe(false);
+    expect(resolveAIEnabled({ REVIEWTRAIL_AI: "disabled" })).toBe(false);
+    expect(resolveAIEnabled({ REVIEWTRAIL_AI: "Disabled" })).toBe(false);
   });
 
   test("other values keep AI enabled", () => {
-    expect(resolveAIEnabled({ PLANNOTATOR_AI: "enabled" })).toBe(true);
-    expect(resolveAIEnabled({ PLANNOTATOR_AI: "false" })).toBe(true);
+    expect(resolveAIEnabled({ REVIEWTRAIL_AI: "enabled" })).toBe(true);
+    expect(resolveAIEnabled({ REVIEWTRAIL_AI: "false" })).toBe(true);
   });
 });
 
-const TODO_ENV = "PLANNOTATOR_TODO_PROVIDER";
+const TODO_ENV = "REVIEWTRAIL_TODO_PROVIDER";
 const originalTodoEnv = process.env[TODO_ENV];
 
 describe("resolveTodoProviderEnabled", () => {
@@ -262,14 +262,14 @@ describe("resolveTodoProviderEnabled", () => {
   });
 });
 
-const PUBLIC_URL_ENV = "PLANNOTATOR_PUBLIC_URL";
+const PUBLIC_URL_ENV = "REVIEWTRAIL_PUBLIC_URL";
 const originalPublicUrlEnv = process.env[PUBLIC_URL_ENV];
 
 describe("isValidPublicUrl", () => {
   test("accepts HTTP and HTTPS origins", () => {
     for (const publicUrl of [
-      "https://plannotator.example.com",
-      "https://plannotator.example.com/",
+      "https://reviewtrail.example.com",
+      "https://reviewtrail.example.com/",
       "http://127.0.0.1:8080",
       "https://[fd7a::1]:8443",
     ]) {
@@ -279,16 +279,16 @@ describe("isValidPublicUrl", () => {
 
   test("rejects non-HTTP protocols, credentials, paths, queries, and fragments", () => {
     for (const publicUrl of [
-      "ftp://plannotator.example.com",
-      "https://user:password@plannotator.example.com",
-      "https://plannotator.example.com/review",
-      "https://plannotator.example.com/review/..",
-      "https://plannotator.example.com/%2e",
+      "ftp://reviewtrail.example.com",
+      "https://user:password@reviewtrail.example.com",
+      "https://reviewtrail.example.com/review",
+      "https://reviewtrail.example.com/review/..",
+      "https://reviewtrail.example.com/%2e",
       "https://planno\ttator.example.com",
-      "https://plannotator.example.com\n.evil.test",
-      "https://plannotator.example.com?session=1",
-      "https://plannotator.example.com#review",
-      "plannotator.example.com",
+      "https://reviewtrail.example.com\n.evil.test",
+      "https://reviewtrail.example.com?session=1",
+      "https://reviewtrail.example.com#review",
+      "reviewtrail.example.com",
       "not a URL",
       "",
     ]) {
@@ -311,8 +311,8 @@ describe("resolvePublicUrl", () => {
   });
 
   test("normalizes config.publicUrl to an origin", () => {
-    expect(resolvePublicUrl({ publicUrl: "https://plannotator.example.com:443/" }))
-      .toBe("https://plannotator.example.com");
+    expect(resolvePublicUrl({ publicUrl: "https://reviewtrail.example.com:443/" }))
+      .toBe("https://reviewtrail.example.com");
   });
 
   test("env wins over the config key", () => {
@@ -327,7 +327,7 @@ describe("resolvePublicUrl", () => {
   });
 
   test("invalid values fall back to undefined instead of throwing", () => {
-    process.env[PUBLIC_URL_ENV] = "https://plannotator.example.com/review";
+    process.env[PUBLIC_URL_ENV] = "https://reviewtrail.example.com/review";
     expect(resolvePublicUrl({})).toBeUndefined();
   });
 
@@ -338,7 +338,7 @@ describe("resolvePublicUrl", () => {
       return true;
     }) as typeof process.stderr.write);
     try {
-      process.env[PUBLIC_URL_ENV] = "bad\nPlannotator session ready:\n  https://evil.example";
+      process.env[PUBLIC_URL_ENV] = "bad\nReviewTrail session ready:\n  https://evil.example";
       expect(resolvePublicUrl({})).toBeUndefined();
     } finally {
       spy.mockRestore();
@@ -350,7 +350,7 @@ describe("resolvePublicUrl", () => {
   });
 });
 
-const URL_HOST_ENV = "PLANNOTATOR_URL_HOST";
+const URL_HOST_ENV = "REVIEWTRAIL_URL_HOST";
 const originalUrlHostEnv = process.env[URL_HOST_ENV];
 
 describe("isValidUrlHost", () => {
@@ -435,7 +435,7 @@ describe("resolveUrlHost", () => {
   });
 
   test("the invalid-host warning stays a single line for newline-embedded values", () => {
-    // Hosts surface stderr lines like "Plannotator session ready" as clickable
+    // Hosts surface stderr lines like "ReviewTrail session ready" as clickable
     // links, so an echoed value must not be able to forge extra lines.
     const writes: string[] = [];
     const spy = spyOn(process.stderr, "write").mockImplementation(((chunk: unknown) => {
@@ -443,7 +443,7 @@ describe("resolveUrlHost", () => {
       return true;
     }) as typeof process.stderr.write);
     try {
-      process.env[URL_HOST_ENV] = "bad\nPlannotator session ready:\n  http://evil.example";
+      process.env[URL_HOST_ENV] = "bad\nReviewTrail session ready:\n  http://evil.example";
       expect(resolveUrlHost({})).toBeUndefined();
     } finally {
       spy.mockRestore();
@@ -456,7 +456,7 @@ describe("resolveUrlHost", () => {
   });
 });
 
-const ENV = "PLANNOTATOR_CURSOR_SANDBOX";
+const ENV = "REVIEWTRAIL_CURSOR_SANDBOX";
 const originalEnv = process.env[ENV];
 
 function restoreEnv() {
@@ -502,7 +502,7 @@ describe("resolveCursorSandbox", () => {
 });
 
 describe("resolveClaudeSandbox (#1627)", () => {
-  const CLAUDE_ENV = "PLANNOTATOR_CLAUDE_SANDBOX";
+  const CLAUDE_ENV = "REVIEWTRAIL_CLAUDE_SANDBOX";
   const original = process.env[CLAUDE_ENV];
   beforeEach(() => {
     delete process.env[CLAUDE_ENV];
@@ -538,54 +538,54 @@ describe("config.json boolean coercion", () => {
   const cases: Array<{
     name: string;
     envVar: string;
-    key: keyof PlannotatorConfig;
-    resolve: (config: PlannotatorConfig) => boolean;
+    key: keyof ReviewTrailConfig;
+    resolve: (config: ReviewTrailConfig) => boolean;
   }> = [
     {
       name: "resolveUseGlimpse",
-      envVar: "PLANNOTATOR_GLIMPSE",
+      envVar: "REVIEWTRAIL_GLIMPSE",
       key: "glimpse",
       resolve: resolveUseGlimpse,
     },
     {
       name: "resolveAnnotateHistory",
-      envVar: "PLANNOTATOR_ANNOTATE_HISTORY",
+      envVar: "REVIEWTRAIL_ANNOTATE_HISTORY",
       key: "annotateHistory",
       resolve: resolveAnnotateHistory,
     },
     {
       name: "resolveGuideHistory",
-      envVar: "PLANNOTATOR_GUIDE_HISTORY",
+      envVar: "REVIEWTRAIL_GUIDE_HISTORY",
       key: "guideHistory",
       resolve: resolveGuideHistory,
     },
     {
       name: "resolveReviewProgress",
-      envVar: "PLANNOTATOR_REVIEW_PROGRESS",
+      envVar: "REVIEWTRAIL_REVIEW_PROGRESS",
       key: "reviewProgress",
       resolve: (config) => resolveReviewProgress(config),
     },
     {
       name: "resolveUseJina",
-      envVar: "PLANNOTATOR_JINA",
+      envVar: "REVIEWTRAIL_JINA",
       key: "jina",
       resolve: (config) => resolveUseJina(false, config),
     },
     {
       name: "resolveCursorSandbox",
-      envVar: "PLANNOTATOR_CURSOR_SANDBOX",
+      envVar: "REVIEWTRAIL_CURSOR_SANDBOX",
       key: "cursorSandbox",
       resolve: resolveCursorSandbox,
     },
     {
       name: "resolveClaudeSandbox",
-      envVar: "PLANNOTATOR_CLAUDE_SANDBOX",
+      envVar: "REVIEWTRAIL_CLAUDE_SANDBOX",
       key: "claudeSandbox",
       resolve: resolveClaudeSandbox,
     },
     {
       name: "resolveGitRemoteCheck",
-      envVar: "PLANNOTATOR_GIT_REMOTE_CHECK",
+      envVar: "REVIEWTRAIL_GIT_REMOTE_CHECK",
       key: "gitRemoteCheck",
       resolve: (config) => resolveGitRemoteCheck(false, config),
     },
@@ -603,8 +603,8 @@ describe("config.json boolean coercion", () => {
     }
   });
 
-  const withKey = (c: (typeof cases)[number], value: unknown): PlannotatorConfig =>
-    ({ [c.key]: value }) as PlannotatorConfig;
+  const withKey = (c: (typeof cases)[number], value: unknown): ReviewTrailConfig =>
+    ({ [c.key]: value }) as ReviewTrailConfig;
 
   for (const c of cases) {
     describe(c.name, () => {
@@ -646,16 +646,16 @@ describe("config.json boolean coercion", () => {
 describe("resolveReviewProgress env handling", () => {
   test("off/on vocabulary wins over the config key", () => {
     for (const v of ["0", "false", "FALSE", "off", "disabled", " false "]) {
-      expect(resolveReviewProgress({ reviewProgress: true }, { PLANNOTATOR_REVIEW_PROGRESS: v })).toBe(false);
+      expect(resolveReviewProgress({ reviewProgress: true }, { REVIEWTRAIL_REVIEW_PROGRESS: v })).toBe(false);
     }
     for (const v of ["1", "true", "on"]) {
-      expect(resolveReviewProgress({ reviewProgress: false }, { PLANNOTATOR_REVIEW_PROGRESS: v })).toBe(true);
+      expect(resolveReviewProgress({ reviewProgress: false }, { REVIEWTRAIL_REVIEW_PROGRESS: v })).toBe(true);
     }
   });
 
   test("an empty-but-set env var counts as unset, so the config key decides", () => {
-    expect(resolveReviewProgress({ reviewProgress: false }, { PLANNOTATOR_REVIEW_PROGRESS: "" })).toBe(false);
-    expect(resolveReviewProgress({}, { PLANNOTATOR_REVIEW_PROGRESS: "" })).toBe(true);
+    expect(resolveReviewProgress({ reviewProgress: false }, { REVIEWTRAIL_REVIEW_PROGRESS: "" })).toBe(false);
+    expect(resolveReviewProgress({}, { REVIEWTRAIL_REVIEW_PROGRESS: "" })).toBe(true);
   });
 });
 
@@ -667,8 +667,8 @@ describe("resolveAgentTool", () => {
     for (const host of ["claude-code", "pi", "oh-my-pi", "opencode", "dsh"] as const) {
       expect(resolveAgentTool({}, {}, host)).toBe(AGENT_TOOL_DEFAULTS[host]);
       // An empty or unrecognized env value counts as unset.
-      expect(resolveAgentTool({}, { PLANNOTATOR_AGENT_TOOL: "" }, host)).toBe(AGENT_TOOL_DEFAULTS[host]);
-      expect(resolveAgentTool({}, { PLANNOTATOR_AGENT_TOOL: "yes" }, host)).toBe(AGENT_TOOL_DEFAULTS[host]);
+      expect(resolveAgentTool({}, { REVIEWTRAIL_AGENT_TOOL: "" }, host)).toBe(AGENT_TOOL_DEFAULTS[host]);
+      expect(resolveAgentTool({}, { REVIEWTRAIL_AGENT_TOOL: "yes" }, host)).toBe(AGENT_TOOL_DEFAULTS[host]);
     }
   });
 
@@ -684,19 +684,19 @@ describe("resolveAgentTool", () => {
   test("Oh My Pi: config.json and the env var override its default in both directions", () => {
     expect(resolveAgentTool({}, {}, "oh-my-pi")).toBe(true);
     expect(resolveAgentTool({ agentTool: false }, {}, "oh-my-pi")).toBe(false);
-    expect(resolveAgentTool({}, { PLANNOTATOR_AGENT_TOOL: "0" }, "oh-my-pi")).toBe(false);
-    expect(resolveAgentTool({ agentTool: true }, { PLANNOTATOR_AGENT_TOOL: "off" }, "oh-my-pi")).toBe(false);
-    expect(resolveAgentTool({ agentTool: false }, { PLANNOTATOR_AGENT_TOOL: "1" }, "oh-my-pi")).toBe(true);
+    expect(resolveAgentTool({}, { REVIEWTRAIL_AGENT_TOOL: "0" }, "oh-my-pi")).toBe(false);
+    expect(resolveAgentTool({ agentTool: true }, { REVIEWTRAIL_AGENT_TOOL: "off" }, "oh-my-pi")).toBe(false);
+    expect(resolveAgentTool({ agentTool: false }, { REVIEWTRAIL_AGENT_TOOL: "1" }, "oh-my-pi")).toBe(true);
     // Plain Pi keeps its default: off.
     expect(resolveAgentTool({}, {}, "pi")).toBe(false);
   });
 
   test("the env var wins over agentTool in config.json, in both directions", () => {
     for (const v of ["0", "false", "OFF", "disabled", " off "]) {
-      expect(resolveAgentTool({ agentTool: true }, { PLANNOTATOR_AGENT_TOOL: v }, "claude-code")).toBe(false);
+      expect(resolveAgentTool({ agentTool: true }, { REVIEWTRAIL_AGENT_TOOL: v }, "claude-code")).toBe(false);
     }
     for (const v of ["1", "true", "On"]) {
-      expect(resolveAgentTool({ agentTool: false }, { PLANNOTATOR_AGENT_TOOL: v }, "pi")).toBe(true);
+      expect(resolveAgentTool({ agentTool: false }, { REVIEWTRAIL_AGENT_TOOL: v }, "pi")).toBe(true);
     }
   });
 
@@ -715,19 +715,19 @@ describe("resolveAgentTool", () => {
 // effective value for the session's host, whether the file decided it, and
 // an env override that a toggle cannot change.
 describe("getServerConfig agent tool advert", () => {
-  const savedDataDir = process.env.PLANNOTATOR_DATA_DIR;
-  const savedEnv = process.env.PLANNOTATOR_AGENT_TOOL;
+  const savedDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+  const savedEnv = process.env.REVIEWTRAIL_AGENT_TOOL;
   let dir: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "plannotator-agent-tool-advert-"));
-    process.env.PLANNOTATOR_DATA_DIR = dir;
-    delete process.env.PLANNOTATOR_AGENT_TOOL;
+    dir = mkdtempSync(join(tmpdir(), "reviewtrail-agent-tool-advert-"));
+    process.env.REVIEWTRAIL_DATA_DIR = dir;
+    delete process.env.REVIEWTRAIL_AGENT_TOOL;
   });
   afterEach(() => {
-    if (savedDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-    else process.env.PLANNOTATOR_DATA_DIR = savedDataDir;
-    if (savedEnv === undefined) delete process.env.PLANNOTATOR_AGENT_TOOL;
-    else process.env.PLANNOTATOR_AGENT_TOOL = savedEnv;
+    if (savedDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+    else process.env.REVIEWTRAIL_DATA_DIR = savedDataDir;
+    if (savedEnv === undefined) delete process.env.REVIEWTRAIL_AGENT_TOOL;
+    else process.env.REVIEWTRAIL_AGENT_TOOL = savedEnv;
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -744,7 +744,7 @@ describe("getServerConfig agent tool advert", () => {
     saveConfig({ agentTool: true });
     expect(getServerConfig(null, "opencode")).toMatchObject({ agentTool: true, agentToolConfigured: true, agentToolEnabled: true });
     expect(getServerConfig(null, "opencode").agentToolEnv).toBeUndefined();
-    process.env.PLANNOTATOR_AGENT_TOOL = "0";
+    process.env.REVIEWTRAIL_AGENT_TOOL = "0";
     expect(getServerConfig(null, "opencode")).toMatchObject({ agentTool: true, agentToolEnv: false, agentToolEnabled: false });
   });
 
@@ -755,7 +755,7 @@ describe("getServerConfig agent tool advert", () => {
     // A data dir that is a file: saveConfig logs and returns, nothing is written.
     const blocker = join(dir, "not-a-dir");
     writeFileSync(blocker, "");
-    process.env.PLANNOTATOR_DATA_DIR = blocker;
+    process.env.REVIEWTRAIL_DATA_DIR = blocker;
     const savedWrite = process.stderr.write;
     process.stderr.write = (() => true) as typeof process.stderr.write;
     try {
@@ -768,19 +768,19 @@ describe("getServerConfig agent tool advert", () => {
 });
 
 describe("favicon config persistence", () => {
-  const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "plannotator-config-test-"));
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    tempDir = mkdtempSync(join(tmpdir(), "reviewtrail-config-test-"));
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
   });
 
   afterEach(() => {
     if (originalDataDir !== undefined) {
-      process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
+      process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
     } else {
-      delete process.env.PLANNOTATOR_DATA_DIR;
+      delete process.env.REVIEWTRAIL_DATA_DIR;
     }
     rmSync(tempDir, { recursive: true, force: true });
   });
@@ -796,28 +796,28 @@ describe("favicon config persistence", () => {
   });
 
   test("omits unknown favicon styles from getServerConfig", () => {
-    const unknownFavicon = "unknown" as unknown as PlannotatorConfig["favicon"];
+    const unknownFavicon = "unknown" as unknown as ReviewTrailConfig["favicon"];
     saveConfig({ favicon: unknownFavicon });
     expect(loadConfig().favicon).toBe(unknownFavicon);
     expect(getServerConfig(null).favicon).toBeUndefined();
   });
 
   test("a 'classic' left by 0.28.57 (the removed P icon) reads as unset and stays in the file", () => {
-    saveConfig({ favicon: "classic" as unknown as PlannotatorConfig["favicon"] });
+    saveConfig({ favicon: "classic" as unknown as ReviewTrailConfig["favicon"] });
     expect(getServerConfig(null).favicon).toBeUndefined();
     expect(loadConfig().favicon as string).toBe("classic");
   });
 });
 
 describe("saveConfig never writes over a config.json it could not read", () => {
-  const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let tempDir: string;
   let warnings: string[];
   let savedWrite: typeof process.stderr.write;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "plannotator-config-refuse-"));
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    tempDir = mkdtempSync(join(tmpdir(), "reviewtrail-config-refuse-"));
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
     warnings = [];
     savedWrite = process.stderr.write;
     process.stderr.write = ((chunk: string) => {
@@ -829,8 +829,8 @@ describe("saveConfig never writes over a config.json it could not read", () => {
   afterEach(() => {
     __setConfigWriteForTest(null);
     process.stderr.write = savedWrite;
-    if (originalDataDir !== undefined) process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
-    else delete process.env.PLANNOTATOR_DATA_DIR;
+    if (originalDataDir !== undefined) process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
+    else delete process.env.REVIEWTRAIL_DATA_DIR;
     rmSync(tempDir, { recursive: true, force: true });
   });
 
@@ -948,7 +948,7 @@ describe("saveConfig never writes over a config.json it could not read", () => {
         },
       });
       try {
-        expect(saveConfig({ favicon } as Partial<PlannotatorConfig>)).toBe(true);
+        expect(saveConfig({ favicon } as Partial<ReviewTrailConfig>)).toBe(true);
       } finally {
         __setConfigWriteForTest(null);
       }
@@ -973,7 +973,7 @@ describe("saveConfig never writes over a config.json it could not read", () => {
 
   test("a symlinked config.json in a folder that is not writable still saves: the temp file goes beside the link's target", () => {
     if (process.platform === "win32" || process.getuid?.() === 0) return;
-    const dotfiles = mkdtempSync(join(tmpdir(), "plannotator-config-dotfiles-"));
+    const dotfiles = mkdtempSync(join(tmpdir(), "reviewtrail-config-dotfiles-"));
     try {
       const target = join(dotfiles, "config.json");
       writeFileSync(target, JSON.stringify({ displayName: "Ada" }));
@@ -996,7 +996,7 @@ describe("saveConfig never writes over a config.json it could not read", () => {
     // A hand edit with a trailing comma: every setting in it would be lost if the save merged onto {}.
     const bytes = '{\n  "theme": { "mode": "dark", "dark": "tokyo-night" },\n  "displayName": "Ada",\n}\n';
     writeFileSync(configPath(), bytes);
-    expect(saveConfig({ inboxTour: { version: 1, seen_at: "2026-10-25T00:00:00.000Z", finished_at: null, skipped_at: null, notify_again: false } } as Partial<PlannotatorConfig>)).toBe(false);
+    expect(saveConfig({ inboxTour: { version: 1, seen_at: "2026-10-25T00:00:00.000Z", finished_at: null, skipped_at: null, notify_again: false } } as Partial<ReviewTrailConfig>)).toBe(false);
     expect(raw()).toBe(bytes);
     expect(warnings.join("")).toContain("not valid JSON");
     expect(warnings.join("")).toContain("Fix or remove");
@@ -1041,7 +1041,7 @@ describe("saveConfig never writes over a config.json it could not read", () => {
 
   test("a save that names a key holding a non-object replaces it; it is never spread into characters", () => {
     writeFileSync(configPath(), JSON.stringify({ theme: "dark", experimental: true, diffOptions: { diffStyle: "split", hideWhitespace: true } }));
-    expect(saveConfig({ theme: { mode: "light" }, experimental: { decisionMode: true }, diffOptions: { diffStyle: "unified" } } as Partial<PlannotatorConfig>)).toBe(true);
+    expect(saveConfig({ theme: { mode: "light" }, experimental: { decisionMode: true }, diffOptions: { diffStyle: "unified" } } as Partial<ReviewTrailConfig>)).toBe(true);
     expect(JSON.parse(raw())).toEqual({ theme: { mode: "light" }, experimental: { decisionMode: true }, diffOptions: { diffStyle: "unified", hideWhitespace: true } });
   });
 
@@ -1053,21 +1053,21 @@ describe("saveConfig never writes over a config.json it could not read", () => {
 });
 
 describe("saveConfig write serialization", () => {
-  const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), "plannotator-config-lock-"));
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    tempDir = mkdtempSync(join(tmpdir(), "reviewtrail-config-lock-"));
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
   });
 
   afterEach(() => {
     __setConfigSaveMergeWindowHookForTest(null);
     __setConfigLockTimingsForTest(null);
     if (originalDataDir !== undefined) {
-      process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
+      process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
     } else {
-      delete process.env.PLANNOTATOR_DATA_DIR;
+      delete process.env.REVIEWTRAIL_DATA_DIR;
     }
     rmSync(tempDir, { recursive: true, force: true });
   });
@@ -1173,7 +1173,7 @@ saveConfig({ prompts: { [key]: "v" } } as never);
     const holdingFlag = join(tempDir, "holding");
     const releaseFlag = join(tempDir, "release");
     const contenderStarted = join(tempDir, "contender-started");
-    const env = { ...process.env, PLANNOTATOR_DATA_DIR: tempDir };
+    const env = { ...process.env, REVIEWTRAIL_DATA_DIR: tempDir };
 
     const holder = Bun.spawn(["bun", "run", scriptPath], {
       env: { ...env, TEST_KEY: "holder", TEST_HOLD_UNTIL: releaseFlag, TEST_HOLDING_FLAG: holdingFlag },
@@ -1213,13 +1213,13 @@ describe("resolveSharingEnabled", () => {
   test("env wins over config; default enabled", () => {
     expect(resolveSharingEnabled({}, {})).toBe(true);
     expect(resolveSharingEnabled({ share: "disabled" }, {})).toBe(false);
-    expect(resolveSharingEnabled({ share: "disabled" }, { PLANNOTATOR_SHARE: "enabled" })).toBe(true);
-    expect(resolveSharingEnabled({}, { PLANNOTATOR_SHARE: "disabled" })).toBe(false);
+    expect(resolveSharingEnabled({ share: "disabled" }, { REVIEWTRAIL_SHARE: "enabled" })).toBe(true);
+    expect(resolveSharingEnabled({}, { REVIEWTRAIL_SHARE: "disabled" })).toBe(false);
   });
 });
 
 /**
- * `--no-git-remote-check` / PLANNOTATOR_GIT_REMOTE_CHECK / config.gitRemoteCheck (#1553).
+ * `--no-git-remote-check` / REVIEWTRAIL_GIT_REMOTE_CHECK / config.gitRemoteCheck (#1553).
  * Guards the precedence order itself: this is the switch that decides whether
  * a review session may touch the network at all, and getting the order wrong
  * means either an opt-out that silently does nothing (the user still gets a
@@ -1227,13 +1227,13 @@ describe("resolveSharingEnabled", () => {
  * command-line flag.
  */
 describe("resolveGitRemoteCheck precedence", () => {
-  const ENV_VAR = "PLANNOTATOR_GIT_REMOTE_CHECK";
+  const ENV_VAR = "REVIEWTRAIL_GIT_REMOTE_CHECK";
 
   const cases: Array<{
     label: string;
     cli: boolean;
     env?: string;
-    config: PlannotatorConfig;
+    config: ReviewTrailConfig;
     expected: boolean;
   }> = [
     { label: "nothing set → on", cli: false, config: {}, expected: true },
@@ -1271,17 +1271,17 @@ describe("resolveGitRemoteCheck precedence", () => {
 });
 
 // Experimental features (approval "inbox-decision-mode"): off unless switched on,
-// PLANNOTATOR_EXPERIMENTAL decides over config.json, and saving one flag keeps the others.
+// REVIEWTRAIL_EXPERIMENTAL decides over config.json, and saving one flag keeps the others.
 describe("experimental features", () => {
-  const savedDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const savedDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let dir: string;
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), "plannotator-experimental-"));
-    process.env.PLANNOTATOR_DATA_DIR = dir;
+    dir = mkdtempSync(join(tmpdir(), "reviewtrail-experimental-"));
+    process.env.REVIEWTRAIL_DATA_DIR = dir;
   });
   afterEach(() => {
-    if (savedDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-    else process.env.PLANNOTATOR_DATA_DIR = savedDataDir;
+    if (savedDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+    else process.env.REVIEWTRAIL_DATA_DIR = savedDataDir;
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -1290,10 +1290,10 @@ describe("experimental features", () => {
     expect(resolveExperimental({ experimental: { decisionMode: true } }, "decision-mode", {})).toBe(true);
     expect(resolveExperimental({ experimental: { decisionMode: "true" as unknown as boolean } }, "decision-mode", {})).toBe(true);
     expect(resolveExperimental({ experimental: [] as unknown as { decisionMode?: boolean } }, "decision-mode", {})).toBe(false);
-    expect(resolveExperimental({}, "decision-mode", { PLANNOTATOR_EXPERIMENTAL: "x, Decision-Mode" })).toBe(true);
-    expect(resolveExperimental({ experimental: { decisionMode: true } }, "decision-mode", { PLANNOTATOR_EXPERIMENTAL: "-decision-mode" })).toBe(false);
-    expect(resolveExperimental({ experimental: { decisionMode: true } }, "decision-mode", { PLANNOTATOR_EXPERIMENTAL: "something-else" })).toBe(true);
-    expect(parseExperimentalEnv("decision-mode", { PLANNOTATOR_EXPERIMENTAL: "" })).toBeUndefined();
+    expect(resolveExperimental({}, "decision-mode", { REVIEWTRAIL_EXPERIMENTAL: "x, Decision-Mode" })).toBe(true);
+    expect(resolveExperimental({ experimental: { decisionMode: true } }, "decision-mode", { REVIEWTRAIL_EXPERIMENTAL: "-decision-mode" })).toBe(false);
+    expect(resolveExperimental({ experimental: { decisionMode: true } }, "decision-mode", { REVIEWTRAIL_EXPERIMENTAL: "something-else" })).toBe(true);
+    expect(parseExperimentalEnv("decision-mode", { REVIEWTRAIL_EXPERIMENTAL: "" })).toBeUndefined();
   });
 
   test("saving one flag keeps the other experimental keys", () => {
@@ -1327,7 +1327,7 @@ describe("experimental features", () => {
   });
 
   // The usage counts were removed (approval "remove-usage-counts"); v0.28.33's
-  // hidden `plannotator telemetry --off` could write `usageCounts`. Such a file
+  // hidden `reviewtrail telemetry --off` could write `usageCounts`. Such a file
   // still loads quietly, its flags still work, and a save leaves the old keys be.
   test("a config.json with the removed usage-count keys loads with no warning and keeps them on save", () => {
     writeFileSync(join(dir, "config.json"), JSON.stringify({ experimental: { decisionMode: true }, usageCounts: false, usageCountsNotice: { decisionMode: 1 } }));
@@ -1344,17 +1344,17 @@ describe("experimental features", () => {
 });
 
 describe("machine state lives in state.json, not config.json (#2852)", () => {
-  const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
   let root: string;
   let tempDir: string;
   let warnings: string[];
   let warn: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), "plannotator-config-state-"));
+    root = mkdtempSync(join(tmpdir(), "reviewtrail-config-state-"));
     tempDir = join(root, "data");
     mkdirSync(tempDir);
-    process.env.PLANNOTATOR_DATA_DIR = tempDir;
+    process.env.REVIEWTRAIL_DATA_DIR = tempDir;
     warnings = [];
     warn = spyOn(process.stderr, "write").mockImplementation(((chunk: unknown) => {
       warnings.push(String(chunk));
@@ -1365,8 +1365,8 @@ describe("machine state lives in state.json, not config.json (#2852)", () => {
   afterEach(() => {
     warn.mockRestore();
     __setConfigSaveMergeWindowHookForTest(null);
-    if (originalDataDir !== undefined) process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
-    else delete process.env.PLANNOTATOR_DATA_DIR;
+    if (originalDataDir !== undefined) process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
+    else delete process.env.REVIEWTRAIL_DATA_DIR;
     chmodSync(root, 0o700);
     for (const name of readdirSync(root)) chmodSync(join(root, name), 0o700);
     rmSync(root, { recursive: true, force: true });
@@ -1456,7 +1456,7 @@ describe("machine state lives in state.json, not config.json (#2852)", () => {
     expect(readFileSync(shared, "utf-8")).toBe(sharedBytes);
 
     // Machine B (its own data dir, no state.json yet) still reads every record and choice from the shared file.
-    process.env.PLANNOTATOR_DATA_DIR = machineB;
+    process.env.REVIEWTRAIL_DATA_DIR = machineB;
     const onB = loadConfig();
     expect(onB.inboxAgentNotes).toEqual({ offered: true, asked: ["codex", "gemini"] });
     expect(onB.inboxReveals?.board?.shownAt).toBe("2026-11-01T00:00:00.000Z");
@@ -1620,7 +1620,7 @@ describe("machine state lives in state.json, not config.json (#2852)", () => {
   test("a symlinked config.json (a dotfiles repo) is written through for settings, and machine state never lands in it", () => {
     const dotfiles = join(root, "dotfiles");
     mkdirSync(dotfiles);
-    const target = join(dotfiles, "plannotator-config.json");
+    const target = join(dotfiles, "reviewtrail-config.json");
     writeFileSync(target, JSON.stringify({ displayName: "Ada" }));
     symlinkSync(target, configPath());
     expect(saveConfig({ inboxListIntro: { shownAt: "2026-11-06T00:00:00.000Z" } })).toBe(true);

@@ -3,7 +3,7 @@
  * loads: each picture's shape (from its size in pixels, when the host knows it),
  * the set's shape, and how long the longest choice's words run. The tile grid
  * writes these as data attributes (`[data-question-tiles-*]`,
- * `[data-question-tile-shape]`); the Plannotator Inbox draws its layout from
+ * `[data-question-tile-shape]`); the ReviewTrail Inbox draws its layout from
  * them in CSS. Pure, no DOM.
  */
 

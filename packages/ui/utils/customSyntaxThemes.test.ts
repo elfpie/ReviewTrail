@@ -79,7 +79,7 @@ describe('a custom theme with code colours', () => {
     // In light mode the half has none: Pierre's defaults (undefined), as for a built-in with no light counterpart.
     expect(resolveSyntaxTheme('diff-mono', 'light')).toBeUndefined();
     // A fence draws that default with its low-contrast colours fixed (fenceSyntaxThemes.ts).
-    expect(resolveFenceTheme('diff-mono', 'light')).toBe('plannotator-fence-light');
+    expect(resolveFenceTheme('diff-mono', 'light')).toBe('reviewtrail-fence-light');
   });
 
   test('a one-half theme draws its own code colours in either mode', () => {

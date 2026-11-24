@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { CommentAskAIHandler } from "@plannotator/ui/components/CommentPopover";
+import type { CommentAskAIHandler } from "@reviewtrail/ui/components/CommentPopover";
 import { buildContextualAIHandlers } from "./ReviewStateContext";
 
 describe("buildContextualAIHandlers", () => {

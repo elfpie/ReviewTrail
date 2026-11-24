@@ -1,6 +1,6 @@
 /**
  * The Bun review server's command runner ends a command given up on (`CommandOptions.signal`), with everything it started: a
- * Bitbucket token command that hangs on a prompt is killed when Plannotator stops waiting, never left running. What
+ * Bitbucket token command that hangs on a prompt is killed when ReviewTrail stops waiting, never left running. What
  * regresses: the abort ignored, or only the command itself ended while a child it started lives on. Real processes
  * (`sh`, `sleep`), no network.
  */
@@ -34,7 +34,7 @@ afterEach(() => {
 });
 
 test.skipIf(process.platform === "win32")("an aborted command is ended with the child it started", async () => {
-  dir = mkdtempSync(join(tmpdir(), "plannotator-abort-"));
+  dir = mkdtempSync(join(tmpdir(), "reviewtrail-abort-"));
   const pidFile = join(dir, "child.pid");
   const giveUp = new AbortController();
   const run = prCommandRuntime.runCommand("sh", ["-c", `sleep 30 & echo $! > "${pidFile}"; wait`], { signal: giveUp.signal });

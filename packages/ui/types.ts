@@ -1,15 +1,15 @@
-import type { DiagramAnchor } from '@plannotator/core/diagram-anchor';
-import type { ImageRegion } from '@plannotator/core/image-region';
-import type { HtmlBlockAnchor } from '@plannotator/core/html-block-anchor';
-import type { HtmlAnchorStructure } from '@plannotator/core/html-anchor';
-import type { DocumentRenderKind } from '@plannotator/core/annotatable';
-import type { QuestionAnswer } from '@plannotator/core/question-block';
+import type { DiagramAnchor } from '@reviewtrail/core/diagram-anchor';
+import type { ImageRegion } from '@reviewtrail/core/image-region';
+import type { HtmlBlockAnchor } from '@reviewtrail/core/html-block-anchor';
+import type { HtmlAnchorStructure } from '@reviewtrail/core/html-anchor';
+import type { DocumentRenderKind } from '@reviewtrail/core/annotatable';
+import type { QuestionAnswer } from '@reviewtrail/core/question-block';
 
-export type { DiagramAnchor } from '@plannotator/core/diagram-anchor';
-export type { ImageRegion, ImageRegionBox } from '@plannotator/core/image-region';
-export type { HtmlBlockAnchor } from '@plannotator/core/html-block-anchor';
-export type { QuestionAnswer } from '@plannotator/core/question-block';
-export type { DiagramRenderKind, DocumentRenderKind } from '@plannotator/core/annotatable';
+export type { DiagramAnchor } from '@reviewtrail/core/diagram-anchor';
+export type { ImageRegion, ImageRegionBox } from '@reviewtrail/core/image-region';
+export type { HtmlBlockAnchor } from '@reviewtrail/core/html-block-anchor';
+export type { QuestionAnswer } from '@reviewtrail/core/question-block';
+export type { DiagramRenderKind, DocumentRenderKind } from '@reviewtrail/core/annotatable';
 
 /**
  * How a document's body is rendered. `markdown` and `html` are the original
@@ -108,10 +108,10 @@ export interface Annotation {
   htmlAnchor?: HtmlElementAnchor; // raw-HTML pinpoint: serialized element anchor for reliable restoration
   elementContext?: HtmlElementContext; // raw-HTML / live-app pinpoint: bounded agent-facing description of the primary element (never used by restore)
   htmlAdditionalTargets?: HtmlAnnotationTarget[]; // raw-HTML shift-click multi-select: extra elements this one comment covers (primary stays htmlAnchor/originalText)
-  diagramAnchor?: DiagramAnchor; // a comment on a rendered diagram part (Mermaid / Graphviz fence): the part's own id, label and document source line; the highlighter skips it and the diagram overlay restores it (see @plannotator/core/diagram-anchor)
-  htmlBlockAnchor?: HtmlBlockAnchor; // a comment on an element of a live `html` block in the document (the Inbox's messages): which block (its place, its embed id, its fence's lines); the element is `htmlAnchor` / `elementContext` inside that block's page. The highlighter skips it and the block's own viewer restores it (see @plannotator/core/html-block-anchor)
-  imageRegion?: ImageRegion; // a comment on part of an image in a markdown document (#2100): the image's src as written, its document line, and the box in the image's own pixels; drawn by the image viewer, skipped by the highlighter, exported as `Image:` / `Region:` lines (see @plannotator/core/image-region)
-  questionAnswer?: QuestionAnswer; // the reviewer's answer to a `:::question` block (id `ann-question-<key>`): the Viewer draws the answer from it, the highlighter skips it, and the export prints it in the "Answers to your questions" section instead of as a numbered comment (see @plannotator/core/question-block)
+  diagramAnchor?: DiagramAnchor; // a comment on a rendered diagram part (Mermaid / Graphviz fence): the part's own id, label and document source line; the highlighter skips it and the diagram overlay restores it (see @reviewtrail/core/diagram-anchor)
+  htmlBlockAnchor?: HtmlBlockAnchor; // a comment on an element of a live `html` block in the document (the Inbox's messages): which block (its place, its embed id, its fence's lines); the element is `htmlAnchor` / `elementContext` inside that block's page. The highlighter skips it and the block's own viewer restores it (see @reviewtrail/core/html-block-anchor)
+  imageRegion?: ImageRegion; // a comment on part of an image in a markdown document (#2100): the image's src as written, its document line, and the box in the image's own pixels; drawn by the image viewer, skipped by the highlighter, exported as `Image:` / `Region:` lines (see @reviewtrail/core/image-region)
+  questionAnswer?: QuestionAnswer; // the reviewer's answer to a `:::question` block (id `ann-question-<key>`): the Viewer draws the answer from it, the highlighter skips it, and the export prints it in the "Answers to your questions" section instead of as a numbered comment (see @reviewtrail/core/question-block)
   // web-highlighter metadata for cross-element selections
   startMeta?: AnnotationTextMeta;
   endMeta?: AnnotationTextMeta;
@@ -140,7 +140,7 @@ export interface HtmlElementAnchor {
   /**
    * A structural anchor, for an element with no text and no stable id: its
    * place in a document that has not changed by a byte, and its signature
-   * (`@plannotator/core/html-anchor` `HtmlAnchorStructure`). Only from a
+   * (`@reviewtrail/core/html-anchor` `HtmlAnchorStructure`). Only from a
    * viewer with `structuralAnchors`; restore takes the element only on an
    * exact match and never one nearby.
    */
@@ -566,11 +566,11 @@ export interface VaultNode {
   children?: VaultNode[];
 }
 
-export type { EditorAnnotation } from '@plannotator/core/types';
+export type { EditorAnnotation } from '@reviewtrail/core/types';
 
 export type {
   ExternalAnnotationEvent,
-} from '@plannotator/core/external-annotation';
+} from '@reviewtrail/core/external-annotation';
 
 export type {
   AgentJobInfo,
@@ -578,9 +578,9 @@ export type {
   AgentJobStatus,
   AgentCapability,
   AgentCapabilities,
-} from '@plannotator/core/agent-jobs';
+} from '@reviewtrail/core/agent-jobs';
 
-/** Host toolbar seams (opt-in; Plannotator supplies neither). */
+/** Host toolbar seams (opt-in; ReviewTrail supplies neither). */
 export type {
   SelectionAction,
   SelectionActionContext,
@@ -594,7 +594,7 @@ export type {
 
 /**
  * The composer handed to the host (opt-in `onHostDraft` on `Viewer` and
- * `HtmlViewer`; Plannotator supplies neither). With it a viewer draws no
+ * `HtmlViewer`; ReviewTrail supplies neither). With it a viewer draws no
  * toolbar or composer of its own: it reports what a comment would be on, and
  * the host writes the comment, saves it, and draws it as saved through
  * `annotations` or `applySharedAnnotations`.
@@ -608,7 +608,7 @@ export interface HostDraft {
    * tap, Comment mode, an HTML pin).
    */
   intent: 'selection' | 'compose';
-  /** What it is on, as a composer names it (Plannotator's pinpoint label: "Button", a heading's words). Absent for text. */
+  /** What it is on, as a composer names it (ReviewTrail's pinpoint label: "Button", a heading's words). Absent for text. */
   label?: string;
   /**
    * Drop the draft: its pending highlight or pin goes. The host calls it when

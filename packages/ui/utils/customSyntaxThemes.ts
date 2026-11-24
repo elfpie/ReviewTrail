@@ -3,12 +3,12 @@
  * themes `@pierre/diffs` resolves by name: every fence (codeHighlight.ts), the
  * code review diff pane and the Inbox's diffs, in one highlighter.
  *
- * A half with code colours draws in `plannotator-custom-<id>-<half>`
+ * A half with code colours draws in `reviewtrail-custom-<id>-<half>`
  * (`customSyntaxThemeName`); `syntaxTheme.ts` hands that name out for the
  * palette. Pierre resolves a name through the loaders `registerCustomTheme`
  * keeps, on the main thread (its worker pool and the Inbox's fence worker are
  * handed what the page resolved). Each name is registered with a loader that
- * asks the server for the theme's code colours (`/plannotator-themes.js?syntax=<id>`)
+ * asks the server for the theme's code colours (`/reviewtrail-themes.js?syntax=<id>`)
  * the first time code renders in it, so the page script that runs before the
  * first paint stays small. What arrives is checked again (`syntaxTextMateTheme`:
  * scopes, #hex colours and font styles only); anything else, or a failed
@@ -21,7 +21,7 @@
  * before any theme name reaches Pierre.
  */
 
-import { syntaxTextMateTheme, type ThemeFileHalf } from '@plannotator/core/theme-file';
+import { syntaxTextMateTheme, type ThemeFileHalf } from '@reviewtrail/core/theme-file';
 import { connectFenceSyntaxThemes } from './fenceSyntaxThemes';
 import { getCustomThemes, type ThemeInfo } from './themeRegistry';
 
@@ -31,7 +31,7 @@ export interface CustomSyntaxPierre {
   resolveTheme: (name: never) => Promise<{ textmate?: unknown }>;
 }
 
-const PREFIX = 'plannotator-custom-';
+const PREFIX = 'reviewtrail-custom-';
 const DEFAULT_THEME: Record<ThemeFileHalf, string> = { dark: 'pierre-dark', light: 'pierre-light' };
 
 /** The Shiki theme name one half of a custom theme draws code in. */
@@ -57,7 +57,7 @@ export function customSyntaxThemeFor(colorTheme: string, mode: ThemeFileHalf): s
 /** The server's answer per theme id, fetched once a page. */
 const fetched = new Map<string, Promise<unknown>>();
 let fetchSyntax = (id: string): Promise<unknown> =>
-  fetch(`/plannotator-themes.js?syntax=${encodeURIComponent(id)}`).then((res) => (res.ok ? res.json() : null));
+  fetch(`/reviewtrail-themes.js?syntax=${encodeURIComponent(id)}`).then((res) => (res.ok ? res.json() : null));
 
 const registered = new Set<string>();
 

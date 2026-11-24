@@ -62,8 +62,8 @@ function tokensFromCss(css: string, selector: string): MermaidThemeTokens | unde
   return undefined;
 }
 
-/** The Plannotator base palette, as `themes/plannotator.css` writes it. */
-const PLANNOTATOR_DARK: MermaidThemeTokens = {
+/** The ReviewTrail base palette, as `themes/reviewtrail.css` writes it. */
+const REVIEWTRAIL_DARK: MermaidThemeTokens = {
   background: 'oklch(0.15 0.02 260)',
   foreground: 'oklch(0.90 0.01 260)',
   card: 'oklch(0.22 0.02 260)',
@@ -82,7 +82,7 @@ const PLANNOTATOR_DARK: MermaidThemeTokens = {
   'font-sans': "'Inter Variable', 'Inter', system-ui, sans-serif",
 };
 
-const PLANNOTATOR_LIGHT: MermaidThemeTokens = {
+const REVIEWTRAIL_LIGHT: MermaidThemeTokens = {
   background: 'oklch(0.97 0.005 260)',
   foreground: 'oklch(0.18 0.02 260)',
   card: 'oklch(1 0 0)',
@@ -183,7 +183,7 @@ function ratio(vars: Record<string, unknown>, a: string, b: string): number {
 
 describe('buildMermaidThemeVariables', () => {
   test('sets every documented variable of every family as an opaque hex colour', () => {
-    const spec = buildMermaidThemeVariables(PLANNOTATOR_DARK, 'dark');
+    const spec = buildMermaidThemeVariables(REVIEWTRAIL_DARK, 'dark');
     expect(spec).not.toBeNull();
     const vars = spec!.themeVariables;
     for (const [family, names] of Object.entries(DOCUMENTED_VARIABLES)) {
@@ -207,15 +207,15 @@ describe('buildMermaidThemeVariables', () => {
   });
 
   test('base theme follows the resolved mode; the font follows the sans token', () => {
-    const dark = buildMermaidThemeVariables(PLANNOTATOR_DARK, 'dark')!;
-    const light = buildMermaidThemeVariables(PLANNOTATOR_LIGHT, 'light')!;
+    const dark = buildMermaidThemeVariables(REVIEWTRAIL_DARK, 'dark')!;
+    const light = buildMermaidThemeVariables(REVIEWTRAIL_LIGHT, 'light')!;
     expect(dark.theme).toBe('dark');
     expect(light.theme).toBe('default');
     expect(light.themeVariables.darkMode).toBe(false);
-    expect(dark.themeVariables.fontFamily).toBe(PLANNOTATOR_DARK['font-sans']);
+    expect(dark.themeVariables.fontFamily).toBe(REVIEWTRAIL_DARK['font-sans']);
     expect('fontFamily' in light.themeVariables).toBe(false);
     // Node fill is the card token, not a fixed slate, in both modes.
-    expect(dark.themeVariables.nodeBkg).toBe(toHex(parseCssColor(PLANNOTATOR_DARK.card)!));
+    expect(dark.themeVariables.nodeBkg).toBe(toHex(parseCssColor(REVIEWTRAIL_DARK.card)!));
     expect(dark.themeVariables.nodeBkg).not.toBe(MERMAID_CONFIG.themeVariables!.mainBkg);
     expect(light.themeVariables.nodeBkg).toBe('#ffffff');
   });
@@ -227,7 +227,7 @@ describe('buildMermaidThemeVariables', () => {
     expect(buildMermaidThemeVariables({ background: 'var(--x)', foreground: '#fff' }, 'dark')).toBeNull();
     // Identity, not a copy: the fallback IS the pinned static config.
     expect(buildMermaidConfig(null)).toBe(MERMAID_CONFIG);
-    const dynamic = buildMermaidConfig(buildMermaidThemeVariables(PLANNOTATOR_DARK, 'dark'));
+    const dynamic = buildMermaidConfig(buildMermaidThemeVariables(REVIEWTRAIL_DARK, 'dark'));
     expect(dynamic.securityLevel).toBe('strict');
     expect(dynamic.startOnLoad).toBe(false);
     expect(dynamic.flowchart).toEqual(MERMAID_CONFIG.flowchart);
@@ -359,7 +359,7 @@ describe('contrast guard', () => {
 
 /**
  * Label wrap width (#2064). Mermaid 12 wraps node labels at 120 px (11 used
- * 200), which at Plannotator's 16 px labels splits about eight CJK characters
+ * 200), which at ReviewTrail's 16 px labels splits about eight CJK characters
  * and short Latin labels. 140 is an owner-approved value, pinned on purpose.
  *
  * What regresses if these fail: one of the two `initialize` paths (the static
@@ -378,7 +378,7 @@ describe('label wrap width', () => {
   });
 
   test('the themed config keeps it in both modes', () => {
-    for (const [tokens, mode] of [[PLANNOTATOR_DARK, 'dark'], [PLANNOTATOR_LIGHT, 'light']] as const) {
+    for (const [tokens, mode] of [[REVIEWTRAIL_DARK, 'dark'], [REVIEWTRAIL_LIGHT, 'light']] as const) {
       const themed = buildMermaidConfig(buildMermaidThemeVariables(tokens, mode));
       expect(themed.flowchart?.wrappingWidth).toBe(140);
       expect(themed.state?.wrappingWidth).toBe(140);
@@ -397,8 +397,8 @@ describe('applyMermaidTheme', () => {
     try {
       const runtime = fakeRuntime();
       // No tokens are defined in this process (no DOM, or a DOM without theme.css).
-      expect(applyMermaidTheme(runtime, mermaidThemeKey('plannotator', 'dark'))).toBe('static');
-      expect(applyMermaidTheme(runtime, mermaidThemeKey('plannotator', 'dark'))).toBe('unchanged');
+      expect(applyMermaidTheme(runtime, mermaidThemeKey('reviewtrail', 'dark'))).toBe('static');
+      expect(applyMermaidTheme(runtime, mermaidThemeKey('reviewtrail', 'dark'))).toBe('unchanged');
       expect(applyMermaidTheme(runtime, mermaidThemeKey('github', 'light'))).toBe('static');
       expect(runtime.calls).toEqual([]);
     } finally {
@@ -411,7 +411,7 @@ describe('applyMermaidTheme', () => {
     try {
       const first = fakeRuntime();
       const second = fakeRuntime();
-      const key = mermaidThemeKey('plannotator', 'dark');
+      const key = mermaidThemeKey('reviewtrail', 'dark');
       expect(applyMermaidTheme(first, key)).toBe('static');
       expect(applyMermaidTheme(second, key)).toBe('static');
       expect(applyMermaidTheme(second, key)).toBe('unchanged');
@@ -466,7 +466,7 @@ describe('node shadow', () => {
   });
 
   test('amount 0 publishes no shadow at all, including the state dots', () => {
-    const spec = buildMermaidThemeVariables(PLANNOTATOR_DARK, 'dark', { shadowAmount: 0 })!;
+    const spec = buildMermaidThemeVariables(REVIEWTRAIL_DARK, 'dark', { shadowAmount: 0 })!;
     expect(spec.themeVariables.dropShadow).toBe(false);
     expect(spec.themeVariables.nodeShadow).toBe(false);
     expect(spec.shadowAmount).toBe(0);
@@ -487,8 +487,8 @@ describe('node shadow', () => {
 
   test('the shadow touches nothing but the shadow', () => {
     for (const [tokens, mode] of [
-      [PLANNOTATOR_DARK, 'dark'],
-      [PLANNOTATOR_LIGHT, 'light'],
+      [REVIEWTRAIL_DARK, 'dark'],
+      [REVIEWTRAIL_LIGHT, 'light'],
     ] as Array<[MermaidThemeTokens, MermaidThemeMode]>) {
       const off = buildMermaidThemeVariables(tokens, mode, { shadowAmount: 0 })!.themeVariables;
       const on = buildMermaidThemeVariables(tokens, mode)!.themeVariables;
@@ -497,12 +497,12 @@ describe('node shadow', () => {
   });
 
   test('the cache key carries the amount, and the default key is the old (palette, mode) key', () => {
-    expect(mermaidThemeKey('plannotator', 'dark')).toBe('dark:plannotator');
-    expect(mermaidThemeKey('plannotator', 'dark', DEFAULT_MERMAID_SHADOW_AMOUNT)).toBe('dark:plannotator');
-    expect(mermaidThemeKey('plannotator', 'dark', 0)).not.toBe('dark:plannotator');
-    expect(mermaidThemeKey('plannotator', 'dark', 0)).not.toBe(mermaidThemeKey('plannotator', 'dark', 0.4));
-    expect(shadowAmountFromKey(mermaidThemeKey('plannotator', 'dark', 0.4))).toBe(0.4);
-    expect(shadowAmountFromKey(mermaidThemeKey('plannotator', 'dark'))).toBe(DEFAULT_MERMAID_SHADOW_AMOUNT);
+    expect(mermaidThemeKey('reviewtrail', 'dark')).toBe('dark:reviewtrail');
+    expect(mermaidThemeKey('reviewtrail', 'dark', DEFAULT_MERMAID_SHADOW_AMOUNT)).toBe('dark:reviewtrail');
+    expect(mermaidThemeKey('reviewtrail', 'dark', 0)).not.toBe('dark:reviewtrail');
+    expect(mermaidThemeKey('reviewtrail', 'dark', 0)).not.toBe(mermaidThemeKey('reviewtrail', 'dark', 0.4));
+    expect(shadowAmountFromKey(mermaidThemeKey('reviewtrail', 'dark', 0.4))).toBe(0.4);
+    expect(shadowAmountFromKey(mermaidThemeKey('reviewtrail', 'dark'))).toBe(DEFAULT_MERMAID_SHADOW_AMOUNT);
     // A palette id is never mistaken for an amount.
     expect(shadowAmountFromKey('light:one-light')).toBe(DEFAULT_MERMAID_SHADOW_AMOUNT);
   });

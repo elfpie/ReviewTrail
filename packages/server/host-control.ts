@@ -7,19 +7,19 @@
 import {
   handleHostControlRequest,
   type HostControl,
-} from "@plannotator/shared/host-control";
+} from "@reviewtrail/shared/host-control";
 import { takeEnvPullSessionBridgeConfig } from "./ai-runtime";
-import { cameThroughTailscale } from "@plannotator/shared/tailnet-audience";
+import { cameThroughTailscale } from "@reviewtrail/shared/tailnet-audience";
 import { isRemoteSession } from "./remote";
 
-export type { HostControl, HostSessionStatus, HostCloseOutcome } from "@plannotator/shared/host-control";
+export type { HostControl, HostSessionStatus, HostCloseOutcome } from "@reviewtrail/shared/host-control";
 
 /**
  * The token the host-control endpoints accept: `explicit` (tests, an
  * in-process caller), else the pull-bridge token the host launched this CLI
  * with. Never in remote mode. A `--tailscale` session keeps it, answering this
  * machine only (`fromThisMachine`). Unlike the pull bridge, NOT turned off by
- * `PLANNOTATOR_AI=disabled`: closing a review is not an AI feature.
+ * `REVIEWTRAIL_AI=disabled`: closing a review is not an AI feature.
  */
 export function resolveHostControlToken(explicit?: string): string | undefined {
   if (isRemoteSession()) return undefined;

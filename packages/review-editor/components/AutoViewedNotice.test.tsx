@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { resetStorageBackend, setStorageBackend } from '@plannotator/ui/utils/storage';
-import { configStore } from '@plannotator/ui/config';
+import { resetStorageBackend, setStorageBackend } from '@reviewtrail/ui/utils/storage';
+import { configStore } from '@reviewtrail/ui/config';
 import { useAutoViewedNotice } from '../hooks/useAutoViewedNotice';
 import { AutoViewedNotice } from './AutoViewedNotice';
 

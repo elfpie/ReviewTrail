@@ -48,7 +48,7 @@ export function useScratchJjConfig(): ScratchJjConfig {
 
   beforeAll(() => {
     saved = process.env.XDG_CONFIG_HOME;
-    dir = realpathSync(mkdtempSync(join(tmpdir(), "plannotator-jj-config-")));
+    dir = realpathSync(mkdtempSync(join(tmpdir(), "reviewtrail-jj-config-")));
     process.env.XDG_CONFIG_HOME = dir;
   });
   beforeEach(() => {

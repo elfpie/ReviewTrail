@@ -1,5 +1,5 @@
 /**
- * Branch reviews (the owner's design, 2026-11-16, thread "Plannotator Inbox Reviews"): an agent that finished work on
+ * Branch reviews (the owner's design, 2026-11-16, thread "ReviewTrail Inbox Reviews"): an agent that finished work on
  * a branch tells the Inbox it is ready for review (`send_message` with `branch`, only while config.json
  * `inboxBranchReviews` and Code review are on). The report opens, or adds to, one review thread per project and branch,
  * listed in Reviews as a local branch, another computer's branch or a cloud agent's branch. Nothing about it is timed:

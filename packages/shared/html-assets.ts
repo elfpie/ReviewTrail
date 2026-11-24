@@ -1,6 +1,6 @@
 import { posix as pathPosix } from "path";
 import * as parse5 from "parse5";
-import { isDotenvFileName, MAX_ANNOTATABLE_FILE_BYTES } from "@plannotator/core/annotatable";
+import { isDotenvFileName, MAX_ANNOTATABLE_FILE_BYTES } from "@reviewtrail/core/annotatable";
 
 export const HTML_ASSET_ROUTE_PREFIX = "/api/html-assets";
 
@@ -9,7 +9,7 @@ export const HTML_ASSET_ROUTE_PREFIX = "/api/html-assets";
  * `<object data>`, `<frame>`) are served from the SAME token'd directory the
  * page's other support assets come from, as real `text/html` documents.
  *
- * They are untrusted author HTML on the Plannotator server's origin, so every
+ * They are untrusted author HTML on the ReviewTrail server's origin, so every
  * HTML response from the asset route carries a CSP `sandbox` that gives it an
  * opaque origin with scripting but NO `allow-same-origin`. Inside the annotate
  * surface the primary document's own `sandbox="allow-scripts allow-modals"` iframe already
@@ -386,7 +386,7 @@ export interface RewriteHtmlAssetOptions {
    * Anchor the document's relative URLs here with a `<base href>` at the top of
    * `<head>`. This is what makes EMBEDDED local documents work: a srcdoc page
    * has no URL of its own, so without a base every relative URL — including one
-   * a script assigns at runtime from `data-src` — resolves onto the Plannotator
+   * a script assigns at runtime from `data-src` — resolves onto the ReviewTrail
    * server root and hits the catch-all. A serve-time attribute rewrite cannot
    * reach a runtime-assigned URL; a base can, because it changes resolution
    * rather than the markup.
@@ -419,7 +419,7 @@ export interface RewriteHtmlAssetOptions {
  * reads this tag and puts `connect-src 'none'` at the top of the frame's
  * document. A page that carries the tag itself only restricts itself.
  */
-export const HTML_NO_NETWORK_MARKER = '<meta name="plannotator-network" content="none">';
+export const HTML_NO_NETWORK_MARKER = '<meta name="reviewtrail-network" content="none">';
 
 /**
  * `html` with {@link HTML_NO_NETWORK_MARKER} added without parsing it: right
@@ -463,7 +463,7 @@ export function rewriteHtmlAssetReferences(
   if (options.noNetwork) prependToHead(root, {
     nodeName: "meta",
     tagName: "meta",
-    attrs: [{ name: "name", value: "plannotator-network" }, { name: "content", value: "none" }],
+    attrs: [{ name: "name", value: "reviewtrail-network" }, { name: "content", value: "none" }],
     namespaceURI: "http://www.w3.org/1999/xhtml",
     childNodes: [],
   });

@@ -67,7 +67,7 @@ export const QuestionContext: React.FC<{
       data-question-part="context"
     >
       {/* React hoists this into <head> once for every card. */}
-      <style href="plannotator-question-context" precedence="default">{QUESTION_CONTEXT_CSS}</style>
+      <style href="reviewtrail-question-context" precedence="default">{QUESTION_CONTEXT_CSS}</style>
       {groups.map((group, i) =>
         'list' in group ? (
           <div key={`l-${i}`} data-question-context-list="">

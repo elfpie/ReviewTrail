@@ -1,9 +1,9 @@
 /**
- * One-time gate for the "turn the agent tool on" offer. The `plannotator`
+ * One-time gate for the "turn the agent tool on" offer. The `reviewtrail`
  * agent tool is off by default on Pi and OpenCode 2 (a full tool definition
  * in every request), so those sessions get one offer explaining what turning
  * it on does. Cookie-backed like the other announcement gates, so a dismissal
- * survives Plannotator's random localhost ports, and shared by the plan
+ * survives ReviewTrail's random localhost ports, and shared by the plan
  * editor, the annotate surfaces and the code review editor.
  *
  * A plain storage key rather than a settings-registry entry for the same
@@ -16,7 +16,7 @@ import type { AgentToolSetting } from './agentToolSetting';
 import { storage } from './storage';
 import { needsTerminalToolsAnnouncement } from './terminalToolsAnnouncement';
 
-const STORAGE_KEY = 'plannotator-announce-agent-tool-seen';
+const STORAGE_KEY = 'reviewtrail-announce-agent-tool-seen';
 // Bump to re-offer after a meaningful revision.
 const CURRENT_VERSION = '1';
 
@@ -44,7 +44,7 @@ export function agentToolAnnouncementPendingThisLoad(): boolean {
  * The offer describes something the reader can actually do here: a host
  * whose tool is off by default (Pi, OpenCode 2), still off for the next
  * session, never chosen in config.json (someone who turned it off in Settings
- * is not asked again), and not decided by PLANNOTATOR_AGENT_TOOL (a toggle
+ * is not asked again), and not decided by REVIEWTRAIL_AGENT_TOOL (a toggle
  * cannot change that).
  */
 export function agentToolOfferApplies(setting: AgentToolSetting | undefined): setting is AgentToolSetting {
@@ -74,11 +74,11 @@ export interface AgentToolAnnouncementGateState {
   /** parseAgentToolSetting() of the session's serverConfig. */
   readonly setting: AgentToolSetting | undefined;
   /**
-   * Archive browsing, a read-only shared plan, or no Plannotator server
+   * Archive browsing, a read-only shared plan, or no ReviewTrail server
    * (nothing could write config.json). Deferred, not consumed.
    */
   readonly readOnlySession: boolean;
-  /** Plannotator's compact touch shell. Deferred, not consumed. */
+  /** ReviewTrail's compact touch shell. Deferred, not consumed. */
   readonly compact: boolean;
   /** Any other first-run dialog is on screen. The chain dialogs never stack. */
   readonly otherFirstRunDialogVisible: boolean;

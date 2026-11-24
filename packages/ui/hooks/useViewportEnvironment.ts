@@ -335,7 +335,7 @@ function subscribeViewportEnvironment(listener: () => void): () => void {
 }
 
 /**
- * Keeps Plannotator's shared viewport CSS properties synchronized without
+ * Keeps ReviewTrail's shared viewport CSS properties synchronized without
  * putting high-frequency browser geometry into React state.
  */
 export function useViewportEnvironment(): void {

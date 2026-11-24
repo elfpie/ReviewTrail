@@ -1,1 +1,1 @@
-export * from '@plannotator/core/favicon';
+export * from '@reviewtrail/core/favicon';

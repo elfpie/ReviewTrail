@@ -13,8 +13,8 @@ describe("who opened the review, as each host says it", () => {
   });
 
   test("a review the Inbox opened names its thread and key; one an agent opened names none", () => {
-    expect(reviewLiveSessionOf({ PLANNOTATOR_REVIEW_LIVE_THREAD: "msg_01ABC", PLANNOTATOR_REVIEW_LIVE_KEY: "branch:fix/x" })).toEqual({ thread: "msg_01ABC", key: "branch:fix/x", title: "branch:fix/x" });
+    expect(reviewLiveSessionOf({ REVIEWTRAIL_REVIEW_LIVE_THREAD: "msg_01ABC", REVIEWTRAIL_REVIEW_LIVE_KEY: "branch:fix/x" })).toEqual({ thread: "msg_01ABC", key: "branch:fix/x", title: "branch:fix/x" });
     expect(reviewLiveSessionOf({})).toBeNull();
-    expect(reviewLiveSessionOf({ PLANNOTATOR_REVIEW_LIVE_THREAD: "../x", PLANNOTATOR_REVIEW_LIVE_KEY: "k" })).toBeNull();
+    expect(reviewLiveSessionOf({ REVIEWTRAIL_REVIEW_LIVE_THREAD: "../x", REVIEWTRAIL_REVIEW_LIVE_KEY: "k" })).toBeNull();
   });
 });

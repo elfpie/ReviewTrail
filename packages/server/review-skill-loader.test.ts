@@ -2,11 +2,11 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { BUILTIN_DEFAULT_ID } from "@plannotator/shared/review-profiles";
+import { BUILTIN_DEFAULT_ID } from "@reviewtrail/shared/review-profiles";
 import {
   BUILTIN_DEFAULT_PROFILE,
   type ResolvedReviewProfile,
-} from "@plannotator/shared/review-profiles";
+} from "@reviewtrail/shared/review-profiles";
 import {
   discoverCuratedSkills,
   discoverSkills,
@@ -91,13 +91,13 @@ function writeCuration(enabled: unknown, version: unknown = 1) {
 }
 
 beforeEach(() => {
-  const base = mkdtempSync(join(tmpdir(), "plannotator-skills-"));
+  const base = mkdtempSync(join(tmpdir(), "reviewtrail-skills-"));
   home = join(base, "home");
   dataDir = join(base, "data");
   mkdirSync(home, { recursive: true });
   mkdirSync(dataDir, { recursive: true });
 
-  setEnv("PLANNOTATOR_DATA_DIR", dataDir);
+  setEnv("REVIEWTRAIL_DATA_DIR", dataDir);
   // Point every root at isolated dirs under the fake home so the host's real
   // ~/.claude etc. are never scanned. HOME isolates ~/.agents/skills, which has
   // no env override (Bun's homedir() honors HOME).
@@ -197,7 +197,7 @@ describe.skipIf(checkoutIsScratch)("resolveGlobalSkillRoots — test sandbox", (
 
   for (const [label, value] of [["unset", undefined], ["empty", ""]] as const) {
     test(`sandbox ${label}: the same four folders as ever, scratch or not`, () => {
-      setEnv("PLANNOTATOR_TEST_SANDBOX", value);
+      setEnv("REVIEWTRAIL_TEST_SANDBOX", value);
       seedEveryDefaultRoot(outside);
       useDefaultRootsOf(outside);
 
@@ -218,9 +218,9 @@ describe.skipIf(checkoutIsScratch)("resolveGlobalSkillRoots — test sandbox", (
   }
 
   // Any non-empty value is on. The preload sets a path (tests/setup/feedback-archive-off.ts), specs mostly "1".
-  for (const value of ["1", "0", join(tmpdir(), "plannotator-test-marker")]) {
+  for (const value of ["1", "0", join(tmpdir(), "reviewtrail-test-marker")]) {
     test(`sandbox ${value}: a home that is not scratch is not read at all`, () => {
-      setEnv("PLANNOTATOR_TEST_SANDBOX", value);
+      setEnv("REVIEWTRAIL_TEST_SANDBOX", value);
       seedEveryDefaultRoot(outside);
       useDefaultRootsOf(outside);
 
@@ -230,7 +230,7 @@ describe.skipIf(checkoutIsScratch)("resolveGlobalSkillRoots — test sandbox", (
     });
 
     test(`sandbox ${value}: a scratch HOME's seeded skills are all found`, () => {
-      setEnv("PLANNOTATOR_TEST_SANDBOX", value);
+      setEnv("REVIEWTRAIL_TEST_SANDBOX", value);
       seedEveryDefaultRoot(home);
       useDefaultRootsOf(home);
 
@@ -239,7 +239,7 @@ describe.skipIf(checkoutIsScratch)("resolveGlobalSkillRoots — test sandbox", (
     });
 
     test(`sandbox ${value}: judged folder by folder, as for a runner's HOME with scratch overrides`, () => {
-      setEnv("PLANNOTATOR_TEST_SANDBOX", value);
+      setEnv("REVIEWTRAIL_TEST_SANDBOX", value);
       seedEveryDefaultRoot(outside);
       writeSkill(join(home, ".claude", "skills"), "scratch-skill");
       setEnv("HOME", outside);
@@ -249,7 +249,7 @@ describe.skipIf(checkoutIsScratch)("resolveGlobalSkillRoots — test sandbox", (
     });
 
     test(`sandbox ${value}: a scratch link to a folder that is not scratch is not read`, () => {
-      setEnv("PLANNOTATOR_TEST_SANDBOX", value);
+      setEnv("REVIEWTRAIL_TEST_SANDBOX", value);
       writeSkill(join(outside, ".claude", "skills"), "through-the-link");
       symlinkSync(join(outside, ".claude"), join(home, "claude-link"));
       setEnv("CLAUDE_CONFIG_DIR", join(home, "claude-link"));

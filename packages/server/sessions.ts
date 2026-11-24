@@ -1,11 +1,11 @@
 /**
  * Session Registry
  *
- * Tracks active Plannotator server sessions in ~/.plannotator/sessions/
+ * Tracks active ReviewTrail server sessions in ~/.reviewtrail/sessions/
  * so users can discover and reopen closed browser tabs.
  *
  * Servers that run inside a host's own process (OpenCode) are kept apart in
- * `sessions/<host>/`: they do not run the plannotator binary, so they must
+ * `sessions/<host>/`: they do not run the reviewtrail binary, so they must
  * never hold back its update. Every release's readers list only the top
  * folder's `*.json` files, so an older binary never sees them either.
  */
@@ -21,7 +21,7 @@ import {
   unlinkSync,
   existsSync,
 } from "fs";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
 
 export interface SessionInfo {
   pid: number;
@@ -33,7 +33,7 @@ export interface SessionInfo {
   label: string;
   /** The agent session that started this one, when the host tagged it (`claude-code:<session id>`). */
   hostSession?: string;
-  /** The `pn-` id the host gave this review (`PLANNOTATOR_HOST_REVIEW_ID`), when a host started it. */
+  /** The `pn-` id the host gave this review (`REVIEWTRAIL_HOST_REVIEW_ID`), when a host started it. */
   reviewId?: string;
   /** What the session is of, in full: an absolute path, URL, PR URL or reviewed directory (a bundle's files joined with ", "). */
   target?: string;
@@ -41,11 +41,11 @@ export interface SessionInfo {
   host?: InProcessHost;
 }
 
-/** Hosts that run Plannotator's servers in their own process. */
+/** Hosts that run ReviewTrail's servers in their own process. */
 export type InProcessHost = "opencode";
 
 function getSessionsDir(): string {
-  const dir = join(getPlannotatorDataDir(), "sessions");
+  const dir = join(getReviewTrailDataDir(), "sessions");
   mkdirSync(dir, { recursive: true });
   return dir;
 }
@@ -68,7 +68,7 @@ function isAlive(pid: number): boolean {
 
 /**
  * Register the current server session. Best-effort: the registry only powers
- * `plannotator sessions` discovery, so an unwritable data dir (read-only
+ * `reviewtrail sessions` discovery, so an unwritable data dir (read-only
  * mount, disk full) must never take the server down with it.
  */
 export function registerSession(info: SessionInfo): void {
@@ -163,7 +163,7 @@ export function listSessions(): SessionInfo[] {
  * not their business.
  */
 export function listLiveSessions(): SessionInfo[] {
-  const dir = join(getPlannotatorDataDir(), "sessions");
+  const dir = join(getReviewTrailDataDir(), "sessions");
   let entries: string[];
   try {
     entries = readdirSync(dir);
@@ -184,7 +184,7 @@ export function listLiveSessions(): SessionInfo[] {
 }
 
 function inProcessDir(host: InProcessHost): string {
-  return join(getPlannotatorDataDir(), "sessions", host);
+  return join(getReviewTrailDataDir(), "sessions", host);
 }
 
 const ownInProcessFiles = new Set<string>();
@@ -220,7 +220,7 @@ export function registerInProcessSession(host: InProcessHost, info: Omit<Session
   };
 }
 
-/** Delete entries whose process is gone (a host killed by a signal), so none waits for a `plannotator sessions` run. */
+/** Delete entries whose process is gone (a host killed by a signal), so none waits for a `reviewtrail sessions` run. */
 function sweepDeadEntries(dir: string): void {
   let entries: string[];
   try {
@@ -269,7 +269,7 @@ function portAnswers(port: number, timeoutMs = 500): Promise<boolean> {
 }
 
 /**
- * The live in-process sessions of a host, for `plannotator sessions` only (the
+ * The live in-process sessions of a host, for `reviewtrail sessions` only (the
  * update checks never read them). Removes an entry whose process is gone, whose
  * port no longer answers, or that cannot be read.
  */

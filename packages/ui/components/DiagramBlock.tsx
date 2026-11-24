@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { diagramTargetText, type DiagramAnchor, type DiagramKind } from '@plannotator/core/diagram-anchor';
+import { diagramTargetText, type DiagramAnchor, type DiagramKind } from '@reviewtrail/core/diagram-anchor';
 import type { AnnotationRestoreReport } from '../hooks/useAnnotationHighlighter';
 import { AnnotationType, type Annotation, type Block } from '../types';
 import { useConfigValue } from '../config';
@@ -133,7 +133,7 @@ export const DiagramBlock: React.FC<DiagramBlockProps & { kind: DiagramKind }> =
 
   // The (palette, mode) the diagram must follow: the same resolution the
   // code fences use (see useFenceTheme). Outside a ThemeProvider the default
-  // context yields the Plannotator dark pair, and with no theme tokens on the
+  // context yields the ReviewTrail dark pair, and with no theme tokens on the
   // document the renderer keeps the static config, so a host without the
   // provider renders exactly as before. A key change re-runs the render,
   // which is what re-themes an already rendered diagram.

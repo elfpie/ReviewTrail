@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { SparklesIcon } from '@plannotator/ui/components/SparklesIcon';
-import { useReviewAnnotationToolbarShortcuts } from '@plannotator/ui/shortcuts';
-import { useConfigValue } from '@plannotator/ui/config';
-import { isCommentSubmitKey } from '@plannotator/ui/utils/commentSubmitKey';
+import { SparklesIcon } from '@reviewtrail/ui/components/SparklesIcon';
+import { useReviewAnnotationToolbarShortcuts } from '@reviewtrail/ui/shortcuts';
+import { useConfigValue } from '@reviewtrail/ui/config';
+import { isCommentSubmitKey } from '@reviewtrail/ui/utils/commentSubmitKey';
 
 interface ExpandedCommentDialogProps {
   title: string;

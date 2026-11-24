@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import type { GuideSection } from '@plannotator/core/guide';
-import { fileKind, groupByFileKind, type FileKind } from '@plannotator/core/file-kind';
+import type { GuideSection } from '@reviewtrail/core/guide';
+import { fileKind, groupByFileKind, type FileKind } from '@reviewtrail/core/file-kind';
 import type { DiffFile } from './types';
 import { FILE_KIND_LABELS, FileKindIcon } from './FileKindIcon';
 import { renderMarkdownProse } from './renderMarkdownProse';
@@ -165,7 +165,7 @@ function SectionTab({ fill, lead, children }: { fill: string; lead?: React.React
 }
 
 /** Where folded chapter diagrams are listed (one key, newest last), and how many it keeps. */
-const DIAGRAM_FOLDS_KEY = 'plannotator-guide-diagram-folds';
+const DIAGRAM_FOLDS_KEY = 'reviewtrail-guide-diagram-folds';
 const DIAGRAM_FOLDS_KEPT = 60;
 
 type FoldStore = { getItem: (key: string) => string | null; setItem: (key: string, value: string) => void };

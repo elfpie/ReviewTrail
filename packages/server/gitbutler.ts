@@ -4,12 +4,12 @@
  * GitButler support was originally proposed by Dan Susman in PR #566.
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
+import { childEnv } from "@reviewtrail/shared/child-env";
 import type {
   GitCommandOptions,
   GitCommandResult,
-} from "@plannotator/shared/review-core";
-import type { ReviewGitButlerRuntime } from "@plannotator/shared/gitbutler-core";
+} from "@reviewtrail/shared/review-core";
+import type { ReviewGitButlerRuntime } from "@reviewtrail/shared/gitbutler-core";
 
 import { runtime as gitRuntime } from "./git";
 

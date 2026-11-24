@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
-import { CodeFileView, type CodeFileAnnotationInput, type CodeFileTokenTarget } from '@plannotator/ui/components/CodeFilePopout';
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import type { RepoRevisionInfo } from '@plannotator/shared/repo-files';
+import { CodeFileView, type CodeFileAnnotationInput, type CodeFileTokenTarget } from '@reviewtrail/ui/components/CodeFilePopout';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import type { RepoRevisionInfo } from '@reviewtrail/shared/repo-files';
 import { useRepoFileText, repoFileEmptyMessage } from '../hooks/useRepoFileText';
 import { useScrollMemory } from '../hooks/useScrollMemory';
 import { findSymbolLine, type RevealTarget } from '../utils/explorerNavigation';

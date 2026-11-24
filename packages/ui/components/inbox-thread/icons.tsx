@@ -1,12 +1,12 @@
 /**
- * The window's icons: Heroicons outline paths (the set Plannotator draws
+ * The window's icons: Heroicons outline paths (the set ReviewTrail draws
  * with), as the design of record uses them, and the agent marks from
- * @plannotator/ui.
+ * @reviewtrail/ui.
  */
 
 import type React from 'react';
 import { ClaudeIcon, CodexIcon, CursorIcon, GrokBotIcon, HermesAgentIcon, MuseIcon, OpenCodeIcon, PiIcon, T3Icon } from '../icons/AgentIcons';
-import type { InboxAuthor } from '@plannotator/core/inbox-types';
+import type { InboxAuthor } from '@reviewtrail/core/inbox-types';
 
 const PATHS = {
   inbox:

@@ -7,8 +7,8 @@
  * parts, so no composer, no comment rail and no Ask AI here.
  */
 import React from 'react';
-import { MermaidBlock } from '@plannotator/ui/components/MermaidBlock';
-import { GraphvizBlock } from '@plannotator/ui/components/GraphvizBlock';
+import { MermaidBlock } from '@reviewtrail/ui/components/MermaidBlock';
+import { GraphvizBlock } from '@reviewtrail/ui/components/GraphvizBlock';
 import {
   DIAGRAM_ENGINE_API_VERSION,
   type DiagramFenceProps,

@@ -7,10 +7,10 @@
  * insulting.
  *
  * Storage is a memory backend and the config store is a fresh instance, so
- * nothing here touches real cookies or ~/.plannotator.
+ * nothing here touches real cookies or ~/.reviewtrail.
  */
 import { afterEach, describe, expect, test } from 'bun:test';
-import { resetStorageBackend, setStorageBackend } from '@plannotator/ui/utils/storage';
+import { resetStorageBackend, setStorageBackend } from '@reviewtrail/ui/utils/storage';
 import { ConfigStoreForTest } from '../../ui/config/configStore';
 import {
   markAutoViewedNoticeSeen,
@@ -50,7 +50,7 @@ describe('auto-mark-viewed notice gate', () => {
   test('a stale marker from an older version re-opens the gate', () => {
     // The marker is versioned so a meaningful revision of the behavior or the
     // copy can re-introduce itself instead of being silently swallowed.
-    installMemoryBackend({ 'plannotator-auto-viewed-notice-seen': '0' });
+    installMemoryBackend({ 'reviewtrail-auto-viewed-notice-seen': '0' });
     expect(needsAutoViewedNotice()).toBe(true);
   });
 
@@ -88,7 +88,7 @@ describe('auto-mark-viewed notice gate', () => {
     const store = makeStore();
     expect(store.get('reviewAutoViewed')).toBe(true);
     toggleAutoViewed(false, store);
-    expect(values.get('plannotator-review-auto-viewed')).toBe('false');
+    expect(values.get('reviewtrail-review-auto-viewed')).toBe('false');
     expect(makeStore().get('reviewAutoViewed')).toBe(false);
   });
 });

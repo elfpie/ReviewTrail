@@ -74,9 +74,9 @@ export function canRetrySend(failure: SendFailure): boolean {
 export function describeSendFailure(failure: SendFailure): string {
   switch (failure.kind) {
     case 'unreachable':
-      return "Plannotator isn't running or can't be reached.";
+      return "ReviewTrail isn't running or can't be reached.";
     case 'rejected':
-      return `Plannotator answered with an error (${failure.status}).`;
+      return `ReviewTrail answered with an error (${failure.status}).`;
     case 'decided':
       return 'This review was already decided, in another window or because its session ended.';
     default:

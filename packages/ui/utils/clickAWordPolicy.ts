@@ -4,7 +4,7 @@
  *
  * Default: on, for every host of the Viewer. A host that wants a click on
  * text to make nothing, as before, passes
- * `configurePlannotatorUI({ clickAWord: false })`; one Viewer's own
+ * `configureReviewTrailUI({ clickAWord: false })`; one Viewer's own
  * `clickAWord` prop wins over this. Read when a Viewer mounts.
  */
 let clickAWord = true;

@@ -16,7 +16,7 @@
  * Nothing is registered by default: every host is unchanged until it installs one.
  */
 import { useSyncExternalStore, type ComponentType, type ReactNode } from 'react';
-import type { ForgeRef } from '@plannotator/core/forge-ref-card';
+import type { ForgeRef } from '@reviewtrail/core/forge-ref-card';
 import type { RefCardViewProps } from '../components/RefHoverCard';
 
 export interface RefCardProvider {

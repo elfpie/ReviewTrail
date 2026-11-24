@@ -51,7 +51,7 @@ export function createOfflineGuide(snapshot: GuideSnapshot): string {
   const navigation = guide.sections.map((s,i) => `<li><a href="#chapter-${i}">${esc(s.title)}</a></li>`).join("");
   const diffs = files.map((file,i) => `<details id="file-${i}"><summary>${esc(file.path)}</summary><pre>${esc(file.patch)}</pre></details>`).join("");
   const data = escapeJsonForHtmlScript(JSON.stringify(snapshot));
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="plannotator-guided-review" content="v${snapshot.version}"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><title>${esc(guide.title)} · ReviewTrail</title><style>${style}</style></head><body>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="reviewtrail-guided-review" content="v${snapshot.version}"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'"><title>${esc(guide.title)} · ReviewTrail</title><style>${style}</style></head><body>
 <header><small>ReviewTrail · ${esc(review.gitRef)}</small><h1>${esc(guide.title)}</h1><p>${esc(guide.intent)}</p></header>
 ${guide.overview ? `<p>${esc(guide.overview.text)}</p>${diagram(guide.overview.diagram)}` : ""}
 <nav aria-label="Chapters"><ol>${navigation}<li><a href="#files">Full diff</a></li></ol></nav>${chapters}${groups}

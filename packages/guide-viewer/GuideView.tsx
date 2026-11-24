@@ -1,9 +1,9 @@
 import { createPortal } from 'react-dom';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { CodeGuideData, GuideSection } from '@plannotator/core/guide';
+import type { CodeGuideData, GuideSection } from '@reviewtrail/core/guide';
 import type { DiffFile } from './types';
 import { useGuideHost } from './host';
-import { parseGuideLink } from '@plannotator/core/guide-links';
+import { parseGuideLink } from '@reviewtrail/core/guide-links';
 import { renderInlineMarkdown, type GuideLinkRenderer } from './renderInlineMarkdown';
 import { GuideSectionCard } from './GuideSectionCard';
 import { GuideOverview } from './GuideOverview';

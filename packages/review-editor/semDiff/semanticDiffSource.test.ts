@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import type { SemanticDiffOkResponse } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffOkResponse } from '@reviewtrail/shared/semantic-diff-types';
 import type { SemDiffAttempt, SemDiffClient } from './semDiffClient';
 import { computeReviewSemanticDiff, SEM_DIFF_MAX_CHARS } from './semanticDiffSource';
 

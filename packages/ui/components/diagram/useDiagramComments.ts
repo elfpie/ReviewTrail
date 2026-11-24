@@ -5,7 +5,7 @@ import {
   type DiagramAnchor,
   type DiagramFamily,
   type DiagramTarget,
-} from '@plannotator/core/diagram-anchor';
+} from '@reviewtrail/core/diagram-anchor';
 import type { DiagramFinder } from '../../utils/diagram-anchor';
 
 /**

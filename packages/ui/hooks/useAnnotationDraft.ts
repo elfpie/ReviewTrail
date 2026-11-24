@@ -15,7 +15,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { SourceSaveCapability } from '@plannotator/core/source-save';
+import type { SourceSaveCapability } from '@reviewtrail/core/source-save';
 import type { Annotation, CodeAnnotation, ImageAttachment } from '../types';
 import { fromShareable, parseShareableImages } from '../utils/sharing';
 import type { ShareableAnnotation } from '../utils/sharing';
@@ -24,7 +24,7 @@ const DEBOUNCE_MS = 500;
 
 /**
  * Transport for persisting annotation/edit drafts. The default reproduces
- * Plannotator's `/api/draft` server protocol verbatim. A host (e.g. Workspaces)
+ * ReviewTrail's `/api/draft` server protocol verbatim. A host (e.g. Workspaces)
  * may override it to persist drafts through its own backend.
  *
  * CONTRACT — a host overriding this MUST preserve the 3-party generation
@@ -40,7 +40,7 @@ const DEBOUNCE_MS = 500;
  *    after submit re-creates a draft the server just deleted.
  *  - `load` returns the raw stored body (or null) plus the generation the
  *    store reports when there is NO draft (the default reads `draftGeneration`
- *    from the 204 `Plannotator-Draft-Generation` header) so the client can resume past a tombstone.
+ *    from the 204 `ReviewTrail-Draft-Generation` header) so the client can resume past a tombstone.
  *  - `save` MAY resolve `{ staleGeneration }` when the store refused the body
  *    as stale (the default reads it from a `409 { draftGeneration }` that is
  *    not marked `decided: true`, which
@@ -66,7 +66,7 @@ export interface DraftSaveRefused {
 }
 
 /**
- * Default transport — Plannotator's `/api/draft` fetches, moved verbatim.
+ * Default transport — ReviewTrail's `/api/draft` fetches, moved verbatim.
  * `save` rejects on failure (the keepalive retry stays in the hook so its
  * generation-match gate is preserved); `remove` always resolves.
  */
@@ -286,7 +286,7 @@ function parseDraftDocuments(value: unknown): DraftDocumentCopy[] {
 const countDraftDocuments = (documents: DraftDocumentCopy[]): number =>
   documents.reduce((total, doc) => total + doc.annotations.length + doc.globalAttachments.length, 0);
 
-export const DRAFT_GENERATION_HEADER = 'Plannotator-Draft-Generation';
+export const DRAFT_GENERATION_HEADER = 'ReviewTrail-Draft-Generation';
 
 export function missingDraftGeneration(res: Response): number | null {
   const header = res.headers.get(DRAFT_GENERATION_HEADER);

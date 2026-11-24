@@ -1,4 +1,4 @@
-import type { GuideSection } from '@plannotator/shared/guide';
+import type { GuideSection } from '@reviewtrail/shared/guide';
 
 /**
  * Guided Review (#1786): which files ticking section `index` "Reviewed" marks

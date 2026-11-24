@@ -5,8 +5,8 @@ import {
   type CallTreeFunctionRange,
   type CallTreeHunk,
   type CallTreeSourceTree,
-} from '@plannotator/shared/call-tree';
-import type { SemanticDiffChange } from '@plannotator/shared/semantic-diff-types';
+} from '@reviewtrail/shared/call-tree';
+import type { SemanticDiffChange } from '@reviewtrail/shared/semantic-diff-types';
 
 /** One hunk of a file's patch, with the line its "Call tree" entry is drawn under. */
 export interface PatchHunk extends CallTreeHunk {

@@ -57,5 +57,5 @@ export function extractLinesFromPatch(
   return result.join('\n');
 }
 
-// Shared with the Plannotator Inbox store, which refuses a guided-review comment outside its patch.
-export { isLineRangeInPatch } from '@plannotator/shared/diff-files';
+// Shared with the ReviewTrail Inbox store, which refuses a guided-review comment outside its patch.
+export { isLineRangeInPatch } from '@reviewtrail/shared/diff-files';

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
-import type { SavedGuideListEntry } from '@plannotator/shared/guide';
+import type { SavedGuideListEntry } from '@reviewtrail/shared/guide';
 import {
   GUIDE_SEARCH_THRESHOLD,
   groupSavedGuides,

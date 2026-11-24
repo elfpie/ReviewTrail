@@ -1,14 +1,14 @@
 /**
- * One-time gate for the terminal-tools announcement (Plannotator TUI and
+ * One-time gate for the terminal-tools announcement (ReviewTrail TUI and
  * Herdr Annotate). Cookie-backed like the other announcement gates, so a
- * dismissal survives Plannotator's random localhost ports, and shared by the
+ * dismissal survives ReviewTrail's random localhost ports, and shared by the
  * plan editor, the annotate surfaces and the code review editor: dismissing it
  * anywhere retires it everywhere.
  */
 
 import { storage } from './storage';
 
-const STORAGE_KEY = 'plannotator-announce-tui-herdr-seen';
+const STORAGE_KEY = 'reviewtrail-announce-tui-herdr-seen';
 // Bump to re-announce after a meaningful revision.
 const CURRENT_VERSION = '1';
 
@@ -31,7 +31,7 @@ export interface TerminalToolsAnnouncementGateState {
   readonly isLoading: boolean;
   /**
    * The session has no author to address: archive browsing, a read-only shared
-   * plan, and any session with no Plannotator server behind it (the share
+   * plan, and any session with no ReviewTrail server behind it (the share
    * portal's root and its demo plan included — those are not "shared
    * sessions", so the host must fold that in). Telling a viewer about a CLI
    * they did not open is noise, and the cookie is deliberately NOT consumed,
@@ -39,7 +39,7 @@ export interface TerminalToolsAnnouncementGateState {
    */
   readonly readOnlySession: boolean;
   /**
-   * Plannotator's compact touch shell. The panel is desktop-shaped (install
+   * ReviewTrail's compact touch shell. The panel is desktop-shaped (install
    * commands to copy, four outbound links) and a phone is not where anyone
    * installs a terminal tool. Also deferred rather than consumed.
    */
@@ -59,7 +59,7 @@ export interface TerminalToolsAnnouncementGateState {
  * Last rather than first because none of those dialogs consume this cookie:
  * a session that is busy asking questions defers the announcement to the next
  * load instead of burning it. That also puts it in front of the right reader.
- * Someone opening Plannotator for the first time is still learning this app;
+ * Someone opening ReviewTrail for the first time is still learning this app;
  * the people who should hear that it now runs in a terminal are the ones who
  * already answered every setup question, and they see it on their next load.
  */

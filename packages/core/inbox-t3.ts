@@ -61,8 +61,8 @@ export function isInboxT3WaitReason(value: unknown): value is InboxT3WaitReason 
   return typeof value === "string" && (INBOX_T3_WAIT_REASONS as readonly string[]).includes(value);
 }
 
-/** The sign-in command (`plannotator t3 --help`); the URL is T3's Copy MCP URL. */
-export const INBOX_T3_LOGIN_COMMAND = "plannotator t3 login --url <T3 MCP URL>";
+/** The sign-in command (`reviewtrail t3 --help`); the URL is T3's Copy MCP URL. */
+export const INBOX_T3_LOGIN_COMMAND = "reviewtrail t3 login --url <T3 MCP URL>";
 
 /** In T3, where the URL the sign-in command takes is. */
 export const INBOX_T3_URL_WHERE = "In T3: Settings → Environments, the environment's menu, Copy MCP URL.";

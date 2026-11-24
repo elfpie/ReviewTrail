@@ -23,7 +23,7 @@
  * unclosed tags stays bounded; same-name tags nest, and the search stops at a
  * code span, so a close tag shown in backticks never closes anything.
  */
-import { DROPPED_HTML_BLOCK_TAGS, HTML_BLOCK_OPEN_RE, isHtmlTagSpelling } from '@plannotator/core/markdown-structure';
+import { DROPPED_HTML_BLOCK_TAGS, HTML_BLOCK_OPEN_RE, isHtmlTagSpelling } from '@reviewtrail/core/markdown-structure';
 
 export type InlineHtmlElement = 'sub' | 'sup' | 'kbd' | 'mark';
 

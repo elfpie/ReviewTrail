@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { parseDiffToFiles } from '@plannotator/core/diff-files';
+import { parseDiffToFiles } from '@reviewtrail/core/diff-files';
 import type { CodeAnnotation } from '../types';
 import {
   annotationNavigation,

@@ -17,7 +17,7 @@ import {
   openInCandidateNames,
   type OpenInApp,
   type OpenInPlatform,
-} from "@plannotator/core/open-in-apps";
+} from "@reviewtrail/core/open-in-apps";
 
 export interface OpenInLocateDeps {
   platform: OpenInPlatform;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatShortcutBindingText, getShortcutPlatform, resolveShortcutBindings } from '@plannotator/ui/shortcuts';
+import { formatShortcutBindingText, getShortcutPlatform, resolveShortcutBindings } from '@reviewtrail/ui/shortcuts';
 import { reviewEditorShortcuts } from '../shortcuts';
 
 export const ReviewPanelToggle: React.FC<{

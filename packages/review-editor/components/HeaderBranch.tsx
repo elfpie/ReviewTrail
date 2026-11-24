@@ -1,5 +1,5 @@
 import React from 'react';
-import { RepoIcon } from '@plannotator/ui/components/RepoIcon';
+import { RepoIcon } from '@reviewtrail/ui/components/RepoIcon';
 import { HeaderTotals } from './HeaderTotals';
 import { BranchName } from './BranchName';
 

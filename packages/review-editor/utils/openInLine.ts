@@ -1,4 +1,4 @@
-import type { SelectedLineRange } from '@plannotator/ui/types';
+import type { SelectedLineRange } from '@reviewtrail/ui/types';
 
 const HUNK_HEADER = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/;
 

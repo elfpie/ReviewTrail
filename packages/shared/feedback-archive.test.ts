@@ -7,7 +7,7 @@
  * the diff it describes, a sidecar that overwrites an earlier one, and a
  * storage failure that escapes into a request handler.
  *
- * All writes are sandboxed under a temp PLANNOTATOR_DATA_DIR set INSIDE the
+ * All writes are sandboxed under a temp REVIEWTRAIL_DATA_DIR set INSIDE the
  * tests (the module resolves the data dir per call precisely so this works
  * under Bun's one-process rule), and the env var is restored in afterEach.
  */
@@ -31,9 +31,9 @@ let savedDataDir: string | undefined;
 const tempDirs: string[] = [];
 
 function useTempDataDir(): string {
-  const dir = mkdtempSync(join(tmpdir(), "plannotator-feedback-archive-"));
+  const dir = mkdtempSync(join(tmpdir(), "reviewtrail-feedback-archive-"));
   tempDirs.push(dir);
-  process.env.PLANNOTATOR_DATA_DIR = dir;
+  process.env.REVIEWTRAIL_DATA_DIR = dir;
   return dir;
 }
 
@@ -46,12 +46,12 @@ function readIndex(dataDir: string, project = PROJECT): FeedbackRecord[] {
 }
 
 beforeEach(() => {
-  savedDataDir = process.env.PLANNOTATOR_DATA_DIR;
+  savedDataDir = process.env.REVIEWTRAIL_DATA_DIR;
 });
 
 afterEach(() => {
-  if (savedDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = savedDataDir;
+  if (savedDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = savedDataDir;
   for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
@@ -75,7 +75,7 @@ describe("feedback archive: record shape", () => {
     expect(records.length).toBe(1);
     const record = records[0];
     expect(record.v).toBe(1);
-    expect(record.client).toBe("plannotator");
+    expect(record.client).toBe("reviewtrail");
     expect(record.surface).toBe("review");
     expect(record.decision).toBe("feedback");
     expect(record.feedback).toContain("null case in parse()");
@@ -269,11 +269,11 @@ describe("feedback archive: append durability", () => {
   test("an unwritable data dir reports failure instead of throwing", () => {
     // The module is called from inside request handlers; a throw would turn a
     // reviewer's submit into a 500.
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-feedback-archive-fail-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-feedback-archive-fail-"));
     tempDirs.push(dir);
     const blocker = join(dir, "blocker");
     writeFileSync(blocker, "not a directory", "utf-8");
-    process.env.PLANNOTATOR_DATA_DIR = join(blocker, "nested");
+    process.env.REVIEWTRAIL_DATA_DIR = join(blocker, "nested");
     expect(() =>
       expect(appendFeedbackRecord({ project: PROJECT, surface: "review", decision: "feedback", feedback: "x" })).toBeNull(),
     ).not.toThrow();
@@ -282,7 +282,7 @@ describe("feedback archive: append durability", () => {
 
 describe("feedback archive: shared index", () => {
   test("another client's lines survive our reader, unknown fields and all", () => {
-    // The index is shared: plannotator-tui appends to the same file. A reader
+    // The index is shared: reviewtrail-tui appends to the same file. A reader
     // that validated `client` against an enum, rejected unknown fields, or
     // parsed sidecar filenames would silently drop every line another tool
     // wrote. Fields are added and never repurposed, so tolerance is the rule.
@@ -292,7 +292,7 @@ describe("feedback archive: shared index", () => {
     const foreign = {
       v: 1,
       ts: "2026-09-01T09:00:00.000Z",
-      client: "plannotator-tui",
+      client: "reviewtrail-tui",
       clientVersion: "0.3.1",
       project: PROJECT,
       surface: "annotate-last",
@@ -300,17 +300,17 @@ describe("feedback archive: shared index", () => {
       target: { agent: { host: "claude-code", session: "s-1", transcript: "/t/1.jsonl" } },
       feedback: "from the terminal client",
       counts: { annotations: 0, external: 0, images: 0 },
-      recordFile: "records/2026-09-01T09-00-00-000Z-annotate-last-feedback-plannotator-tui.md",
+      recordFile: "records/2026-09-01T09-00-00-000Z-annotate-last-feedback-reviewtrail-tui.md",
       somethingWeHaveNeverHeardOf: { nested: true },
     };
     writeFileSync(indexPath, readFileSync(indexPath, "utf-8") + JSON.stringify(foreign) + "\n", "utf-8");
 
     const records = readIndex(dataDir);
     expect(records.length).toBe(2);
-    expect(records.map((r) => r.client)).toEqual(["plannotator", "plannotator-tui"]);
+    expect(records.map((r) => r.client)).toEqual(["reviewtrail", "reviewtrail-tui"]);
     // The suffixed sidecar name round-trips untouched: recordFile is a handle,
     // never something to parse.
-    expect(records[1].recordFile).toEndWith("-plannotator-tui.md");
+    expect(records[1].recordFile).toEndWith("-reviewtrail-tui.md");
     expect(records[1].target?.agent?.host).toBe("claude-code");
     expect(records[1].clientVersion).toBe("0.3.1");
   });
@@ -337,11 +337,11 @@ describe("feedback archive: changed-file counting", () => {
 
 describe("feedback archive: project bucketing", () => {
   test("the project segment matches the history/ convention and cannot escape the archive", () => {
-    expect(normalizeFeedbackProject("plannotator")).toBe("plannotator");
+    expect(normalizeFeedbackProject("reviewtrail")).toBe("reviewtrail");
     expect(normalizeFeedbackProject("_unknown")).toBe("_unknown");
     expect(normalizeFeedbackProject(null)).toBe("_unknown");
     expect(normalizeFeedbackProject("../../etc")).toBe("etc");
-    expect(deriveFeedbackProject("/Users/x/code/plannotator")).toBe("plannotator");
+    expect(deriveFeedbackProject("/Users/x/code/reviewtrail")).toBe("reviewtrail");
     expect(deriveFeedbackProject(undefined)).toBe("_unknown");
   });
 

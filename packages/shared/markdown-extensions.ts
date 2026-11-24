@@ -3,7 +3,7 @@
  *
  * A user can teach annotate about additional plain-text document extensions
  * (for example `.livemd`, Livebook notebooks) with `markdownExtensions` in
- * `~/.plannotator/config.json`:
+ * `~/.reviewtrail/config.json`:
  *
  *   { "markdownExtensions": [".livemd"] }
  *
@@ -13,7 +13,7 @@
  * the per-file version history — and are rendered as MARKDOWN (frontmatter
  * stripped), never as HTML.
  *
- * The extension predicates themselves live in `@plannotator/core/annotatable`,
+ * The extension predicates themselves live in `@reviewtrail/core/annotatable`,
  * which is browser-safe and zero-dep and therefore cannot read a config file.
  * This module is the node-side seam: it reads `config.json` ONCE per process
  * through the same `loadConfig()` every other setting uses, normalizes the
@@ -30,7 +30,7 @@ import {
 	normalizeMarkdownExtensions,
 	shouldStripFrontmatter as shouldStripFrontmatterWith,
 } from "./annotatable";
-import { loadConfig, type PlannotatorConfig } from "./config";
+import { loadConfig, type ReviewTrailConfig } from "./config";
 
 export { normalizeMarkdownExtensions };
 
@@ -39,7 +39,7 @@ export { normalizeMarkdownExtensions };
  * object. Pure: invalid entries are dropped, `.env` is denylisted, and
  * built-in extensions are deduplicated (see `normalizeMarkdownExtensions`).
  */
-export function resolveMarkdownExtensions(config: PlannotatorConfig): string[] {
+export function resolveMarkdownExtensions(config: ReviewTrailConfig): string[] {
 	return normalizeMarkdownExtensions(config.markdownExtensions);
 }
 
@@ -50,7 +50,7 @@ let cached: string[] | null = null;
  * and memoized: a session's accepted set must not change halfway through a
  * directory walk. Pass an explicit config to bypass the memo entirely.
  */
-export function getExtraMarkdownExtensions(config?: PlannotatorConfig): string[] {
+export function getExtraMarkdownExtensions(config?: ReviewTrailConfig): string[] {
 	if (config) return resolveMarkdownExtensions(config);
 	if (cached === null) cached = resolveMarkdownExtensions(loadConfig());
 	return cached;

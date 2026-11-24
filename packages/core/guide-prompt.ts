@@ -2,8 +2,8 @@
  * Guided Review generation, the pure half: the organizer prompt, its JSON
  * output schema, the user message that frames the changeset, and the
  * validator that holds model output to the coverage rule. Browser-safe and
- * zero-dependency, so any host (the Plannotator servers, Pi, or an external
- * app such as Workspaces) generates guides with Plannotator's exact prompt.
+ * zero-dependency, so any host (the ReviewTrail servers, Pi, or an external
+ * app such as Workspaces) generates guides with ReviewTrail's exact prompt.
  * Moved verbatim from packages/server/guide/guide-review.ts, which
  * re-exports every name; the engine plumbing (commands, output parsing,
  * sessions) stays there.

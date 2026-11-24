@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import type { OpenInKind, OpenInPlatform } from '@plannotator/core/open-in-apps';
+import type { OpenInKind, OpenInPlatform } from '@reviewtrail/core/open-in-apps';
 import { getStoredOpenInApp, setLastOpenInApp } from '../utils/storage';
 
 /**
  * The "Open in" pieces every host shares: the detected-apps list (fetched
  * once per URL and shared by every control on the page) and the remembered
- * app (the `plannotator-open-in-app` cookie, so code review, annotate and the
+ * app (the `reviewtrail-open-in-app` cookie, so code review, annotate and the
  * Inbox remember the same editor). OpenInAppButton reads `/api/open-in/apps`;
  * the Inbox reads its own local-only `/api/inbox/open-in/apps`.
  */

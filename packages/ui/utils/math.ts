@@ -5,14 +5,14 @@
  * importing `katex` statically, so a host that bundles by route does not carry
  * KaTeX in every document read. The slot is SYNCHRONOUS: when it is filled
  * before the first render (which is what `./math-eager` does, and what every
- * Plannotator entry imports) the typeset HTML is in the DOM on the first
+ * ReviewTrail entry imports) the typeset HTML is in the DOM on the first
  * commit, exactly as it was when the import was static. When it is empty the
  * components render the same wrapper element with the TeX source as text,
  * call `loadMathRenderer()`, and re-render typeset once it resolves.
  *
  * This module deliberately has NO runtime import of `katex`: the only place
  * the dependency is named is `./math-default-loader`'s `import('katex')`,
- * which a chunking bundler turns into a lazy chunk and Plannotator's
+ * which a chunking bundler turns into a lazy chunk and ReviewTrail's
  * single-file builds inline (the eager entry keeps it in the entry either
  * way). That default is called only while no host loader is registered, and
  * it lives in its own module so a host that registers a loader can alias it
@@ -36,7 +36,7 @@ export type MathRendererLoader = () => Promise<MathRenderer>;
  * `./math-eager` is evaluated, which is what `tests/entry-assets.test.ts`
  * asserts on the built single-file HTML.
  */
-export type MathRendererSource = 'plannotator-math-eager' | 'loader' | 'host';
+export type MathRendererSource = 'reviewtrail-math-eager' | 'loader' | 'host';
 
 let renderer: MathRenderer | null = null;
 let rendererSource: MathRendererSource | null = null;
@@ -88,7 +88,7 @@ export function subscribeMathRenderer(listener: () => void): () => void {
 
 /**
  * Swap the loader `loadMathRenderer()` uses. Host seam
- * (`configurePlannotatorUI({ mathRendererLoader })`): a host may return a
+ * (`configureReviewTrailUI({ mathRendererLoader })`): a host may return a
  * module that imports katex AND its stylesheet in one chunk. A load already in
  * flight keeps going and still fills the slot when it lands (the component
  * that started it is waiting on that result and would otherwise never
@@ -137,7 +137,7 @@ export function loadMathRenderer(): Promise<MathRenderer> {
  * flight, so the next `loadMathRenderer()` invokes the loader afresh and a
  * stale in-flight result cannot fill the slot after the reset. The registered
  * loader is KEPT: resetting the renderer is not unregistering the host seam
- * (a host's `configurePlannotatorUI` runs once, before any reset a test issues
+ * (a host's `configureReviewTrailUI` runs once, before any reset a test issues
  * later). To drop the loader too, call `setMathRendererLoader(null)`.
  */
 export function resetMathRenderer(): void {

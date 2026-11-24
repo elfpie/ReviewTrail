@@ -1,6 +1,6 @@
 import React from 'react';
-import { isCodeFilePath } from '@plannotator/core/code-file';
-import { GUIDE_LINK_TARGET_SOURCE } from '@plannotator/core/guide-links';
+import { isCodeFilePath } from '@reviewtrail/core/code-file';
+import { GUIDE_LINK_TARGET_SOURCE } from '@reviewtrail/core/guide-links';
 
 /**
  * Renders a guide link (`[label](code:…)`, `symbol:…`, `chapter:…`). Hosts that

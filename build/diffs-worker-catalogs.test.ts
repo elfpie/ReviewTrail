@@ -27,7 +27,7 @@ describe("diffsWorkerCatalogs", () => {
       expect(stub).not.toBeNull();
       for (const name of ["bundledLanguages", "themes"]) {
         const catalog = stub![name] as Record<string, unknown>;
-        expect(() => catalog["typescript"]).toThrow("not bundled in Plannotator's highlight worker");
+        expect(() => catalog["typescript"]).toThrow("not bundled in ReviewTrail's highlight worker");
         expect(() => Object.prototype.hasOwnProperty.call(catalog, "typescript")).toThrow("not bundled");
       }
     }

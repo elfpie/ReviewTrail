@@ -6,7 +6,7 @@
  * 2. Case-insensitive relative path search within project root
  * 3. Case-insensitive bare filename search within project root
  *
- * Used by both the CLI (`plannotator annotate`) and the `/api/doc` endpoint.
+ * Used by both the CLI (`reviewtrail annotate`) and the `/api/doc` endpoint.
  */
 
 import { homedir } from "os";
@@ -22,7 +22,7 @@ export { MAX_ANNOTATABLE_FILE_BYTES } from "./annotatable";
 /**
  * Extension predicates re-exported here are the CONFIG-AWARE ones (#1307):
  * they honor the user's `markdownExtensions` on top of the built-in set. The
- * pure built-in constants stay in @plannotator/core/annotatable for browser
+ * pure built-in constants stay in @reviewtrail/core/annotatable for browser
  * code; server code must go through these so a configured `.livemd` is
  * accepted everywhere `.md` is.
  */
@@ -71,7 +71,7 @@ const DEFAULT_FILE_BROWSER_MAX_FILES = 5_000;
  */
 export function getFileBrowserMaxFiles(): number {
 	const value = Number.parseInt(
-		process.env.PLANNOTATOR_FILE_BROWSER_MAX_FILES ?? "",
+		process.env.REVIEWTRAIL_FILE_BROWSER_MAX_FILES ?? "",
 		10,
 	);
 	return Number.isFinite(value) && value > 0

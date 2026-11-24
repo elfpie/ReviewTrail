@@ -1,19 +1,19 @@
 import { COMPACT_HUNK_SEPARATOR_HEIGHT, HUNK_SEPARATOR_HEIGHT } from '../utils/diffChromeMetrics';
 import { useState, useEffect } from 'react';
-import type { DiffLineBgIntensity } from '@plannotator/shared/config';
-import { extendThemeSwitch, useTheme } from '@plannotator/ui/components/ThemeProvider';
-import { useConfigValue } from '@plannotator/ui/config';
+import type { DiffLineBgIntensity } from '@reviewtrail/shared/config';
+import { extendThemeSwitch, useTheme } from '@reviewtrail/ui/components/ThemeProvider';
+import { useConfigValue } from '@reviewtrail/ui/config';
 import { buildPierreFontCSS } from '../utils/pierreFontCss';
 
 /**
  * The (colorTheme, mode) -> Shiki theme mapping moved to
- * `@plannotator/ui/utils/syntaxTheme` so the plan editor's markdown fences
+ * `@reviewtrail/ui/utils/syntaxTheme` so the plan editor's markdown fences
  * resolve the same theme this diff pane does. Re-exported here because it is
  * the import path the review editor has always used.
  */
 import { resolvePierreSyntaxTheme as resolveSyntaxTheme } from '../utils/pierreSyntaxTheme';
 import { tokenHoverUnderlineCss } from '../components/tokenHoverStyles';
-export { SHIKI_THEME_MAP } from '@plannotator/ui/utils/syntaxTheme';
+export { SHIKI_THEME_MAP } from '@reviewtrail/ui/utils/syntaxTheme';
 // The theme pair for Pierre's diff views, a custom theme's code colours registered first.
 export { resolveSyntaxTheme };
 

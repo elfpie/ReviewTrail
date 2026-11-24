@@ -2,7 +2,7 @@ import { describe, test, expect } from 'bun:test';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { MarkdownBody } from './MarkdownBody';
-import { MAX_QUOTE_DEPTH } from '@plannotator/ui/components/blocks/BlockquoteBlock';
+import { MAX_QUOTE_DEPTH } from '@reviewtrail/ui/components/blocks/BlockquoteBlock';
 
 describe('MarkdownBody', () => {
   test('renders pipe tables as real tables (PR comments previously collapsed them to one line)', () => {

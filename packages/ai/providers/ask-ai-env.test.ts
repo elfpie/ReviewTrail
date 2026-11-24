@@ -1,5 +1,5 @@
 /**
- * Every agent process Ask AI starts carries Plannotator's integration off
+ * Every agent process Ask AI starts carries ReviewTrail's integration off
  * (ask-ai-env.ts), checked against fake CLIs that record what they were
  * started with. No real agent CLI ever runs. Pi and Qwen Code are checked in
  * their own provider tests (pi-sdk-models.test.ts, qwen-sdk.test.ts), the
@@ -15,7 +15,7 @@ import { askAiChildEnv, withAskAiChildEnv } from "./ask-ai-env.ts";
 import { ClaudeAgentSDKProvider } from "./claude-agent-sdk.ts";
 import { CodexAppServerProvider, codexAskAiConfigArgs, readCodexConfigTexts } from "./codex-app-server.ts";
 
-const dir = mkdtempSync(join(tmpdir(), "plannotator-ask-ai-env-"));
+const dir = mkdtempSync(join(tmpdir(), "reviewtrail-ask-ai-env-"));
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 const posix = process.platform !== "win32";
 
@@ -33,13 +33,13 @@ function switchesIn(file: string): Record<string, string> {
 /** A shell prelude that records the three switches in `file`. */
 function recordSwitches(file: string): string {
 	return [
-		`printf 'PLANNOTATOR_ASK_AI_CHILD=%s\\n' "$PLANNOTATOR_ASK_AI_CHILD" >> '${file}'`,
-		`printf 'PLANNOTATOR_INBOX_TOOL=%s\\n' "$PLANNOTATOR_INBOX_TOOL" >> '${file}'`,
-		`printf 'PLANNOTATOR_AGENT_TOOL=%s\\n' "$PLANNOTATOR_AGENT_TOOL" >> '${file}'`,
+		`printf 'REVIEWTRAIL_ASK_AI_CHILD=%s\\n' "$REVIEWTRAIL_ASK_AI_CHILD" >> '${file}'`,
+		`printf 'REVIEWTRAIL_INBOX_TOOL=%s\\n' "$REVIEWTRAIL_INBOX_TOOL" >> '${file}'`,
+		`printf 'REVIEWTRAIL_AGENT_TOOL=%s\\n' "$REVIEWTRAIL_AGENT_TOOL" >> '${file}'`,
 	].join("\n");
 }
 
-const OFF = { PLANNOTATOR_ASK_AI_CHILD: "1", PLANNOTATOR_INBOX_TOOL: "0", PLANNOTATOR_AGENT_TOOL: "0" };
+const OFF = { REVIEWTRAIL_ASK_AI_CHILD: "1", REVIEWTRAIL_INBOX_TOOL: "0", REVIEWTRAIL_AGENT_TOOL: "0" };
 
 function fakeCli(name: string, body: string): string {
 	const path = join(dir, `${name}-${Math.random().toString(36).slice(2)}`);
@@ -53,7 +53,7 @@ describe("the marker the integrations read", () => {
 		expect(isAskAiChild(askAiChildEnv({}))).toBe(true);
 		expect(isAskAiChild({})).toBe(false);
 		for (const value of ["", "0", "true", "yes", " 1", "1 "]) {
-			expect(isAskAiChild({ PLANNOTATOR_ASK_AI_CHILD: value })).toBe(false);
+			expect(isAskAiChild({ REVIEWTRAIL_ASK_AI_CHILD: value })).toBe(false);
 		}
 	});
 });
@@ -72,7 +72,7 @@ process.stdin.on("data", (d) => {
     buf = buf.slice(i + 1);
     if (msg.id === undefined) continue;
     const result = msg.method === "initialize"
-      ? { userAgent: "plannotator/0.160.0 (Linux)" }
+      ? { userAgent: "reviewtrail/0.160.0 (Linux)" }
       : { data: [{ id: "gpt-6-sol", displayName: "GPT-6-Sol", isDefault: true }] };
     process.stdout.write(JSON.stringify({ id: msg.id, result }) + "\\n");
   }
@@ -252,22 +252,22 @@ describe("OpenCode: the installed SDK's createOpencodeServer", () => {
 			`#!/bin/sh\n${recordSwitches(envFile)}\necho "opencode server listening on http://127.0.0.1:4999"\nexec sleep 30\n`,
 		);
 		chmodSync(join(binDir, "opencode"), 0o755);
-		const saved = { PATH: process.env.PATH, marker: process.env.PLANNOTATOR_ASK_AI_CHILD };
+		const saved = { PATH: process.env.PATH, marker: process.env.REVIEWTRAIL_ASK_AI_CHILD };
 		process.env.PATH = `${binDir}${delimiter}${saved.PATH ?? ""}`;
-		delete process.env.PLANNOTATOR_ASK_AI_CHILD;
+		delete process.env.REVIEWTRAIL_ASK_AI_CHILD;
 		let server: { url: string; close(): void } | undefined;
 		try {
 			const starting = withAskAiChildEnv(() => createOpencodeServer({ hostname: "127.0.0.1", port: 0, timeout: 10_000 }));
 			// Restored before the server is even up: no other code sees the switches.
-			expect(process.env.PLANNOTATOR_ASK_AI_CHILD).toBeUndefined();
+			expect(process.env.REVIEWTRAIL_ASK_AI_CHILD).toBeUndefined();
 			server = await starting;
 			expect(server.url).toBe("http://127.0.0.1:4999");
 			expect(switchesIn(envFile)).toEqual(OFF);
 		} finally {
 			server?.close();
 			process.env.PATH = saved.PATH;
-			if (saved.marker === undefined) delete process.env.PLANNOTATOR_ASK_AI_CHILD;
-			else process.env.PLANNOTATOR_ASK_AI_CHILD = saved.marker;
+			if (saved.marker === undefined) delete process.env.REVIEWTRAIL_ASK_AI_CHILD;
+			else process.env.REVIEWTRAIL_ASK_AI_CHILD = saved.marker;
 		}
 	}, 15_000);
 

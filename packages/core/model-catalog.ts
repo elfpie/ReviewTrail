@@ -73,7 +73,7 @@ function parseVersionTriple(version: string): [number, number, number] | undefin
 }
 
 /**
- * Whether Plannotator may set a thinking level on a pi of this version (see
+ * Whether ReviewTrail may set a thinking level on a pi of this version (see
  * `PI_SESSION_SCOPED_THINKING_VERSION`). An unknown version is refused: the
  * cost of guessing wrong is a silently changed user default.
  */
@@ -186,7 +186,7 @@ export function qwenCatalogFromSettings(settings: unknown): CatalogModel[] {
 
 /**
  * The version in a CLI's own output: `claude --version` ("2.1.282 (Claude
- * Code)") or the codex app-server initialize `userAgent` ("plannotator/0.155.1
+ * Code)") or the codex app-server initialize `userAgent` ("reviewtrail/0.155.1
  * (Mac OS 26.3.0; arm64) …", where the first version is codex's). Reads the
  * line `toolLine` matches when one does (so a stray `node 18.2.0` line cannot
  * win), else the first non-empty line; the prerelease suffix is capped.

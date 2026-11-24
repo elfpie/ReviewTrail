@@ -1,7 +1,7 @@
 /**
  * Draft Storage
  *
- * Persists annotation drafts to ~/.plannotator/drafts/ so they survive
+ * Persists annotation drafts to ~/.reviewtrail/drafts/ so they survive
  * server crashes. Each draft is keyed by a content hash of the plan/diff
  * it was created against.
  *
@@ -11,13 +11,13 @@
 import { join } from "path";
 import { mkdirSync, writeFileSync, readFileSync, renameSync, unlinkSync, existsSync } from "fs";
 import { createHash } from "crypto";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 
 /**
  * Get the drafts directory, creating it if needed.
  */
 export function getDraftDir(): string {
-  const dir = join(getPlannotatorDataDir(), "drafts");
+  const dir = join(getReviewTrailDataDir(), "drafts");
   mkdirSync(dir, { recursive: true });
   return dir;
 }
@@ -61,7 +61,7 @@ function readTombstoneGeneration(key: string): number | null {
  * logical draft under several keys (PR review drafts, see review-draft.ts) and
  * must let one key's tombstone guard the others.
  */
-export const DRAFT_GENERATION_HEADER = "Plannotator-Draft-Generation";
+export const DRAFT_GENERATION_HEADER = "ReviewTrail-Draft-Generation";
 
 export function missingDraftHeaders(draftGeneration: number | null): Record<string, string> {
   return draftGeneration === null ? {} : { [DRAFT_GENERATION_HEADER]: String(draftGeneration) };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { RepoFileNoContentReason, RepoFileResponse, RepoRevisionInfo } from '@plannotator/shared/repo-files';
+import type { RepoFileNoContentReason, RepoFileResponse, RepoRevisionInfo } from '@reviewtrail/shared/repo-files';
 
 /**
  * One file of the repository at the diff's new side, as text, from

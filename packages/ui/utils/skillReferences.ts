@@ -18,7 +18,7 @@ import {
   renderSkillReferencesBlock,
   type SkillCatalogEntry,
   type SkillExportContent,
-} from '@plannotator/core/skill-references-render';
+} from '@reviewtrail/core/skill-references-render';
 
 export {
   neutralizeSkillMarkerLines,
@@ -27,7 +27,7 @@ export {
   type SkillExportContent,
   type SkillReferencesBlockOptions,
   type SkillRootId,
-} from '@plannotator/core/skill-references-render';
+} from '@reviewtrail/core/skill-references-render';
 
 export const SKILL_TRIGGER_CHARS = ['/', '$'] as const;
 export type SkillTriggerChar = (typeof SKILL_TRIGGER_CHARS)[number];

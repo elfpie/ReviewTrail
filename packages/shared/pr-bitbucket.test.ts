@@ -42,10 +42,10 @@ const runtime: PRRuntime = {
 };
 
 const ENV_KEYS = [
-  "PLANNOTATOR_DATA_DIR",
-  "PLANNOTATOR_BITBUCKET_API_URL",
-  "PLANNOTATOR_BITBUCKET_EMAIL",
-  "PLANNOTATOR_BITBUCKET_TOKEN",
+  "REVIEWTRAIL_DATA_DIR",
+  "REVIEWTRAIL_BITBUCKET_API_URL",
+  "REVIEWTRAIL_BITBUCKET_EMAIL",
+  "REVIEWTRAIL_BITBUCKET_TOKEN",
 ] as const;
 let savedEnv: Record<string, string | undefined>;
 let dataDir: string;
@@ -53,8 +53,8 @@ let fake: FakeBitbucket | undefined;
 
 beforeEach(() => {
   savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
-  dataDir = mkdtempSync(join(tmpdir(), "plannotator-bb-"));
-  process.env.PLANNOTATOR_DATA_DIR = dataDir;
+  dataDir = mkdtempSync(join(tmpdir(), "reviewtrail-bb-"));
+  process.env.REVIEWTRAIL_DATA_DIR = dataDir;
 });
 
 afterEach(() => {
@@ -71,10 +71,10 @@ afterEach(() => {
 
 function useFake(options: Partial<FakeBitbucketOptions> = {}, creds: { email?: string | null; token?: string } = {}): FakeBitbucket {
   fake = startFakeBitbucket({ email: EMAIL, token: TOKEN, ...options });
-  process.env.PLANNOTATOR_BITBUCKET_API_URL = fake.apiUrl;
-  process.env.PLANNOTATOR_BITBUCKET_TOKEN = creds.token ?? TOKEN;
-  if (creds.email === null) delete process.env.PLANNOTATOR_BITBUCKET_EMAIL;
-  else process.env.PLANNOTATOR_BITBUCKET_EMAIL = creds.email ?? EMAIL;
+  process.env.REVIEWTRAIL_BITBUCKET_API_URL = fake.apiUrl;
+  process.env.REVIEWTRAIL_BITBUCKET_TOKEN = creds.token ?? TOKEN;
+  if (creds.email === null) delete process.env.REVIEWTRAIL_BITBUCKET_EMAIL;
+  else process.env.REVIEWTRAIL_BITBUCKET_EMAIL = creds.email ?? EMAIL;
   return fake;
 }
 
@@ -126,12 +126,12 @@ describe("fetchBbPR", () => {
 describe("auth errors", () => {
   test("a missing token names the env vars and scopes, and nothing is requested", async () => {
     const f = useFake();
-    delete process.env.PLANNOTATOR_BITBUCKET_TOKEN;
+    delete process.env.REVIEWTRAIL_BITBUCKET_TOKEN;
     const err = await checkBbAuth(runtime).catch((e: Error) => e);
     expect(err).toBeInstanceOf(Error);
     const message = (err as Error).message;
-    expect(message).toContain("PLANNOTATOR_BITBUCKET_TOKEN");
-    expect(message).toContain("PLANNOTATOR_BITBUCKET_EMAIL");
+    expect(message).toContain("REVIEWTRAIL_BITBUCKET_TOKEN");
+    expect(message).toContain("REVIEWTRAIL_BITBUCKET_EMAIL");
     expect(message).toContain("write:pullrequest:bitbucket");
     expect(f.requests).toHaveLength(0);
   });
@@ -141,13 +141,13 @@ describe("auth errors", () => {
     const err = await checkBbAuth(runtime).catch((e: Error) => e);
     const message = (err as Error).message;
     expect(message).toContain("HTTP 401");
-    expect(message).toContain("PLANNOTATOR_BITBUCKET_EMAIL");
+    expect(message).toContain("REVIEWTRAIL_BITBUCKET_EMAIL");
     expect(message).not.toContain("wrong-token-value-abc");
     expect(message).not.toContain(TOKEN);
   });
 
   test("a rate limit (HTTP 429) says to retry, with the Retry-After wait", async () => {
-    process.env.PLANNOTATOR_BITBUCKET_TOKEN = TOKEN;
+    process.env.REVIEWTRAIL_BITBUCKET_TOKEN = TOKEN;
     const limited: PRRuntime = {
       ...runtime,
       fetch: (async () => new Response("", { status: 429, headers: { "retry-after": "42" } })) as unknown as typeof fetch,
@@ -170,7 +170,7 @@ describe("fetchBbPRContext", () => {
 
     expect(ctx.state).toBe("OPEN");
     expect(ctx.isDraft).toBe(false);
-    expect(ctx.body).toBe("Smoke-test PR for **Plannotator** Bitbucket review.");
+    expect(ctx.body).toBe("Smoke-test PR for **ReviewTrail** Bitbucket review.");
     expect(ctx.comments.map((c) => c.body)).toEqual(["General note from the API explorer."]);
 
     const byId = new Map(ctx.reviewThreads.map((t) => [t.id, t]));
@@ -318,18 +318,18 @@ describe("submitBbPRReview", () => {
 
 describe("config", () => {
   test("API URL override accepts https and loopback http only", () => {
-    expect(resolveBitbucketApiUrl({ PLANNOTATOR_BITBUCKET_API_URL: "http://127.0.0.1:4000/2.0/" })).toBe("http://127.0.0.1:4000/2.0");
-    expect(resolveBitbucketApiUrl({ PLANNOTATOR_BITBUCKET_API_URL: "https://bb-proxy.example.com/2.0" })).toBe("https://bb-proxy.example.com/2.0");
+    expect(resolveBitbucketApiUrl({ REVIEWTRAIL_BITBUCKET_API_URL: "http://127.0.0.1:4000/2.0/" })).toBe("http://127.0.0.1:4000/2.0");
+    expect(resolveBitbucketApiUrl({ REVIEWTRAIL_BITBUCKET_API_URL: "https://bb-proxy.example.com/2.0" })).toBe("https://bb-proxy.example.com/2.0");
     // Credentials would travel in cleartext to a remote host: refused.
-    expect(resolveBitbucketApiUrl({ PLANNOTATOR_BITBUCKET_API_URL: "http://bb.example.com/2.0" })).toBe("https://api.bitbucket.org/2.0");
+    expect(resolveBitbucketApiUrl({ REVIEWTRAIL_BITBUCKET_API_URL: "http://bb.example.com/2.0" })).toBe("https://api.bitbucket.org/2.0");
     expect(resolveBitbucketApiUrl({})).toBe("https://api.bitbucket.org/2.0");
   });
 
   test("credentials come from one source: env beats config, never mixed", () => {
     const config = { bitbucketToken: "cfg-token", bitbucketEmail: "cfg@example.invalid" };
-    expect(resolveBitbucketCredentials(config, { PLANNOTATOR_BITBUCKET_TOKEN: "env-token" })).toEqual({ token: "env-token" });
+    expect(resolveBitbucketCredentials(config, { REVIEWTRAIL_BITBUCKET_TOKEN: "env-token" })).toEqual({ token: "env-token" });
     expect(resolveBitbucketCredentials(config, {})).toEqual({ token: "cfg-token", email: "cfg@example.invalid" });
-    expect(resolveBitbucketCredentials({}, { PLANNOTATOR_BITBUCKET_TOKEN: " " })).toBeNull();
+    expect(resolveBitbucketCredentials({}, { REVIEWTRAIL_BITBUCKET_TOKEN: " " })).toBeNull();
   });
 });
 
@@ -351,8 +351,8 @@ describe("token command", () => {
   /** The fake API with no env token: credentials come from config.json in the sandboxed data dir. */
   function useCommandConfig(config: Record<string, unknown>, options: Partial<FakeBitbucketOptions> = {}): FakeBitbucket {
     const f = useFake(options);
-    delete process.env.PLANNOTATOR_BITBUCKET_TOKEN;
-    delete process.env.PLANNOTATOR_BITBUCKET_EMAIL;
+    delete process.env.REVIEWTRAIL_BITBUCKET_TOKEN;
+    delete process.env.REVIEWTRAIL_BITBUCKET_EMAIL;
     writeFileSync(join(dataDir, "config.json"), JSON.stringify(config));
     return f;
   }
@@ -360,9 +360,9 @@ describe("token command", () => {
   test("resolves only when no env token is set, paired with the config email", () => {
     const config = { bitbucketTokenCommand: COMMAND, bitbucketEmail: "cfg@example.invalid", bitbucketToken: "cfg-token" };
     expect(resolveBitbucketTokenCommand(config, {})).toEqual({ argv: COMMAND, email: "cfg@example.invalid" });
-    expect(resolveBitbucketTokenCommand(config, { PLANNOTATOR_BITBUCKET_TOKEN: "env-token" })).toBeNull();
+    expect(resolveBitbucketTokenCommand(config, { REVIEWTRAIL_BITBUCKET_TOKEN: "env-token" })).toBeNull();
     // The env token wins over both config sources.
-    expect(resolveBitbucketCredentials(config, { PLANNOTATOR_BITBUCKET_TOKEN: "env-token" })).toEqual({ token: "env-token" });
+    expect(resolveBitbucketCredentials(config, { REVIEWTRAIL_BITBUCKET_TOKEN: "env-token" })).toEqual({ token: "env-token" });
     // The command wins over the stored token.
     expect(resolveBitbucketCredentials(config, {})).toBeNull();
   });
@@ -476,7 +476,7 @@ describe("fetchBbPRCard", () => {
       state: "open",
       author: { login: "Ada Reviewer" },
       comments: 8,
-      body: "Smoke-test PR for **Plannotator** Bitbucket review.",
+      body: "Smoke-test PR for **ReviewTrail** Bitbucket review.",
       bodyCut: false,
       closedAt: null,
       pull: {

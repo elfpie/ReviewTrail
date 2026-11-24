@@ -14,8 +14,8 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { callTreeAt, findCallTreeRoot } from '@plannotator/shared/call-tree';
-import type { CallFlowTree } from '@plannotator/shared/call-flow-types';
+import { callTreeAt, findCallTreeRoot } from '@reviewtrail/shared/call-tree';
+import type { CallFlowTree } from '@reviewtrail/shared/call-flow-types';
 import type { CallTreeRequest, ReviewState } from '../ReviewStateContext';
 import { ReviewStateProvider } from '../ReviewStateContext';
 import { ReviewCallFlowPanel } from './ReviewCallFlowPanel';

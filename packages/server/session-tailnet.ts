@@ -1,10 +1,10 @@
 /**
  * Who may open a session published with `--tailscale` (#2166), and "Ask this session" there.
  *
- * Plannotator is single player: through `tailscale serve` a session opens only for the Tailscale login that owns
+ * ReviewTrail is single player: through `tailscale serve` a session opens only for the Tailscale login that owns
  * this machine (or, when Tailscale names no owner, a tagged machine or an untagged one whose owner it does not
  * report, the logins config.json `inboxTailscaleAllow` names as its owner), the Inbox's rule. Every other account
- * gets the refusal page (`refuseTailnetPeer`, `@plannotator/shared/inbox/tailnet-refusal`). The CLI keeps the host's
+ * gets the refusal page (`refuseTailnetPeer`, `@reviewtrail/shared/inbox/tailnet-refusal`). The CLI keeps the host's
  * pull-bridge token under `--tailscale` (it used to discard it), so "Ask this session" answers a tab on this machine
  * as in any local session, and the owner's tab through serve with the served Host. The bridge's own poll and the
  * host-control routes answer only this machine.
@@ -22,15 +22,15 @@ import {
   runTailscale,
   TAILSCALE_CLI_TIMEOUT_MS,
   type TailscaleRunner,
-} from "@plannotator/shared/tailscale";
-import { isServedTailnetHost, normalizeTailnetLogin, TAILSCALE_LOGIN_HEADER } from "@plannotator/shared/inbox/tailnet";
-import { tailnetNotOwnerResponse } from "@plannotator/shared/inbox/tailnet-refusal";
-import { loadConfig, resolveInboxTailscaleAllow } from "@plannotator/shared/config";
-import { tailnetAudience, type TailnetAudience } from "@plannotator/shared/tailnet-audience";
-import { DOOR_SECRET_HEADER, hasCfEdgeHeaders, isCfAccessHost } from "@plannotator/shared/inbox/cf-access";
-import { doorSecretMatches } from "@plannotator/shared/inbox/cf-access-door";
+} from "@reviewtrail/shared/tailscale";
+import { isServedTailnetHost, normalizeTailnetLogin, TAILSCALE_LOGIN_HEADER } from "@reviewtrail/shared/inbox/tailnet";
+import { tailnetNotOwnerResponse } from "@reviewtrail/shared/inbox/tailnet-refusal";
+import { loadConfig, resolveInboxTailscaleAllow } from "@reviewtrail/shared/config";
+import { tailnetAudience, type TailnetAudience } from "@reviewtrail/shared/tailnet-audience";
+import { DOOR_SECRET_HEADER, hasCfEdgeHeaders, isCfAccessHost } from "@reviewtrail/shared/inbox/cf-access";
+import { doorSecretMatches } from "@reviewtrail/shared/inbox/cf-access-door";
 
-export type { TailnetAudience } from "@plannotator/shared/tailnet-audience";
+export type { TailnetAudience } from "@reviewtrail/shared/tailnet-audience";
 
 interface SessionTailnetState {
   /** The logins that count as this machine's owner, normalized; empty when nobody does. */

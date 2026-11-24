@@ -4,7 +4,7 @@ import { processFile } from '@pierre/diffs';
 import type { CodeViewItem, FileDiffMetadata } from '@pierre/diffs';
 import { useStableCallback } from '@pierre/diffs/react';
 import type { CodeViewHandle, CreateEditor } from '@pierre/diffs/react';
-import type { CodeAnnotation, DiffAnnotationMetadata } from '@plannotator/ui/types';
+import type { CodeAnnotation, DiffAnnotationMetadata } from '@reviewtrail/ui/types';
 import type { DiffFile } from '../types';
 import { isContentConsistentWithPatch } from '../utils/patchConsistency';
 import { deriveSuggestionHunks, type SuggestionHunk } from './deriveSuggestions';

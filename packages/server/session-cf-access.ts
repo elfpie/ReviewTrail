@@ -1,4 +1,4 @@
-import { doorSessionUrl, newDoorToken, removeDoorSession, writeDoorSession } from "@plannotator/shared/inbox/cf-access-door";
+import { doorSessionUrl, newDoorToken, removeDoorSession, writeDoorSession } from "@reviewtrail/shared/inbox/cf-access-door";
 import { allowServedHostname } from "./request-host-guard";
 import { setSessionDoor, setSessionTailnetServedUrl } from "./session-tailnet";
 

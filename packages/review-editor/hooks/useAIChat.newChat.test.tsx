@@ -10,7 +10,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import * as sharedChat from '@plannotator/ui/hooks/useAIChat';
+import * as sharedChat from '@reviewtrail/ui/hooks/useAIChat';
 import { useAIChat } from './useAIChat';
 
 const setAITransport = sharedChat.setAITransport;

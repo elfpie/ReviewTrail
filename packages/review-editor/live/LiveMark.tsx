@@ -1,4 +1,4 @@
-import { AuthorMark, HostMark, Icon } from '@plannotator/ui/components/inbox-thread/icons';
+import { AuthorMark, HostMark, Icon } from '@reviewtrail/ui/components/inbox-thread/icons';
 import type { LiveMessage } from './model';
 
 export function LiveAuthorMark({ message, big }: { message: LiveMessage; big?: boolean }) {

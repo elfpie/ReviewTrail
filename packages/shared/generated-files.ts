@@ -30,14 +30,14 @@
  */
 
 import type { ReviewGitRuntime } from "./review-core";
-import { DEFAULT_GENERATED_PATTERNS, isDefaultGeneratedPath } from "@plannotator/core/file-kind";
+import { DEFAULT_GENERATED_PATTERNS, isDefaultGeneratedPath } from "@reviewtrail/core/file-kind";
 
 export const GENERATED_ATTRIBUTE = "linguist-generated";
 
 /** Same bound as review-core's stdin-driven git callers (`cat-file --batch-check`). */
 const CHECK_ATTR_TIMEOUT_MS = 5000;
 
-// The built-in name list and its matcher live in @plannotator/core so the
+// The built-in name list and its matcher live in @reviewtrail/core so the
 // review client (file kinds in the tree and Guided Reviews) and this server
 // module share one list.
 export { DEFAULT_GENERATED_PATTERNS, isDefaultGeneratedPath };

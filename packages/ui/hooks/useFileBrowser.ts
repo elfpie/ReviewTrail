@@ -9,8 +9,8 @@
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import type { VaultNode } from "../types";
-import { basenameFromPath } from "@plannotator/core/source-save";
-import type { WorkspaceStatusPayload } from "@plannotator/core/workspace-status-types";
+import { basenameFromPath } from "@reviewtrail/core/source-save";
+import type { WorkspaceStatusPayload } from "@reviewtrail/core/workspace-status-types";
 
 export interface DirState {
   path: string;
@@ -25,7 +25,7 @@ export interface DirState {
   isVault?: boolean;
   /**
    * The server left supported files out because the folder holds more than
-   * its cap (PLANNOTATOR_FILE_BROWSER_MAX_FILES). `fileLimit` is that cap.
+   * its cap (REVIEWTRAIL_FILE_BROWSER_MAX_FILES). `fileLimit` is that cap.
    * Absent from a backend that does not cap.
    */
   truncated?: boolean;
@@ -91,8 +91,8 @@ function remapWorkspaceStatusForDir(
 }
 
 /**
- * File-tree backend. Defaults to Plannotator's HTTP endpoints (generic files,
- * Obsidian vault, and the SSE live-watch stream) so Plannotator is unchanged. A
+ * File-tree backend. Defaults to ReviewTrail's HTTP endpoints (generic files,
+ * Obsidian vault, and the SSE live-watch stream) so ReviewTrail is unchanged. A
  * host (e.g. Workspaces) calls setFileTreeBackend once at startup to source the
  * tree from its own transport instead.
  */
@@ -171,7 +171,7 @@ const defaultFileTreeBackend: FileTreeBackend = {
   },
 };
 
-// Active backend. Defaults to Plannotator's HTTP endpoints so Plannotator is
+// Active backend. Defaults to ReviewTrail's HTTP endpoints so ReviewTrail is
 // unchanged. A host calls setFileTreeBackend once at startup to override.
 let fileTreeBackend: FileTreeBackend = defaultFileTreeBackend;
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import { DiffLayoutToggle } from '@plannotator/ui/components/DiffLayoutToggle';
-import { DiffDisplayOptionsPopover } from '@plannotator/ui/components/DiffDisplayOptions';
-import type { GuideHostValue } from '@plannotator/guide-viewer/host';
+import { DiffLayoutToggle } from '@reviewtrail/ui/components/DiffLayoutToggle';
+import { DiffDisplayOptionsPopover } from '@reviewtrail/ui/components/DiffDisplayOptions';
+import type { GuideHostValue } from '@reviewtrail/guide-viewer/host';
 import { useReviewState } from '../../dock/ReviewStateContext';
 
 /** Fold or open every guide file's diff: what the guide host's `collapseAll` takes. */

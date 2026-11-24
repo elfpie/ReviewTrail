@@ -46,7 +46,7 @@ describe("which live session a request through the door belongs to", () => {
 
 describe("session registrations", () => {
   test("written owner-only, read back only while the process lives, pruned after", () => {
-    const dataDir = mkdtempSync(join(tmpdir(), "plannotator-door-"));
+    const dataDir = mkdtempSync(join(tmpdir(), "reviewtrail-door-"));
     dirs.push(dataDir);
     writeDoorSession(dataDir, { key: A, port: 45678, pid: 4242, secret: "s".repeat(32) });
     const file = join(dataDir, "cloudflare-access", "sessions", `${A}.json`);

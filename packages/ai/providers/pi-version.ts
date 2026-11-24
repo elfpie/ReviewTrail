@@ -12,7 +12,7 @@
  */
 
 import { execFile } from "node:child_process";
-import { cliVersionFrom } from "@plannotator/core/model-catalog";
+import { cliVersionFrom } from "@reviewtrail/core/model-catalog";
 import { buildWindowsCommandScriptSpawnCommand, resolveWindowsCommandShim } from "./command-path.ts";
 
 const PI_VERSION_TIMEOUT_MS = 10_000;

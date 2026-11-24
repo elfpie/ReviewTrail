@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { resolveEffortChoice, resolveModelChoice } from '@plannotator/core/model-catalog';
+import { resolveEffortChoice, resolveModelChoice } from '@reviewtrail/core/model-catalog';
 import { getItem, setItem } from '../utils/storage';
 import type { ModelCatalog, ModelCatalogs } from './useModelCatalogs';
 
-const COOKIE_KEY = 'plannotator.agents';
+const COOKIE_KEY = 'reviewtrail.agents';
 
 // Multiple live instances of this hook can be mounted at once (e.g. the
 // Settings AgentsTab and the Guided Review empty-state launch panel are both

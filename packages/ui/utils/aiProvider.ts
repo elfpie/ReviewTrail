@@ -7,12 +7,12 @@
  */
 
 import { storage } from './storage';
-import { AGENT_CONFIG, getAgentAIProviderTypes, type Origin } from '@plannotator/core/agents';
-import { resolveModelChoice, type CatalogModel } from '@plannotator/core/model-catalog';
+import { AGENT_CONFIG, getAgentAIProviderTypes, type Origin } from '@reviewtrail/core/agents';
+import { resolveModelChoice, type CatalogModel } from '@reviewtrail/core/model-catalog';
 
-const PROVIDER_KEY = 'plannotator-ai-provider';
-const MODELS_KEY = 'plannotator-ai-models';
-const PROVIDER_BY_ORIGIN_KEY = 'plannotator-ai-provider-by-origin';
+const PROVIDER_KEY = 'reviewtrail-ai-provider';
+const MODELS_KEY = 'reviewtrail-ai-models';
+const PROVIDER_BY_ORIGIN_KEY = 'reviewtrail-ai-provider-by-origin';
 
 /** A provider-reported model — the shared catalog shape. */
 export type AIProviderModel = CatalogModel;
@@ -31,7 +31,7 @@ export interface AIProviderOption {
   sessionBridge?: SessionBridgeInfo;
 }
 
-/** "Ask this session": Ask AI answered by the agent session that opened Plannotator. */
+/** "Ask this session": Ask AI answered by the agent session that opened ReviewTrail. */
 export const SESSION_BRIDGE_PROVIDER_NAME = 'session-bridge';
 
 export interface SessionBridgeInfo {
@@ -62,7 +62,7 @@ export function isSessionBridgeProvider(provider: Pick<AIProviderOption, 'name' 
 
 /**
  * The "Ask this session" provider, whatever its status. A server that has one
- * offers nothing else (the session that opened Plannotator is the only thing
+ * offers nothing else (the session that opened ReviewTrail is the only thing
  * Ask AI talks to), so when it is present it is the selection.
  */
 export function findSessionBridge(providers: AIProviderOption[]): AIProviderOption | null {

@@ -2,7 +2,7 @@
  * Pull requests in the Inbox (approval "inbox-code-review-direction", items 4
  * and 5; concept B, take 1): the shapes the server answers and the pure rules
  * the window and the server share. Browser-safe, no dependencies. Reached
- * through `@plannotator/core/inbox-types`, so core's export map is unchanged.
+ * through `@reviewtrail/core/inbox-types`, so core's export map is unchanged.
  *
  * - A pull request (GitHub) or merge request (GitLab) as the Inbox reads it
  *   from the person's own `gh` / `glab` (`InboxPull`).

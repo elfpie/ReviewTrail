@@ -1,6 +1,6 @@
 import { followUpItems, keepBehaviorMarks, keepConcerns, setFollowUpState } from "./review-follow-up";
 import { attachEvidence, pinGitEvidence, SOURCE_LIMIT, type EvidenceReader } from "./guide/source-evidence";
-import { createOfflineGuide } from "@plannotator/core/offline-guide";
+import { createOfflineGuide } from "@reviewtrail/core/offline-guide";
 /**
  * Code Review Server
  *
@@ -8,42 +8,42 @@ import { createOfflineGuide } from "@plannotator/core/offline-guide";
  * Follows the same patterns as the plan server.
  *
  * Environment variables:
- *   PLANNOTATOR_REMOTE - Set to "1"/"true" for remote, "0"/"false" for local
- *   PLANNOTATOR_PORT   - Fixed port or inclusive range (default: random locally, 19432 for remote)
+ *   REVIEWTRAIL_REMOTE - Set to "1"/"true" for remote, "0"/"false" for local
+ *   REVIEWTRAIL_PORT   - Fixed port or inclusive range (default: random locally, 19432 for remote)
  */
 
-import { childPath } from "@plannotator/shared/child-env";
-import { createPackageChangesService, MAX_PACKAGE_FILE_BYTES, PACKAGE_CHECKOUT_WAIT_MS, prSettingsSource, REMOTE_PACKAGE_READS, waitAtMost } from "@plannotator/shared/package-changes-service";
-import { parseDiffToFiles } from "@plannotator/core/diff-files";
+import { childPath } from "@reviewtrail/shared/child-env";
+import { createPackageChangesService, MAX_PACKAGE_FILE_BYTES, PACKAGE_CHECKOUT_WAIT_MS, prSettingsSource, REMOTE_PACKAGE_READS, waitAtMost } from "@reviewtrail/shared/package-changes-service";
+import { parseDiffToFiles } from "@reviewtrail/core/diff-files";
 import { homedir } from "node:os";
-import { isSameOriginOrNoOrigin } from "@plannotator/shared/request-origin";
-import { decodePathSegment, MALFORMED_PATH_ERROR } from "@plannotator/shared/path-segment";
-import { likelyAppHtmlEncoding, prewarmAppHtml } from "@plannotator/shared/app-html";
-import { openPackedApp, packedAppResponse } from "@plannotator/shared/packed-app";
+import { isSameOriginOrNoOrigin } from "@reviewtrail/shared/request-origin";
+import { decodePathSegment, MALFORMED_PATH_ERROR } from "@reviewtrail/shared/path-segment";
+import { likelyAppHtmlEncoding, prewarmAppHtml } from "@reviewtrail/shared/app-html";
+import { openPackedApp, packedAppResponse } from "@reviewtrail/shared/packed-app";
 import {
   answerDiagramEngineRequest,
   createDiagramEngineAssets,
   isDiagramEngineRequest,
   type DiagramEngineSource,
-} from "@plannotator/shared/diagram-engine-assets";
+} from "@reviewtrail/shared/diagram-engine-assets";
 import {
   answerSemDiffRequest,
   createSemDiffAssets,
   isSemDiffRequest,
   type SemDiffSource,
-} from "@plannotator/shared/sem-diff-assets";
-import { answerSemDiffOpinionRequest, isSemDiffOpinionRequest } from "@plannotator/shared/sem-diff-opinion";
-import { getPlannotatorDataDir as semDiffOpinionDataDir } from "@plannotator/shared/data-dir";
+} from "@reviewtrail/shared/sem-diff-assets";
+import { answerSemDiffOpinionRequest, isSemDiffOpinionRequest } from "@reviewtrail/shared/sem-diff-opinion";
+import { getReviewTrailDataDir as semDiffOpinionDataDir } from "@reviewtrail/shared/data-dir";
 import { isRemoteSession, getServerHostname, startBunServerOnAvailablePort, buildAdvertisedUrl, getLocalUrlHostname } from "./remote";
 import { isSshTunnelRequest, notePeer } from "./this-machine";
 import { createRequestHostGuard } from "./request-host-guard";
-import { withPlannotatorServerHeader } from "./plannotator-server-marker";
+import { withReviewTrailServerHeader } from "./reviewtrail-server-marker";
 import { refuseCrossOriginWrite } from "./request-origin-guard";
-import type { Origin } from "@plannotator/shared/agents";
+import type { Origin } from "@reviewtrail/shared/agents";
 import { type DiffType, type GitContext, runVcsDiff, getVcsFileContentsForDiff, getVcsFileBytesForDiff, listVcsFiles, getVcsDiffFingerprint, canStageFiles, stageFile, unstageFile, resolveVcsCwd, validateFilePath, getVcsContext, detectRemoteDefaultCompareTarget, resolveAvailableDiffType, vcsOwnsDiffType, vcsSupportsSnapshot, materializeVcsSnapshot, gitRuntime } from "./vcs";
 import { basename, dirname, join } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
-import { SingleFlight } from "@plannotator/shared/single-flight";
+import { SingleFlight } from "@reviewtrail/shared/single-flight";
 import {
   commitFamilyId,
   isSameCwdCommitSwitch,
@@ -61,11 +61,11 @@ import {
   STATIC_PATCH_DIFF_TYPE,
   type RemoteDefaultInfo,
   type SinceBaseSections,
-} from "@plannotator/shared/review-core";
+} from "@reviewtrail/shared/review-core";
 import {
   getGitButlerContextRevision,
   getGitButlerPatchFingerprint,
-} from "@plannotator/shared/gitbutler-core";
+} from "@reviewtrail/shared/gitbutler-core";
 import {
   getCommitDiffInfo,
   getJjCommitDiffInfo,
@@ -73,10 +73,10 @@ import {
   listJjCommitHistory,
   resolveJjCommitRailBase,
   type CommitDiffInfo,
-} from "@plannotator/shared/commit-history";
+} from "@reviewtrail/shared/commit-history";
 import { runtime as jjRuntime } from "./jj";
-import { canonicalizeJjCommitDiffType } from "@plannotator/shared/jj-core";
-import { resolvePoolCwd } from "@plannotator/shared/worktree-pool";
+import { canonicalizeJjCommitDiffType } from "@reviewtrail/shared/jj-core";
+import { resolvePoolCwd } from "@reviewtrail/shared/worktree-pool";
 import {
   REVIEW_IMAGE_ENDPOINT,
   REVIEW_IMAGE_READ_CONCURRENCY,
@@ -86,13 +86,13 @@ import {
   handleReviewImageSizesRequest,
   readPRImageSide,
   reviewImageSizesAdvert,
-} from "@plannotator/shared/review-image";
+} from "@reviewtrail/shared/review-image";
 import {
   REVIEW_MARKDOWN_IMAGE_ENDPOINT,
   handleReviewMarkdownImageRequest,
-} from "@plannotator/shared/review-markdown-image";
-import type { DiffSide, FileBytesRead } from "@plannotator/shared/review-core";
-import { listGitSideFiles, readDiffSideBytes, compareRepoPaths, type RepoFileListing } from "@plannotator/shared/review-core";
+} from "@reviewtrail/shared/review-markdown-image";
+import type { DiffSide, FileBytesRead } from "@reviewtrail/shared/review-core";
+import { listGitSideFiles, readDiffSideBytes, compareRepoPaths, type RepoFileListing } from "@reviewtrail/shared/review-core";
 import {
   REPO_FILE_ENDPOINT,
   REPO_FILES_ENDPOINT,
@@ -109,13 +109,13 @@ import {
   handleRepoFilesSearchRequest,
   type RepoFileRead,
   type RepoFilesUnavailable,
-} from "@plannotator/shared/repo-files";
+} from "@reviewtrail/shared/repo-files";
 import { createReviewRepoWatch } from "./review-repo-watch";
-import { CallFlowService } from "@plannotator/shared/call-flow";
-import { CallFlowInstallCoordinator, callFlowInstallOriginAllowed } from "@plannotator/shared/call-flow-install";
-import type { CallFlowInstallCoordinatorOptions } from "@plannotator/shared/call-flow-install";
-import { parseCallFlowInstallRequest, resolveCallFlowInstallTargets } from "@plannotator/shared/call-flow-languages";
-import type { CallFlowResponse } from "@plannotator/shared/call-flow-types";
+import { CallFlowService } from "@reviewtrail/shared/call-flow";
+import { CallFlowInstallCoordinator, callFlowInstallOriginAllowed } from "@reviewtrail/shared/call-flow-install";
+import type { CallFlowInstallCoordinatorOptions } from "@reviewtrail/shared/call-flow-install";
+import { parseCallFlowInstallRequest, resolveCallFlowInstallTargets } from "@reviewtrail/shared/call-flow-languages";
+import type { CallFlowResponse } from "@reviewtrail/shared/call-flow-types";
 import {
   getPRDiffScopeOptions,
   getPRFullStackFingerprint,
@@ -126,16 +126,16 @@ import {
   runPRLayerLocalDiff,
   checkoutPRHead,
   type PRDiffScope,
-} from "@plannotator/shared/pr-stack";
-import { type AgentJobInfo, REVIEW_OUTPUT_FAILED, getAgentJobAnnotationContext, markJobReviewFailed } from "@plannotator/shared/agent-jobs";
-import { createCommitAvatarResolver } from "@plannotator/shared/commit-avatars";
-import { detectGeneratedFiles, detectGeneratedFilesByName } from "@plannotator/shared/generated-files";
+} from "@reviewtrail/shared/pr-stack";
+import { type AgentJobInfo, REVIEW_OUTPUT_FAILED, getAgentJobAnnotationContext, markJobReviewFailed } from "@reviewtrail/shared/agent-jobs";
+import { createCommitAvatarResolver } from "@reviewtrail/shared/commit-avatars";
+import { detectGeneratedFiles, detectGeneratedFilesByName } from "@reviewtrail/shared/generated-files";
 import { getRepoInfo } from "./repo";
 import { createRefCards, refCardRouteResponse, refCardsTailnetAllowed, type RefRunner } from "./ref-cards";
 import { handleImage, handleUpload, handleAgents, handleServerReady, handleApiNotFound, handleFavicon, handleCustomThemesScript, customThemesPage, readDraftGenerationFromBody, readDraftGenerationFromUrl, missingDraftResponse, type OpencodeClient } from "./shared-handlers";
 import { contentHash } from "./draft";
-import { createReviewDraftSession, localGitDraftTargetKey, localReviewDraftKeys, prDraftTargetKey, type ReviewDraftKeys } from "@plannotator/shared/review-draft";
-import { captureReviewProgress, handleReviewProgress, prReviewProgressKey } from "@plannotator/shared/review-progress";
+import { createReviewDraftSession, localGitDraftTargetKey, localReviewDraftKeys, prDraftTargetKey, type ReviewDraftKeys } from "@reviewtrail/shared/review-draft";
+import { captureReviewProgress, handleReviewProgress, prReviewProgressKey } from "@reviewtrail/shared/review-progress";
 import { createEditorAnnotationHandler } from "./editor-annotations";
 import { createExternalAnnotationHandler } from "./external-annotations";
 import { createAgentJobHandler } from "./agent-jobs";
@@ -154,7 +154,7 @@ import {
   transformClaudeFindings,
 } from "./claude-review";
 import { createGuideSession, GUIDE_EMPTY_OUTPUT_ERROR } from "./guide/guide-review";
-import { createGuideStoreSession, normalizeGuideTitle, SAVED_GUIDE_ID_PREFIX } from "@plannotator/shared/guide-store";
+import { createGuideStoreSession, normalizeGuideTitle, SAVED_GUIDE_ID_PREFIX } from "@reviewtrail/shared/guide-store";
 import {
   buildGuideSnapshot,
   detectGuideLanguages,
@@ -162,7 +162,7 @@ import {
   type GuideLaunchReview,
   type GuideSnapshot,
   type GuideSnapshotSource,
-} from "@plannotator/shared/guide-format";
+} from "@reviewtrail/shared/guide-format";
 import {
   MARKER_ENGINES,
   resolveMarkerBinary,
@@ -176,46 +176,46 @@ import {
   type MarkerEngineId,
 } from "./marker-review";
 import { agentSwitchConfigToSave, agentToolSaveFailed, cookieHostConfigWrite, loadConfig, saveConfig, detectGitUser, getServerConfig, parsePackageChangesConfig, parseReviewAnalysisConfig, resolveAIEnabled, resolvePackageLookup, resolveClaudeSandbox, resolveCursorSandbox, resolveFeedbackHistory, resolveGuideHistory, resolveGitRemoteCheck, resolveReviewProgress } from "./config";
-import { appendFeedbackRecord, countChangedFiles, deriveFeedbackProject, type FeedbackDecision, type FeedbackReviewTarget } from "@plannotator/shared/feedback-archive";
-import { isFaviconStyle, type FaviconStyle } from "@plannotator/shared/favicon";
+import { appendFeedbackRecord, countChangedFiles, deriveFeedbackProject, type FeedbackDecision, type FeedbackReviewTarget } from "@reviewtrail/shared/feedback-archive";
+import { isFaviconStyle, type FaviconStyle } from "@reviewtrail/shared/favicon";
 import { type PRMetadata, type PRRef, type PRReviewFileComment, type PRStackTree, type PRListItem, fetchPR, fetchPRFileContent, fetchPRFileBytes, fetchPRTree, fetchPRContext, submitPRReview, parseFileLevelComments, parsePRReviewAction, fetchPRViewedFiles, markPRFilesViewed, fetchPRStack, fetchPRList, getPRUser, parsePRUrl, prRefFromMetadata, isSameProject, getDisplayRepo, getMRLabel, getMRNumberLabel, getPRNumber, prCommandRuntime } from "./pr";
 import {
   PR_CONTEXT_HEARTBEAT_COMMENT,
   PR_CONTEXT_HEARTBEAT_INTERVAL_MS,
   createPRContextLiveCache,
   serializePRContextSSEEvent,
-} from "@plannotator/shared/pr-context-live";
+} from "@reviewtrail/shared/pr-context-live";
 import {
   fetchPRArtifactContent,
   fetchPRArtifactDocument,
   PRArtifactDocumentError,
-} from "@plannotator/shared/pr-artifact-document";
+} from "@reviewtrail/shared/pr-artifact-document";
 import { agentToolHostForServer, createAIRuntime } from "./ai-runtime";
 import { assertTestHome } from "./test-home-guard";
 import { handleHostControl, resolveHostControlToken, type HostControl } from "./host-control";
 import { createReviewLiveRoute } from "./review-live-route";
-import type { ReviewLiveTarget } from "@plannotator/shared/review-live";
+import type { ReviewLiveTarget } from "@reviewtrail/shared/review-live";
 import { refuseTailnetPeer, sessionTailnetAudience, sessionTailnetGate } from "./session-tailnet";
-import { countUnsentDraftComments, hostSessionClosedEvent } from "@plannotator/shared/host-control";
-import { checkServerSession, createServerSessionNonce, serverSessionMismatchBody } from "@plannotator/shared/server-session";
-import { isAIEndpointPath, isLongLivedAIEndpointPath, type AIEndpoints, type SessionBridge } from "@plannotator/ai";
+import { countUnsentDraftComments, hostSessionClosedEvent } from "@reviewtrail/shared/host-control";
+import { checkServerSession, createServerSessionNonce, serverSessionMismatchBody } from "@reviewtrail/shared/server-session";
+import { isAIEndpointPath, isLongLivedAIEndpointPath, type AIEndpoints, type SessionBridge } from "@reviewtrail/ai";
 import { isWSL } from "./browser";
-import { getExtraMarkdownExtensions } from "@plannotator/shared/resolve-file";
+import { getExtraMarkdownExtensions } from "@reviewtrail/shared/resolve-file";
 import { handleOpenInApps, handleOpenIn } from "./open-in";
 import { resolveWorkspaceFilePath, type LocalWorkspaceReview, type WorkspaceDiffType } from "./review-workspace";
 import { handleCodeNavResolve, handleCodeNavHover, extractChangedFiles } from "./code-nav";
-import { readRepoFile, repoFileErrorBody, REPO_FILE_ERROR_STATUS } from "@plannotator/shared/repo-file";
-import { readRepoWorkingTreeFile } from "@plannotator/shared/repo-files-node";
+import { readRepoFile, repoFileErrorBody, REPO_FILE_ERROR_STATUS } from "@reviewtrail/shared/repo-file";
+import { readRepoWorkingTreeFile } from "@reviewtrail/shared/repo-files-node";
 import { decodeBunText } from "./git";
 import { discoverCuratedSkills, resolveRequestedReviewProfile, listAllSkills, enableReviewSkill } from "./review-skill-loader";
-import { readGuideInstructions, writeGuideInstructions } from "@plannotator/shared/guide-instructions-store";
+import { readGuideInstructions, writeGuideInstructions } from "@reviewtrail/shared/guide-instructions-store";
 import {
   BUILTIN_DEFAULT_PROFILE,
   type ReviewProfilesResponse,
-} from "@plannotator/shared/review-profiles";
+} from "@reviewtrail/shared/review-profiles";
 
 // Review ingestion completion semantics (REVIEW_OUTPUT_FAILED,
-// markJobReviewFailed) now live in @plannotator/shared/agent-jobs.
+// markJobReviewFailed) now live in @reviewtrail/shared/agent-jobs.
 
 // Re-export utilities
 export { isRemoteSession, getServerPort } from "./remote";
@@ -265,7 +265,7 @@ export interface ReviewServerOptions {
    * `diagramEngine` on `/api/diff` and serves the files under
    * `/assets/diagram-engine/`, and Markdown previews and guide overviews draw
    * Mermaid and Graphviz fences; without them (absent, or the read answers
-   * null) the fences show as code. See @plannotator/shared/diagram-engine-assets.
+   * null) the fences show as code. See @reviewtrail/shared/diagram-engine-assets.
    */
   diagramEngine?: DiagramEngineSource;
   semDiff?: SemDiffSource;
@@ -346,11 +346,11 @@ export interface ReviewServerOptions {
   /** Working directory for agent processes (e.g., --local worktree). Independent of diff pipeline. */
   agentCwd?: string;
   /** Per-PR worktree pool. When set, pr-switch creates worktrees instead of checking out. */
-  worktreePool?: import("@plannotator/shared/worktree-pool").WorktreePool;
+  worktreePool?: import("@reviewtrail/shared/worktree-pool").WorktreePool;
   /**
    * `false` when the caller passed `review --no-git-remote-check` (issue #1553).
    * Highest-priority input to `resolveGitRemoteCheck`; `undefined` leaves
-   * PLANNOTATOR_GIT_REMOTE_CHECK / config.gitRemoteCheck to decide.
+   * REVIEWTRAIL_GIT_REMOTE_CHECK / config.gitRemoteCheck to decide.
    */
   gitRemoteCheck?: boolean;
   /** Cleanup callback invoked when server stops (e.g., remove temp worktree) */
@@ -418,7 +418,7 @@ export async function startReviewServer(
   // decision; a different nonce is refused with 409 session_mismatch before
   // anything settles. Missing is accepted (older clients).
   const serverSession = createServerSessionNonce();
-  // Static patch mode (`plannotator review --patch-file`): the diff is
+  // Static patch mode (`reviewtrail --patch-file`): the diff is
   // caller-supplied bytes, so there is no repo, no working tree and no VCS
   // behind it. Advertised to the client as `sourceKind: "patch"` on every diff
   // payload (absent reads as "vcs"), and enforced here by 400ing the endpoints
@@ -470,7 +470,7 @@ export async function startReviewServer(
 
   const guide = createGuideSession();
   // Durable guide persistence (#1112): autosaves validated guides to
-  // ${PLANNOTATOR_DATA_DIR}/guides/{repo-key}/ and serves them back through
+  // ${REVIEWTRAIL_DATA_DIR}/guides/{repo-key}/ and serves them back through
   // the existing guide endpoints as `saved:{id}` pseudo job ids. All getters
   // are late-bound — prMetadata/currentDiffType can change mid-session.
   const guideStore = createGuideStoreSession({
@@ -744,7 +744,7 @@ export async function startReviewServer(
       if (ok) callFlowService.invalidateRuntimeState();
     },
   });
-  // PLANNOTATOR_REVIEW_PROGRESS / config.reviewProgress: when off, no snapshot
+  // REVIEWTRAIL_REVIEW_PROGRESS / config.reviewProgress: when off, no snapshot
   // exists, so the endpoint answers `available: false` without touching disk and
   // the client keeps viewed marks in the draft, as for unsupported modes.
   const captureProgress = () => !resolveReviewProgress(loadConfig()) ? Promise.resolve(null) : captureReviewProgress({
@@ -2283,7 +2283,7 @@ export async function startReviewServer(
 
   const requestHostGuard = createRequestHostGuard();
   const server = await startBunServerOnAvailablePort((port) =>
-    Bun.serve(withPlannotatorServerHeader({
+    Bun.serve(withReviewTrailServerHeader({
         hostname: getServerHostname(),
         port,
         // Bun's default 10s idleTimeout kills requests that legitimately park:
@@ -3974,7 +3974,7 @@ export async function startReviewServer(
           if (refRoute) return refRoute;
 
 
-          // API: Update user config (write-back to ~/.plannotator/config.json)
+          // API: Update user config (write-back to ~/.reviewtrail/config.json)
           if (url.pathname === "/api/config" && req.method === "POST") {
             if (!isSameOriginOrNoOrigin(req.headers.get("origin"), url.host, req.headers.get("sec-fetch-site"))) {
               return Response.json({ error: "Cross-origin config writes are not allowed" }, { status: 403 });
@@ -4457,7 +4457,7 @@ export async function startReviewServer(
             } catch (err) {
               const message =
                 err instanceof Error ? err.message : "Failed to update viewed state";
-              console.error("[plannotator] /api/pr-viewed error:", message);
+              console.error("[reviewtrail] /api/pr-viewed error:", message);
               return Response.json({ error: message }, { status: 500 });
             }
           }
@@ -4499,7 +4499,7 @@ export async function startReviewServer(
 
           // Favicon
           if (url.pathname === "/favicon.png" || url.pathname === "/favicon.ico") return handleFavicon(url.pathname);
-          if (url.pathname === "/plannotator-themes.js" && req.method === "GET") return handleCustomThemesScript(url.searchParams);
+          if (url.pathname === "/reviewtrail-themes.js" && req.method === "GET") return handleCustomThemesScript(url.searchParams);
 
           // Code review's diagram engine, fetched by the page only for a
           // preview or guide overview that holds a diagram fence.
@@ -4540,7 +4540,7 @@ export async function startReviewServer(
         },
 
         error(err) {
-          console.error("[plannotator] Server error:", err);
+          console.error("[reviewtrail] Server error:", err);
           return new Response(
             `Internal Server Error: ${err instanceof Error ? err.message : String(err)}`,
             { status: 500, headers: { "Content-Type": "text/plain" } },

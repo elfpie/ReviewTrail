@@ -72,7 +72,7 @@ export interface FakeGh {
 export const FAKE_PATCH = "diff --git a/src/app.ts b/src/app.ts\n--- a/src/app.ts\n+++ b/src/app.ts\n@@ -1 +1 @@\n-old\n+new\n";
 
 export function makeFakeGh(scenario: FakeGhScenario): FakeGh {
-  const root = mkdtempSync(join(tmpdir(), "plannotator-fake-gh-"));
+  const root = mkdtempSync(join(tmpdir(), "reviewtrail-fake-gh-"));
   const binDir = join(root, "bin");
   const home = join(root, "home");
   mkdirSync(binDir);

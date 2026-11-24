@@ -1,16 +1,16 @@
 /**
- * The `plannotator` agent tool switch as the UI sees it: what the server
+ * The `reviewtrail` agent tool switch as the UI sees it: what the server
  * reports in `serverConfig` (packages/shared/config.ts getServerConfig) and
  * the POST /api/config write that changes it.
  *
- * Only a Plannotator server that knows the session's tool host sends
+ * Only a ReviewTrail server that knows the session's tool host sends
  * `agentToolHost` (the Claude Code mod, Pi, Oh My Pi, OpenCode 2). Everything else, an
- * older server, OpenCode 1, Codex, a `@plannotator/ui` host such as
+ * older server, OpenCode 1, Codex, a `@reviewtrail/ui` host such as
  * Workspaces, parses to undefined, and no toggle or offer is shown.
  */
 
 /**
- * The hosts that register the `plannotator` agent tool. `oh-my-pi` is the Pi
+ * The hosts that register the `reviewtrail` agent tool. `oh-my-pi` is the Pi
  * extension running inside Oh My Pi, where the tool is on by default.
  */
 export type AgentToolHost = 'claude-code' | 'pi' | 'oh-my-pi' | 'opencode';
@@ -21,7 +21,7 @@ export interface AgentToolSetting {
   readonly enabled: boolean;
   /** config.json holds an explicit choice (false: the host default applies). */
   readonly configured: boolean;
-  /** PLANNOTATOR_AGENT_TOOL, when it overrides the file. A toggle cannot change it. */
+  /** REVIEWTRAIL_AGENT_TOOL, when it overrides the file. A toggle cannot change it. */
   readonly env?: boolean;
 }
 
@@ -66,7 +66,7 @@ export async function saveAgentToolSetting(
       body: JSON.stringify({ agentTool: value }),
     });
   } catch {
-    throw new Error('Could not reach Plannotator. Nothing was changed.');
+    throw new Error('Could not reach ReviewTrail. Nothing was changed.');
   }
   if (response.ok) return;
   let detail = '';
@@ -76,7 +76,7 @@ export async function saveAgentToolSetting(
   } catch {
     // No JSON body: the status line below is all there is.
   }
-  throw new Error(detail || `Plannotator answered ${response.status}. Nothing was changed.`);
+  throw new Error(detail || `ReviewTrail answered ${response.status}. Nothing was changed.`);
 }
 
 const HOST_NAMES: Record<AgentToolHost, string> = {

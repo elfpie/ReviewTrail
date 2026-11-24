@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCount, plural } from '@plannotator/ui/utils/countFormat';
+import { formatCount, plural } from '@reviewtrail/ui/utils/countFormat';
 
 export const HeaderTotals: React.FC<{ files: ReadonlyArray<{ additions: number; deletions: number }> }> = ({ files }) => {
   const additions = files.reduce((sum, file) => sum + file.additions, 0);

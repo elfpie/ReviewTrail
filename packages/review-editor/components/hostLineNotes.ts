@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { DiffLineAnnotation } from '@pierre/diffs';
-import type { CodeAnnotationType, DiffAnnotationMetadata } from '@plannotator/ui/types';
+import type { CodeAnnotationType, DiffAnnotationMetadata } from '@reviewtrail/ui/types';
 
 /**
  * Something the host draws itself under a line of the diff (the Inbox's PR page: other people's threads from the

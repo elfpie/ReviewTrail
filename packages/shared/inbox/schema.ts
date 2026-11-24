@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox store: the on-disk layout and the line reader.
+ * ReviewTrail Inbox store: the on-disk layout and the line reader.
  *
  *   inbox/
  *     inbox.json                       the registry (registry.ts)
@@ -38,7 +38,7 @@
  */
 
 import { join } from "node:path";
-import type { InboxLine, InboxRecordKind } from "@plannotator/core/inbox-types";
+import type { InboxLine, InboxRecordKind } from "@reviewtrail/core/inbox-types";
 
 export const INBOX_DIR_NAME = "inbox";
 export const INBOX_PROJECTS_DIR = "projects";

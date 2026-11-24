@@ -1,12 +1,12 @@
 import { ReviewSidebarTabs, REVIEW_SIDEBAR_BODY_ID } from './ReviewSidebarTabs';
 import { PanelEmptyState } from './PanelEmptyState';
 import React, { useRef, useState } from 'react';
-import { CodeAnnotation, type CodeAnnotationScope, type EditorAnnotation, type Annotation, type CommentAnnotation } from '@plannotator/ui/types';
-import { Button } from '@plannotator/ui/components/ui/button';
-import { DecisionNoteField } from '@plannotator/ui/components/DecisionControl';
-import { useDismissablePopover } from '@plannotator/ui/hooks/useDismissablePopover';
+import { CodeAnnotation, type CodeAnnotationScope, type EditorAnnotation, type Annotation, type CommentAnnotation } from '@reviewtrail/ui/types';
+import { Button } from '@reviewtrail/ui/components/ui/button';
+import { DecisionNoteField } from '@reviewtrail/ui/components/DecisionControl';
+import { useDismissablePopover } from '@reviewtrail/ui/hooks/useDismissablePopover';
 import { CommentMeta } from './CommentMeta';
-import { EditorAnnotationCard } from '@plannotator/ui/components/EditorAnnotationCard';
+import { EditorAnnotationCard } from '@reviewtrail/ui/components/EditorAnnotationCard';
 import { CommentActions } from './CommentActions';
 import { commentCopyText } from '../utils/annotationDisplay';
 import { HighlightedCode } from './HighlightedCode';
@@ -14,18 +14,18 @@ import { fileHighlightLanguage } from '../utils/highlightLanguage';
 import { renderInlineMarkdown } from '../utils/renderInlineMarkdown';
 import { FileNameChip } from './FileNameChip';
 import { AITab } from './AITab';
-import { AgentsTab, type AgentLaunchParams, type AgentLaunchResult } from '@plannotator/ui/components/AgentsTab';
-import type { FindingLike } from '@plannotator/ui/components/AgentsTab';
-import type { PRMetadata } from '@plannotator/shared/pr-types';
-import { OverlayScrollArea } from '@plannotator/ui/components/OverlayScrollArea';
+import { AgentsTab, type AgentLaunchParams, type AgentLaunchResult } from '@reviewtrail/ui/components/AgentsTab';
+import type { FindingLike } from '@reviewtrail/ui/components/AgentsTab';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
+import { OverlayScrollArea } from '@reviewtrail/ui/components/OverlayScrollArea';
 import type { AIChatEntry, PendingPermission } from '../hooks/useAIChat';
-import type { SessionAskAction } from '@plannotator/ui/components/ai/SessionAskNotice';
-import type { AgentJobInfo, AgentCapabilities } from '@plannotator/ui/types';
+import type { SessionAskAction } from '@reviewtrail/ui/components/ai/SessionAskNotice';
+import type { AgentJobInfo, AgentCapabilities } from '@reviewtrail/ui/types';
 import type { DiffFile } from '../types';
-import type { AIProviderOption } from '@plannotator/ui/utils/aiProvider';
-import { copyTextToClipboard } from '@plannotator/ui/utils/clipboard';
-import { useConfigValue } from '@plannotator/ui/config';
-import { isCommentSubmitKey } from '@plannotator/ui/utils/commentSubmitKey';
+import type { AIProviderOption } from '@reviewtrail/ui/utils/aiProvider';
+import { copyTextToClipboard } from '@reviewtrail/ui/utils/clipboard';
+import { useConfigValue } from '@reviewtrail/ui/config';
+import { isCommentSubmitKey } from '@reviewtrail/ui/utils/commentSubmitKey';
 import { artifactAnchorLabel, artifactAnnotationQuote } from '../utils/artifactAnnotations';
 import { isAgentGeneratedFinding } from '../utils/explainFinding';
 
@@ -122,7 +122,7 @@ interface ReviewSidebarProps {
   guideLaunchable?: boolean;
   /** Pass-through to AgentsTab — gates each guide job card's "Open guide"
    *  action on whether that job belongs to the current review context. */
-  canOpenGuideJob?: (job: import('@plannotator/ui/types').AgentJobInfo) => boolean;
+  canOpenGuideJob?: (job: import('@reviewtrail/ui/types').AgentJobInfo) => boolean;
 }
 
 const SuggestionPreview: React.FC<{ code: string; originalCode?: string; language?: string }> = ({ code, originalCode, language }) => {

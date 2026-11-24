@@ -2,7 +2,7 @@
  * The code colours a fence draws in by default must be readable on a code
  * block: every token colour at least 4.5:1 (WCAG AA for text) against the
  * theme's own background and against the default palette's code block
- * (`--muted`, read from themes/plannotator.css) in that mode,
+ * (`--muted`, read from themes/reviewtrail.css) in that mode,
  * in both halves, through the real `@pierre/diffs` highlighter.
  *
  * What regresses if these fail: a light page draws operators, numbers,
@@ -44,14 +44,14 @@ const oklchHex = (value: string): string => {
 };
 
 /**
- * The default palette's `--muted`, read from themes/plannotator.css (dark half,
+ * The default palette's `--muted`, read from themes/reviewtrail.css (dark half,
  * then `.light`). A code block draws `bg-muted/50` over the page, so this is
  * the darkest (light) or lightest (dark) a block can be.
  */
 const CODE_BLOCK: Record<FenceHalf, string> = (() => {
-  const css = readFileSync(join(import.meta.dir, '../themes/plannotator.css'), 'utf8');
+  const css = readFileSync(join(import.meta.dir, '../themes/reviewtrail.css'), 'utf8');
   const muted = [...css.matchAll(/--muted:\s*(oklch\([^)]*\))/g)].map((match) => oklchHex(match[1]!));
-  if (muted.length !== 2) throw new Error('themes/plannotator.css: expected --muted in its dark and light halves');
+  if (muted.length !== 2) throw new Error('themes/reviewtrail.css: expected --muted in its dark and light halves');
   return { dark: muted[0]!, light: muted[1]! };
 })();
 
@@ -81,7 +81,7 @@ const foregrounds = (theme: Theme): string[] =>
 const SAMPLES: Record<string, string> = {
   python: '# a comment\n@dataclass\nclass Point:\n    x: int = 0\n    def norm(self, p=2.5) -> float:\n        return (self.x ** p) ** (1 / p) if self.x else None  # "done"\n',
   typescript: '// a comment\nexport const total = (items: number[]): number => items.reduce((a, b) => a + b, 0);\nconst re = /a+b?/g; let s = `n=${total([1, 2])}\\n`;\nenum Mode { On = 1, Off = 0 }\n',
-  json: '{\n  "name": "plannotator",\n  "version": 1.5,\n  "private": true,\n  "tags": ["a", null]\n}\n',
+  json: '{\n  "name": "reviewtrail",\n  "version": 1.5,\n  "private": true,\n  "tags": ["a", null]\n}\n',
   css: '/* a comment */\n.card:hover > a[href^="http"] {\n  color: #08c0ef;\n  margin: 0 auto !important;\n  --gap: calc(1rem + 2px);\n}\n',
   bash: '#!/usr/bin/env bash\n# a comment\nfor f in "$@"; do\n  echo "file: ${f}" | grep -E \'^a\' && exit 0\ndone\n',
   diff: 'diff --git a/x.ts b/x.ts\n@@ -1,3 +1,3 @@\n-const a = 1;\n+const a = 2;\n context line\n',
@@ -93,7 +93,7 @@ afterEach(() => {
 
 describe('the fences\' default code colours', () => {
   for (const half of ['light', 'dark'] as const) {
-    test(`${half}: every token colour of the theme reads at least 4.5:1 on its background and on Plannotator's code block`, async () => {
+    test(`${half}: every token colour of the theme reads at least 4.5:1 on its background and on ReviewTrail's code block`, async () => {
       // The theme file was read: a light block in light, a dark one in dark.
       expect(half === 'light' ? luminance(CODE_BLOCK[half]) > 0.6 : luminance(CODE_BLOCK[half]) < 0.05).toBe(true);
       const theme = await resolved(FENCE_SYNTAX_THEME[half]);
@@ -125,7 +125,7 @@ describe('the fences\' default code colours', () => {
 
     test(`${half}: a page's fences in python, ts, json, css, bash and diff draw no token under 4.5:1`, async () => {
       // The default palette's fence theme, as every fence resolves it.
-      const name = resolveFenceTheme('plannotator', half);
+      const name = resolveFenceTheme('reviewtrail', half);
       const seen = new Set<string>();
       for (const [lang, code] of Object.entries(SAMPLES)) {
         expect(await ensureHighlight(lang, name)).toBe(true);

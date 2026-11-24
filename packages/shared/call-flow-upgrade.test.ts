@@ -32,20 +32,20 @@ let previousDataDir: string | undefined;
 let previousOverride: string | undefined;
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), "plannotator-call-flow-upgrade-"));
+  root = mkdtempSync(join(tmpdir(), "reviewtrail-call-flow-upgrade-"));
   dataDir = join(root, "data");
   store = join(dataDir, "vendor", "call-flow");
-  previousDataDir = process.env.PLANNOTATOR_DATA_DIR;
-  previousOverride = process.env.PLANNOTATOR_CALLDIFF_PATH;
-  process.env.PLANNOTATOR_DATA_DIR = dataDir;
-  delete process.env.PLANNOTATOR_CALLDIFF_PATH;
+  previousDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+  previousOverride = process.env.REVIEWTRAIL_CALLDIFF_PATH;
+  process.env.REVIEWTRAIL_DATA_DIR = dataDir;
+  delete process.env.REVIEWTRAIL_CALLDIFF_PATH;
 });
 
 afterEach(() => {
-  if (previousDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = previousDataDir;
-  if (previousOverride === undefined) delete process.env.PLANNOTATOR_CALLDIFF_PATH;
-  else process.env.PLANNOTATOR_CALLDIFF_PATH = previousOverride;
+  if (previousDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = previousDataDir;
+  if (previousOverride === undefined) delete process.env.REVIEWTRAIL_CALLDIFF_PATH;
+  else process.env.REVIEWTRAIL_CALLDIFF_PATH = previousOverride;
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -96,8 +96,8 @@ function writeInstalledPack(
   const packageRoot = join(runtimeDir, "grammar-cache", "node_modules", packageName);
   mkdirSync(packageRoot, { recursive: true });
   writeFileSync(join(packageRoot, "package.json"), JSON.stringify({ name: packageName, version }));
-  mkdirSync(join(runtimeDir, "grammar-cache", ".plannotator-locks"), { recursive: true });
-  writeFileSync(join(runtimeDir, "grammar-cache", ".plannotator-locks", `${id}.json`), JSON.stringify(marker));
+  mkdirSync(join(runtimeDir, "grammar-cache", ".reviewtrail-locks"), { recursive: true });
+  writeFileSync(join(runtimeDir, "grammar-cache", ".reviewtrail-locks", `${id}.json`), JSON.stringify(marker));
 }
 
 describe("the Node floor", () => {
@@ -141,7 +141,7 @@ describe("moving between CallDiff pins", () => {
   posixOnly("removes only older managed cores and interrupted-swap backups in its own store", () => {
     const keepNames = [
       `calldiff-${CALLDIFF_VERSION}`,
-      "calldiff-99.0.0", // a newer Plannotator's pin survives a downgrade
+      "calldiff-99.0.0", // a newer ReviewTrail's pin survives a downgrade
       "calldiff-99.0.0.previous-5-6", // and so does its backup
       "calldiff-notes",
       ".calldiff-install-abc123",
@@ -196,11 +196,11 @@ describe("moving between CallDiff pins", () => {
     expect(preserved).toEqual(["python"]);
     const cache = join(candidate, "grammar-cache");
     expect(JSON.parse(readFileSync(join(cache, "node_modules", "tree-sitter-python", "package.json"), "utf8")).version).toBe("0.25.0");
-    expect(JSON.parse(readFileSync(join(cache, ".plannotator-locks", "python.json"), "utf8"))).toEqual(CALL_FLOW_PACK_LOCKS.python);
+    expect(JSON.parse(readFileSync(join(cache, ".reviewtrail-locks", "python.json"), "utf8"))).toEqual(CALL_FLOW_PACK_LOCKS.python);
     // A stale marker is not verified, and a pack that fails to load does not cross.
     expect(existsSync(join(cache, "node_modules", "tree-sitter-go"))).toBe(false);
     expect(existsSync(join(cache, "node_modules", "tree-sitter-ruby"))).toBe(false);
-    expect(existsSync(join(cache, ".plannotator-locks", "ruby.json"))).toBe(false);
+    expect(existsSync(join(cache, ".reviewtrail-locks", "ruby.json"))).toBe(false);
   });
 
   posixOnly("a delete cut short never leaves a half-deleted older core under its own name", () => {

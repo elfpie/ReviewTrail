@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { useFittedText } from '@plannotator/ui/hooks/useFittedText';
-import { fitDirectory as fitDirectoryText, fitStart } from '@plannotator/ui/utils/textFit';
+import { useFittedText } from '@reviewtrail/ui/hooks/useFittedText';
+import { fitDirectory as fitDirectoryText, fitStart } from '@reviewtrail/ui/utils/textFit';
 
 export function fitMiddle(name: string, available: number, width: (text: string) => number): string {
   return fitStart(name, available, width);

@@ -1,1 +1,1 @@
-export * from "@plannotator/core/guide";
+export * from "@reviewtrail/core/guide";

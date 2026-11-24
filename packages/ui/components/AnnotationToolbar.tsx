@@ -197,7 +197,7 @@ export const AnnotationToolbar: React.FC<AnnotationToolbarProps> = ({
   // and its Escape handler, but leaves the flag set — and the flag is what
   // stands the toolbar's own Escape, type-to-comment and outside-dismiss
   // listeners down, wedging the toolbar until the ✕ is clicked. Both flags are
-  // false whenever the props are absent, so Plannotator's toolbar is
+  // false whenever the props are absent, so ReviewTrail's toolbar is
   // unchanged.
   const hasSelectionActions = !!selectionActions && selectionActions.length > 0;
   const selectionActionsOpen = showSelectionActions && hasSelectionActions;

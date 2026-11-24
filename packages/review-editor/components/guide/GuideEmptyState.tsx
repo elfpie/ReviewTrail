@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import type { AgentCapabilities } from '@plannotator/ui/types';
-import { GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from '@plannotator/shared/guide';
-import type { SavedGuideListEntry } from '@plannotator/shared/guide';
-import type { AgentLaunchParams } from '@plannotator/ui/hooks/useAgentJobs';
-import type { ReviewEngine } from '@plannotator/ui/hooks/useAgentSettings';
-import { PI_THINKING, REVIEW_ENGINE_LABEL } from '@plannotator/ui/components/AgentsTab';
+import type { AgentCapabilities } from '@reviewtrail/ui/types';
+import { GUIDE_EXTRA_INSTRUCTIONS_MAX_CHARS } from '@reviewtrail/shared/guide';
+import type { SavedGuideListEntry } from '@reviewtrail/shared/guide';
+import type { AgentLaunchParams } from '@reviewtrail/ui/hooks/useAgentJobs';
+import type { ReviewEngine } from '@reviewtrail/ui/hooks/useAgentSettings';
+import { PI_THINKING, REVIEW_ENGINE_LABEL } from '@reviewtrail/ui/components/AgentsTab';
 // Claude/Codex options come from the same discovered catalogs AgentsTab and
 // Ask AI use (useGuideLaunch → useModelCatalogs).
-import { effortSelectOptions, modelSelectOptions } from '@plannotator/ui/hooks/useModelCatalogs';
-import { ModelSourceHint } from '@plannotator/ui/components/ModelSourceHint';
-import { InlinePicker, type InlinePickerOption as Option } from '@plannotator/ui/components/InlinePicker';
+import { effortSelectOptions, modelSelectOptions } from '@reviewtrail/ui/hooks/useModelCatalogs';
+import { ModelSourceHint } from '@reviewtrail/ui/components/ModelSourceHint';
+import { InlinePicker, type InlinePickerOption as Option } from '@reviewtrail/ui/components/InlinePicker';
 import { useGuideLaunch } from '../../hooks/guide/useGuideLaunch';
 
 /** "2d ago" style age for the previous-guides rows (local convention — same

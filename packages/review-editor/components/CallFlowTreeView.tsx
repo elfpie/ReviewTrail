@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import type { CallFlowNode, CallFlowTree } from '@plannotator/shared/call-flow-types';
+import type { CallFlowNode, CallFlowTree } from '@reviewtrail/shared/call-flow-types';
 import { ChevronRight, Search } from 'lucide-react';
-import { CommentPopover, type CommentTargetChip } from '@plannotator/ui/components/CommentPopover';
-import type { CallFlowAnnotationTarget, SelectedLineRange } from '@plannotator/ui/types';
+import { CommentPopover, type CommentTargetChip } from '@reviewtrail/ui/components/CommentPopover';
+import type { CallFlowAnnotationTarget, SelectedLineRange } from '@reviewtrail/ui/types';
 import {
   computeComposerYield,
   distanceToRect,
   type ComposerYieldState,
-} from '@plannotator/ui/utils/composerYield';
+} from '@reviewtrail/ui/utils/composerYield';
 import { splitCallFlowFilePath, splitCallFlowSignature } from '../utils/callFlowPresentation';
 import { CallFlowSearchControls } from './CallFlowSearchControls';
-import { CodeSnippetPreview } from '@plannotator/ui/components/CodeSnippetPreview';
-import { useHoverPreview } from '@plannotator/ui/hooks/useHoverPreview';
+import { CodeSnippetPreview } from '@reviewtrail/ui/components/CodeSnippetPreview';
+import { useHoverPreview } from '@reviewtrail/ui/hooks/useHoverPreview';
 import type { CallFlowNodeSource, CallFlowNodeSourceLoader } from '../hooks/useCallFlowNodeSource';
 
 /** Lines shown above and below a Call Flow step in its source hover preview. */

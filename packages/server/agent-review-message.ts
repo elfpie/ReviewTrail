@@ -1,17 +1,17 @@
 import type { DiffType } from "./vcs";
 import { getPRPlatformCapabilities, type PRMetadata } from "./pr";
-import type { WorkspaceReviewPromptContext } from "@plannotator/shared/review-workspace";
+import type { WorkspaceReviewPromptContext } from "@reviewtrail/shared/review-workspace";
 import {
   buildWorkspacePromptContextLines,
   getLocalDiffInstruction,
-} from "@plannotator/shared/review-prompt";
+} from "@reviewtrail/shared/review-prompt";
 
-export type { WorkspaceReviewPromptContext } from "@plannotator/shared/review-workspace";
+export type { WorkspaceReviewPromptContext } from "@reviewtrail/shared/review-workspace";
 
-// Moved to @plannotator/core/review-prompt (browser-safe); re-exported so
+// Moved to @reviewtrail/core/review-prompt (browser-safe); re-exported so
 // every existing importer of this module keeps working unchanged.
 export { buildWorkspacePromptContextLines, getLocalDiffInstruction };
-export type { LocalDiffInstruction } from "@plannotator/shared/review-prompt";
+export type { LocalDiffInstruction } from "@reviewtrail/shared/review-prompt";
 
 export interface AgentReviewUserMessageOptions {
   defaultBranch?: string;

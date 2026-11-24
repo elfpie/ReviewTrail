@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { PRReviewSubmissionPartial } from '@plannotator/shared/pr-types';
+import type { PRReviewSubmissionPartial } from '@reviewtrail/shared/pr-types';
 import type {
   ReviewSubmission,
   SubmissionTarget,
@@ -12,7 +12,7 @@ import {
   __resetServerSessionForTests,
   adoptServerSession,
   isServerSessionReplaced,
-} from '@plannotator/ui/utils/serverSession';
+} from '@reviewtrail/ui/utils/serverSession';
 import {
   buildReviewSubmissionRecovery,
   loadReviewSubmissionRecovery,

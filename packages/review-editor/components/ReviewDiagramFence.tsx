@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import type { Block } from '@plannotator/ui/types';
-import { isGraphvizLanguage, isMermaidLanguage } from '@plannotator/ui/components/diagramLanguages';
+import type { Block } from '@reviewtrail/ui/types';
+import { isGraphvizLanguage, isMermaidLanguage } from '@reviewtrail/ui/components/diagramLanguages';
 import { loadDiagramEngine, peekDiagramEngine, type DiagramEngineImporter } from '../utils/diagramEngine';
 import type { DiagramEngineKind, DiagramEngineModule, DiagramEngineUrls } from '../utils/diagramEngineContract';
 
@@ -35,7 +35,7 @@ function useDiagramEngine(urls: DiagramEngineUrls, importer?: DiagramEngineImpor
       (engine) => live && setState({ status: 'ready', engine }),
       (error: unknown) => {
         if (!live) return;
-        console.warn('[plannotator] The diagram renderer did not load; showing diagram sources as code.', error);
+        console.warn('[reviewtrail] The diagram renderer did not load; showing diagram sources as code.', error);
         setState({ status: 'failed' });
       },
     );

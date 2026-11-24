@@ -3,11 +3,11 @@
  *
  * A custom review is a curated Agent Skill. This loader discovers skills in the
  * user's *global* skill roots, filters them to the ones the user explicitly
- * curated in `${PLANNOTATOR_DATA_DIR}/review-skills.json`, and maps each into a
+ * curated in `${REVIEWTRAIL_DATA_DIR}/review-skills.json`, and maps each into a
  * ResolvedReviewProfile whose `instructions` is the skill's SKILL.md body.
  *
  * Server-side (node:fs). Vendored to Pi. The runtime-agnostic prompt-composition
- * spine lives in @plannotator/shared/review-profiles; this file only does disk
+ * spine lives in @reviewtrail/shared/review-profiles; this file only does disk
  * I/O + curation, then hands a ResolvedReviewProfile to that composer.
  *
  * Trust model (v1): global, user-owned roots only (`~/.claude/skills`,
@@ -34,11 +34,11 @@ import {
 } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join, sep } from "node:path";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
 import {
   BUILTIN_DEFAULT_PROFILE,
   type ResolvedReviewProfile,
-} from "@plannotator/shared/review-profiles";
+} from "@reviewtrail/shared/review-profiles";
 
 /**
  * The longest SKILL.md body put in the review prompt itself. Codex, Cursor,
@@ -73,7 +73,7 @@ export interface DiscoveredSkill {
 
 /**
  * True when `dir` (already resolved) sits inside a temp folder. A test run
- * (PLANNOTATOR_TEST_SANDBOX) reads only such folders, so a test that left HOME
+ * (REVIEWTRAIL_TEST_SANDBOX) reads only such folders, so a test that left HOME
  * or CLAUDE_CONFIG_DIR alone never reads the person's real skills, while a test
  * that seeds skills under a scratch home still finds them. Like
  * `agentHomeAllowed` in inbox-agents.ts, which this file cannot import: it is
@@ -132,7 +132,7 @@ export function resolveGlobalSkillRoots(): Array<{ dir: string; root: SkillRoot 
       // non-existent root still dedupes against an identical literal.
       key = candidate.dir;
     }
-    if (process.env.PLANNOTATOR_TEST_SANDBOX && !isScratchDir(key)) continue;
+    if (process.env.REVIEWTRAIL_TEST_SANDBOX && !isScratchDir(key)) continue;
     if (seen.has(key)) continue;
     seen.add(key);
     roots.push(candidate);
@@ -160,7 +160,7 @@ function listSubdirs(dir: string): string[] {
     entries = readdirSync(dir, { withFileTypes: true });
   } catch (err) {
     console.error(
-      `[plannotator] Could not read skill root ${dir}: ${
+      `[reviewtrail] Could not read skill root ${dir}: ${
         err instanceof Error ? err.message : String(err)
       }`,
     );
@@ -295,7 +295,7 @@ function skillFilesPointerLine(skillDir: string): string {
 
 /**
  * Discovery bound for the reference catalog, mirroring the bounded-discovery
- * precedent of PLANNOTATOR_FILE_BROWSER_MAX_FILES: the picker never grows
+ * precedent of REVIEWTRAIL_FILE_BROWSER_MAX_FILES: the picker never grows
  * past this many skills, however large the roots are.
  */
 export const MAX_REFERENCE_SKILLS = 500;
@@ -552,7 +552,7 @@ export function readReferenceSkillContent(name: string): ReferenceSkillContent |
 
   const head = readFileHead(skill.skillMdPath, SKILL_CONTENT_HEAD_BYTES);
   if (head === null) {
-    console.error(`[plannotator] Could not read skill "${name}" for reference injection.`);
+    console.error(`[reviewtrail] Could not read skill "${name}" for reference injection.`);
     return null;
   }
 
@@ -604,7 +604,7 @@ export function readReferenceSkillContent(name: string): ReferenceSkillContent |
  * Returns the set of enabled names, or `null` when there is no valid curation.
  */
 export function readCuratedSkillNames(): Set<string> | null {
-  const path = join(getPlannotatorDataDir(), "review-skills.json");
+  const path = join(getReviewTrailDataDir(), "review-skills.json");
   if (!existsSync(path)) return null;
 
   let parsed: unknown;
@@ -612,7 +612,7 @@ export function readCuratedSkillNames(): Set<string> | null {
     parsed = JSON.parse(readFileSync(path, "utf-8"));
   } catch (err) {
     console.error(
-      `[plannotator] Ignoring malformed review-skills.json: ${
+      `[reviewtrail] Ignoring malformed review-skills.json: ${
         err instanceof Error ? err.message : String(err)
       }`,
     );
@@ -620,17 +620,17 @@ export function readCuratedSkillNames(): Set<string> | null {
   }
 
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    console.error("[plannotator] Ignoring review-skills.json: not an object.");
+    console.error("[reviewtrail] Ignoring review-skills.json: not an object.");
     return null;
   }
   const { version, enabled } = parsed as Record<string, unknown>;
   if (version !== 1) {
-    console.error("[plannotator] Ignoring review-skills.json: version must be 1.");
+    console.error("[reviewtrail] Ignoring review-skills.json: version must be 1.");
     return null;
   }
   if (!Array.isArray(enabled) || !enabled.every((n) => typeof n === "string")) {
     console.error(
-      "[plannotator] Ignoring review-skills.json: `enabled` must be an array of strings.",
+      "[reviewtrail] Ignoring review-skills.json: `enabled` must be an array of strings.",
     );
     return null;
   }
@@ -678,7 +678,7 @@ export function enableReviewSkill(name: string): { enabled: string[] } {
   current.add(name);
   const enabled = [...current];
 
-  const dir = getPlannotatorDataDir();
+  const dir = getReviewTrailDataDir();
   mkdirSync(dir, { recursive: true });
   writeFileSync(
     join(dir, "review-skills.json"),
@@ -706,7 +706,7 @@ export function resolveSkillProfile(skill: DiscoveredSkill): ResolvedReviewProfi
     raw = readFileSync(skill.skillMdPath, "utf-8");
   } catch (err) {
     console.error(
-      `[plannotator] Skipping review skill ${skill.name}: could not read ${
+      `[reviewtrail] Skipping review skill ${skill.name}: could not read ${
         skill.skillMdPath
       }: ${err instanceof Error ? err.message : String(err)}`,
     );
@@ -716,7 +716,7 @@ export function resolveSkillProfile(skill: DiscoveredSkill): ResolvedReviewProfi
   const body = stripFrontmatter(raw);
   if (!body.trim()) {
     console.error(
-      `[plannotator] Skipping review skill ${skill.name}: SKILL.md body is empty.`,
+      `[reviewtrail] Skipping review skill ${skill.name}: SKILL.md body is empty.`,
     );
     return null;
   }
@@ -761,7 +761,7 @@ export function discoverCuratedSkills(): DiscoveredSkill[] {
       curated.push(skill);
     } else {
       console.error(
-        `[plannotator] Curated review skill "${name}" not found in any global skill root; skipping.`,
+        `[reviewtrail] Curated review skill "${name}" not found in any global skill root; skipping.`,
       );
     }
   }

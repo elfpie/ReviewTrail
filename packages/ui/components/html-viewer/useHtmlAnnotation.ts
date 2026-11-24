@@ -20,9 +20,9 @@ import {
   parseHtmlAnchorStructure,
   MAX_ELEMENT_CONTEXT_BYTES,
   MAX_PAGE_URL_LENGTH,
-} from "@plannotator/core/html-anchor";
+} from "@reviewtrail/core/html-anchor";
 
-const PREFIX = "plannotator-bridge-";
+const PREFIX = "reviewtrail-bridge-";
 
 /** Outcome of comparing a bridge `ready` message's stamp with this parent. */
 export interface BridgeProtocolVerdict {
@@ -57,7 +57,7 @@ export function formatBridgeProtocolWarning(
 ): string {
   const reported = verdict.reported === undefined ? "none" : String(verdict.reported);
   const source = bridgeScriptUrl ? `the bridge script at ${bridgeScriptUrl}` : "the bridge script";
-  return `[plannotator] HTML bridge protocol version mismatch: this viewer expects ${verdict.expected}, ${source} reported ${reported}. Serve the bridge-script asset from the same @plannotator/ui version as the viewer.`;
+  return `[reviewtrail] HTML bridge protocol version mismatch: this viewer expects ${verdict.expected}, ${source} reported ${reported}. Serve the bridge-script asset from the same @reviewtrail/ui version as the viewer.`;
 }
 
 // Collision-proof annotation ids. `Date.now()` alone repeats within a millisecond,
@@ -458,7 +458,7 @@ function parseTargetLabel(value: unknown): string | undefined {
 
 // Re-exported so `components/html-viewer` stays the one import site a host
 // needs for the parent trust boundary; the definitions live in
-// `@plannotator/core/html-anchor`, never mirrored here.
+// `@reviewtrail/core/html-anchor`, never mirrored here.
 export {
   parseHtmlElementContext,
   MAX_ELEMENT_CONTEXT_BYTES,

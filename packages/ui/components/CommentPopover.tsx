@@ -121,7 +121,7 @@ interface CommentPopoverProps {
    *  whatever is typed (Shape's box: "Show me", "Add to reply"). Absent or empty → nothing drawn. */
   extraActions?: readonly { label: string; onSelect: (text: string) => void; /** It takes the words for good: the `draftKey` draft is cleared, as a submit clears it. */ spends?: boolean }[];
   /**
-   * False: always the popover as before, even where the host turned the comment card on (`configurePlannotatorUI({
+   * False: always the popover as before, even where the host turned the comment card on (`configureReviewTrailUI({
    * commentCard })`): a surface with its own footer order (Shape's board: Ask, Change it, Show me). Absent or true:
    * the host's choice, as always.
    */
@@ -281,7 +281,7 @@ export function computeCommentPopoverPosition(
   };
 }
 
-/** Where the comment card goes (`configurePlannotatorUI({ commentCard })`): `docked` at the foot of the pane, or by the
+/** Where the comment card goes (`configureReviewTrailUI({ commentCard })`): `docked` at the foot of the pane, or by the
  *  words, under them (`above` false) or over them. */
 export interface CommentCardGeometry { docked: boolean; above: boolean; style: React.CSSProperties }
 
@@ -456,7 +456,7 @@ export const CommentPopover: React.FC<CommentPopoverProps> = ({
     bounds: visibleBounds,
     coarsePointer,
   });
-  // The comment card (opt-in, `configurePlannotatorUI({ commentCard })`): read once, so a box never changes look open.
+  // The comment card (opt-in, `configureReviewTrailUI({ commentCard })`): read once, so a box never changes look open.
   const [card] = useState(() => allowCard && getCommentCardEnabled());
   const CardTools = useContext(CommentCardToolsContext);
   const [toolsBusy, setToolsBusy] = useState(false);
@@ -913,7 +913,7 @@ export const CommentPopover: React.FC<CommentPopoverProps> = ({
       : `${skillListboxId}-option-${skillAc.menu.activeIndex}`;
   // At most one of the two menus can be open (their triggers are disjoint), so
   // the textarea's ARIA relationship points at whichever one is. All three are
-  // `undefined`/false with no menu open, which is every render Plannotator
+  // `undefined`/false with no menu open, which is every render ReviewTrail
   // makes without a `mentionSource`.
   const activeMentionOptionId = mentionActiveOptionId(mentionListboxId, mentionAc.menu);
   const composerListboxId = mentionAc.menu !== null ? mentionListboxId : skillListboxId;

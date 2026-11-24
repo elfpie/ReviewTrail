@@ -56,9 +56,9 @@ import {
   type ForgeRefChecks,
   type ForgeRefLinked,
   type ForgeRefPerson,
-} from "@plannotator/core/forge-ref-card";
-import type { ProblemDiag } from "@plannotator/core/problem";
-import { cardErrorOfToolState, toolProblem, type ToolState } from "@plannotator/core/problem-words";
+} from "@reviewtrail/core/forge-ref-card";
+import type { ProblemDiag } from "@reviewtrail/core/problem";
+import { cardErrorOfToolState, toolProblem, type ToolState } from "@reviewtrail/core/problem-words";
 import { ghTokenEnvVar, parseGhAuthStatusJson, parseGhAuthStatusText } from "./pr-github-account";
 import { isSameOriginOrNoOrigin } from "./request-origin";
 import { createToolStatus, tokenEnvFor, toolDiagOf, toolStateOfRun, type ToolStatus } from "./tool-state";

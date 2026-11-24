@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mapQwenLine } from "./qwen-events.ts";
 
-const SID = "plannotator-session";
+const SID = "reviewtrail-session";
 
 describe("mapQwenLine", () => {
 	test("text deltas stream; thinking and tool-input deltas do not", () => {
@@ -58,7 +58,7 @@ describe("mapQwenLine", () => {
 		]);
 	});
 
-	test("a result line ends the answer under the Plannotator session id; an error result is not a success", () => {
+	test("a result line ends the answer under the ReviewTrail session id; an error result is not a success", () => {
 		expect(mapQwenLine({ type: "result", subtype: "success", session_id: "qwen-id", is_error: false, result: "pong", num_turns: 2 }, SID)).toEqual([
 			{ type: "result", sessionId: SID, success: true, result: "pong", turns: 2 },
 		]);

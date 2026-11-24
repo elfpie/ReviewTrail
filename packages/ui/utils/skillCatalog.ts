@@ -6,8 +6,8 @@
  * from disk via the server.
  *
  * The transport is a host seam (see packages/ui/CLAUDE.md): hosts embedding
- * `@plannotator/ui` with their own backend install a replacement via
- * `setSkillCatalogTransport` / `configurePlannotatorUI({ skillCatalogTransport })`.
+ * `@reviewtrail/ui` with their own backend install a replacement via
+ * `setSkillCatalogTransport` / `configureReviewTrailUI({ skillCatalogTransport })`.
  * The default reproduces today's behavior byte-for-byte.
  *
  * Never throws and never rejects: any failure (endpoint missing on a host,
@@ -42,7 +42,7 @@ function normalizeEntry(raw: unknown): SkillCatalogEntry | null {
   const { name, root, description, humanOnly, dir } = raw as Record<string, unknown>;
   if (typeof name !== 'string' || !name) return null;
   const rootId: SkillRootId =
-    root === 'claude' || root === 'codex' || root === 'universal' || root === 'plannotator' ? root : 'universal';
+    root === 'claude' || root === 'codex' || root === 'universal' || root === 'reviewtrail' ? root : 'universal';
   return {
     name,
     root: rootId,
@@ -82,9 +82,9 @@ async function requestCatalog(): Promise<SkillCatalogEntry[]> {
 }
 
 // Whether a fetched catalog is registered for the per-comment feedback export
-// (skillReferenceExportBlock). Default on: Plannotator's exporters list each
+// (skillReferenceExportBlock). Default on: ReviewTrail's exporters list each
 // comment's references. A host that composes ONE block per message itself
-// (the Plannotator Inbox) turns it off, so a comment's `$name` stays plain
+// (the ReviewTrail Inbox) turns it off, so a comment's `$name` stays plain
 // text in its export instead of carrying a second "Skills referenced" list.
 let exportRegistration = true;
 

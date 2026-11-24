@@ -1,13 +1,13 @@
 /**
- * Plannotator Config
+ * ReviewTrail Config
  *
- * Reads/writes ~/.plannotator/config.json for persistent user settings.
+ * Reads/writes ~/.reviewtrail/config.json for persistent user settings.
  * Runtime-agnostic: uses only node:fs, node:os, node:child_process.
  */
 
 import { childEnv } from "./child-env";
 import { isAbsolute, join, resolve } from "path";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 import {
   readFileSync,
   writeFileSync,
@@ -25,13 +25,13 @@ import {
 } from "fs";
 import { execSync } from "child_process";
 
-import type { DefaultDiffType, DiffLineBgIntensity, DiffOptions, JjDefaultDiffType, ReviewDefaults, ThemeConfig } from '@plannotator/core/config-types';
+import type { DefaultDiffType, DiffLineBgIntensity, DiffOptions, JjDefaultDiffType, ReviewDefaults, ThemeConfig } from '@reviewtrail/core/config-types';
 import { isFaviconStyle, type FaviconStyle } from './favicon';
 import { isAnnotateAgentTerminalSide, type AnnotateAgentTerminalSide } from './agent-terminal';
 import { parseAgentSwitchConfig, agentSwitchConfigValue, type AgentSwitchConfigValue } from './agent-switch';
 import { isLocalhostSubdomain } from './loopback-host';
 import { INBOX_TOOL_NAME, inboxReminderCustomText, inboxReminderFor, inboxReminderRulesText } from './inbox/connection';
-import { parseAnnotateView, type AnnotateView } from '@plannotator/core/config-types';
+import { parseAnnotateView, type AnnotateView } from '@reviewtrail/core/config-types';
 export type { DefaultDiffType, DiffLineBgIntensity, DiffOptions, JjDefaultDiffType, ReviewDefaults, ThemeConfig, FaviconStyle };
 
 /** Single conventional comment label entry stored in config.json */
@@ -84,7 +84,7 @@ export interface PromptConfig {
     approvedWithNotes?: string;
   };
   /**
-   * The Plannotator Inbox's reminder at session start (approval
+   * The ReviewTrail Inbox's reminder at session start (approval
    * "inbox-prompts-page", #2194): `reminder` for every host, and
    * `runtimes.<claude-code|pi|opencode>.reminder` for one host, which wins.
    * Set, it REPLACES the built-in line (INBOX_REMINDER_TEXT /
@@ -167,7 +167,7 @@ function mergeInboxPromptConfig(current: unknown, partial: unknown): PromptConfi
   return withoutUndefined(merged) as PromptConfig["inbox"];
 }
 
-export interface PlannotatorConfig {
+export interface ReviewTrailConfig {
   displayName?: string;
   diffOptions?: DiffOptions;
   /** Saved review defaults for a VCS other than Git (today: `jj`). Unknown keys are kept. */
@@ -196,7 +196,7 @@ export interface PlannotatorConfig {
    * annotate session runs on its own random port — a cookie alone would make
    * the choice per-session rather than per-user.
    *
-   * Typed from @plannotator/core rather than restating the union, so this
+   * Typed from @reviewtrail/core rather than restating the union, so this
    * field and `isAgentTerminalSide` cannot disagree with the client-side
    * placement logic about which sides exist.
    */
@@ -213,7 +213,7 @@ export interface PlannotatorConfig {
    * `{ "switchTo": "custom", "customName": "<name>" }` (#1390). Written by
    * the UI through POST /api/config, because some webviews (Glimpse) keep no
    * cookies between runs. Unset: the surface's default (plan approval switches
-   * to "build", review feedback stays). See `@plannotator/core/agent-switch`.
+   * to "build", review feedback stays). See `@reviewtrail/core/agent-switch`.
    */
   agentSwitch?: AgentSwitchConfigValue;
   /**
@@ -231,18 +231,18 @@ export interface PlannotatorConfig {
    * integration even when the agent is detected, reports the detected state
    * honestly ("detected, skipped"), and never removes an integration a
    * previous install already wired. Overridden by the
-   * PLANNOTATOR_SKIP_CODEX_INSTALL / PLANNOTATOR_SKIP_GEMINI_INSTALL /
-   * PLANNOTATOR_SKIP_KIRO_INSTALL / PLANNOTATOR_SKIP_VIBE_INSTALL /
-   * PLANNOTATOR_SKIP_OPENCODE_INSTALL / PLANNOTATOR_SKIP_QWEN_INSTALL env
+   * REVIEWTRAIL_SKIP_CODEX_INSTALL / REVIEWTRAIL_SKIP_GEMINI_INSTALL /
+   * REVIEWTRAIL_SKIP_KIRO_INSTALL / REVIEWTRAIL_SKIP_VIBE_INSTALL /
+   * REVIEWTRAIL_SKIP_OPENCODE_INSTALL / REVIEWTRAIL_SKIP_QWEN_INSTALL env
    * vars, which are in turn overridden by the --skip-codex / --skip-gemini /
    * --skip-kiro / --skip-vibe / --skip-opencode / --skip-qwen flags.
    * OpenCode has no detection leg, so its entry is a plain do-not-write
    * switch. `skills` skips the skills/slash-command
-   * checkout for every scope (PLANNOTATOR_SKIP_SKILLS_INSTALL / --skip-skills).
+   * checkout for every scope (REVIEWTRAIL_SKIP_SKILLS_INSTALL / --skip-skills).
    * `claudePlugin` stops the installers from updating an already-installed
-   * Claude Code plugin (`claude plugin marketplace update plannotator` +
-   * `claude plugin update plannotator@plannotator`);
-   * PLANNOTATOR_SKIP_CLAUDE_PLUGIN_UPDATE / --skip-claude-plugin
+   * Claude Code plugin (`claude plugin marketplace update reviewtrail` +
+   * `claude plugin update reviewtrail@reviewtrail`);
+   * REVIEWTRAIL_SKIP_CLAUDE_PLUGIN_UPDATE / --skip-claude-plugin
    * (-SkipClaudePlugin). Default: all off.
    */
   skipInstall?: {
@@ -257,7 +257,7 @@ export interface PlannotatorConfig {
   };
   /**
    * Enable Jina Reader for URL-to-markdown conversion during annotation.
-   * When true (default), `plannotator annotate <url>` routes through
+   * When true (default), `reviewtrail annotate <url>` routes through
    * r.jina.ai for better JS-rendered page support and reader-mode extraction.
    * Set to false to always use plain fetch + Turndown.
    */
@@ -266,7 +266,7 @@ export interface PlannotatorConfig {
    * Save per-file version history when annotating local files. Powers the
    * annotate version diff ("what changed since I last looked"). NOTE: this
    * writes a copy of each annotated file's content under
-   * ~/.plannotator/history/ (or PLANNOTATOR_DATA_DIR). Set to false to keep
+   * ~/.reviewtrail/history/ (or REVIEWTRAIL_DATA_DIR). Set to false to keep
    * annotate sessions fully stateless. Default: true.
    */
   annotateHistory?: boolean;
@@ -279,8 +279,8 @@ export interface PlannotatorConfig {
    */
   annotateView?: AnnotateView;
   /**
-   * Durably archive every submitted review under ~/.plannotator/feedback/
-   * (or PLANNOTATOR_DATA_DIR): one append-only JSONL record per submission
+   * Durably archive every submitted review under ~/.reviewtrail/feedback/
+   * (or REVIEWTRAIL_DATA_DIR): one append-only JSONL record per submission
    * plus a markdown sidecar for the ones that carry content. NOTE: this
    * writes the user's own feedback text and the document/code excerpts it
    * quotes to disk, and nothing prunes the directory. Set to false to never
@@ -300,51 +300,51 @@ export interface PlannotatorConfig {
   markdownExtensions?: string[];
   /**
    * Persist successful Guided Reviews (guide content + per-section reviewed
-   * state) under ~/.plannotator/guides/ (or PLANNOTATOR_DATA_DIR) so they
-   * survive closing Plannotator. Set to false to disable writes; already-saved
+   * state) under ~/.reviewtrail/guides/ (or REVIEWTRAIL_DATA_DIR) so they
+   * survive closing ReviewTrail. Set to false to disable writes; already-saved
    * guides remain readable and listed. Default: true.
    */
   guideHistory?: boolean;
   /**
    * Remember which files a code review marked viewed, across review sessions,
-   * under ~/.plannotator/review-progress/ (or PLANNOTATOR_DATA_DIR). Records
+   * under ~/.reviewtrail/review-progress/ (or REVIEWTRAIL_DATA_DIR). Records
    * carry repo file paths in plain text and nothing prunes them. Set to false
    * to never read or write them; viewed marks then ride the annotation draft,
    * as they do for review modes without a durable identity. Default: true.
    */
   reviewProgress?: boolean;
   /**
-   * Opt-in background auto-update for the compiled `plannotator` binary.
+   * Opt-in background auto-update for the compiled `reviewtrail` binary.
    * When true, a session started by the CLI checks GitHub for a newer stable
    * release at most once per 24h and, when no other review session is open,
    * runs the normal install script for that exact tag in a detached process
-   * (output in update.log in the data dir). PLANNOTATOR_AUTO_UPDATE wins over
+   * (output in update.log in the data dir). REVIEWTRAIL_AUTO_UPDATE wins over
    * this key. Default: false.
    */
   autoUpdate?: boolean;
   /**
-   * Update notices: whether Plannotator asks GitHub (every few minutes per machine,
+   * Update notices: whether ReviewTrail asks GitHub (every few minutes per machine,
    * from the machine, never the browser) whether a newer stable release
    * exists, and tells you in the Inbox, the review windows and the terminal.
    * `false` makes no automatic request at all, which also stops auto-update;
-   * `plannotator update` and the Inbox's Check now still ask when you run them.
-   * PLANNOTATOR_UPDATE_CHECK wins over this key. Default: true.
+   * `reviewtrail update` and the Inbox's Check now still ask when you run them.
+   * REVIEWTRAIL_UPDATE_CHECK wins over this key. Default: true.
    */
   updateCheck?: boolean;
   /**
    * The Claude Code mod (apps/hook/hooks/mod/): non-blocking plan review,
    * annotate, code review and annotate-last, plus "Ask this session", where
    * Claude Code runs hooks modules. On by default; `false` turns it off.
-   * PLANNOTATOR_CLAUDE_MOD wins over this key. Default: true.
+   * REVIEWTRAIL_CLAUDE_MOD wins over this key. Default: true.
    */
   claudeCodeMod?: boolean;
   /**
-   * The `plannotator` agent tool (packages/shared/plannotator-tool.ts) on the
+   * The `reviewtrail` agent tool (packages/shared/reviewtrail-tool.ts) on the
    * hosts that register it: the Claude Code mod, Pi (and the Pi extension in
    * Oh My Pi), OpenCode 2 and DeepSeek Harness. `true` puts it in the agent's
    * tool list, `false` keeps it out (the slash commands are unchanged either
    * way). Read once when a session starts, so a change applies to the next
-   * session. PLANNOTATOR_AGENT_TOOL wins over this key. Unset: the host's
+   * session. REVIEWTRAIL_AGENT_TOOL wins over this key. Unset: the host's
    * default, AGENT_TOOL_DEFAULTS (on for the Claude Code mod and Oh My Pi, off
    * on Pi, OpenCode 2 and DeepSeek Harness).
    */
@@ -352,46 +352,46 @@ export interface PlannotatorConfig {
   /**
    * Plan review of Claude Code's ExitPlanMode (Claude Code only: Pi and
    * OpenCode have no such hook). `false` leaves plan approval to Claude
-   * Code's own dialog. The rest of Plannotator is unchanged.
-   * PLANNOTATOR_PLAN_REVIEW wins over this key. Default: true.
+   * Code's own dialog. The rest of ReviewTrail is unchanged.
+   * REVIEWTRAIL_PLAN_REVIEW wins over this key. Default: true.
    */
   planReview?: boolean;
   /**
-   * Pi only: when the Plannotator extension on disk is newer than the one this
+   * Pi only: when the ReviewTrail extension on disk is newer than the one this
    * Pi loaded, Pi reloads itself once the session is quiet (no run, no open
    * review, question or dialog, nothing typed for a while, an empty editor).
    * `false` turns it off: Pi then shows the one-line note with `/reload`.
-   * PLANNOTATOR_AUTO_RELOAD wins over this key. Unset: AUTO_RELOAD_DEFAULT.
+   * REVIEWTRAIL_AUTO_RELOAD wins over this key. Unset: AUTO_RELOAD_DEFAULT.
    */
   autoReload?: boolean;
   /**
-   * The Plannotator Inbox's `plannotator_inbox` tool on the hosts that will
+   * The ReviewTrail Inbox's `reviewtrail_inbox` tool on the hosts that will
    * register it (the Claude Code mod, Pi, OpenCode 2), set from the Inbox's
    * own Settings: `true` / `false` for every host, or one boolean per host
    * (`{ "claude-code": true, "pi": false }`). Read once when a session starts,
-   * so a change applies to the next session. PLANNOTATOR_INBOX_TOOL wins over
+   * so a change applies to the next session. REVIEWTRAIL_INBOX_TOOL wins over
    * this key. Unset (or a host left out): INBOX_TOOL_DEFAULTS.
    */
   inboxTool?: boolean | Partial<Record<InboxToolHost, boolean>>;
   /**
-   * The Plannotator Inbox's one-line reminder at session start
-   * (INBOX_REMINDER_TEXT), on the hosts that register `plannotator_inbox`
+   * The ReviewTrail Inbox's one-line reminder at session start
+   * (INBOX_REMINDER_TEXT), on the hosts that register `reviewtrail_inbox`
    * (the Claude Code mod, Pi, OpenCode), set in this file or by the Inbox's Settings → Agents: `true` / `false`
    * for every host, or one boolean per host. It only ever applies where that
    * session has the Inbox tool and the Inbox has run on this computer
    * (`inbox/inbox.json` exists at session start), so the tool switch
-   * (PLANNOTATOR_INBOX_TOOL, `inboxTool`) turns it off too; there is no env
+   * (REVIEWTRAIL_INBOX_TOOL, `inboxTool`) turns it off too; there is no env
    * var of its own. Read once when a session starts. Unset (or a host left
    * out): on wherever the tool is on.
    */
   inboxReminder?: boolean | Partial<Record<InboxToolHost, boolean>>;
   /**
-   * The Plannotator Inbox's debug log (`inbox/debug.log` in the data dir), as
-   * `PLANNOTATOR_INBOX_DEBUG=1`. Config-only, read when the Inbox starts.
+   * The ReviewTrail Inbox's debug log (`inbox/debug.log` in the data dir), as
+   * `REVIEWTRAIL_INBOX_DEBUG=1`. Config-only, read when the Inbox starts.
    */
   inboxDebug?: boolean;
   /**
-   * The Plannotator Inbox's browser notifications, set from the Inbox page
+   * The ReviewTrail Inbox's browser notifications, set from the Inbox page
    * (its one-time ask and its Settings), kept here rather than in the page's
    * localStorage so they survive the Inbox moving to another port (another
    * origin). `enabled`: notify at all (unset: on). `dismissed`: the person answered the ask with "Not now". `allowedOrigin`:
@@ -404,7 +404,7 @@ export interface PlannotatorConfig {
     allowedOrigin?: string | null;
   };
   /**
-   * The Plannotator Inbox's sound ("Ding-dong"), set from the Inbox
+   * The ReviewTrail Inbox's sound ("Ding-dong"), set from the Inbox
    * page (its Settings row and its one-time dialog), kept here for the same
    * reason as `inboxNotifications`: the Inbox's port, and so its origin, can
    * change. `enabled`: ring at all (unset: on). `volume`: 10 to 100 (unset:
@@ -416,7 +416,7 @@ export interface PlannotatorConfig {
    * only; the claim is a compare-and-set, so only one tab ever shows it.
    */
   /**
-   * The Plannotator Inbox window's text size: the body size in px (12, 13,
+   * The ReviewTrail Inbox window's text size: the body size in px (12, 13,
    * 14 or 15) its whole type ramp scales from. Unset: 14. Written by the
    * Inbox's Settings → General → Appearance through POST /api/inbox/settings
    * `{ text_size }`.
@@ -454,7 +454,7 @@ export interface PlannotatorConfig {
   inboxRowsDefaults?: number;
   /**
    * The look before the last save of `inboxRows` (null: none was saved before it), so the last change can be undone
-   * (`plannotator inbox rows undo`, the Rows page's Undo after an agent's change). Written with every save.
+   * (`reviewtrail inbox rows undo`, the Rows page's Undo after an agent's change). Written with every save.
    */
   inboxRowsPrev?: string[] | null;
   /** Who made the last save of `inboxRows`, when an agent's command did (`{ host, session }`); null for the person's own. */
@@ -480,7 +480,7 @@ export interface PlannotatorConfig {
    * Experimental features, each off unless switched on (owner, approval
    * "inbox-decision-mode": experimental features ship off by default behind a
    * flag the person turns on). Read through `resolveExperimental`;
-   * PLANNOTATOR_EXPERIMENTAL wins over this key. Written by the Inbox's
+   * REVIEWTRAIL_EXPERIMENTAL wins over this key. Written by the Inbox's
    * Settings → Capabilities → Experimental through POST /api/inbox/settings
    * `{ experimental: { decision_mode } }`.
    */
@@ -601,7 +601,7 @@ export interface PlannotatorConfig {
    * 2026-11-03): something the person turns on, off by default. On: the
    * review skills in the reply box's "/" list, the review card and its
    * full-window review with Approve / Send feedback, and submit_guide's
-   * `review` field. Off: none of it; guided reviews and `plannotator review`
+   * `review` field. Off: none of it; guided reviews and `reviewtrail`
    * stay as they are. Three readings, like the Board's: unset = not decided
    * yet (off), `true` = on, `false` = the person switched it off. Written by
    * the Inbox's Settings → Capabilities (`POST /api/inbox/settings`
@@ -636,8 +636,8 @@ export interface PlannotatorConfig {
   inboxShape?: boolean;
   /**
    * Plans in the Inbox (packages/shared/plans/switch.ts): the plan library of every plan plan review handled. Off
-   * unless the person turns it on (`plannotator plans`, or `POST /api/inbox/settings` `{ plans: { on } }` from the
-   * window); `plannotator plans off` turns it off and keeps the library. Off: no `/api/plans` route, no import and
+   * unless the person turns it on (`reviewtrail plans`, or `POST /api/inbox/settings` `{ plans: { on } }` from the
+   * window); `reviewtrail plans off` turns it off and keeps the library. Off: no `/api/plans` route, no import and
    * no read of the library. Read on every request.
    */
   inboxPlans?: boolean;
@@ -646,13 +646,13 @@ export interface PlannotatorConfig {
   /**
    * Share this space (packages/shared/spaces/): the Share button on a plan's page in the Inbox, which puts a copy of
    * the plan in a hosted space. Off unless set to `true` here (config only: no Settings row, no command); it also
-   * needs `inboxPlans`, and `PLANNOTATOR_SHARE=disabled` (or `share: "disabled"`) turns it off with every other
+   * needs `inboxPlans`, and `REVIEWTRAIL_SHARE=disabled` (or `share: "disabled"`) turns it off with every other
    * share. Off: no share route, no button, no call to any host.
    */
   inboxSpaceShare?: boolean;
   /**
    * The Spaces origin a plan is shared to (`resolveSpacesUrl` in packages/shared/spaces/url.ts). Overridden by the
-   * PLANNOTATOR_SPACES_URL env var. `https`, or `http` on this computer only.
+   * REVIEWTRAIL_SPACES_URL env var. `https`, or `http` on this computer only.
    */
   spacesUrl?: string;
   /**
@@ -678,7 +678,7 @@ export interface PlannotatorConfig {
    * Who the one-time "themes" dialog is for (approval "inbox-theme-chooser";
    * packages/shared/inbox/theme-chooser.ts). Written only by the Inbox server,
    * at the first release start of the version that ships the dialog: `dueAt`
-   * for someone on the default theme (Plannotator Original on both halves),
+   * for someone on the default theme (ReviewTrail Original on both halves),
    * `notNeededAt` for anyone on another theme, then or later (final). Its
    * claim is the line's (`inboxReveals.theme_chooser`).
    */
@@ -758,9 +758,9 @@ export interface PlannotatorConfig {
     dialogShownFor?: string;
   };
   /**
-   * The Plannotator Inbox's note in each agent's own instructions file
+   * The ReviewTrail Inbox's note in each agent's own instructions file
    * (packages/server/inbox-agent-notes.ts). `offered`: the window's question
-   * was answered at least once, or `plannotator inbox --notes` added a note;
+   * was answered at least once, or `reviewtrail inbox --notes` added a note;
    * `asked` names each agent it covered (each agent is asked once). Which
    * notes exist is kept in `inbox/agent-notes.json`, beside the files they are in.
    */
@@ -768,7 +768,7 @@ export interface PlannotatorConfig {
     offered?: boolean;
     /**
      * The agents the window's question was asked about, each once (Add, Not
-     * now, Don't add a note, or `plannotator inbox --notes`). Absent before
+     * now, Don't add a note, or `reviewtrail inbox --notes`). Absent before
      * 0.28.19: `offered` alone then counts for the agents that could take a
      * note when it is first read (notesAsked in inbox-agent-notes.ts).
      * Since the note is written by itself (approval "inbox-agent-note-auto"),
@@ -780,18 +780,18 @@ export interface PlannotatorConfig {
     auto?: { agent: string; path: string }[];
   };
   /**
-   * The Plannotator Inbox's phone surface: pairing, the device door
+   * The ReviewTrail Inbox's phone surface: pairing, the device door
    * (`/api/inbox/device/*`), the tailnet and Wi-Fi listeners, the relay and
    * Settings' Phones block. Hidden until the iPhone app ships, so `true` is
-   * for the app's own development and proofs. PLANNOTATOR_INBOX_PHONES wins
+   * for the app's own development and proofs. REVIEWTRAIL_INBOX_PHONES wins
    * over this key. Read once when the Inbox starts. Default: false.
    */
   inboxPhones?: boolean;
   /**
-   * Publish the Plannotator Inbox over the tailnet (`tailscale serve`, HTTPS,
+   * Publish the ReviewTrail Inbox over the tailnet (`tailscale serve`, HTTPS,
    * never funnel) at every start, for the Tailscale login that owns this
    * machine. Written by the Inbox's Settings ("Over your tailnet");
-   * PLANNOTATOR_INBOX_TAILSCALE wins over this key, and `plannotator inbox
+   * REVIEWTRAIL_INBOX_TAILSCALE wins over this key, and `reviewtrail inbox
    * --tailscale` turns it on for one run. Default: false.
    */
   inboxTailscale?: boolean;
@@ -816,7 +816,7 @@ export interface PlannotatorConfig {
     dnsRecord?: string;
   };
   /**
-   * Exact origins of an app on this computer that may show the Plannotator
+   * Exact origins of an app on this computer that may show the ReviewTrail
    * Inbox window in a frame (#3299), e.g. "app://myapp" or
    * "http://localhost:5173": loopback http(s) (no port means the default port only), or an app scheme.
    * Anything else is dropped (packages/server/inbox-framing.ts). Applies to
@@ -843,14 +843,14 @@ export interface PlannotatorConfig {
    */
   inboxLaunch?: { enabled?: boolean; fullPermissions?: boolean; model?: string; settingsFile?: string; scratchDir?: string; startIn?: "inbox" | "rex" };
   /**
-   * Inject a Plannotator Flavored Markdown reminder into every EnterPlanMode
+   * Inject a ReviewTrail Flavored Markdown reminder into every EnterPlanMode
    * call so the agent is aware it can enrich plans with code-file links,
    * callouts, tables, diagrams, task lists, and the other PFM extensions.
    * Read by the `improve-context` PreToolUse handler. Default: false.
    */
   pfmReminder?: boolean;
   /**
-   * Open Plannotator in a Glimpse native window when available.
+   * Open ReviewTrail in a Glimpse native window when available.
    * When true (default), the server spawns `glimpseui` if it is on PATH,
    * no explicit browser is configured, and the session is local.
    * Set to false to always use the system browser even when Glimpse is installed.
@@ -859,19 +859,19 @@ export interface PlannotatorConfig {
   /**
    * Control URL sharing (Share tab, copy link, short URLs, import review).
    * Defaults to enabled. Set to "disabled" to hide all sharing UI — useful
-   * for teams working with sensitive plans. Mirrors the PLANNOTATOR_SHARE
+   * for teams working with sensitive plans. Mirrors the REVIEWTRAIL_SHARE
    * env var value, which takes precedence over this setting.
    */
   share?: "enabled" | "disabled";
   /**
    * Atlassian account email for Bitbucket Cloud PR review (basic auth with
-   * `bitbucketToken`). Mirrors PLANNOTATOR_BITBUCKET_EMAIL, which takes
+   * `bitbucketToken`). Mirrors REVIEWTRAIL_BITBUCKET_EMAIL, which takes
    * precedence. Omit it to send the token as a Bearer token instead.
    */
   bitbucketEmail?: string;
   /**
    * Atlassian API token (with Bitbucket scopes) for Bitbucket Cloud PR review.
-   * Mirrors PLANNOTATOR_BITBUCKET_TOKEN, which takes precedence. Stored in
+   * Mirrors REVIEWTRAIL_BITBUCKET_TOKEN, which takes precedence. Stored in
    * plain text in config.json, so prefer the env var. Never sent to the
    * browser: getServerConfig() allowlists its keys.
    */
@@ -879,10 +879,10 @@ export interface PlannotatorConfig {
   /**
    * A command that prints the Atlassian API token for Bitbucket Cloud, as an
    * argument list run without a shell, e.g. `["security",
-   * "find-generic-password", "-s", "bitbucket", "-w"]`. Plannotator runs it
+   * "find-generic-password", "-s", "bitbucket", "-w"]`. ReviewTrail runs it
    * only when it is about to call Bitbucket and keeps the token in memory: it
    * never lands in an environment variable, a file or a child process. Pairs
-   * with `bitbucketEmail`. PLANNOTATOR_BITBUCKET_TOKEN still takes precedence;
+   * with `bitbucketEmail`. REVIEWTRAIL_BITBUCKET_TOKEN still takes precedence;
    * this takes precedence over `bitbucketToken`.
    */
   bitbucketTokenCommand?: string[];
@@ -893,13 +893,13 @@ export interface PlannotatorConfig {
    * Cursor's sandbox cannot start (e.g. NixOS / AppArmor-restricted Linux):
    * the flag pair is then OMITTED entirely, deferring to the user's own
    * Cursor Agent sandbox configuration. Mirrors the
-   * PLANNOTATOR_CURSOR_SANDBOX env var, which takes precedence.
+   * REVIEWTRAIL_CURSOR_SANDBOX env var, which takes precedence.
    */
   cursorSandbox?: boolean;
   /**
    * Let Claude Code agent jobs (code review, Guided Review) run
    * under the user's own Claude Code sandbox setting. When true (default),
-   * Plannotator passes nothing sandbox-related and the user's settings decide.
+   * ReviewTrail passes nothing sandbox-related and the user's settings decide.
    * Set to false on systems where Claude Code's sandbox cannot start (Linux
    * without bubblewrap/socat, AppArmor-restricted user namespaces): jobs run
    * with `--permission-mode dontAsk`, so the unsandboxed fallback is refused
@@ -908,7 +908,7 @@ export interface PlannotatorConfig {
    * commands run WITHOUT OS containment, the same as for any user who never
    * enabled Claude's sandbox (the default). The job's command allowlist still
    * limits what the model can run, but it is not a containment boundary.
-   * Managed (enterprise) settings still win. Mirrors the PLANNOTATOR_CLAUDE_SANDBOX env var, which takes precedence.
+   * Managed (enterprise) settings still win. Mirrors the REVIEWTRAIL_CLAUDE_SANDBOX env var, which takes precedence.
    */
   claudeSandbox?: boolean;
   /**
@@ -922,7 +922,7 @@ export interface PlannotatorConfig {
    * discovery resolved and the behind-the-remote banner never shows — and with
    * it the one-click Fetch, which lives in that banner, though the
    * `/api/fetch-base` endpoint itself stays reachable. Mirrors the
-   * PLANNOTATOR_GIT_REMOTE_CHECK env var,
+   * REVIEWTRAIL_GIT_REMOTE_CHECK env var,
    * which takes precedence; `review --no-git-remote-check` beats both.
    */
   gitRemoteCheck?: boolean;
@@ -932,29 +932,29 @@ export interface PlannotatorConfig {
    * (default true). `lookup: true` lets the review server ask npm for
    * downloads, license and release dates, sending the names of the changed
    * public packages to registry.npmjs.org and api.npmjs.org (default false;
-   * the card's "Look up on npm" sets it). PLANNOTATOR_PACKAGE_LOOKUP=0 keeps
+   * the card's "Look up on npm" sets it). REVIEWTRAIL_PACKAGE_LOOKUP=0 keeps
    * the lookup off whatever this says.
    */
   packageChanges?: { card?: boolean; lookup?: boolean };
   /**
    * Full HTTP(S) reverse-proxy origin for remote sessions; range: first port only.
-   * Never changes binding; PLANNOTATOR_PUBLIC_URL overrides the config value.
+   * Never changes binding; REVIEWTRAIL_PUBLIC_URL overrides the config value.
    * Paths, credentials, queries, and fragments are rejected. Ignored in local
-   * sessions, and it wins over urlHost (including plannotator.localhost) on
+   * sessions, and it wins over urlHost (including reviewtrail.localhost) on
    * the port it fronts.
    */
   publicUrl?: string;
   /**
    * Host-only override with runtime port; used when publicUrl does not apply.
-   * PLANNOTATOR_URL_HOST overrides the config value. Local sessions accept
-   * localhost and *.localhost names only (`plannotator.localhost` isolates
+   * REVIEWTRAIL_URL_HOST overrides the config value. Local sessions accept
+   * localhost and *.localhost names only (`reviewtrail.localhost` isolates
    * preference cookies, #2184); remote sessions ignore those names.
    */
   urlHost?: string;
   /**
-   * Publish every `plannotator review`, `annotate` and `annotate-last`/`last`
+   * Publish every `reviewtrail`, `annotate` and `annotate-last`/`last`
    * session over the tailnet, as if `--tailscale` were passed, so a host or
-   * agent need not add the flag each time. PLANNOTATOR_TAILSCALE wins over
+   * agent need not add the flag each time. REVIEWTRAIL_TAILSCALE wins over
    * this key; the flag turns it on for one run. Other subcommands ignore it.
    * The Inbox has its own key (`inboxTailscale`). Default: false.
    */
@@ -973,7 +973,7 @@ export interface PlannotatorConfig {
    */
   todoProvider?: "auto" | "off";
   /**
-   * Selected favicon style for Plannotator application surfaces:
+   * Selected favicon style for ReviewTrail application surfaces:
    * 'glass' (the goggles in glass, the default), 'totman' (the Face icon, the
    * goggles face that was the default before PR 2975) or 'classic' (the P
    * icon: dark tile, cream P, yellow stripe; it replaced the old navy P).
@@ -982,10 +982,10 @@ export interface PlannotatorConfig {
 }
 
 /** Parse the only server-writable call-review analysis flags. */
-export function parseReviewAnalysisConfig(value: unknown): PlannotatorConfig["reviewAnalysis"] | undefined {
+export function parseReviewAnalysisConfig(value: unknown): ReviewTrailConfig["reviewAnalysis"] | undefined {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
   const input = value as Record<string, unknown>;
-  const result: NonNullable<PlannotatorConfig["reviewAnalysis"]> = {};
+  const result: NonNullable<ReviewTrailConfig["reviewAnalysis"]> = {};
   if (input.semanticDiff !== undefined) {
     if (typeof input.semanticDiff !== "boolean") return undefined;
     result.semanticDiff = input.semanticDiff;
@@ -998,10 +998,10 @@ export function parseReviewAnalysisConfig(value: unknown): PlannotatorConfig["re
 }
 
 /** Parse the server-writable package changes switches: booleans only, or undefined (the route answers 400). */
-export function parsePackageChangesConfig(value: unknown): PlannotatorConfig["packageChanges"] | undefined {
+export function parsePackageChangesConfig(value: unknown): ReviewTrailConfig["packageChanges"] | undefined {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
   const input = value as Record<string, unknown>;
-  const result: NonNullable<PlannotatorConfig["packageChanges"]> = {};
+  const result: NonNullable<ReviewTrailConfig["packageChanges"]> = {};
   for (const key of ["card", "lookup"] as const) {
     if (input[key] === undefined) continue;
     if (typeof input[key] !== "boolean") return undefined;
@@ -1010,24 +1010,24 @@ export function parsePackageChangesConfig(value: unknown): PlannotatorConfig["pa
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
-/** PLANNOTATOR_PACKAGE_LOOKUP: `0` / `false` / `off` / `disabled` is a hard off; anything else decides nothing. */
+/** REVIEWTRAIL_PACKAGE_LOOKUP: `0` / `false` / `off` / `disabled` is a hard off; anything else decides nothing. */
 export function parsePackageLookupEnv(env: NodeJS.ProcessEnv = process.env): false | undefined {
-  const v = env.PLANNOTATOR_PACKAGE_LOOKUP?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_PACKAGE_LOOKUP?.trim().toLowerCase();
   return v === "0" || v === "false" || v === "off" || v === "disabled" ? false : undefined;
 }
 
 /** Whether the review server may ask npm about package changes: only after the reviewer said yes. */
-export function resolvePackageLookup(config: PlannotatorConfig, env: NodeJS.ProcessEnv = process.env): boolean {
+export function resolvePackageLookup(config: ReviewTrailConfig, env: NodeJS.ProcessEnv = process.env): boolean {
   if (parsePackageLookupEnv(env) === false) return false;
   return coerceConfigBoolean(config.packageChanges?.lookup, false);
 }
 
 // Resolved per call, not at module scope: tests sandbox the data dir by
-// setting PLANNOTATOR_DATA_DIR at runtime, and a module-scope constant would
+// setting REVIEWTRAIL_DATA_DIR at runtime, and a module-scope constant would
 // freeze whatever the env held at first import (bun runs every test file in
 // one process).
 function getConfigDir(): string {
-  return getPlannotatorDataDir();
+  return getReviewTrailDataDir();
 }
 function getConfigPath(): string {
   return join(getConfigDir(), "config.json");
@@ -1067,19 +1067,19 @@ function writeState(state: Record<string, unknown>, read: ReturnType<typeof read
   const statePath = getStatePath();
   try {
     if (read.problem === STATE_IS_FOLDER) {
-      process.stderr.write(`[plannotator] Warning: not saving state.json because ${read.problem}; remove ${statePath} to save the Inbox's dialog records again.\n`);
+      process.stderr.write(`[reviewtrail] Warning: not saving state.json because ${read.problem}; remove ${statePath} to save the Inbox's dialog records again.\n`);
       return false;
     }
     if (read.problem) {
       const aside = `${statePath}.corrupt-${new Date().toISOString().replace(/[:.]/g, "-")}`;
       renameSync(statePath, aside);
-      process.stderr.write(`[plannotator] Warning: state.json could not be used (${read.problem}); kept it as ${aside} and started a new one.\n`);
+      process.stderr.write(`[reviewtrail] Warning: state.json could not be used (${read.problem}); kept it as ${aside} and started a new one.\n`);
     }
     const text = JSON.stringify(state, null, 2) + "\n";
     if (text !== read.raw) writeConfigAtomic(statePath, text);
     return true;
   } catch (e) {
-    process.stderr.write(`[plannotator] Warning: failed to write state.json: ${e}\n`);
+    process.stderr.write(`[reviewtrail] Warning: failed to write state.json: ${e}\n`);
     return false;
   }
 }
@@ -1148,7 +1148,7 @@ const starAskRank = (record: Record<string, unknown>) => (record.answer ? 2 : re
 const starAskTime = (record: Record<string, unknown>) => String(record.answeredAt ?? record.shownAt ?? record.checkedAt ?? "");
 
 /**
- * When config.json still holds a record that state.json holds too: an older Plannotator (an older Pi extension, a
+ * When config.json still holds a record that state.json holds too: an older ReviewTrail (an older Pi extension, a
  * downgrade) or another machine sharing config.json may have written it after this one wrote state.json, so neither
  * copy simply wins. Per key:
  *
@@ -1216,7 +1216,7 @@ function soundDialog(fromConfig: Record<string, unknown>, fromState: Record<stri
 }
 
 /** config.json's settings with state.json's machine state merged in (mergeMachineRecord). */
-function withMachineState(config: Record<string, unknown>, state: Record<string, unknown>): PlannotatorConfig {
+function withMachineState(config: Record<string, unknown>, state: Record<string, unknown>): ReviewTrailConfig {
   const merged: Record<string, unknown> = { ...config };
   for (const key of MACHINE_STATE_KEYS) {
     if (state[key] !== undefined) merged[key] = config[key] === undefined ? state[key] : mergeMachineRecord(key, config[key], state[key]);
@@ -1227,22 +1227,22 @@ function withMachineState(config: Record<string, unknown>, state: Record<string,
     const kept = plainRecord(config[key]) ?? {};
     merged[key] = withoutUndefined({ ...pickFields(kept, fields, false), ...soundDialog(pickFields(kept, fields, true) ?? {}, saved) });
   }
-  return merged as PlannotatorConfig;
+  return merged as ReviewTrailConfig;
 }
 
 /** Chapter diagrams (config.json `inboxChapterDiagrams`): on unless the person turned it off. */
-export function inboxChapterDiagramsOn(config: Pick<PlannotatorConfig, "inboxChapterDiagrams">): boolean {
+export function inboxChapterDiagramsOn(config: Pick<ReviewTrailConfig, "inboxChapterDiagrams">): boolean {
   return config.inboxChapterDiagrams !== false;
 }
 
 /**
- * Load config from ~/.plannotator/config.json, with the machine state in
+ * Load config from ~/.reviewtrail/config.json, with the machine state in
  * state.json beside it (MACHINE_STATE_KEYS).
  * Returns {} on missing file or malformed JSON. `quiet`: no warning for a
  * malformed file (a read that must not add a line to what a command printed
  * before it existed: a later read in the same command still warns).
  */
-export function loadConfig(options: { quiet?: boolean } = {}): PlannotatorConfig {
+export function loadConfig(options: { quiet?: boolean } = {}): ReviewTrailConfig {
   return withMachineState(loadSettings(options), readState().state);
 }
 
@@ -1254,7 +1254,7 @@ function loadSettings(options: { quiet?: boolean }): Record<string, unknown> {
     const raw = readFileSync(configPath, "utf-8").replace(/^\uFEFF/, "");
     return plainRecord(JSON.parse(raw)) ?? {};
   } catch (e) {
-    if (!options.quiet) process.stderr.write(`[plannotator] Warning: failed to read config.json: ${e}\n`);
+    if (!options.quiet) process.stderr.write(`[reviewtrail] Warning: failed to read config.json: ${e}\n`);
     return {};
   }
 }
@@ -1267,7 +1267,7 @@ function loadSettings(options: { quiet?: boolean }): Record<string, unknown> {
  * refused: merging onto loadConfig's `{}` and writing would replace every
  * setting in it with the one key being saved.
  */
-function readConfigForSave(configPath: string): { ok: true; config: PlannotatorConfig } | { ok: false; reason: string } {
+function readConfigForSave(configPath: string): { ok: true; config: ReviewTrailConfig } | { ok: false; reason: string } {
   let raw: string;
   try {
     raw = readFileSync(configPath, "utf-8").replace(/^\uFEFF/, "");
@@ -1284,13 +1284,13 @@ function readConfigForSave(configPath: string): { ok: true; config: PlannotatorC
     return { ok: false, reason: "it is not valid JSON" };
   }
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return { ok: false, reason: "it is not a JSON object" };
-  return { ok: true, config: parsed as PlannotatorConfig };
+  return { ok: true, config: parsed as ReviewTrailConfig };
 }
 
 // --- config.json write serialization ----------------------------------------
 //
 // saveConfig is a read-merge-write, and one data dir is routinely shared by
-// several Plannotator processes (an annotate session and a review session at
+// several ReviewTrail processes (an annotate session and a review session at
 // once is ordinary). Two of them settling a POST /api/config in the same
 // window both read the pre-change file, both merge onto it, and the second
 // write silently drops the first writer's key while both callers are told the
@@ -1499,7 +1499,7 @@ function writeConfigAtomic(configPath: string, contents: string): void {
 
 /**
  * Save config by merging partial values into the existing file.
- * Creates ~/.plannotator/ directory if needed.
+ * Creates ~/.reviewtrail/ directory if needed.
  *
  * The read-merge-write runs under an advisory lockfile so concurrent writers
  * (in this process or another one sharing the data dir) cannot drop each
@@ -1514,7 +1514,7 @@ function writeConfigAtomic(configPath: string, contents: string): void {
  * Returns whether the save landed; callers that report a save check it
  * (or read the value back).
  */
-export function saveConfig(partial: Partial<PlannotatorConfig>): boolean {
+export function saveConfig(partial: Partial<ReviewTrailConfig>): boolean {
   let lockPath: string | null = null;
   let locked = false;
   let saved = false;
@@ -1524,7 +1524,7 @@ export function saveConfig(partial: Partial<PlannotatorConfig>): boolean {
     locked = acquireConfigLock(lockPath);
     if (!locked) {
       process.stderr.write(
-        `[plannotator] Warning: config.json lock unavailable after ${configLockWaitBudgetMs}ms; `
+        `[reviewtrail] Warning: config.json lock unavailable after ${configLockWaitBudgetMs}ms; `
         + `saving without it (a concurrent save may be overwritten).\n`,
       );
     }
@@ -1532,7 +1532,7 @@ export function saveConfig(partial: Partial<PlannotatorConfig>): boolean {
     const read = readConfigForSave(getConfigPath());
     if (!read.ok) {
       process.stderr.write(
-        `[plannotator] Warning: not saving config.json because ${read.reason}; `
+        `[reviewtrail] Warning: not saving config.json because ${read.reason}; `
         + `the settings in it are kept. Fix or remove ${getConfigPath()} to save settings again.\n`,
       );
       return false;
@@ -1592,7 +1592,7 @@ export function saveConfig(partial: Partial<PlannotatorConfig>): boolean {
     if (JSON.stringify(merged) !== JSON.stringify(current)) writeConfigAtomic(getConfigPath(), JSON.stringify(merged, null, 2) + "\n");
     saved = stateSaved;
   } catch (e) {
-    process.stderr.write(`[plannotator] Warning: failed to write config.json: ${e}\n`);
+    process.stderr.write(`[reviewtrail] Warning: failed to write config.json: ${e}\n`);
   } finally {
     if (locked && lockPath) releaseConfigLock(lockPath);
   }
@@ -1627,11 +1627,11 @@ export function getServerConfig(
   reviewDefaults?: ReviewDefaults;
   theme?: ThemeConfig;
   favicon?: FaviconStyle;
-  reviewAnalysis: NonNullable<PlannotatorConfig["reviewAnalysis"]>;
+  reviewAnalysis: NonNullable<ReviewTrailConfig["reviewAnalysis"]>;
   gitUser?: string;
   conventionalComments?: boolean;
   conventionalLabels?: CCLabelConfig[] | null;
-  agentTerminalSide?: PlannotatorConfig["agentTerminalSide"];
+  agentTerminalSide?: ReviewTrailConfig["agentTerminalSide"];
   agentTerminalDefaultAgent?: string;
   agentSwitch?: AgentSwitchConfigValue;
   annotateView?: AnnotateView;
@@ -1680,11 +1680,11 @@ export function getServerConfig(
     ...(annotateView !== undefined && { annotateView }),
     // Always explicit (the config-file value, default false) so a stale
     // cookie can never show the toggle on while the config says off.
-    // autoUpdateEnv carries PLANNOTATOR_AUTO_UPDATE when it overrides the file.
+    // autoUpdateEnv carries REVIEWTRAIL_AUTO_UPDATE when it overrides the file.
     autoUpdate: coerceConfigBoolean(cfg.autoUpdate, false),
     ...(autoUpdateEnv !== undefined && { autoUpdateEnv }),
     // Same shape for update notices (default true); updateCheckEnv carries
-    // PLANNOTATOR_UPDATE_CHECK when it overrides the file.
+    // REVIEWTRAIL_UPDATE_CHECK when it overrides the file.
     updateCheck: coerceConfigBoolean(cfg.updateCheck, true),
     ...(updateCheckEnv !== undefined && { updateCheckEnv }),
     ...agentToolAdvert(cfg, agentToolEnv, agentToolHost),
@@ -1695,7 +1695,7 @@ export function getServerConfig(
       lookup: resolvePackageLookup(cfg),
       ...(packageLookupEnv === false && { lookupEnv: false as const }),
     },
-    // Settings' "Open Plannotator at plannotator.localhost" (#2184), only where the server says it is local.
+    // Settings' "Open ReviewTrail at reviewtrail.localhost" (#2184), only where the server says it is local.
     ...(options.cookieHost === true && { cookieHost: cookieHostState(cfg) }),
   };
 }
@@ -1725,7 +1725,7 @@ export function agentSwitchConfigToSave(body: { agentSwitch?: unknown }): AgentS
 
 /**
  * What a Settings toggle or a one-time "turn the tool on" offer needs about
- * the `plannotator` agent tool (see getServerConfig):
+ * the `reviewtrail` agent tool (see getServerConfig):
  *  - agentToolHost: the integration that started this server, when it is one
  *    that registers the tool (`agentToolIntegration`: the session-bridge host,
  *    see agentToolHostOf); absent otherwise, and then so are the fields below
@@ -1733,13 +1733,13 @@ export function agentSwitchConfigToSave(body: { agentSwitch?: unknown }): AgentS
  *  - agentTool: the config-file value, or the host's default while unset
  *    (always explicit when the host is known, like autoUpdate);
  *  - agentToolConfigured: whether config.json holds an explicit choice;
- *  - agentToolEnv: PLANNOTATOR_AGENT_TOOL when it overrides the file;
+ *  - agentToolEnv: REVIEWTRAIL_AGENT_TOOL when it overrides the file;
  *  - agentToolEnabled: the effective value for this host (env, then file,
  *    then default). It describes the NEXT session: a running session read the
  *    setting when it started and never re-reads it.
  */
 function agentToolAdvert(
-  cfg: PlannotatorConfig,
+  cfg: ReviewTrailConfig,
   env: boolean | undefined,
   host: AgentToolHost | null,
 ): {
@@ -1767,7 +1767,7 @@ function agentToolAdvert(
  * resolved default instead of adopting a side that does not exist.
  *
  * The set of sides has exactly one definition, `AnnotateAgentTerminalSide` in
- * @plannotator/core: `PlannotatorConfig.agentTerminalSide` IS that type and
+ * @reviewtrail/core: `ReviewTrailConfig.agentTerminalSide` IS that type and
  * this predicate delegates to that module's guard, so neither the union nor
  * its membership test can drift on one side of the boundary. Direct import
  * rather than a duplicated literal check: the Pi vendor step rewrites the
@@ -1776,7 +1776,7 @@ function agentToolAdvert(
  */
 export function isAgentTerminalSide(
   value: unknown,
-): value is NonNullable<PlannotatorConfig["agentTerminalSide"]> {
+): value is NonNullable<ReviewTrailConfig["agentTerminalSide"]> {
   return isAnnotateAgentTerminalSide(value);
 }
 
@@ -1785,7 +1785,7 @@ export function isAgentTerminalSide(
  * 'since-base' (the composite "what would GitHub show" view). Users with an
  * explicit defaultDiffType keep their choice.
  */
-export function resolveDefaultDiffType(cfg?: PlannotatorConfig): DefaultDiffType {
+export function resolveDefaultDiffType(cfg?: ReviewTrailConfig): DefaultDiffType {
   const v = cfg?.diffOptions?.defaultDiffType as string | undefined;
   if (v === 'branch') return 'merge-base';
   return v === 'since-base' || v === 'local-vs-remote' || v === 'uncommitted' || v === 'unstaged' || v === 'staged' || v === 'merge-base' || v === 'all' ? v : 'since-base';
@@ -1797,7 +1797,7 @@ export function resolveDefaultDiffType(cfg?: PlannotatorConfig): DefaultDiffType
  * before it could be saved); every other VCS reads the Git default above.
  */
 export function resolveDefaultDiffTypeFor(
-  cfg: PlannotatorConfig | undefined,
+  cfg: ReviewTrailConfig | undefined,
   vcsId: string | undefined,
 ): DefaultDiffType | JjDefaultDiffType {
   if (vcsId !== 'jj') return resolveDefaultDiffType(cfg);
@@ -1830,11 +1830,11 @@ function parseLaunchFlag(value: unknown): boolean | undefined {
  * `startIn` `rex` only when it says exactly that (anything else: `inbox`).
  */
 export function resolveInboxLaunch(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   platform: NodeJS.Platform = process.platform,
 ): { enabled: boolean; fullPermissions: boolean | null; model: string | null; settingsFile: string | null; scratchDir: string | null; startIn: "inbox" | "rex" } {
   const raw: unknown = config.inboxLaunch;
-  const value = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as NonNullable<PlannotatorConfig["inboxLaunch"]>) : {};
+  const value = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as NonNullable<ReviewTrailConfig["inboxLaunch"]>) : {};
   // `"inboxLaunch": false` (or "off") by hand: the whole feature off.
   const whole = raw === undefined || (typeof raw === "object" && raw !== null) ? undefined : parseLaunchFlag(raw);
   return {
@@ -1873,10 +1873,10 @@ function parseConfigBoolean(value: unknown): boolean | undefined {
  * Resolve whether to use Glimpse native window.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_GLIMPSE env var  →  config.glimpse  →  default true
+ *   REVIEWTRAIL_GLIMPSE env var  →  config.glimpse  →  default true
  */
-export function resolveUseGlimpse(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_GLIMPSE;
+export function resolveUseGlimpse(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_GLIMPSE;
   if (envVal !== undefined) {
     return envVal === "1" || envVal.toLowerCase() === "true";
   }
@@ -1887,16 +1887,16 @@ export function resolveUseGlimpse(config: PlannotatorConfig): boolean {
  * Resolve whether to use Jina Reader for URL annotation.
  *
  * Priority (highest wins):
- *   --no-jina CLI flag  →  PLANNOTATOR_JINA env var  →  config.jina  →  default true
+ *   --no-jina CLI flag  →  REVIEWTRAIL_JINA env var  →  config.jina  →  default true
  */
 /**
  * Resolve whether annotate mode saves per-file version history.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_ANNOTATE_HISTORY env var  →  config.annotateHistory  →  default true
+ *   REVIEWTRAIL_ANNOTATE_HISTORY env var  →  config.annotateHistory  →  default true
  */
-export function resolveAnnotateHistory(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_ANNOTATE_HISTORY;
+export function resolveAnnotateHistory(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_ANNOTATE_HISTORY;
   if (envVal !== undefined) {
     return envVal === "1" || envVal.toLowerCase() === "true";
   }
@@ -1907,15 +1907,15 @@ export function resolveAnnotateHistory(config: PlannotatorConfig): boolean {
  * Resolve whether submitted feedback is archived under feedback/.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_FEEDBACK_HISTORY env var  →  config.feedbackHistory  →  default true
+ *   REVIEWTRAIL_FEEDBACK_HISTORY env var  →  config.feedbackHistory  →  default true
  *
  * Deliberately a separate knob from annotateHistory: that one governs copying
  * ANNOTATED CONTENT into the data dir, this one governs keeping the user's own
  * SUBMISSIONS, and a code-review user must be able to control the second
  * without touching the first. Annotate surfaces honor both.
  */
-export function resolveFeedbackHistory(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_FEEDBACK_HISTORY;
+export function resolveFeedbackHistory(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_FEEDBACK_HISTORY;
   if (envVal !== undefined) {
     return envVal === "1" || envVal.toLowerCase() === "true";
   }
@@ -1926,10 +1926,10 @@ export function resolveFeedbackHistory(config: PlannotatorConfig): boolean {
  * Resolve whether successful Guided Reviews are persisted to disk.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_GUIDE_HISTORY env var  →  config.guideHistory  →  default true
+ *   REVIEWTRAIL_GUIDE_HISTORY env var  →  config.guideHistory  →  default true
  */
-export function resolveGuideHistory(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_GUIDE_HISTORY;
+export function resolveGuideHistory(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_GUIDE_HISTORY;
   if (envVal !== undefined) {
     return envVal === "1" || envVal.toLowerCase() === "true";
   }
@@ -1940,17 +1940,17 @@ export function resolveGuideHistory(config: PlannotatorConfig): boolean {
  * Resolve whether code review persists viewed-file progress across sessions.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_REVIEW_PROGRESS env var  →  config.reviewProgress  →  default true
+ *   REVIEWTRAIL_REVIEW_PROGRESS env var  →  config.reviewProgress  →  default true
  *
  * Env `0` / `false` / `off` / `disabled` turn it off and `1` / `true` / `on`
  * turn it on; an empty (or unrecognized) value counts as unset, so the config
  * key still decides.
  */
 export function resolveReviewProgress(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  const v = env.PLANNOTATOR_REVIEW_PROGRESS?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_REVIEW_PROGRESS?.trim().toLowerCase();
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   if (v === "1" || v === "true" || v === "on") return true;
   return coerceConfigBoolean(config.reviewProgress, true);
@@ -1960,13 +1960,13 @@ export function resolveReviewProgress(
  * Resolve whether the compiled CLI keeps itself up to date in the background.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_AUTO_UPDATE env var  →  config.autoUpdate  →  default false
+ *   REVIEWTRAIL_AUTO_UPDATE env var  →  config.autoUpdate  →  default false
  *
  * Env `1` / `true` / `on` turn it on and `0` / `false` / `off` / `disabled`
  * turn it off; an empty or unrecognized value counts as unset.
  */
 export function resolveAutoUpdate(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const fromEnv = parseAutoUpdateEnv(env);
@@ -1975,18 +1975,18 @@ export function resolveAutoUpdate(
 }
 
 /**
- * Resolve whether Plannotator checks for a newer release and shows update
+ * Resolve whether ReviewTrail checks for a newer release and shows update
  * notices (default on; this is the opt-out). Off also stops auto-update,
  * which needs the check.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_UPDATE_CHECK env var  →  config.updateCheck  →  default true
+ *   REVIEWTRAIL_UPDATE_CHECK env var  →  config.updateCheck  →  default true
  *
  * Env `0` / `false` / `off` / `disabled` turn it off and `1` / `true` / `on`
  * turn it on; an empty or unrecognized value counts as unset.
  */
 export function resolveUpdateCheck(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const fromEnv = parseUpdateCheckEnv(env);
@@ -1994,9 +1994,9 @@ export function resolveUpdateCheck(
   return coerceConfigBoolean(config.updateCheck, true);
 }
 
-/** The PLANNOTATOR_UPDATE_CHECK override, or undefined when it does not decide. */
+/** The REVIEWTRAIL_UPDATE_CHECK override, or undefined when it does not decide. */
 export function parseUpdateCheckEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const v = env.PLANNOTATOR_UPDATE_CHECK?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_UPDATE_CHECK?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return undefined;
@@ -2006,7 +2006,7 @@ export function parseUpdateCheckEnv(env: NodeJS.ProcessEnv = process.env): boole
  * Resolve whether the Claude Code mod is on (default on; this is the opt-out).
  *
  * Priority (highest wins):
- *   PLANNOTATOR_CLAUDE_MOD env var  →  config.claudeCodeMod  →  default true
+ *   REVIEWTRAIL_CLAUDE_MOD env var  →  config.claudeCodeMod  →  default true
  *
  * Env `1` / `true` / `on` turn it on and `0` / `false` / `off` / `disabled`
  * turn it off; an empty or unrecognized value counts as unset. The mod is a
@@ -2014,17 +2014,17 @@ export function parseUpdateCheckEnv(env: NodeJS.ProcessEnv = process.env): boole
  * (`apps/hook/hooks/mod/enabled.ts`) that `enabled.test.ts` keeps in step.
  */
 export function resolveClaudeCodeMod(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  const v = env.PLANNOTATOR_CLAUDE_MOD?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_CLAUDE_MOD?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return coerceConfigBoolean(config.claudeCodeMod, true);
 }
 
 /**
- * The hosts that register the `plannotator` agent tool. `oh-my-pi` is the Pi
+ * The hosts that register the `reviewtrail` agent tool. `oh-my-pi` is the Pi
  * extension running inside Oh My Pi (a Pi fork), which the extension tells
  * from plain Pi itself (`apps/pi-extension/pi-host.ts`): it is the same
  * extension and the same session bridge (host `pi`), with its own default.
@@ -2032,7 +2032,7 @@ export function resolveClaudeCodeMod(
 export type AgentToolHost = "claude-code" | "pi" | "oh-my-pi" | "opencode" | "dsh";
 
 /**
- * Whether each host registers the `plannotator` agent tool when nothing is
+ * Whether each host registers the `reviewtrail` agent tool when nothing is
  * set: the owner's call, and the one place it lives. On for the Claude Code
  * mod (the tool is deferred behind tool search there, so it costs only its
  * name until used) and for Oh My Pi (owner's call 2026-10-12: OMP lists an
@@ -2059,50 +2059,50 @@ export const AGENT_TOOL_DEFAULTS: Readonly<Record<AgentToolHost, boolean>> = {
  * inside the Pi extension, the extension's own host (`pi` or `oh-my-pi`).
  * Never the agent origin: an origin of claude-code or opencode also covers
  * the classic hook and OpenCode 1, which have no tool, and the CLI's origin
- * `oh-my-pi` is a `plannotator` run from OMP's shell, which has none either
+ * `oh-my-pi` is a `reviewtrail` run from OMP's shell, which has none either
  * (the CLI only ever passes a session-bridge host, which is never `oh-my-pi`).
  */
 export function agentToolHostOf(host: string | null | undefined): AgentToolHost | null {
   return host === "claude-code" || host === "pi" || host === "oh-my-pi" || host === "opencode" ? host : null;
 }
 
-/** The PLANNOTATOR_AGENT_TOOL override, or undefined when it does not decide. */
+/** The REVIEWTRAIL_AGENT_TOOL override, or undefined when it does not decide. */
 export function parseAgentToolEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const v = env.PLANNOTATOR_AGENT_TOOL?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_AGENT_TOOL?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return undefined;
 }
 
 /**
- * Whether Pi reloads itself for an updated Plannotator when neither the env
+ * Whether Pi reloads itself for an updated ReviewTrail when neither the env
  * var nor config.json decides (owner's call 2026-10-29: on). The one place to
  * flip the default.
  */
 export const AUTO_RELOAD_DEFAULT = true;
 
 /**
- * Whether Pi reloads itself to load an updated Plannotator extension (see
+ * Whether Pi reloads itself to load an updated ReviewTrail extension (see
  * `autoReload`, apps/pi-extension/auto-reload.ts).
  *
  * Priority (highest wins):
- *   PLANNOTATOR_AUTO_RELOAD env var  →  config.autoReload  →  AUTO_RELOAD_DEFAULT
+ *   REVIEWTRAIL_AUTO_RELOAD env var  →  config.autoReload  →  AUTO_RELOAD_DEFAULT
  *
  * Env `1` / `true` / `on` and `0` / `false` / `off` / `disabled` decide; an
  * empty or unrecognized value counts as unset.
  */
-export function resolveAutoReload(config: PlannotatorConfig, env: NodeJS.ProcessEnv = process.env): boolean {
-  const v = env.PLANNOTATOR_AUTO_RELOAD?.trim().toLowerCase();
+export function resolveAutoReload(config: ReviewTrailConfig, env: NodeJS.ProcessEnv = process.env): boolean {
+  const v = env.REVIEWTRAIL_AUTO_RELOAD?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return parseConfigBoolean(config.autoReload) ?? AUTO_RELOAD_DEFAULT;
 }
 
 /**
- * Resolve whether `host` registers the `plannotator` agent tool.
+ * Resolve whether `host` registers the `reviewtrail` agent tool.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_AGENT_TOOL env var  →  config.agentTool  →  AGENT_TOOL_DEFAULTS[host]
+ *   REVIEWTRAIL_AGENT_TOOL env var  →  config.agentTool  →  AGENT_TOOL_DEFAULTS[host]
  *
  * Env `1` / `true` / `on` turn it on and `0` / `false` / `off` / `disabled`
  * turn it off; an empty or unrecognized value counts as unset. The env var and
@@ -2112,31 +2112,31 @@ export function resolveAutoReload(config: PlannotatorConfig, env: NodeJS.Process
  * prompt prefix (and miss the cache). A change applies to the next session.
  */
 export function resolveAgentTool(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv,
   host: AgentToolHost,
 ): boolean {
   return parseAgentToolEnv(env) ?? parseConfigBoolean(config.agentTool) ?? AGENT_TOOL_DEFAULTS[host];
 }
 
-/** The PLANNOTATOR_PLAN_REVIEW override, or undefined when it does not decide. */
+/** The REVIEWTRAIL_PLAN_REVIEW override, or undefined when it does not decide. */
 export function parsePlanReviewEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const v = env.PLANNOTATOR_PLAN_REVIEW?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_PLAN_REVIEW?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return undefined;
 }
 
 /**
- * Whether Plannotator reviews Claude Code's ExitPlanMode.
- * Priority: PLANNOTATOR_PLAN_REVIEW → config.planReview → on.
+ * Whether ReviewTrail reviews Claude Code's ExitPlanMode.
+ * Priority: REVIEWTRAIL_PLAN_REVIEW → config.planReview → on.
  */
-export function resolvePlanReview(config: PlannotatorConfig, env: NodeJS.ProcessEnv): boolean {
+export function resolvePlanReview(config: ReviewTrailConfig, env: NodeJS.ProcessEnv): boolean {
   return parsePlanReviewEnv(env) ?? parseConfigBoolean(config.planReview) ?? true;
 }
 
 /**
- * The hosts that register the Inbox's `plannotator_inbox` tool. The Pi
+ * The hosts that register the Inbox's `reviewtrail_inbox` tool. The Pi
  * extension registers it as `pi` in Oh My Pi too: OMP has no Inbox host key
  * of its own (yet), so `inboxTool.pi` and the Pi default decide there.
  * `dsh` is the DeepSeek Harness plugin (`@plannotator/dsh`), `cline` the
@@ -2145,12 +2145,12 @@ export function resolvePlanReview(config: PlannotatorConfig, env: NodeJS.Process
 export type InboxToolHost = "claude-code" | "pi" | "opencode" | "dsh" | "cline" | "openclaw" | "hermes";
 
 /**
- * Whether each host registers the Inbox's `plannotator_inbox` tool when
+ * Whether each host registers the Inbox's `reviewtrail_inbox` tool when
  * nothing is set: the agent tool's rule (on for the Claude Code mod, where
  * tools are deferred behind tool search; off on Pi, OpenCode 2 and DeepSeek
  * Harness, which send every tool's full definition with each request; DSH
  * also keeps its tool list fixed for request caching). Cline sends every
- * tool's definition too and has no `plannotator` agent tool, so its entry is
+ * tool's definition too and has no `reviewtrail` agent tool, so its entry is
  * its own, off like Pi's.
  */
 export const INBOX_TOOL_DEFAULTS: Readonly<Record<InboxToolHost, boolean>> = {
@@ -2173,9 +2173,9 @@ export const INBOX_TOOL_HOSTS: readonly InboxToolHost[] = ["claude-code", "pi", 
  */
 export const INBOX_REMINDER_HOSTS: readonly InboxToolHost[] = ["claude-code", "pi", "opencode"];
 
-/** The PLANNOTATOR_INBOX_TOOL override, or undefined when it does not decide. */
+/** The REVIEWTRAIL_INBOX_TOOL override, or undefined when it does not decide. */
 export function parseInboxToolEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const v = env.PLANNOTATOR_INBOX_TOOL?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_INBOX_TOOL?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return undefined;
@@ -2184,11 +2184,11 @@ export function parseInboxToolEnv(env: NodeJS.ProcessEnv = process.env): boolean
 /**
  * `inboxTool` with `changes` applied, for saving. Every per-host entry already
  * there is kept, a host this version does not know included (a newer
- * Plannotator's), so saving one switch never drops another's. One boolean for
+ * ReviewTrail's), so saving one switch never drops another's. One boolean for
  * every host becomes that value for each host this version knows.
  */
 export function inboxToolWith(
-  current: PlannotatorConfig["inboxTool"],
+  current: ReviewTrailConfig["inboxTool"],
   changes: Partial<Record<InboxToolHost, boolean>>,
 ): Partial<Record<InboxToolHost, boolean>> {
   // The readers' rule (configuredInboxTool): "true", "1", "false", "0" count too, so they are kept as booleans.
@@ -2206,7 +2206,7 @@ export function inboxToolWith(
 }
 
 /** config.inboxTool for one host: the shared boolean, the host's own entry, or undefined. */
-export function configuredInboxTool(config: PlannotatorConfig, host: InboxToolHost): boolean | undefined {
+export function configuredInboxTool(config: ReviewTrailConfig, host: InboxToolHost): boolean | undefined {
   const value = config.inboxTool;
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return parseConfigBoolean((value as Record<string, unknown>)[host]);
@@ -2216,12 +2216,12 @@ export function configuredInboxTool(config: PlannotatorConfig, host: InboxToolHo
 
 /**
  * Resolve whether `host` registers the Inbox tool. Priority (highest wins):
- * PLANNOTATOR_INBOX_TOOL → config.inboxTool (shared or per host) →
+ * REVIEWTRAIL_INBOX_TOOL → config.inboxTool (shared or per host) →
  * INBOX_TOOL_DEFAULTS[host]. Hosts call it once per session start, like
  * resolveAgentTool, so a change applies to the next session.
  */
 export function resolveInboxTool(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv,
   host: InboxToolHost,
 ): boolean {
@@ -2229,7 +2229,7 @@ export function resolveInboxTool(
 }
 
 /** config.inboxReminder for one host: the shared boolean, the host's own entry, or undefined. */
-export function configuredInboxReminder(config: PlannotatorConfig, host: InboxToolHost): boolean | undefined {
+export function configuredInboxReminder(config: ReviewTrailConfig, host: InboxToolHost): boolean | undefined {
   const value = config.inboxReminder;
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return parseConfigBoolean((value as Record<string, unknown>)[host]);
@@ -2241,11 +2241,11 @@ export function configuredInboxReminder(config: PlannotatorConfig, host: InboxTo
  * Resolve whether a `host` session starts with the Inbox's one-line reminder
  * (INBOX_REMINDER_TEXT): only where that session gets the Inbox tool
  * (resolveInboxTool), then config.inboxReminder (shared or per host), on by
- * default. No env var of its own: PLANNOTATOR_INBOX_TOOL decides it through
+ * default. No env var of its own: REVIEWTRAIL_INBOX_TOOL decides it through
  * the tool. Hosts call it once per session start, with the tool.
  */
 export function resolveInboxReminder(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv,
   host: InboxToolHost,
 ): boolean {
@@ -2256,12 +2256,12 @@ export function resolveInboxReminder(
  * The Inbox reminder a `host` session starts with, once resolveInboxReminder
  * said it gets one: the person's own text from config.json
  * (`prompts.inbox.runtimes.<host>.reminder`, then `prompts.inbox.reminder`;
- * `plannotator_inbox` in it renamed to `toolName`), else exactly today's line
+ * `reviewtrail_inbox` in it renamed to `toolName`), else exactly today's line
  * (`inboxReminderText(toolName, { wakes })`). Hosts call it once per session
  * start, with the switch: the line sits in the cached prompt prefix.
  */
 export function resolveInboxReminderText(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   host: InboxToolHost,
   options: { wakes?: boolean; toolName?: string } = {},
 ): string {
@@ -2269,28 +2269,28 @@ export function resolveInboxReminderText(
 }
 
 /**
- * Resolve whether the Plannotator Inbox serves phones (pairing, the device
+ * Resolve whether the ReviewTrail Inbox serves phones (pairing, the device
  * door, the tailnet and Wi-Fi listeners, the relay, Settings' Phones block).
  *
  * Priority (highest wins):
- *   PLANNOTATOR_INBOX_PHONES env var  →  config.inboxPhones  →  default false
+ *   REVIEWTRAIL_INBOX_PHONES env var  →  config.inboxPhones  →  default false
  *
  * Env `1` / `true` / `on` turn it on and `0` / `false` / `off` / `disabled`
  * turn it off; an empty or unrecognized value counts as unset. Off until the
  * iPhone app ships: the Inbox then does nothing phone-related at all.
  */
 export function resolveInboxPhones(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  const v = env.PLANNOTATOR_INBOX_PHONES?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_INBOX_PHONES?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return coerceConfigBoolean(config.inboxPhones, false);
 }
 
 /**
- * The experimental features this build knows: the name PLANNOTATOR_EXPERIMENTAL
+ * The experimental features this build knows: the name REVIEWTRAIL_EXPERIMENTAL
  * lists (kebab case) and the key it is saved under in config.json
  * `experimental` (camel case). Small on purpose: a fuller flag registry is a
  * separate piece of work and can grow out of this table.
@@ -2302,13 +2302,13 @@ export const EXPERIMENTAL_FEATURES = {
 export type ExperimentalFeature = keyof typeof EXPERIMENTAL_FEATURES;
 
 /**
- * What PLANNOTATOR_EXPERIMENTAL says about one feature, or undefined when it
+ * What REVIEWTRAIL_EXPERIMENTAL says about one feature, or undefined when it
  * says nothing. The variable is a comma list of feature names: a name listed
  * turns that feature on, a name with a leading `-` turns it off (`-decision-mode`);
  * names are trimmed and compared case-insensitively, and unknown names are ignored.
  */
 export function parseExperimentalEnv(name: ExperimentalFeature, env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const raw = env.PLANNOTATOR_EXPERIMENTAL;
+  const raw = env.REVIEWTRAIL_EXPERIMENTAL;
   if (!raw) return undefined;
   let decided: boolean | undefined;
   for (const part of raw.split(",")) {
@@ -2323,10 +2323,10 @@ export function parseExperimentalEnv(name: ExperimentalFeature, env: NodeJS.Proc
  * Whether an experimental feature is on.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_EXPERIMENTAL (comma list)  →  config.experimental.<key>  →  default false
+ *   REVIEWTRAIL_EXPERIMENTAL (comma list)  →  config.experimental.<key>  →  default false
  */
 export function resolveExperimental(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   name: ExperimentalFeature,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
@@ -2337,9 +2337,9 @@ export function resolveExperimental(
   return parseConfigBoolean((saved as Record<string, unknown>)[EXPERIMENTAL_FEATURES[name]]) ?? false;
 }
 
-/** The PLANNOTATOR_INBOX_TAILSCALE override, or undefined when it does not decide. */
+/** The REVIEWTRAIL_INBOX_TAILSCALE override, or undefined when it does not decide. */
 export function parseInboxTailscaleEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const v = env.PLANNOTATOR_INBOX_TAILSCALE?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_INBOX_TAILSCALE?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return undefined;
@@ -2348,10 +2348,10 @@ export function parseInboxTailscaleEnv(env: NodeJS.ProcessEnv = process.env): bo
 export type InboxTailscaleSource = "flag" | "env" | "config" | "default";
 
 /**
- * Resolve whether the Plannotator Inbox publishes itself over the tailnet.
+ * Resolve whether the ReviewTrail Inbox publishes itself over the tailnet.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_INBOX_TAILSCALE  →  `plannotator inbox --tailscale` (this run,
+ *   REVIEWTRAIL_INBOX_TAILSCALE  →  `reviewtrail inbox --tailscale` (this run,
  *   also the control route)  →  config.inboxTailscale  →  default false
  *
  * The env var is a hard switch: `0` / `false` / `off` / `disabled` keeps it
@@ -2359,7 +2359,7 @@ export type InboxTailscaleSource = "flag" | "env" | "config" | "default";
  * unrecognized value counts as unset. The flag only turns it on.
  */
 export function resolveInboxTailscale(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
   flag = false,
 ): { on: boolean; source: InboxTailscaleSource } {
@@ -2378,20 +2378,20 @@ export type SessionTailscaleSource = "flag" | "env" | "config" | "default";
  * over the tailnet (the per-session `--tailscale` transport, not the Inbox's).
  *
  * Priority (highest wins):
- *   `--tailscale`  →  PLANNOTATOR_TAILSCALE  →  config.tailscale  →  default false
+ *   `--tailscale`  →  REVIEWTRAIL_TAILSCALE  →  config.tailscale  →  default false
  *
  * The flag only turns it on. The env var takes the same words as
- * PLANNOTATOR_INBOX_TAILSCALE: `1` / `true` / `on` turn it on, `0` / `false` /
+ * REVIEWTRAIL_INBOX_TAILSCALE: `1` / `true` / `on` turn it on, `0` / `false` /
  * `off` / `disabled` keep it off against the config key (a one-run opt-out);
  * an empty or unrecognized value counts as unset.
  */
 export function resolveSessionTailscale(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
   flag = false,
 ): { on: boolean; source: SessionTailscaleSource } {
   if (flag) return { on: true, source: "flag" };
-  const v = env.PLANNOTATOR_TAILSCALE?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_TAILSCALE?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return { on: true, source: "env" };
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return { on: false, source: "env" };
   const fromConfig = parseConfigBoolean(config.tailscale);
@@ -2407,8 +2407,8 @@ export function sessionTailscaleOptOut(source: SessionTailscaleSource): string {
   return source === "flag"
     ? "run the same command without --tailscale"
     : source === "env"
-      ? "run the same command with PLANNOTATOR_TAILSCALE unset or set to 0"
-      : "run the same command with PLANNOTATOR_TAILSCALE=0 (config.json's \"tailscale\" key turned it on)";
+      ? "run the same command with REVIEWTRAIL_TAILSCALE unset or set to 0"
+      : "run the same command with REVIEWTRAIL_TAILSCALE=0 (config.json's \"tailscale\" key turned it on)";
 }
 
 /**
@@ -2417,7 +2417,7 @@ export function sessionTailscaleOptOut(source: SessionTailscaleSource): string {
  * are empty, or carry whitespace or control characters are dropped: a login
  * is one token.
  */
-export function resolveInboxTailscaleAllow(config: PlannotatorConfig): string[] {
+export function resolveInboxTailscaleAllow(config: ReviewTrailConfig): string[] {
   const value = config.inboxTailscaleAllow;
   if (!Array.isArray(value)) return [];
   const out: string[] = [];
@@ -2442,20 +2442,20 @@ export function agentToolSaveFailed(toSave: { agentTool?: unknown }): boolean {
   return parseConfigBoolean(loadConfig().agentTool) !== toSave.agentTool;
 }
 
-/** The PLANNOTATOR_AUTO_UPDATE override, or undefined when it does not decide. */
+/** The REVIEWTRAIL_AUTO_UPDATE override, or undefined when it does not decide. */
 export function parseAutoUpdateEnv(env: NodeJS.ProcessEnv = process.env): boolean | undefined {
-  const v = env.PLANNOTATOR_AUTO_UPDATE?.trim().toLowerCase();
+  const v = env.REVIEWTRAIL_AUTO_UPDATE?.trim().toLowerCase();
   if (v === "1" || v === "true" || v === "on") return true;
   if (v === "0" || v === "false" || v === "off" || v === "disabled") return false;
   return undefined;
 }
 
-export function resolveUseJina(cliNoJina: boolean, config: PlannotatorConfig): boolean {
+export function resolveUseJina(cliNoJina: boolean, config: ReviewTrailConfig): boolean {
   // CLI flag has highest priority
   if (cliNoJina) return false;
 
   // Environment variable
-  const envVal = process.env.PLANNOTATOR_JINA;
+  const envVal = process.env.REVIEWTRAIL_JINA;
   if (envVal !== undefined) {
     return envVal === "1" || envVal.toLowerCase() === "true";
   }
@@ -2468,10 +2468,10 @@ export function resolveUseJina(cliNoJina: boolean, config: PlannotatorConfig): b
  * Resolve whether URL sharing is enabled.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_SHARE env var  →  config.share  →  default true
+ *   REVIEWTRAIL_SHARE env var  →  config.share  →  default true
  */
-export function resolveSharingEnabled(config: PlannotatorConfig, env: NodeJS.ProcessEnv = process.env): boolean {
-  const envVal = env.PLANNOTATOR_SHARE;
+export function resolveSharingEnabled(config: ReviewTrailConfig, env: NodeJS.ProcessEnv = process.env): boolean {
+  const envVal = env.REVIEWTRAIL_SHARE;
   if (envVal !== undefined) return envVal !== "disabled";
   if (config.share !== undefined) return config.share !== "disabled";
   return true;
@@ -2498,14 +2498,14 @@ const warnedInvalidPublicUrls = new Set<string>();
  * Resolve the full public origin advertised for a reverse-proxied remote session.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_PUBLIC_URL env var  →  config.publicUrl  →  undefined
+ *   REVIEWTRAIL_PUBLIC_URL env var  →  config.publicUrl  →  undefined
  *
  * Valid values are normalized to an origin, so a trailing slash and default
  * port do not leak into the displayed link. Invalid values warn once and fall
  * back to urlHost or localhost at the caller.
  */
-export function resolvePublicUrl(config: PlannotatorConfig): string | undefined {
-  const envVal = process.env.PLANNOTATOR_PUBLIC_URL;
+export function resolvePublicUrl(config: ReviewTrailConfig): string | undefined {
+  const envVal = process.env.REVIEWTRAIL_PUBLIC_URL;
   const raw = envVal !== undefined ? envVal : config.publicUrl;
   if (typeof raw !== "string") return undefined;
   const publicUrl = raw.trim();
@@ -2514,7 +2514,7 @@ export function resolvePublicUrl(config: PlannotatorConfig): string | undefined 
   if (!warnedInvalidPublicUrls.has(publicUrl)) {
     warnedInvalidPublicUrls.add(publicUrl);
     process.stderr.write(
-      `[plannotator] Warning: invalid public URL ${JSON.stringify(publicUrl)} — expected an HTTP(S) origin with no credentials, path, query, or fragment; using the advertised host or localhost\n`,
+      `[reviewtrail] Warning: invalid public URL ${JSON.stringify(publicUrl)} — expected an HTTP(S) origin with no credentials, path, query, or fragment; using the advertised host or localhost\n`,
     );
   }
   return undefined;
@@ -2544,19 +2544,19 @@ const warnedInvalidUrlHosts = new Set<string>();
  * names only; remote sessions accept any valid host (see buildAdvertisedUrl).
  *
  * Priority (highest wins):
- *   PLANNOTATOR_URL_HOST env var  →  config.urlHost  →  undefined
+ *   REVIEWTRAIL_URL_HOST env var  →  config.urlHost  →  undefined
  *
  * An invalid value warns once per value on stderr and falls back to
  * localhost — a display setting must never crash a server launch. The echoed
  * value is JSON-encoded so an embedded newline cannot forge extra stderr
- * lines (hosts surface "Plannotator session ready" lines as clickable links).
+ * lines (hosts surface "ReviewTrail session ready" lines as clickable links).
  *
  * The sentinel "auto" is returned verbatim (it matches the hostname shape);
  * the advertised-URL layer resolves it via Tailscale detection
  * (packages/server/remote.ts and the Pi network.ts mirror).
  */
-export function resolveUrlHost(config: PlannotatorConfig): string | undefined {
-  const envVal = process.env.PLANNOTATOR_URL_HOST;
+export function resolveUrlHost(config: ReviewTrailConfig): string | undefined {
+  const envVal = process.env.REVIEWTRAIL_URL_HOST;
   const raw = envVal !== undefined ? envVal : config.urlHost;
   if (typeof raw !== "string") return undefined;
   const host = raw.trim();
@@ -2565,7 +2565,7 @@ export function resolveUrlHost(config: PlannotatorConfig): string | undefined {
   if (!warnedInvalidUrlHosts.has(host)) {
     warnedInvalidUrlHosts.add(host);
     process.stderr.write(
-      `[plannotator] Warning: invalid advertised URL host ${JSON.stringify(host)} — expected a bare hostname, IPv4, or bracketed IPv6 (no scheme, port, or path); using localhost\n`,
+      `[reviewtrail] Warning: invalid advertised URL host ${JSON.stringify(host)} — expected a bare hostname, IPv4, or bracketed IPv6 (no scheme, port, or path); using localhost\n`,
     );
   }
   return undefined;
@@ -2577,17 +2577,17 @@ export function resolveUrlHost(config: PlannotatorConfig): string | undefined {
  * a tailnet name, an IP). The one subdomain the loopback Host checks accept
  * besides the plain loopback names (isLoopbackHostHeader's `localName`).
  */
-export function resolveLocalUrlHostname(config: PlannotatorConfig): string | undefined {
+export function resolveLocalUrlHostname(config: ReviewTrailConfig): string | undefined {
   const host = resolveUrlHost(config);
   return host !== undefined && isLocalhostSubdomain(host) ? host.toLowerCase() : undefined;
 }
 
-/** The name Settings' "Open Plannotator at plannotator.localhost" switch writes as `urlHost`. */
-export const ISOLATED_COOKIE_HOST = "plannotator.localhost";
+/** The name Settings' "Open ReviewTrail at reviewtrail.localhost" switch writes as `urlHost`. */
+export const ISOLATED_COOKIE_HOST = "reviewtrail.localhost";
 
 /**
  * The cookie switch as Settings shows it: `on` is the effective value
- * (config.json, or PLANNOTATOR_URL_HOST when set). `env` is the env var's
+ * (config.json, or REVIEWTRAIL_URL_HOST when set). `env` is the env var's
  * value when it is set (empty included, which hides config.json's), and
  * locks the switch. `urlHost` is config.json's `urlHost` when it holds
  * anything other than ISOLATED_COOKIE_HOST (a tailnet name, `auto`, an IP):
@@ -2599,7 +2599,7 @@ export interface CookieHostState {
   urlHost?: string;
 }
 
-function otherConfigUrlHost(config: PlannotatorConfig): string | undefined {
+function otherConfigUrlHost(config: ReviewTrailConfig): string | undefined {
   const raw = (config as Record<string, unknown>).urlHost;
   if (raw === undefined || raw === null) return undefined;
   if (typeof raw !== "string") return JSON.stringify(raw);
@@ -2608,8 +2608,8 @@ function otherConfigUrlHost(config: PlannotatorConfig): string | undefined {
   return host;
 }
 
-export function cookieHostState(config: PlannotatorConfig = loadConfig(), env: NodeJS.ProcessEnv = process.env): CookieHostState {
-  const envValue = env.PLANNOTATOR_URL_HOST;
+export function cookieHostState(config: ReviewTrailConfig = loadConfig(), env: NodeJS.ProcessEnv = process.env): CookieHostState {
+  const envValue = env.REVIEWTRAIL_URL_HOST;
   if (envValue !== undefined) return { on: envValue.trim().toLowerCase() === ISOLATED_COOKIE_HOST, env: envValue };
   const urlHost = otherConfigUrlHost(config);
   if (urlHost !== undefined) return { on: false, urlHost };
@@ -2620,13 +2620,13 @@ export function cookieHostState(config: PlannotatorConfig = loadConfig(), env: N
 export type CookieHostSaveOutcome = "saved" | "env" | "url_host" | "failed";
 
 /**
- * Turn the cookie switch on (write `urlHost: "plannotator.localhost"`) or off
- * (remove `urlHost`). Refused while PLANNOTATOR_URL_HOST is set (`env`) and
+ * Turn the cookie switch on (write `urlHost: "reviewtrail.localhost"`) or off
+ * (remove `urlHost`). Refused while REVIEWTRAIL_URL_HOST is set (`env`) and
  * when config.json holds another `urlHost` (`url_host`), which is checked
  * under the config lock, so a value written meanwhile is never replaced.
  */
 export function saveCookieHost(on: boolean, env: NodeJS.ProcessEnv = process.env): { outcome: CookieHostSaveOutcome; state: CookieHostState } {
-  if (env.PLANNOTATOR_URL_HOST !== undefined) return { outcome: "env", state: cookieHostState(loadConfig(), env) };
+  if (env.REVIEWTRAIL_URL_HOST !== undefined) return { outcome: "env", state: cookieHostState(loadConfig(), env) };
   let lockPath: string | null = null;
   let locked = false;
   let outcome: CookieHostSaveOutcome = "failed";
@@ -2636,7 +2636,7 @@ export function saveCookieHost(on: boolean, env: NodeJS.ProcessEnv = process.env
     locked = acquireConfigLock(lockPath);
     const read = readConfigForSave(getConfigPath());
     if (!read.ok) {
-      process.stderr.write(`[plannotator] Warning: not saving config.json because ${read.reason}; the settings in it are kept.\n`);
+      process.stderr.write(`[reviewtrail] Warning: not saving config.json because ${read.reason}; the settings in it are kept.\n`);
     } else if (otherConfigUrlHost(read.config) !== undefined) {
       outcome = "url_host";
     } else {
@@ -2647,7 +2647,7 @@ export function saveCookieHost(on: boolean, env: NodeJS.ProcessEnv = process.env
       outcome = "saved";
     }
   } catch (e) {
-    process.stderr.write(`[plannotator] Warning: failed to write config.json: ${e}\n`);
+    process.stderr.write(`[reviewtrail] Warning: failed to write config.json: ${e}\n`);
   } finally {
     if (locked && lockPath) releaseConfigLock(lockPath);
   }
@@ -2666,36 +2666,36 @@ export function cookieHostConfigWrite(value: unknown, exposed: boolean): { statu
   if (typeof value !== "boolean") return { status: 400, body: { error: "cookieHost: must be a boolean." } };
   const { outcome, state } = saveCookieHost(value);
   if (outcome === "saved") return { status: 200, body: { ok: true, cookieHost: state } };
-  if (outcome === "env") return { status: 409, body: { error: "PLANNOTATOR_URL_HOST decides this setting.", code: "cookie_host_env_decides", cookieHost: state } };
+  if (outcome === "env") return { status: 409, body: { error: "REVIEWTRAIL_URL_HOST decides this setting.", code: "cookie_host_env_decides", cookieHost: state } };
   if (outcome === "url_host") return { status: 409, body: { error: "config.json already sets urlHost; it is not replaced.", code: "cookie_host_url_host_in_use", cookieHost: state } };
   return { status: 500, body: { error: "config.json could not be saved; nothing changed.", cookieHost: state } };
 }
 
 /**
- * Resolve whether Plannotator-managed AI features are enabled.
+ * Resolve whether ReviewTrail-managed AI features are enabled.
  *
- * Set PLANNOTATOR_AI=disabled to prevent provider runtime initialization and
- * hide the corresponding UI. External agents may still open Plannotator as a
+ * Set REVIEWTRAIL_AI=disabled to prevent provider runtime initialization and
+ * hide the corresponding UI. External agents may still open ReviewTrail as a
  * review surface and submit annotations through the external annotation API.
  */
 export function resolveAIEnabled(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return env.PLANNOTATOR_AI?.toLowerCase() !== "disabled";
+  return env.REVIEWTRAIL_AI?.toLowerCase() !== "disabled";
 }
 
 /**
  * Resolve whether Cursor review jobs pass `--sandbox enabled` to the `agent` CLI.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_CURSOR_SANDBOX env var  →  config.cursorSandbox  →  default true
+ *   REVIEWTRAIL_CURSOR_SANDBOX env var  →  config.cursorSandbox  →  default true
  *
  * Env values `0` / `false` / `disabled` turn the flag off (the pair is omitted
  * from the argv, deferring to the user's own Cursor Agent configuration);
  * anything else — including `1` / `true` / `enabled` — keeps the default.
  */
-export function resolveCursorSandbox(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_CURSOR_SANDBOX;
+export function resolveCursorSandbox(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_CURSOR_SANDBOX;
   if (envVal !== undefined) {
     const v = envVal.toLowerCase();
     return v !== "0" && v !== "false" && v !== "disabled";
@@ -2708,13 +2708,13 @@ export function resolveCursorSandbox(config: PlannotatorConfig): boolean {
  * sandbox setting (true) or run with the sandbox turned off for the job (false).
  *
  * Priority (highest wins):
- *   PLANNOTATOR_CLAUDE_SANDBOX env var  →  config.claudeSandbox  →  default true
+ *   REVIEWTRAIL_CLAUDE_SANDBOX env var  →  config.claudeSandbox  →  default true
  *
  * Env values `0` / `false` / `disabled` turn it off; anything else keeps the
- * default. See `claudeSandbox` on PlannotatorConfig for why (#1627).
+ * default. See `claudeSandbox` on ReviewTrailConfig for why (#1627).
  */
-export function resolveClaudeSandbox(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_CLAUDE_SANDBOX;
+export function resolveClaudeSandbox(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_CLAUDE_SANDBOX;
   if (envVal !== undefined) {
     const v = envVal.toLowerCase();
     return v !== "0" && v !== "false" && v !== "disabled";
@@ -2726,7 +2726,7 @@ export function resolveClaudeSandbox(config: PlannotatorConfig): boolean {
  * Resolve whether code review may query the git remote (issue #1553).
  *
  * Priority (highest wins):
- *   `review --no-git-remote-check`  →  PLANNOTATOR_GIT_REMOTE_CHECK env var
+ *   `review --no-git-remote-check`  →  REVIEWTRAIL_GIT_REMOTE_CHECK env var
  *   →  config.gitRemoteCheck  →  default true
  *
  * Env values `0` / `false` / `disabled` turn the remote check off; anything
@@ -2739,11 +2739,11 @@ export function resolveClaudeSandbox(config: PlannotatorConfig): boolean {
  */
 export function resolveGitRemoteCheck(
   cliNoGitRemoteCheck: boolean,
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   if (cliNoGitRemoteCheck) return false;
-  const envVal = env.PLANNOTATOR_GIT_REMOTE_CHECK;
+  const envVal = env.REVIEWTRAIL_GIT_REMOTE_CHECK;
   if (envVal !== undefined) {
     const v = envVal.trim().toLowerCase();
     return v !== "0" && v !== "false" && v !== "disabled";
@@ -2756,15 +2756,15 @@ export function resolveGitRemoteCheck(
  * provider during execution.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_TODO_PROVIDER env var  →  config.todoProvider  →  default auto
+ *   REVIEWTRAIL_TODO_PROVIDER env var  →  config.todoProvider  →  default auto
  *
  * Env values `off` / `0` / `false` / `disabled` turn the mirror off, matching
  * the vocabulary the other flags accept; anything else — including `auto` —
  * keeps it on. Enabled only means "sync when a provider is detected": with no
  * provider present, the progress widget is the whole experience either way.
  */
-export function resolveTodoProviderEnabled(config: PlannotatorConfig): boolean {
-  const envVal = process.env.PLANNOTATOR_TODO_PROVIDER;
+export function resolveTodoProviderEnabled(config: ReviewTrailConfig): boolean {
+  const envVal = process.env.REVIEWTRAIL_TODO_PROVIDER;
   if (envVal !== undefined) {
     const v = envVal.toLowerCase();
     return v !== "off" && v !== "0" && v !== "false" && v !== "disabled";
@@ -2787,7 +2787,7 @@ export interface BitbucketCredentials {
  * Resolve Bitbucket Cloud API credentials.
  *
  * Priority (highest wins):
- *   PLANNOTATOR_BITBUCKET_TOKEN / _EMAIL env vars  →  config.bitbucketTokenCommand / bitbucketEmail
+ *   REVIEWTRAIL_BITBUCKET_TOKEN / _EMAIL env vars  →  config.bitbucketTokenCommand / bitbucketEmail
  *   (`resolveBitbucketTokenCommand`; this function answers null for it)  →  config.bitbucketToken / bitbucketEmail
  *
  * The token and email are resolved together from one source: an env token
@@ -2796,14 +2796,14 @@ export interface BitbucketCredentials {
  * Returns null when no token is configured.
  */
 export function resolveBitbucketCredentials(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: Record<string, string | undefined> = process.env,
 ): BitbucketCredentials | null {
   const clean = (v: unknown): string | undefined =>
     typeof v === "string" && v.trim() !== "" ? v.trim() : undefined;
-  const envToken = clean(env.PLANNOTATOR_BITBUCKET_TOKEN);
+  const envToken = clean(env.REVIEWTRAIL_BITBUCKET_TOKEN);
   if (envToken) {
-    const email = clean(env.PLANNOTATOR_BITBUCKET_EMAIL);
+    const email = clean(env.REVIEWTRAIL_BITBUCKET_EMAIL);
     return { token: envToken, ...(email ? { email } : {}) };
   }
   if (resolveBitbucketTokenCommand(config, env)) return null;
@@ -2823,14 +2823,14 @@ export interface BitbucketTokenCommand {
 
 /**
  * The configured `bitbucketTokenCommand`, or null when there is none or the
- * PLANNOTATOR_BITBUCKET_TOKEN env var wins over it. A value that is not a
+ * REVIEWTRAIL_BITBUCKET_TOKEN env var wins over it. A value that is not a
  * non-empty list of non-empty strings counts as unset.
  */
 export function resolveBitbucketTokenCommand(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: Record<string, string | undefined> = process.env,
 ): BitbucketTokenCommand | null {
-  if (typeof env.PLANNOTATOR_BITBUCKET_TOKEN === "string" && env.PLANNOTATOR_BITBUCKET_TOKEN.trim() !== "") return null;
+  if (typeof env.REVIEWTRAIL_BITBUCKET_TOKEN === "string" && env.REVIEWTRAIL_BITBUCKET_TOKEN.trim() !== "") return null;
   const argv = config.bitbucketTokenCommand;
   if (!Array.isArray(argv) || argv.length === 0 || !argv.every((part) => typeof part === "string" && part !== "")) return null;
   const email = typeof config.bitbucketEmail === "string" && config.bitbucketEmail.trim() !== "" ? config.bitbucketEmail.trim() : undefined;
@@ -2838,13 +2838,13 @@ export function resolveBitbucketTokenCommand(
 }
 
 /**
- * Resolve the Bitbucket Cloud REST API base URL. PLANNOTATOR_BITBUCKET_API_URL
+ * Resolve the Bitbucket Cloud REST API base URL. REVIEWTRAIL_BITBUCKET_API_URL
  * overrides the default for tests (a local fake API) and proxies. Credentials
  * are sent to this URL, so anything that is not `https:` — or `http:` on a
  * loopback host — is refused with a warning and the default is used.
  */
 export function resolveBitbucketApiUrl(env: Record<string, string | undefined> = process.env): string {
-  const raw = env.PLANNOTATOR_BITBUCKET_API_URL?.trim();
+  const raw = env.REVIEWTRAIL_BITBUCKET_API_URL?.trim();
   if (!raw) return DEFAULT_BITBUCKET_API_URL;
   try {
     const u = new URL(raw);
@@ -2856,7 +2856,7 @@ export function resolveBitbucketApiUrl(env: Record<string, string | undefined> =
   if (!warnedBitbucketApiUrls.has(raw)) {
     warnedBitbucketApiUrls.add(raw);
     console.error(
-      `[plannotator] Ignoring PLANNOTATOR_BITBUCKET_API_URL: must be an https URL (or http on localhost). Using ${DEFAULT_BITBUCKET_API_URL}.`,
+      `[reviewtrail] Ignoring REVIEWTRAIL_BITBUCKET_API_URL: must be an https URL (or http on localhost). Using ${DEFAULT_BITBUCKET_API_URL}.`,
     );
   }
   return DEFAULT_BITBUCKET_API_URL;

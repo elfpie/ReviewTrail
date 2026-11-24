@@ -1,11 +1,11 @@
 /**
  * Stale-tab guard for decision POSTs.
  *
- * Every Plannotator server process (plan, annotate, code review; Bun and Pi)
+ * Every ReviewTrail server process (plan, annotate, code review; Bun and Pi)
  * issues ONE random `serverSession` nonce at start and advertises it on the
  * payload the tab loads (`/api/plan`, `/api/diff`). The tab echoes it on every
  * decision it posts (approve, deny, feedback, exit). A tab left open on a port
- * that a NEW server now owns (a fixed `PLANNOTATOR_PORT`, remote mode's 19432,
+ * that a NEW server now owns (a fixed `REVIEWTRAIL_PORT`, remote mode's 19432,
  * or a rare random-port reuse) would otherwise approve or annotate a different
  * document than the one on its screen; the new server sees a nonce that is not
  * its own and answers `409 { code: "session_mismatch" }` before it claims or
@@ -23,7 +23,7 @@ export const SERVER_SESSION_FIELD = "serverSession";
 export const SERVER_SESSION_MISMATCH_CODE = "session_mismatch";
 
 export const SERVER_SESSION_MISMATCH_ERROR =
-  "This review was replaced by a newer Plannotator session on the same address. Reload the page to see what is open now; nothing was submitted.";
+  "This review was replaced by a newer ReviewTrail session on the same address. Reload the page to see what is open now; nothing was submitted.";
 
 /** A fresh nonce for one server process: 16 random bytes as hex. */
 export function createServerSessionNonce(): string {
@@ -47,11 +47,11 @@ export function checkServerSession(body: unknown, expected: string): "ok" | "mis
 }
 
 /**
- * The Plannotator Inbox's words for the same refusal: the Inbox holds no
+ * The ReviewTrail Inbox's words for the same refusal: the Inbox holds no
  * review, and a refused write (a pick, a Send, a setting) saved nothing.
  */
 export const INBOX_SERVER_SESSION_MISMATCH_ERROR =
-  "This Inbox page is out of date: a newer Plannotator Inbox runs on the same address. Reload the page to see it; nothing was saved.";
+  "This Inbox page is out of date: a newer ReviewTrail Inbox runs on the same address. Reload the page to see it; nothing was saved.";
 
 /**
  * The JSON body a server answers a mismatch with (status 409). `error`

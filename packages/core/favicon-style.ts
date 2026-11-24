@@ -5,7 +5,7 @@
  */
 
 /**
- * The favicon a person picks. The ids are what cookies (`plannotator-favicon`)
+ * The favicon a person picks. The ids are what cookies (`reviewtrail-favicon`)
  * and config.json (`favicon`) store:
  * - 'glass': the Glass icon, the default for anyone with nothing stored.
  * - 'yellow': the Yellow icon, the glass icon with a yellow glass.

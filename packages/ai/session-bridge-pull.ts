@@ -2,9 +2,9 @@
  * "Ask this session" over HTTP: the pull bridge.
  *
  * The in-process `SessionBridge` (session-bridge.ts) needs the host to live in
- * the same process as the Plannotator server (Pi, OpenCode's embedded plan
+ * the same process as the ReviewTrail server (Pi, OpenCode's embedded plan
  * server). A host that runs the server as a SEPARATE process (the OpenCode
- * plugin spawning the `plannotator` CLI, the Claude Code mod) cannot be called
+ * plugin spawning the `reviewtrail` CLI, the Claude Code mod) cannot be called
  * directly, and should not have to open a listener of its own. It pulls
  * instead: it long-polls this server for work and posts the answer back.
  *
@@ -35,7 +35,7 @@
  *
  * Auth: `Authorization: Bearer <token>`, where the token is a per-launch secret
  * the host generated and handed to the server process (env
- * `PLANNOTATOR_SESSION_BRIDGE_TOKEN`). It is never sent to the browser. The
+ * `REVIEWTRAIL_SESSION_BRIDGE_TOKEN`). It is never sent to the browser. The
  * runtime additionally requires a loopback Host header with the server's own
  * port, and these handlers refuse any request carrying an `Origin` header: a
  * browser page is never the host.
@@ -62,10 +62,10 @@ export const SESSION_BRIDGE_POLL_PATH = "/api/ai/bridge/poll";
 export const SESSION_BRIDGE_EVENT_PATH = "/api/ai/bridge/event";
 
 /** Env vars a host sets on the server process it launches. */
-export const SESSION_BRIDGE_TOKEN_ENV = "PLANNOTATOR_SESSION_BRIDGE_TOKEN";
-export const SESSION_BRIDGE_HOST_ENV = "PLANNOTATOR_SESSION_BRIDGE_HOST";
+export const SESSION_BRIDGE_TOKEN_ENV = "REVIEWTRAIL_SESSION_BRIDGE_TOKEN";
+export const SESSION_BRIDGE_HOST_ENV = "REVIEWTRAIL_SESSION_BRIDGE_HOST";
 /** Comma-separated subset of `turn,transient`. Default `turn`. */
-export const SESSION_BRIDGE_MODES_ENV = "PLANNOTATOR_SESSION_BRIDGE_MODES";
+export const SESSION_BRIDGE_MODES_ENV = "REVIEWTRAIL_SESSION_BRIDGE_MODES";
 
 export const SESSION_BRIDGE_MAX_POLL_MS = 25_000;
 
@@ -327,7 +327,7 @@ export function createPullSessionBridge(options: PullSessionBridgeOptions): Pull
 				return;
 			}
 			if (active) {
-				sink.error("busy", "Another Plannotator question is still running in this session.");
+				sink.error("busy", "Another ReviewTrail question is still running in this session.");
 				return;
 			}
 			const ask: ActiveAsk = {

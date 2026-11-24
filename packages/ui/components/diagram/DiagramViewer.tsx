@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { buildDiagramAnchorValue, type DiagramAnchor, type DiagramKind, type DiagramTarget } from '@plannotator/core/diagram-anchor';
+import { buildDiagramAnchorValue, type DiagramAnchor, type DiagramKind, type DiagramTarget } from '@reviewtrail/core/diagram-anchor';
 import { cn } from '../../lib/utils';
 import { diagramFamilyOf } from '../../utils/diagram-anchor';
 import { diagramFinder, type DiagramTheme } from '../../utils/diagram-render';
@@ -18,13 +18,13 @@ import type { DiagramReopenRequest } from './reopen';
  * parse-error strip over a dimmed last-good render. It takes the diagram
  * source and the host's comments on it, and reports a new comment through
  * `onCreateComment`; the comments rail, storage and identity are the
- * host's. Plannotator's fence blocks render through it in the document
+ * host's. ReviewTrail's fence blocks render through it in the document
  * (`components/DiagramBlock`) and again at full size in the popout; a host
  * with its own document store renders it wherever a diagram lives.
  */
 /**
  * The Source pane is CodeMirror, and a viewer that can never open one (every
- * fence in a Plannotator document today: no host passes `onSave`) must not
+ * fence in a ReviewTrail document today: no host passes `onSave`) must not
  * carry it. It loads on the first open of the pane and never before, so the
  * editor stays out of the document-read closure of a chunked host.
  */

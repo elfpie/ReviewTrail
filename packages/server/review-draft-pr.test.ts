@@ -2,7 +2,7 @@
  * /api/draft in PR mode survives a changed PR diff (#1590), and every
  * decision clears it under both keys. Reviews without a Git identity keep the content-hash key.
  *
- * Temp PLANNOTATOR_DATA_DIR per test. The server's PR commands (the platform
+ * Temp REVIEWTRAIL_DATA_DIR per test. The server's PR commands (the platform
  * user, viewed files, PR context) go to a fake runtime, never the real `gh`:
  * emptying PATH did not do that, since Bun resolves a spawn without `env` on
  * the PATH the process started with.
@@ -11,12 +11,12 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { PRMetadata } from '@plannotator/shared/pr-types';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
 import { startReviewServer } from './review';
 import { setPRCommandRuntimeForTests } from './pr';
 import { createFakePRRuntime, type FakePRRuntime } from '../../tests/helpers/fake-pr-runtime';
 
-const ENV_KEYS = ['PLANNOTATOR_AI', 'PLANNOTATOR_DATA_DIR', 'PLANNOTATOR_PORT', 'PLANNOTATOR_REMOTE', 'PLANNOTATOR_BROWSER'] as const;
+const ENV_KEYS = ['REVIEWTRAIL_AI', 'REVIEWTRAIL_DATA_DIR', 'REVIEWTRAIL_PORT', 'REVIEWTRAIL_REMOTE', 'REVIEWTRAIL_BROWSER'] as const;
 const saved: Partial<Record<(typeof ENV_KEYS)[number], string | undefined>> = {};
 const tempDirs: string[] = [];
 let prCommands: FakePRRuntime | null = null;
@@ -47,14 +47,14 @@ function makeTempDir(prefix: string): string {
 
 function sandbox(): string {
   for (const key of ENV_KEYS) saved[key] = process.env[key];
-  process.env.PLANNOTATOR_AI = 'disabled';
-  process.env.PLANNOTATOR_REMOTE = '0';
-  process.env.PLANNOTATOR_BROWSER = '/usr/bin/true';
-  delete process.env.PLANNOTATOR_PORT;
+  process.env.REVIEWTRAIL_AI = 'disabled';
+  process.env.REVIEWTRAIL_REMOTE = '0';
+  process.env.REVIEWTRAIL_BROWSER = '/usr/bin/true';
+  delete process.env.REVIEWTRAIL_PORT;
   prCommands = createFakePRRuntime();
   setPRCommandRuntimeForTests(prCommands.runtime);
-  const dataDir = makeTempDir('plannotator-draft-pr-data-');
-  process.env.PLANNOTATOR_DATA_DIR = dataDir;
+  const dataDir = makeTempDir('reviewtrail-draft-pr-data-');
+  process.env.REVIEWTRAIL_DATA_DIR = dataDir;
   return dataDir;
 }
 
@@ -166,7 +166,7 @@ describe('PR review drafts across a push', () => {
     await withSession(PATCH_AFTER_PUSH, prMetadata, async (url) => {
       const res = await fetch(`${url}/api/draft`);
       expect(res.status).toBe(204);
-      expect(Number(res.headers.get("Plannotator-Draft-Generation"))).toBe(4);
+      expect(Number(res.headers.get("ReviewTrail-Draft-Generation"))).toBe(4);
     });
   });
 });

@@ -54,8 +54,8 @@ export async function diffLoadFailureFromResponse(res: Response): Promise<DiffLo
   const serverError = res.status >= 500;
   return new DiffLoadFailure({
     summary: serverError
-      ? 'Plannotator could not load the changes for this review.'
-      : 'This page could not get a review from Plannotator.',
+      ? 'ReviewTrail could not load the changes for this review.'
+      : 'This page could not get a review from ReviewTrail.',
     detail: detail ? `${detail} (HTTP ${res.status})` : `HTTP ${res.status}`,
     canDecide: serverError,
   });
@@ -64,7 +64,7 @@ export async function diffLoadFailureFromResponse(res: Response): Promise<DiffLo
 /** For a `/api/diff` request that got no answer at all (a stopped server, a dropped connection). */
 export function diffLoadUnreachable(): DiffLoadFailure {
   return new DiffLoadFailure({
-    summary: "Plannotator isn't running or can't be reached, so this review could not load.",
+    summary: "ReviewTrail isn't running or can't be reached, so this review could not load.",
     detail: null,
     canDecide: false,
   });

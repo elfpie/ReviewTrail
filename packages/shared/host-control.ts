@@ -13,11 +13,11 @@
  * a loopback Host header naming this server's port (DNS-rebinding guard), no
  * `Origin` header (a browser page is never the host), and
  * `Authorization: Bearer <token>`, the per-launch secret the host started the
- * server with (`PLANNOTATOR_SESSION_BRIDGE_TOKEN`). Without a token the paths
+ * server with (`REVIEWTRAIL_SESSION_BRIDGE_TOKEN`). Without a token the paths
  * answer 404 with `code: "host_control_disabled"`, which a host reads as
- * "turned off" (an uncoded 404 is "an older Plannotator"). Available wherever
+ * "turned off" (an uncoded 404 is "an older ReviewTrail"). Available wherever
  * the host launched the server with that token, including under
- * `PLANNOTATOR_AI=disabled` (which turns the pull bridge itself off); never in
+ * `REVIEWTRAIL_AI=disabled` (which turns the pull bridge itself off); never in
  * remote mode or a `--tailscale` session (which discards the token).
  *
  * Privacy: status carries counts, never comment text.
@@ -123,8 +123,8 @@ export function isHostControlPath(pathname: string): boolean {
 export function handleHostControlRequest(request: HostControlRequest, route: HostControlRoute): HostControlAnswer | null {
 	if (!isHostControlPath(request.pathname)) return null;
 	// Off (remote mode, or launched without a token): a 404 like an unknown
-	// path, but with a code, so a host can tell "this Plannotator turned host
-	// control off" from "this Plannotator predates it" and not fall back to
+	// path, but with a code, so a host can tell "this ReviewTrail turned host
+	// control off" from "this ReviewTrail predates it" and not fall back to
 	// signalling its process.
 	if (!route.token) return { status: 404, body: { error: "Not found", code: HOST_CONTROL_DISABLED_CODE } };
 	if (!isLoopbackHostHeader(request.host, route.getServerPort())) {
@@ -159,7 +159,7 @@ export function handleHostControlRequest(request: HostControlRequest, route: Hos
 
 /**
  * The external-annotation SSE event that tells open tabs the review was
- * closed: by the agent (`POST /api/host/close`, the `plannotator` tool) or,
+ * closed: by the agent (`POST /api/host/close`, the `reviewtrail` tool) or,
  * `"session"`, because plan mode or the agent session itself ended.
  */
 export interface HostSessionClosedEvent {
@@ -188,9 +188,9 @@ export type HostCloseAnswer =
 	| { kind: "closed"; unsent: number }
 	/** The reviewer (or an earlier close) decided first; that decision is on its way. */
 	| { kind: "decided" }
-	/** A Plannotator without the endpoint answered: a JSON 404 (0.24+) or its app page (0.19.24 to 0.23.x). */
+	/** A ReviewTrail without the endpoint answered: a JSON 404 (0.24+) or its app page (0.19.24 to 0.23.x). */
 	| { kind: "older" }
-	/** A Plannotator WITH the endpoint, turned off (remote mode, launched without a token). */
+	/** A ReviewTrail WITH the endpoint, turned off (remote mode, launched without a token). */
 	| { kind: "disabled" }
 	| { kind: "refused"; status: number }
 	/** Nothing answered on the port. */
@@ -229,7 +229,7 @@ export function classifyHostCloseAnswer(answer: HostHttpAnswer | null): HostClos
 	return { kind: "refused", status: answer.status };
 }
 
-/** A status answer's counts, or null when the server cannot say (an older Plannotator, turned off, not answering). */
+/** A status answer's counts, or null when the server cannot say (an older ReviewTrail, turned off, not answering). */
 export function readHostStatusAnswer(answer: HostHttpAnswer | null): { unsent: number; decided: boolean } | null {
 	if (!answer || answer.status < 200 || answer.status >= 300) return null;
 	const body = jsonObjectOf(answer.text);

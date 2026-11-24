@@ -10,25 +10,25 @@ import { tmpdir } from "node:os";
 import { appendFile, mkdir, unlink, writeFile, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { toRelativePath } from "./path-utils";
-import { getPlannotatorDataDir } from "@plannotator/shared/data-dir";
+import { getReviewTrailDataDir } from "@reviewtrail/shared/data-dir";
 import {
   composeReviewPrompt,
   type ResolvedReviewProfile,
-} from "@plannotator/shared/review-profiles";
-import { classifyFindingPlacement } from "@plannotator/shared/external-annotation";
-import { codexAskAiConfigArgs, readCodexConfigTexts } from "@plannotator/ai/providers/ask-ai-env";
+} from "@reviewtrail/shared/review-profiles";
+import { classifyFindingPlacement } from "@reviewtrail/shared/external-annotation";
+import { codexAskAiConfigArgs, readCodexConfigTexts } from "@reviewtrail/ai/providers/ask-ai-env";
 
 // ---------------------------------------------------------------------------
-// Debug log — only active when PLANNOTATOR_DEBUG is set
+// Debug log — only active when REVIEWTRAIL_DEBUG is set
 // ---------------------------------------------------------------------------
 
-const DEBUG_ENABLED = !!process.env.PLANNOTATOR_DEBUG;
+const DEBUG_ENABLED = !!process.env.REVIEWTRAIL_DEBUG;
 
 async function debugLog(label: string, data?: unknown): Promise<void> {
   if (!DEBUG_ENABLED) return;
   try {
-    // Resolved per call: PLANNOTATOR_DATA_DIR may change after import.
-    const dataDir = getPlannotatorDataDir();
+    // Resolved per call: REVIEWTRAIL_DATA_DIR may change after import.
+    const dataDir = getReviewTrailDataDir();
     await mkdir(dataDir, { recursive: true });
     const timestamp = new Date().toISOString();
     const line = data !== undefined
@@ -91,7 +91,7 @@ export const CODEX_REVIEW_SCHEMA = JSON.stringify({
 
 /** Resolve the materialized schema path for the current data directory. */
 export function getCodexReviewSchemaPath(): string {
-  return join(getPlannotatorDataDir(), "codex-review-schema.json");
+  return join(getReviewTrailDataDir(), "codex-review-schema.json");
 }
 
 /** Schema paths this process has already refreshed with its own schema. */
@@ -241,7 +241,7 @@ export async function buildCodexCommand(options: CodexCommandOptions): Promise<s
 
 /** Generate a unique temp file path for Codex output. */
 export function generateOutputPath(): string {
-  return join(tmpdir(), `plannotator-codex-${crypto.randomUUID()}.json`);
+  return join(tmpdir(), `reviewtrail-codex-${crypto.randomUUID()}.json`);
 }
 
 // ---------------------------------------------------------------------------

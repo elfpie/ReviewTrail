@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { resetStorageBackend, setStorageBackend } from '@plannotator/ui/utils/storage';
+import { resetStorageBackend, setStorageBackend } from '@reviewtrail/ui/utils/storage';
 import type { DiffFile } from '../types';
 import {
   LEGACY_MARKDOWN_PREVIEW_ALL_COOKIE,

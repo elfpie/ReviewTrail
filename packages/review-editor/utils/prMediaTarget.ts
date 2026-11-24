@@ -1,4 +1,4 @@
-import type { PRMetadata } from '@plannotator/shared/pr-types';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
 import { findPRArtifactByUrl, type PRArtifact } from './prArtifacts';
 
 const PROXY_PATH = '/api/pr-artifact-content';

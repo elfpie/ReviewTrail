@@ -1,4 +1,4 @@
-import { createShortcutScopeHook, defineShortcutScope } from '@plannotator/ui/shortcuts';
+import { createShortcutScopeHook, defineShortcutScope } from '@reviewtrail/ui/shortcuts';
 
 /**
  * Keys inside a Call tree (the tree has keyboard focus). They are bound to

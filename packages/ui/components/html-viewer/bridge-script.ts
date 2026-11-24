@@ -3,7 +3,7 @@
  *
  * Handles text selection, annotation marks, theme updates, and resize
  * notifications. Communicates with the parent via postMessage using a
- * "plannotator-bridge-*" message protocol.
+ * "reviewtrail-bridge-*" message protocol.
  *
  * This is a string constant — it gets prepended to the iframe's srcdoc.
  * Its one import, ./sandboxShim, is a dependency-free string constant as well;
@@ -25,18 +25,18 @@ export const ANNOTATION_HIGHLIGHT_CSS = `
 /* Vim pinpoint target tint. The MOUSE pinpoint path no longer mutates author
  * elements — it draws the dedicated overlay box below — but keyboard (vim)
  * navigation keeps this class-based visual. */
-.plannotator-pinpoint-hover {
+.reviewtrail-pinpoint-hover {
   background-color: oklch(from var(--pn-focus-highlight, #4493f8) l c h / 0.12) !important;
   border-radius: 3px;
   cursor: pointer !important;
 }
 /* SVG groups can't render a CSS background, so use a soft glow instead. */
-.plannotator-pinpoint-hover:is(g, svg) {
+.reviewtrail-pinpoint-hover:is(g, svg) {
   filter: drop-shadow(0 0 4px oklch(from var(--pn-focus-highlight, #4493f8) l c h / 0.55));
 }
 /* Mouse pinpoint hover: a fixed-position outline box sized to the hovered
  * element's rect. Never a class/style write on the page's own elements. */
-[data-plannotator-pinpoint-box] {
+[data-reviewtrail-pinpoint-box] {
   position: fixed;
   z-index: 2147483643;
   pointer-events: none;
@@ -46,10 +46,10 @@ export const ANNOTATION_HIGHLIGHT_CSS = `
   border-radius: 5px;
   background: oklch(from var(--pn-focus-highlight, #4493f8) l c h / 0.06);
 }
-[data-plannotator-pinpoint-box].pn-pin-enter {
+[data-reviewtrail-pinpoint-box].pn-pin-enter {
   animation: pn-pinpoint-in 0.12s ease-out;
 }
-[data-plannotator-pinpoint-box][data-pinned] {
+[data-reviewtrail-pinpoint-box][data-pinned] {
   border-color: var(--pn-accent, #d97757);
   background: oklch(from var(--pn-accent, #d97757) l c h / 0.08);
 }
@@ -59,12 +59,12 @@ export const ANNOTATION_HIGHLIGHT_CSS = `
 }
 /* Pinpoint mode affordance: crosshair everywhere. Placed markers live in the
  * shadow overlay and keep their own pointer cursor there. */
-body[data-plannotator-pinpoint-cursor],
-body[data-plannotator-pinpoint-cursor] * {
+body[data-reviewtrail-pinpoint-cursor],
+body[data-reviewtrail-pinpoint-cursor] * {
   cursor: crosshair !important;
 }
 /* Armed, body listens for clicks so a tap pins (setTapTarget): no grey flash over the whole page on each tap. */
-body[data-plannotator-pinpoint-cursor] {
+body[data-reviewtrail-pinpoint-cursor] {
   -webkit-tap-highlight-color: transparent;
 }
 /* A plain click on a link with a real destination follows it while armed
@@ -72,38 +72,38 @@ body[data-plannotator-pinpoint-cursor] {
  * until the modifier is held. A link that goes nowhere (no href, "", "#",
  * javascript:) is not followed and keeps the crosshair. SVG links may carry
  * only xlink:href, hence the any-namespace attribute. */
-body[data-plannotator-pinpoint-cursor]:not([data-plannotator-pin-modifier]) :is(a, area)[href]:not([href=""]):not([href="#"]):not([href^="javascript:" i]),
-body[data-plannotator-pinpoint-cursor]:not([data-plannotator-pin-modifier]) :is(a, area)[href]:not([href=""]):not([href="#"]):not([href^="javascript:" i]) *,
-body[data-plannotator-pinpoint-cursor]:not([data-plannotator-pin-modifier]) svg a:not([href])[*|href]:not([*|href=""]):not([*|href="#"]):not([*|href^="javascript:" i]),
-body[data-plannotator-pinpoint-cursor]:not([data-plannotator-pin-modifier]) svg a:not([href])[*|href]:not([*|href=""]):not([*|href="#"]):not([*|href^="javascript:" i]) * {
+body[data-reviewtrail-pinpoint-cursor]:not([data-reviewtrail-pin-modifier]) :is(a, area)[href]:not([href=""]):not([href="#"]):not([href^="javascript:" i]),
+body[data-reviewtrail-pinpoint-cursor]:not([data-reviewtrail-pin-modifier]) :is(a, area)[href]:not([href=""]):not([href="#"]):not([href^="javascript:" i]) *,
+body[data-reviewtrail-pinpoint-cursor]:not([data-reviewtrail-pin-modifier]) svg a:not([href])[*|href]:not([*|href=""]):not([*|href="#"]):not([*|href^="javascript:" i]),
+body[data-reviewtrail-pinpoint-cursor]:not([data-reviewtrail-pin-modifier]) svg a:not([href])[*|href]:not([*|href=""]):not([*|href="#"]):not([*|href^="javascript:" i]) * {
   cursor: pointer !important;
 }
 /* Touch, armed: a tap on a link follows it and a press-and-hold pins it for
  * a comment. iOS's link callout would take that hold, so it is off on links
- * while armed, once a touch is seen (data-plannotator-touch) or on screens
+ * while armed, once a touch is seen (data-reviewtrail-touch) or on screens
  * without hover. The callout is all: link text stays selectable, so a drag
  * across a link (a trackpad, a touchscreen laptop) still quotes its words.
- * Only while a hold on a link is in progress (data-plannotator-link-hold,
+ * Only while a hold on a link is in progress (data-reviewtrail-link-hold,
  * from its touchstart to its release) is selection off too, so the platform's
  * long-press does not start a native text selection under the finger. */
-body[data-plannotator-pinpoint-cursor][data-plannotator-touch] :is(a, area),
-body[data-plannotator-pinpoint-cursor][data-plannotator-touch] :is(a, area) *,
-body[data-plannotator-pinpoint-cursor][data-plannotator-touch] svg a,
-body[data-plannotator-pinpoint-cursor][data-plannotator-touch] svg a * {
+body[data-reviewtrail-pinpoint-cursor][data-reviewtrail-touch] :is(a, area),
+body[data-reviewtrail-pinpoint-cursor][data-reviewtrail-touch] :is(a, area) *,
+body[data-reviewtrail-pinpoint-cursor][data-reviewtrail-touch] svg a,
+body[data-reviewtrail-pinpoint-cursor][data-reviewtrail-touch] svg a * {
   -webkit-touch-callout: none !important;
 }
 @media (hover: none) {
-  body[data-plannotator-pinpoint-cursor] :is(a, area),
-  body[data-plannotator-pinpoint-cursor] :is(a, area) *,
-  body[data-plannotator-pinpoint-cursor] svg a,
-  body[data-plannotator-pinpoint-cursor] svg a * {
+  body[data-reviewtrail-pinpoint-cursor] :is(a, area),
+  body[data-reviewtrail-pinpoint-cursor] :is(a, area) *,
+  body[data-reviewtrail-pinpoint-cursor] svg a,
+  body[data-reviewtrail-pinpoint-cursor] svg a * {
     -webkit-touch-callout: none !important;
   }
 }
-body[data-plannotator-link-hold] :is(a, area),
-body[data-plannotator-link-hold] :is(a, area) *,
-body[data-plannotator-link-hold] svg a,
-body[data-plannotator-link-hold] svg a * {
+body[data-reviewtrail-link-hold] :is(a, area),
+body[data-reviewtrail-link-hold] :is(a, area) *,
+body[data-reviewtrail-link-hold] svg a,
+body[data-reviewtrail-link-hold] svg a * {
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
   user-select: none !important;
@@ -117,11 +117,11 @@ body[data-plannotator-link-hold] svg a * {
  * the only state a link inside it can be followed from.
  * Live-app sessions never set this attribute: they annotate a real app whose
  * own nested frames belong to it. */
-body[data-plannotator-frame-inert] :is(iframe, frame, embed, object) {
+body[data-reviewtrail-frame-inert] :is(iframe, frame, embed, object) {
   pointer-events: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-plannotator-pinpoint-box].pn-pin-enter {
+  [data-reviewtrail-pinpoint-box].pn-pin-enter {
     animation: none;
   }
 }
@@ -131,10 +131,10 @@ body[data-plannotator-frame-inert] :is(iframe, frame, embed, object) {
      print-hidden by print.css, but this CSS lives inside the iframe's own
      document and must carry its own rule. The annotation overlay host carries
      its own print rule inside its shadow root. */
-  [data-plannotator-pinpoint-box],
-  [data-plannotator-pinpoint-label],
-  [data-plannotator-vim-ui],
-  [data-plannotator-vim-cursor] {
+  [data-reviewtrail-pinpoint-box],
+  [data-reviewtrail-pinpoint-label],
+  [data-reviewtrail-vim-ui],
+  [data-reviewtrail-vim-cursor] {
     display: none !important;
   }
 }
@@ -143,14 +143,14 @@ body[data-plannotator-frame-inert] :is(iframe, frame, embed, object) {
  * afterprint (the fixed overlay cannot paginate). Guarded here so it can
  * never flash on screen even if an afterprint teardown is missed. */
 @media screen {
-  [data-plannotator-print-layer] {
+  [data-reviewtrail-print-layer] {
     display: none !important;
   }
 }
-body[data-plannotator-vim-focus-owner]:focus {
+body[data-reviewtrail-vim-focus-owner]:focus {
   outline: none !important;
 }
-[data-plannotator-vim-cursor] {
+[data-reviewtrail-vim-cursor] {
   position: fixed;
   z-index: 2147483646;
   width: 2px;
@@ -159,23 +159,23 @@ body[data-plannotator-vim-focus-owner]:focus {
   background: var(--pn-focus-highlight, #4493f8);
   pointer-events: none;
 }
-[data-plannotator-vim-reticle] {
+[data-reviewtrail-vim-reticle] {
   position: fixed;
   z-index: 2147483645;
   inset: 0;
   overflow: visible;
   pointer-events: none;
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-fill],
-[data-plannotator-vim-reticle] [data-vim-reticle-corner],
-[data-plannotator-vim-reticle] [data-vim-reticle-label] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-fill],
+[data-reviewtrail-vim-reticle] [data-vim-reticle-corner],
+[data-reviewtrail-vim-reticle] [data-vim-reticle-label] {
   position: absolute;
   top: 0;
   left: 0;
   will-change: transform;
   transition: transform 90ms cubic-bezier(.22,1,.36,1);
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-fill] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-fill] {
   width: 100px;
   height: 100px;
   transform-origin: 0 0;
@@ -185,7 +185,7 @@ body[data-plannotator-vim-focus-owner]:focus {
     inset 0 0 0 1px rgba(196,181,253,.16),
     0 0 42px rgba(139,92,246,.12);
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-corner] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-corner] {
   width: 28px;
   height: 28px;
   border-color: #c4b5fd;
@@ -193,27 +193,27 @@ body[data-plannotator-vim-focus-owner]:focus {
     drop-shadow(0 0 6px rgba(167,139,250,.92))
     drop-shadow(0 0 18px rgba(124,58,237,.42));
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-corner="top-left"] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-corner="top-left"] {
   border-top: 3px solid;
   border-left: 3px solid;
   border-top-left-radius: 8px;
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-corner="top-right"] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-corner="top-right"] {
   border-top: 3px solid;
   border-right: 3px solid;
   border-top-right-radius: 8px;
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-corner="bottom-left"] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-corner="bottom-left"] {
   border-bottom: 3px solid;
   border-left: 3px solid;
   border-bottom-left-radius: 8px;
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-corner="bottom-right"] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-corner="bottom-right"] {
   border-right: 3px solid;
   border-bottom: 3px solid;
   border-bottom-right-radius: 8px;
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-label] {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-label] {
   z-index: 1;
   display: flex;
   align-items: center;
@@ -236,7 +236,7 @@ body[data-plannotator-vim-focus-owner]:focus {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-[data-plannotator-vim-reticle] [data-vim-reticle-label]::before {
+[data-reviewtrail-vim-reticle] [data-vim-reticle-label]::before {
   width: 7px;
   height: 7px;
   flex: 0 0 auto;
@@ -246,13 +246,13 @@ body[data-plannotator-vim-focus-owner]:focus {
   content: "";
 }
 @media (prefers-reduced-motion: reduce) {
-  [data-plannotator-vim-reticle] [data-vim-reticle-fill],
-  [data-plannotator-vim-reticle] [data-vim-reticle-corner],
-  [data-plannotator-vim-reticle] [data-vim-reticle-label] {
+  [data-reviewtrail-vim-reticle] [data-vim-reticle-fill],
+  [data-reviewtrail-vim-reticle] [data-vim-reticle-corner],
+  [data-reviewtrail-vim-reticle] [data-vim-reticle-label] {
     transition: none;
   }
 }
-[data-plannotator-vim-badge] {
+[data-reviewtrail-vim-badge] {
   position: fixed;
   z-index: 2147483647;
   left: 50%;
@@ -287,7 +287,7 @@ body[data-plannotator-vim-focus-owner]:focus {
 export const BRIDGE_PROTOCOL_VERSION = 2;
 
 export const BRIDGE_SCRIPT = `(function() {
-  var PREFIX = 'plannotator-bridge-';
+  var PREFIX = 'reviewtrail-bridge-';
 
   // --- Live mode (proxied local app) ---
   // Srcdoc sessions carry no config: LIVE stays null and every branch below is
@@ -296,7 +296,7 @@ export const BRIDGE_SCRIPT = `(function() {
   // bridge when the proxied page is opened directly (not framed) and inside
   // nested same-origin subframes: only the frame whose parent IS the editor
   // may run.
-  var LIVE = window.__plannotatorLiveConfig || null;
+  var LIVE = window.__reviewTrailLiveConfig || null;
   // The editor's window. A host whose window frames the app through a
   // same-origin wrapper page (LIVE.nested: the Inbox, whose own policy names
   // no proxy port) is the grandparent; everywhere else it is the parent.
@@ -342,12 +342,12 @@ ${SANDBOX_SHIM_SCRIPT}
   // On the URL path (bridgeScriptUrl) the guard is installed here, from the
   // key on this script's tag; there a script the page put before the bridge
   // in <head> runs first and is not covered.
-  if (!LIVE && !window.__plannotatorLinkGuard) {
+  if (!LIVE && !window.__reviewTrailLinkGuard) {
     var guardKey = null;
-    try { guardKey = document.currentScript && document.currentScript.getAttribute('data-plannotator-link-key'); } catch (ex) {}
+    try { guardKey = document.currentScript && document.currentScript.getAttribute('data-reviewtrail-link-key'); } catch (ex) {}
     if (guardKey) ${LINK_GUARD_FUNCTION}(guardKey);
   }
-  var linkGuard = LIVE ? null : window.__plannotatorLinkGuard || null;
+  var linkGuard = LIVE ? null : window.__reviewTrailLinkGuard || null;
   function sendOnLinkPort(msg, kind) {
     if (!linkGuard || typeof linkGuard.follow !== 'function') return;
     try { linkGuard.follow(kind, msg); } catch (ex) {}
@@ -667,12 +667,12 @@ ${SANDBOX_SHIM_SCRIPT}
   function updatePinpointCursor() {
     if (!document.body) return;
     if (annotateModeActive && currentInputMethod === 'pinpoint') {
-      document.body.setAttribute('data-plannotator-pinpoint-cursor', '');
-      if (!LIVE) document.body.setAttribute('data-plannotator-frame-inert', '');
+      document.body.setAttribute('data-reviewtrail-pinpoint-cursor', '');
+      if (!LIVE) document.body.setAttribute('data-reviewtrail-frame-inert', '');
       setTapTarget(true);
     } else {
-      document.body.removeAttribute('data-plannotator-pinpoint-cursor');
-      document.body.removeAttribute('data-plannotator-frame-inert');
+      document.body.removeAttribute('data-reviewtrail-pinpoint-cursor');
+      document.body.removeAttribute('data-reviewtrail-frame-inert');
       setTapTarget(false);
     }
   }
@@ -1202,7 +1202,7 @@ ${SANDBOX_SHIM_SCRIPT}
   // CSS anchor for later restoration, and element-only pins (SVG, icon
   // buttons) get a numbered badge. The semantic target graph below survives
   // as the vim-navigation vocabulary only; the pointer path never builds it.
-  var PINPOINT_SKIP_SELECTOR = 'script,style,noscript,[data-plannotator-vim-ui]';
+  var PINPOINT_SKIP_SELECTOR = 'script,style,noscript,[data-reviewtrail-vim-ui]';
 
   // Identity set of every overlay node the viewer creates inside the page
   // (pin badges, pinpoint box/label, vim UI). Hit-testing excludes overlay
@@ -1278,7 +1278,7 @@ ${SANDBOX_SHIM_SCRIPT}
         current.nodeType === 1
         && overlayNodes.has(current)
         && current.hasAttribute
-        && current.hasAttribute('data-plannotator-marker')
+        && current.hasAttribute('data-reviewtrail-marker')
       ) return current;
       current = current.parentElement
         || (current.getRootNode && current.getRootNode().host)
@@ -1589,7 +1589,7 @@ ${SANDBOX_SHIM_SCRIPT}
   function getPinpointLabelEl() {
     if (!pinpointLabelEl) {
       pinpointLabelEl = document.createElement('div');
-      pinpointLabelEl.setAttribute('data-plannotator-pinpoint-label', '');
+      pinpointLabelEl.setAttribute('data-reviewtrail-pinpoint-label', '');
       pinpointLabelEl.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;display:none;font:600 11px/1.3 system-ui,-apple-system,sans-serif;padding:2px 7px;border-radius:5px;background:var(--pn-focus-highlight,#4493f8);color:#fff;white-space:nowrap;box-shadow:0 1px 5px rgba(0,0,0,.35);';
       overlayNodes.add(pinpointLabelEl);
     }
@@ -1611,8 +1611,8 @@ ${SANDBOX_SHIM_SCRIPT}
   function getPinpointBoxEl() {
     if (!pinpointBoxEl) {
       pinpointBoxEl = document.createElement('div');
-      pinpointBoxEl.setAttribute('data-plannotator-pinpoint-box', '');
-      pinpointBoxEl.setAttribute('data-plannotator-vim-ui', '');
+      pinpointBoxEl.setAttribute('data-reviewtrail-pinpoint-box', '');
+      pinpointBoxEl.setAttribute('data-reviewtrail-vim-ui', '');
       overlayNodes.add(pinpointBoxEl);
     }
     if (!pinpointBoxEl.isConnected) document.body.appendChild(pinpointBoxEl);
@@ -1706,8 +1706,8 @@ ${SANDBOX_SHIM_SCRIPT}
     if (held === pinModifierHeld) return;
     pinModifierHeld = held;
     if (document.body) {
-      if (held) document.body.setAttribute('data-plannotator-pin-modifier', '');
-      else document.body.removeAttribute('data-plannotator-pin-modifier');
+      if (held) document.body.setAttribute('data-reviewtrail-pin-modifier', '');
+      else document.body.removeAttribute('data-reviewtrail-pin-modifier');
     }
     if (annotateModeActive && currentInputMethod === 'pinpoint' && lastPointer && !(vimEnabled && vimPhase !== 'inactive')) {
       updatePinpointHover(lastPointer.x, lastPointer.y, lastPointerNode || pinpointHover);
@@ -1830,7 +1830,7 @@ ${SANDBOX_SHIM_SCRIPT}
     '.pn-marker-num { pointer-events: none; position: relative; transform: translate(-0.5px, -1.5px); color: #fff; font: 700 10px/1 system-ui, -apple-system, sans-serif; user-select: none; }',
     '@keyframes pn-marker-in { from { opacity: 0; } to { opacity: 1; } }',
     '@media (prefers-reduced-motion: reduce) { .pn-marker { animation: none; } }',
-    ':host([data-pn-hittest]) .pn-marker, [data-plannotator-overlay-host][data-pn-hittest] .pn-marker { pointer-events: none !important; }',
+    ':host([data-pn-hittest]) .pn-marker, [data-reviewtrail-overlay-host][data-pn-hittest] .pn-marker { pointer-events: none !important; }',
     '@media print { .pn-layer { display: none !important; } }'
   ].join('\\n');
 
@@ -1845,7 +1845,7 @@ ${SANDBOX_SHIM_SCRIPT}
   function ensureOverlayHost() {
     if (!overlayHostEl) {
       overlayHostEl = document.createElement('div');
-      overlayHostEl.setAttribute('data-plannotator-overlay-host', '');
+      overlayHostEl.setAttribute('data-reviewtrail-overlay-host', '');
       var hostStyle = overlayHostEl.style;
       hostStyle.setProperty('position', 'fixed', 'important');
       hostStyle.setProperty('top', '0', 'important');
@@ -2781,7 +2781,7 @@ ${SANDBOX_SHIM_SCRIPT}
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'pn-marker';
-    btn.setAttribute('data-plannotator-marker', '');
+    btn.setAttribute('data-reviewtrail-marker', '');
     btn.setAttribute('data-annotation-id', annId);
     btn.innerHTML = MARKER_SVG + '<span class="pn-marker-num"></span>';
     btn.addEventListener('click', function(clickEvent) {
@@ -3338,12 +3338,12 @@ ${SANDBOX_SHIM_SCRIPT}
     for (var i = 0; i < list.length; i++) {
       var name = list[i].name;
       // The viewer's own marks on the page (the armed cursor on body).
-      if (name.indexOf('data-plannotator-') === 0) continue;
+      if (name.indexOf('data-reviewtrail-') === 0) continue;
       if (!name || name.length > STRUCTURE_MAX_NAME || attrs.length >= STRUCTURE_MAX_ATTRS) return null;
       var value = String(list[i].value);
       // The keyboard pinpoint's hover class on the element is the viewer's, not the page's.
-      if (name === 'class' && value.indexOf('plannotator-pinpoint-hover') >= 0) {
-        var own = value.split(/\\s+/).filter(function(c) { return c && c !== 'plannotator-pinpoint-hover'; });
+      if (name === 'class' && value.indexOf('reviewtrail-pinpoint-hover') >= 0) {
+        var own = value.split(/\\s+/).filter(function(c) { return c && c !== 'reviewtrail-pinpoint-hover'; });
         if (!own.length) continue;
         value = own.join(' ');
       }
@@ -3869,7 +3869,7 @@ ${SANDBOX_SHIM_SCRIPT}
   }
 
   // Shed order when over budget: the fields an agent can live without first.
-  // Mirrors ELEMENT_CONTEXT_SHED_ORDER in @plannotator/core/html-anchor.
+  // Mirrors ELEMENT_CONTEXT_SHED_ORDER in @reviewtrail/core/html-anchor.
   var CTX_SHED_ORDER = ['outline', 'text', 'attrs', 'classes', 'path', 'heading', 'landmark', 'component', 'sourceName'];
 
   function buildElementContext(el, maxBytes) {
@@ -4059,8 +4059,8 @@ ${SANDBOX_SHIM_SCRIPT}
   // identity-tracked in overlayNodes like every viewer overlay).
   function createMultiTargetBox(el) {
     var box = document.createElement('div');
-    box.setAttribute('data-plannotator-pinpoint-box', '');
-    box.setAttribute('data-plannotator-vim-ui', '');
+    box.setAttribute('data-reviewtrail-pinpoint-box', '');
+    box.setAttribute('data-reviewtrail-vim-ui', '');
     box.setAttribute('data-pinned', '');
     overlayNodes.add(box);
     document.body.appendChild(box);
@@ -4330,8 +4330,8 @@ ${SANDBOX_SHIM_SCRIPT}
   function getMultiHoverBoxEl() {
     if (!multiHoverBoxEl) {
       multiHoverBoxEl = document.createElement('div');
-      multiHoverBoxEl.setAttribute('data-plannotator-pinpoint-box', '');
-      multiHoverBoxEl.setAttribute('data-plannotator-vim-ui', '');
+      multiHoverBoxEl.setAttribute('data-reviewtrail-pinpoint-box', '');
+      multiHoverBoxEl.setAttribute('data-reviewtrail-vim-ui', '');
       overlayNodes.add(multiHoverBoxEl);
     }
     if (!multiHoverBoxEl.isConnected) document.body.appendChild(multiHoverBoxEl);
@@ -4615,8 +4615,8 @@ ${SANDBOX_SHIM_SCRIPT}
   }
   function setLinkHoldStyle(on) {
     if (!document.body) return;
-    if (on) document.body.setAttribute('data-plannotator-link-hold', '');
-    else document.body.removeAttribute('data-plannotator-link-hold');
+    if (on) document.body.setAttribute('data-reviewtrail-link-hold', '');
+    else document.body.removeAttribute('data-reviewtrail-link-hold');
   }
   function cancelLinkHold() {
     if (!linkHold) return;
@@ -4767,8 +4767,8 @@ ${SANDBOX_SHIM_SCRIPT}
     }
   }, true);
   document.addEventListener('touchstart', function(e) {
-    if (document.body && !document.body.hasAttribute('data-plannotator-touch')) {
-      document.body.setAttribute('data-plannotator-touch', '');
+    if (document.body && !document.body.hasAttribute('data-reviewtrail-touch')) {
+      document.body.setAttribute('data-reviewtrail-touch', '');
     }
     cancelLinkHold();
     // A new touch: whatever click comes next is its own, even if the last
@@ -4812,7 +4812,7 @@ ${SANDBOX_SHIM_SCRIPT}
 
   // --- Local-site link navigation (srcdoc sessions only) ---
   // A srcdoc document has no URL of its own: its base URL is the PARENT page's,
-  // which is the Plannotator server. So a plain link to 02-detail.html resolves
+  // which is the ReviewTrail server. So a plain link to 02-detail.html resolves
   // to http://localhost:<port>/02-detail.html, the server's catch-all answers
   // with the app itself, and the whole editor renders inside the annotated
   // frame. An in-page #section link is a cross-document navigation for the
@@ -4992,7 +4992,7 @@ ${SANDBOX_SHIM_SCRIPT}
     if (!annotateModeActive || currentInputMethod !== 'pinpoint') return;
     // Real placed markers (and any other viewer overlay) own their clicks —
     // checked by IDENTITY, not selector, so a page element spoofing
-    // [data-plannotator-marker] stays an ordinary annotatable target.
+    // [data-reviewtrail-marker] stays an ordinary annotatable target.
     if (isViewerOverlayNode(e.target)) return;
     // A drag that ended in this click owns the surface: the drag-selection
     // pass is about to post the selected text, and pinpoint-annotating the
@@ -5148,7 +5148,7 @@ ${SANDBOX_SHIM_SCRIPT}
 
   // Author opt-in: a plain click on any element tagged [data-annotate] pops the
   // toolbar — no pinpoint mode. Lets an HTML doc (e.g. a flow graph) wire its own
-  // nodes to Plannotator's toolbar. Bubble phase so the page's own click handlers
+  // nodes to ReviewTrail's toolbar. Bubble phase so the page's own click handlers
   // run first; an active text selection is respected, not clobbered. A click on
   // a committed highlight selects the annotation instead (the pre-overlay
   // handler deferred to '.annotation-highlight' the same way).
@@ -5218,12 +5218,12 @@ ${SANDBOX_SHIM_SCRIPT}
   function isVimEditableTarget(node) {
     var el = node && node.nodeType === 1 ? node : node && node.parentElement;
     if (!el || !el.closest) return false;
-    return !!el.closest('button,input,textarea,select,a[href],summary,[contenteditable]:not([contenteditable="false"]),[role="button"],[role="link"],[role="textbox"],[role="dialog"],[data-plannotator-vim-ui]');
+    return !!el.closest('button,input,textarea,select,a[href],summary,[contenteditable]:not([contenteditable="false"]),[role="button"],[role="link"],[role="textbox"],[role="dialog"],[data-reviewtrail-vim-ui]');
   }
 
   function prepareVimFocusOwner() {
     if (!document.body) return;
-    document.body.setAttribute('data-plannotator-vim-focus-owner', '');
+    document.body.setAttribute('data-reviewtrail-vim-focus-owner', '');
     if (!document.body.hasAttribute('tabindex')) {
       document.body.setAttribute('tabindex', '-1');
       vimAddedBodyTabIndex = true;
@@ -5246,7 +5246,7 @@ ${SANDBOX_SHIM_SCRIPT}
       acceptNode: function(node) {
         var parentEl = node.parentElement;
         if (!parentEl || !node.data || !node.data.length) return NodeFilter.FILTER_REJECT;
-        if (parentEl.closest('script,style,noscript,input,textarea,select,button,[contenteditable]:not([contenteditable="false"]),[data-plannotator-vim-ui]')) {
+        if (parentEl.closest('script,style,noscript,input,textarea,select,button,[contenteditable]:not([contenteditable="false"]),[data-reviewtrail-vim-ui]')) {
           return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
@@ -5514,7 +5514,7 @@ ${SANDBOX_SHIM_SCRIPT}
 
   function setVimPinpointTarget(target) {
     clearPinpointHover();
-    if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+    if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
     vimVisualBlockAnchorEl = null;
     vimPinpointEl = target ? target.element : null;
     if (vimPinpointEl) {
@@ -5524,7 +5524,7 @@ ${SANDBOX_SHIM_SCRIPT}
       if (vimHudEnabled) {
         hidePinpointLabel();
       } else {
-        vimPinpointEl.classList.add('plannotator-pinpoint-hover');
+        vimPinpointEl.classList.add('reviewtrail-pinpoint-hover');
         var r = vimPinpointEl.getBoundingClientRect();
         var lbl = getPinpointLabelEl();
         lbl.textContent = target.label;
@@ -5601,7 +5601,7 @@ ${SANDBOX_SHIM_SCRIPT}
     if (!target || !target.element) return false;
     var nodes = getVimTextNodes(target.element);
     if (!nodes.length) return false;
-    if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+    if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
     hidePinpointLabel();
     vimVisualBlockAnchorEl = null;
     vimPinpointEl = target.element;
@@ -5677,7 +5677,7 @@ ${SANDBOX_SHIM_SCRIPT}
       }
     }
 
-    if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+    if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
     hidePinpointLabel();
     vimPhase = saved.phase;
     var selection = window.getSelection();
@@ -5692,11 +5692,11 @@ ${SANDBOX_SHIM_SCRIPT}
   }
 
   function getVimCursorEl() {
-    var cursor = document.querySelector('[data-plannotator-vim-cursor]');
+    var cursor = document.querySelector('[data-reviewtrail-vim-cursor]');
     if (!cursor) {
       cursor = document.createElement('div');
-      cursor.setAttribute('data-plannotator-vim-cursor', '');
-      cursor.setAttribute('data-plannotator-vim-ui', '');
+      cursor.setAttribute('data-reviewtrail-vim-cursor', '');
+      cursor.setAttribute('data-reviewtrail-vim-ui', '');
       overlayNodes.add(cursor);
       document.body.appendChild(cursor);
     }
@@ -5704,11 +5704,11 @@ ${SANDBOX_SHIM_SCRIPT}
   }
 
   function getVimBadgeEl() {
-    var badge = document.querySelector('[data-plannotator-vim-badge]');
+    var badge = document.querySelector('[data-reviewtrail-vim-badge]');
     if (!badge) {
       badge = document.createElement('div');
-      badge.setAttribute('data-plannotator-vim-badge', '');
-      badge.setAttribute('data-plannotator-vim-ui', '');
+      badge.setAttribute('data-reviewtrail-vim-badge', '');
+      badge.setAttribute('data-reviewtrail-vim-ui', '');
       overlayNodes.add(badge);
       document.body.appendChild(badge);
     }
@@ -5716,11 +5716,11 @@ ${SANDBOX_SHIM_SCRIPT}
   }
 
   function getVimReticleEl() {
-    var reticle = document.querySelector('[data-plannotator-vim-reticle]');
+    var reticle = document.querySelector('[data-reviewtrail-vim-reticle]');
     if (reticle) return reticle;
     reticle = document.createElement('div');
-    reticle.setAttribute('data-plannotator-vim-reticle', '');
-    reticle.setAttribute('data-plannotator-vim-ui', '');
+    reticle.setAttribute('data-reviewtrail-vim-reticle', '');
+    reticle.setAttribute('data-reviewtrail-vim-ui', '');
     reticle.innerHTML = [
       '<div data-vim-reticle-fill></div>',
       '<div data-vim-reticle-corner="top-left"></div>',
@@ -5735,7 +5735,7 @@ ${SANDBOX_SHIM_SCRIPT}
   }
 
   function hideVimReticle() {
-    var reticle = document.querySelector('[data-plannotator-vim-reticle]');
+    var reticle = document.querySelector('[data-reviewtrail-vim-reticle]');
     if (reticle) reticle.style.display = 'none';
   }
 
@@ -5928,7 +5928,7 @@ ${SANDBOX_SHIM_SCRIPT}
         phase: vimPhase
       });
     }
-    var badge = document.querySelector('[data-plannotator-vim-badge]');
+    var badge = document.querySelector('[data-reviewtrail-vim-badge]');
     if (!vimHudEnabled && !badge) badge = getVimBadgeEl();
     var cursor = getVimCursorEl();
     if (vimPhase === 'inactive') {
@@ -5938,13 +5938,13 @@ ${SANDBOX_SHIM_SCRIPT}
       return;
     }
     if (vimHudEnabled) {
-      if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+      if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
       hidePinpointLabel();
       updateVimReticle();
     } else {
       hideVimReticle();
       if (vimPinpointEl && (vimPhase === 'block' || vimPhase === 'inline')) {
-        vimPinpointEl.classList.add('plannotator-pinpoint-hover');
+        vimPinpointEl.classList.add('reviewtrail-pinpoint-hover');
       }
     }
     if (badge) badge.style.display = vimHudEnabled ? 'none' : 'block';
@@ -5995,9 +5995,9 @@ ${SANDBOX_SHIM_SCRIPT}
   }
 
   function clearVimUi() {
-    var nodes = document.querySelectorAll('[data-plannotator-vim-cursor],[data-plannotator-vim-badge],[data-plannotator-vim-reticle]');
+    var nodes = document.querySelectorAll('[data-reviewtrail-vim-cursor],[data-reviewtrail-vim-badge],[data-reviewtrail-vim-reticle]');
     for (var i = 0; i < nodes.length; i++) nodes[i].remove();
-    if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+    if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
     vimVisualBlockAnchorEl = null;
     vimActionReturn = null;
     hidePinpointLabel();
@@ -6006,7 +6006,7 @@ ${SANDBOX_SHIM_SCRIPT}
       document.body.removeAttribute('tabindex');
       vimAddedBodyTabIndex = false;
     }
-    if (document.body) document.body.removeAttribute('data-plannotator-vim-focus-owner');
+    if (document.body) document.body.removeAttribute('data-reviewtrail-vim-focus-owner');
   }
 
   // Selected markup for the parent's rich-text Copy button, built only when
@@ -6122,7 +6122,7 @@ ${SANDBOX_SHIM_SCRIPT}
         var escapeParent = escapeTarget && semanticParent(escapeGraph, escapeTarget);
         if (escapeParent) setVimPinpointTarget(escapeParent);
         else {
-          if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+          if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
           vimPinpointEl = null;
           vimPhase = 'inactive';
           hidePinpointLabel();
@@ -6130,7 +6130,7 @@ ${SANDBOX_SHIM_SCRIPT}
         }
         handled = true;
       } else if (vimPhase === 'block') {
-        if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+        if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
         vimPinpointEl = null;
         vimPhase = 'inactive';
         hidePinpointLabel();
@@ -6198,7 +6198,7 @@ ${SANDBOX_SHIM_SCRIPT}
           var blockTarget = currentVimSemanticTarget(blockGraph);
           if (blockTarget) {
             var owningBlock = semanticOwningBlock(blockGraph, blockTarget);
-            if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+            if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
             hidePinpointLabel();
             vimPinpointEl = owningBlock.element;
             vimPhase = 'visual-block';
@@ -6234,7 +6234,7 @@ ${SANDBOX_SHIM_SCRIPT}
         } else if (key === 'V') {
           var currentBlock = currentVimBlock();
           if (currentBlock) {
-            if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+            if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
             vimPinpointEl = currentBlock;
             vimPhase = 'visual-block';
             selectVimBlock(currentBlock, true);
@@ -6337,7 +6337,7 @@ ${SANDBOX_SHIM_SCRIPT}
   document.addEventListener('mousedown', function(e) {
     if (!vimEnabled || isVimEditableTarget(e.target)) return;
     clearPinpointHover();
-    if (vimPinpointEl) vimPinpointEl.classList.remove('plannotator-pinpoint-hover');
+    if (vimPinpointEl) vimPinpointEl.classList.remove('reviewtrail-pinpoint-hover');
     vimPinpointEl = null;
     vimVisualBlockAnchorEl = null;
     vimPhase = 'inactive';
@@ -6528,7 +6528,7 @@ ${SANDBOX_SHIM_SCRIPT}
     try {
       if (!annRecords.length || !document.body) return;
       var layer = document.createElement('div');
-      layer.setAttribute('data-plannotator-print-layer', '');
+      layer.setAttribute('data-reviewtrail-print-layer', '');
       layer.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;overflow:visible;pointer-events:none;';
       var sx = window.scrollX || 0;
       var sy = window.scrollY || 0;
@@ -6621,7 +6621,7 @@ ${SANDBOX_SHIM_SCRIPT}
   // other observable in the overlay model. Exposes nothing the same-realm
   // page could not already derive — the overlay root is open, highlight
   // geometry mirrors the ranges, and the text is the page's own content.
-  window.__plannotatorBridgeInternals = {
+  window.__reviewTrailBridgeInternals = {
     committedRanges: function(id) {
       var record = findAnnRecord(id);
       if (!record) return [];
@@ -6640,17 +6640,17 @@ ${SANDBOX_SHIM_SCRIPT}
 /**
  * Live-mode bootstrap, prepended to BRIDGE_SCRIPT by the annotate server when
  * composing the proxy-served bridge body. Reads the JSON config prelude
- * (window.__plannotatorLiveConfig) and installs the annotation CSS that srcdoc
+ * (window.__reviewTrailLiveConfig) and installs the annotation CSS that srcdoc
  * mode splices as a <style> tag. Runs before the bridge IIFE and before its
  * MutationObserver exists, so this write never feeds the reconcile loop.
  * Same escaping rules as BRIDGE_SCRIPT: a dependency-free string constant.
  */
 export const LIVE_BRIDGE_BOOTSTRAP = `(function() {
-  var config = window.__plannotatorLiveConfig;
+  var config = window.__reviewTrailLiveConfig;
   if (!config || typeof config.css !== 'string') return;
   try {
     var style = document.createElement('style');
-    style.setAttribute('data-plannotator-live-css', '');
+    style.setAttribute('data-reviewtrail-live-css', '');
     style.appendChild(document.createTextNode(config.css));
     (document.head || document.documentElement).appendChild(style);
   } catch (ex) {}

@@ -1,11 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { CodeAnnotation, SelectedLineRange, CodeAnnotationType, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration } from '@plannotator/ui/types';
-import { useDismissOnOutsideAndEscape } from '@plannotator/ui/hooks/useDismissOnOutsideAndEscape';
+import { CodeAnnotation, SelectedLineRange, CodeAnnotationType, TokenAnnotationMeta, ConventionalLabel, ConventionalDecoration } from '@reviewtrail/ui/types';
+import { useDismissOnOutsideAndEscape } from '@reviewtrail/ui/hooks/useDismissOnOutsideAndEscape';
 import {
   hasPrimaryCoarsePointer,
   shouldUseExpandedComposer,
   useVisibleViewportBounds,
-} from '@plannotator/ui/hooks/useViewportEnvironment';
+} from '@reviewtrail/ui/hooks/useViewportEnvironment';
 import { extractLinesFromPatch } from '../utils/patchParser';
 import type { DiffTokenEventBaseProps } from '@pierre/diffs';
 

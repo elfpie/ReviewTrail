@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { DiffAnnotationMetadata } from '@plannotator/ui/types';
+import type { DiffAnnotationMetadata } from '@reviewtrail/ui/types';
 import { InlineAnnotation } from './InlineAnnotation';
 
 const hasDom = typeof document !== 'undefined';

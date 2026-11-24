@@ -10,7 +10,7 @@ interface NewChatButtonProps {
    */
   pendingChoice?: boolean;
   /**
-   * "Ask this session": the agent session that opened Plannotator answers, and
+   * "Ask this session": the agent session that opened ReviewTrail answers, and
    * it keeps its own memory, so the button only clears the panel. The label
    * says so instead of promising fresh context.
    */
@@ -21,7 +21,7 @@ export function newChatLabels(sessionBridge: boolean): { label: string; title: s
   return sessionBridge
     ? {
         label: 'Clear chat',
-        title: 'Clear this panel. The session that opened Plannotator still remembers earlier questions.',
+        title: 'Clear this panel. The session that opened ReviewTrail still remembers earlier questions.',
       }
     : {
         label: 'New chat',

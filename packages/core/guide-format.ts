@@ -1,7 +1,7 @@
 /**
  * Portable Guided Review format — the versioned snapshot document plus the
- * pure `(snapshot) → HTML` renderer every producer shares (Plannotator UI,
- * `plannotator guide export`, future agent skills).
+ * pure `(snapshot) → HTML` renderer every producer shares (ReviewTrail UI,
+ * `reviewtrail guide export`, future agent skills).
  *
  * Browser-safe and dependency-free: this module is consumed by the review UI,
  * the CDN viewer, both servers, and the CLI. It must never import `node:*`.
@@ -14,7 +14,7 @@ import type { CodeGuideOutput, GuideDiffRef, GuideOverview, GuideOverviewDiagram
 import { readGuideDiffNotes, type GuideDiffNote } from "./guide-notes";
 
 /** Discriminator for a portable guided-review snapshot. */
-export const GUIDE_SNAPSHOT_KIND = "plannotator-guided-review" as const;
+export const GUIDE_SNAPSHOT_KIND = "reviewtrail-guided-review" as const;
 
 /**
  * The base snapshot schema version: every guide without a version-2 field is
@@ -83,10 +83,10 @@ export type GuideSnapshotVersion = (typeof GUIDE_SNAPSHOT_VERSIONS)[number];
 const OVERVIEW_DIAGRAM_KINDS: readonly GuideOverviewDiagramKind[] = ["mermaid", "html"];
 
 /** DOM id of the inert `<script type="application/json">` carrying the snapshot inside an exported HTML file. */
-export const GUIDE_SNAPSHOT_SCRIPT_ID = "plannotator-guided-review";
+export const GUIDE_SNAPSHOT_SCRIPT_ID = "reviewtrail-guided-review";
 
 /** `<meta name>` marker on exported documents. */
-export const GUIDE_EXPORT_META_NAME = "plannotator-guided-review";
+export const GUIDE_EXPORT_META_NAME = "reviewtrail-guided-review";
 
 /** Structural sanity caps — these bound parsing work, they are NOT size limits (D1: no caps on diff size). */
 export const MAX_GUIDE_SECTIONS = 100;
@@ -100,7 +100,7 @@ export interface GuideSnapshotReview {
   readonly rawPatch: string;
   /** Human label, e.g. "main..HEAD" or "PR #123". */
   readonly gitRef: string;
-  /** Plannotator diff type id, e.g. "since-base", "merge-base", "commit:<sha>", "workspace-current". */
+  /** ReviewTrail diff type id, e.g. "since-base", "merge-base", "commit:<sha>", "workspace-current". */
   readonly diffType?: string;
   /** Base ref the diff was computed against, when the diff type has one. */
   readonly base?: string;
@@ -721,7 +721,7 @@ export function parseGuideSnapshot(input: unknown, options: GuideSnapshotParseOp
     "$",
   );
   if (isFail(s)) return s;
-  if (s.value.kind !== GUIDE_SNAPSHOT_KIND) return fail("$.kind", `Expected ${GUIDE_SNAPSHOT_KIND}`);
+  if (s.value.kind !== GUIDE_SNAPSHOT_KIND && s.value.kind !== "plannotator-guided-review") return fail("$.kind", `Expected ${GUIDE_SNAPSHOT_KIND}`);
   const version = s.value.version;
   if (!(options.versions ?? GUIDE_SNAPSHOT_VERSIONS).includes(version as GuideSnapshotVersion)) {
     return fail("$.version", `Unsupported snapshot version: ${String(version)}`);
@@ -858,7 +858,7 @@ export function escapeJsonForHtmlScript(json: string): string {
 export function readEmbeddedGuideSnapshot(doc: {
   getElementById(id: string): { textContent: string | null } | null;
 }): GuideSnapshotParseResult | null {
-  const el = doc.getElementById(GUIDE_SNAPSHOT_SCRIPT_ID);
+  const el = doc.getElementById(GUIDE_SNAPSHOT_SCRIPT_ID) ?? doc.getElementById("plannotator-guided-review");
   if (!el) return null;
   return parseGuideSnapshotJson(el.textContent ?? "");
 }

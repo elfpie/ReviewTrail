@@ -146,7 +146,7 @@ describe.skipIf(!hasDom)('the review panes', () => {
 
   test('a review reopened comes back with its two panes, kept tabs and divider', async () => {
     const { writeSavedLayout } = await import('./layoutMemory');
-    const { setStorageBackend, resetStorageBackend } = await import('@plannotator/ui/utils/storage');
+    const { setStorageBackend, resetStorageBackend } = await import('@reviewtrail/ui/utils/storage');
     const memory = new Map<string, string>();
     setStorageBackend({ getItem: (key) => memory.get(key) ?? null, setItem: (key, value) => { memory.set(key, value); }, removeItem: (key) => { memory.delete(key); } });
     writeSavedLayout('repo#branch', {
@@ -166,7 +166,7 @@ describe.skipIf(!hasDom)('the review panes', () => {
   });
 
   test('every tab opened is remembered, the diff tab Go to file uses, a preview, one opened into the pane that is not focused, and comes back on reload', async () => {
-    const { setStorageBackend, resetStorageBackend } = await import('@plannotator/ui/utils/storage');
+    const { setStorageBackend, resetStorageBackend } = await import('@reviewtrail/ui/utils/storage');
     const memory = new Map<string, string>();
     setStorageBackend({ getItem: (key) => memory.get(key) ?? null, setItem: (key, value) => { memory.set(key, value); }, removeItem: (key) => { memory.delete(key); } });
     await mount(false, { reviewKey: 'repo#reload' });

@@ -1,5 +1,5 @@
 import type { SecondOpinionReport, SemanticDiffFold, SemanticDiffOperation } from '@plannotator/sem-jiff';
-import type { SemDiffAdvert } from '@plannotator/shared/sem-diff-assets';
+import type { SemDiffAdvert } from '@reviewtrail/shared/sem-diff-assets';
 
 export interface SemDiffRequest {
   id: number;

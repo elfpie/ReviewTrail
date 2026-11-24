@@ -1,7 +1,7 @@
 /**
  * Feedback Archive — durable local storage of every submitted review.
  *
- * Plannotator's decision paths hand the user's feedback to the invoking agent
+ * ReviewTrail's decision paths hand the user's feedback to the invoking agent
  * and then forget it: code review persisted nothing at all, plan decisions
  * only landed in `plans/` while the client-side planSave setting was on (and
  * overwrote the previous decision for the same slug), and the annotate
@@ -19,17 +19,17 @@
  * users grep it; it is written only for records that carry content (a bare
  * approval or a dismissal is a decision-only line).
  *
- * SHARED INDEX, not a Plannotator-private store. Several tools that share this
+ * SHARED INDEX, not a ReviewTrail-private store. Several tools that share this
  * data dir append to the SAME `feedback/{project}/index.jsonl`, distinguished
  * by the `client` field on every line rather than by separate files. Known
- * writers: `plannotator` (this module) and `plannotator-tui`, the Rust
+ * writers: `reviewtrail` (this module) and `reviewtrail-tui`, the Rust
  * terminal client; `herdr-annotate` is reserved for a possible future Lite
  * writer. A record's meaning is the same whoever wrote it, so an analyzer
  * reads one file, sorts by `ts`, and filters by `client` only when it actually
  * cares who submitted. Consequences worth respecting when changing this file:
  * the line shape is a cross-tool contract (fields are added, never
  * repurposed), other clients suffix their id onto their sidecar filenames
- * (`{stamp}-{surface}-{decision}-plannotator-tui.md`), and unknown fields must
+ * (`{stamp}-{surface}-{decision}-reviewtrail-tui.md`), and unknown fields must
  * be ignored rather than rejected.
  *
  * Contract, shared with `persistAnnotateSubmission` (#678):
@@ -38,7 +38,7 @@
  *  - Callers append BEFORE deleting the reviewer's draft: a failed archive
  *    write leaves the draft behind as the recovery copy.
  *  - The data directory is resolved PER CALL (not captured at module load
- *    like storage.ts does), so a test can redirect PLANNOTATOR_DATA_DIR
+ *    like storage.ts does), so a test can redirect REVIEWTRAIL_DATA_DIR
  *    inside the test body — Bun runs every test file in one process, and a
  *    module-load capture cannot be redirected without import-order games.
  *
@@ -47,10 +47,10 @@
 
 import { appendFileSync, mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
-import { parseDiagramAnchor, type DiagramAnchor } from "@plannotator/core/diagram-anchor";
-import { parseImageRegion, type ImageRegion } from "@plannotator/core/image-region";
-import { parseQuestionAnswer, type QuestionAnswer } from "@plannotator/core/question-block";
-import { getPlannotatorDataDir } from "./data-dir";
+import { parseDiagramAnchor, type DiagramAnchor } from "@reviewtrail/core/diagram-anchor";
+import { parseImageRegion, type ImageRegion } from "@reviewtrail/core/image-region";
+import { parseQuestionAnswer, type QuestionAnswer } from "@reviewtrail/core/question-block";
+import { getReviewTrailDataDir } from "./data-dir";
 import { extractDirName, extractRepoName, sanitizeTag } from "./project";
 
 /** Schema version carried on every line. Bump only on a breaking shape change. */
@@ -60,11 +60,11 @@ export const FEEDBACK_RECORD_VERSION = 1;
  * Tool that authored the record, and the only thing separating writers in a
  * shared index: every client appends its own lines to the same
  * `feedback/{project}/index.jsonl` and stamps itself here. Known values today
- * are `plannotator` (this module) and `plannotator-tui`; `herdr-annotate` is
+ * are `reviewtrail` (this module) and `reviewtrail-tui`; `herdr-annotate` is
  * reserved. Readers must treat this as an open set, never an enum to validate
  * against.
  */
-export const FEEDBACK_RECORD_CLIENT = "plannotator";
+export const FEEDBACK_RECORD_CLIENT = "reviewtrail";
 
 export type FeedbackSurface =
   | "plan"
@@ -143,7 +143,7 @@ export interface FeedbackTarget {
    * "what was reviewed" is a transcript, not a path.
    *
    * Declared in v1 so the field name is reserved across every client sharing
-   * the index (plannotator-tui populates it); this module does not write it
+   * the index (reviewtrail-tui populates it); this module does not write it
    * yet. Readers must tolerate its absence.
    */
   agent?: {
@@ -297,7 +297,7 @@ export function deriveFeedbackProject(cwd: string | undefined): string {
 }
 
 function feedbackProjectDir(project: string): string {
-  return join(getPlannotatorDataDir(), "feedback", normalizeFeedbackProject(project));
+  return join(getReviewTrailDataDir(), "feedback", normalizeFeedbackProject(project));
 }
 
 /** Filesystem-safe ISO stamp, same convention as `saveAnnotateSubmission`. */
@@ -494,8 +494,8 @@ export function appendFeedbackRecord(input: FeedbackArchiveInput): string | null
       const recordsDir = join(projectDir, "records");
       mkdirSync(recordsDir, { recursive: true });
       // {stamp}-{surface}-{decision}[-N].md. Other clients writing into this
-      // shared archive suffix their own id (plannotator-tui writes
-      // `{stamp}-{surface}-{decision}-plannotator-tui.md`), which is why the
+      // shared archive suffix their own id (reviewtrail-tui writes
+      // `{stamp}-{surface}-{decision}-reviewtrail-tui.md`), which is why the
       // records directory holds more shapes than this line produces and why
       // nothing may parse a sidecar name: `recordFile` is the only handle, and
       // any value it carries is valid.
@@ -543,7 +543,7 @@ export function appendFeedbackRecord(input: FeedbackArchiveInput): string | null
     return indexPath;
   } catch (error) {
     console.error(
-      `[plannotator] warning: could not archive submitted feedback (${error instanceof Error ? error.message : String(error)}); keeping the annotation draft as the recovery copy`,
+      `[reviewtrail] warning: could not archive submitted feedback (${error instanceof Error ? error.message : String(error)}); keeping the annotation draft as the recovery copy`,
     );
     return null;
   }

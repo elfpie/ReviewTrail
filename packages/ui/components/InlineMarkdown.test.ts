@@ -189,7 +189,7 @@ describe('bare URL autolinks keep underscores (Workspaces ids: ws_, doc_, prj_)'
 
 describe('InlineMarkdown math', () => {
   // KaTeX reaches InlineMath through the renderer slot now (utils/math.ts);
-  // Plannotator's apps fill it by importing utils/math-eager. Register it
+  // ReviewTrail's apps fill it by importing utils/math-eager. Register it
   // here explicitly so these assertions do not depend on which test file ran
   // first in bun's shared process, and restore whatever was there after.
   const saved = getMathRenderer();
@@ -380,10 +380,10 @@ describe('cross-repo owner/repo#N refs', () => {
   const GH = { githubRepo: 'acme/herdr', repoHost: 'github.com' };
 
   test('links on GitHub with the label as written; a bare #N still goes to the project', () => {
-    const html = render('herdr#104 is backnotprop/plannotator-tui#104, not #104.', GH);
-    expect(html).toContain('>backnotprop/plannotator-tui#104</a>');
+    const html = render('herdr#104 is backnotprop/reviewtrail-tui#104, not #104.', GH);
+    expect(html).toContain('>backnotprop/reviewtrail-tui#104</a>');
     expect(hrefs(html)).toEqual([
-      'https://github.com/backnotprop/plannotator-tui/issues/104',
+      'https://github.com/backnotprop/reviewtrail-tui/issues/104',
       'https://github.com/acme/herdr/issues/104',
     ]);
   });
@@ -456,14 +456,14 @@ describe('cross-repo refs where the caller names no repo (crossRepoRefsWithoutRe
   afterEach(resetCrossRepoRefsWithoutRepo);
 
   test('off (every host but one that opts in): it stays plain text', () => {
-    expect(render('The fix (backnotprop/plannotator#2948) is merged.')).not.toContain('<a');
+    expect(render('The fix (backnotprop/reviewtrail#2948) is merged.')).not.toContain('<a');
   });
 
   test('on: it links on github.com as written; a bare #N still needs a repo', () => {
     setCrossRepoRefsWithoutRepo(true);
-    const html = render('The fix (backnotprop/plannotator#2948) is merged, see #12.');
-    expect(hrefs(html)).toEqual(['https://github.com/backnotprop/plannotator/issues/2948']);
-    expect(html).toContain('>backnotprop/plannotator#2948</a>');
+    const html = render('The fix (backnotprop/reviewtrail#2948) is merged, see #12.');
+    expect(hrefs(html)).toEqual(['https://github.com/backnotprop/reviewtrail/issues/2948']);
+    expect(html).toContain('>backnotprop/reviewtrail#2948</a>');
     expect(html).toContain('#12');
   });
 

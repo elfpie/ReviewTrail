@@ -28,8 +28,8 @@ import type {
   PRRuntime,
   PRTreeResult,
 } from "./pr-types";
-import { getPlannotatorDataDir } from "./data-dir";
-import { FORGE_REF_BODY_MAX, type ForgeRefCardData, type ForgeRefChecks } from "@plannotator/core/forge-ref-card";
+import { getReviewTrailDataDir } from "./data-dir";
+import { FORGE_REF_BODY_MAX, type ForgeRefCardData, type ForgeRefChecks } from "@reviewtrail/core/forge-ref-card";
 import {
   loadConfig,
   resolveBitbucketApiUrl,
@@ -49,8 +49,8 @@ export const BITBUCKET_TOKEN_SCOPES = [
 
 const TOKEN_HELP =
   `Create an Atlassian API token with scopes (https://id.atlassian.com/manage-profile/security/api-tokens → "Create API token with scopes" → Bitbucket) ` +
-  `granting ${BITBUCKET_TOKEN_SCOPES.join(", ")}, then set PLANNOTATOR_BITBUCKET_EMAIL (your Atlassian account email) and PLANNOTATOR_BITBUCKET_TOKEN, ` +
-  `or put bitbucketEmail and a bitbucketTokenCommand that prints the token (e.g. a Keychain lookup) in ~/.plannotator/config.json.`;
+  `granting ${BITBUCKET_TOKEN_SCOPES.join(", ")}, then set REVIEWTRAIL_BITBUCKET_EMAIL (your Atlassian account email) and REVIEWTRAIL_BITBUCKET_TOKEN, ` +
+  `or put bitbucketEmail and a bitbucketTokenCommand that prints the token (e.g. a Keychain lookup) in ~/.reviewtrail/config.json.`;
 
 export const BITBUCKET_MISSING_TOKEN_MESSAGE =
   `Bitbucket Cloud PR review needs an Atlassian API token. ${TOKEN_HELP}`;
@@ -214,8 +214,8 @@ async function failure(res: Response, what: string): Promise<BitbucketApiError> 
     forgetBitbucketCommandTokens();
     return new BitbucketApiError(
       `Bitbucket rejected the API token (HTTP 401) while trying to ${what}. ` +
-        `Check that the token (PLANNOTATOR_BITBUCKET_TOKEN, or what bitbucketTokenCommand prints) is current and the email ` +
-        `(PLANNOTATOR_BITBUCKET_EMAIL or bitbucketEmail) is the Atlassian account email that owns it ` +
+        `Check that the token (REVIEWTRAIL_BITBUCKET_TOKEN, or what bitbucketTokenCommand prints) is current and the email ` +
+        `(REVIEWTRAIL_BITBUCKET_EMAIL or bitbucketEmail) is the Atlassian account email that owns it ` +
         `(unset the email to send the token as a Bearer token). ${TOKEN_HELP}`,
       401,
     );
@@ -565,7 +565,7 @@ export function bitbucketDiffHunk(
 }
 
 /**
- * Map a PR's comments into Plannotator's read-only model: inline comments
+ * Map a PR's comments into ReviewTrail's read-only model: inline comments
  * become review threads (a root plus its replies), everything else a
  * conversation comment. Deleted comments and unpublished (pending) drafts
  * are dropped. With the PR diff, each thread's first comment carries the
@@ -852,7 +852,7 @@ export async function submitBbPRReview(
     const errors = failedFileComments.map((f) => f.error);
     let savedTo: string | null = null;
     try {
-      const dir = join(getPlannotatorDataDir(), "failed-comments");
+      const dir = join(getReviewTrailDataDir(), "failed-comments");
       mkdirSync(dir, { recursive: true });
       const slug = `${ref.host}-${ref.workspace}_${ref.repo}-pr${ref.number}-${Date.now()}`;
       savedTo = join(dir, `${slug}.json`);
@@ -861,7 +861,7 @@ export async function submitBbPRReview(
         JSON.stringify({ ref, headSha, errors, failedComments: failedFileComments.map((f) => f.comment) }, null, 2),
       );
     } catch (writeErr) {
-      console.error(`[plannotator] Failed to persist unposted comments: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`);
+      console.error(`[reviewtrail] Failed to persist unposted comments: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`);
     }
     recoveryFile = savedTo ?? undefined;
     const suffix = savedTo ? ` (unposted bodies saved to ${savedTo})` : "";
@@ -871,7 +871,7 @@ export async function submitBbPRReview(
       throw new Error(`Failed to post inline comments${suffix}:\n${errors.join("\n")}`);
     }
     console.error(
-      `[plannotator] ${failedFileComments.length}/${fileComments.length} inline comments failed${suffix}:\n${errors.join("\n")}`,
+      `[reviewtrail] ${failedFileComments.length}/${fileComments.length} inline comments failed${suffix}:\n${errors.join("\n")}`,
     );
   }
 
@@ -893,7 +893,7 @@ export async function submitBbPRReview(
     if (reviewBodyError) {
       // Nothing reached the PR yet: surface it as an error (replay is safe).
       if (postedFileCommentCount === 0) throw new Error(reviewBodyError);
-      console.error(`[plannotator] ${reviewBodyError}`);
+      console.error(`[reviewtrail] ${reviewBodyError}`);
     }
   }
 

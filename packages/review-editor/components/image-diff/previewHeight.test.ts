@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { svgDimensions } from '@plannotator/shared/review-image';
+import { svgDimensions } from '@reviewtrail/shared/review-image';
 import { imagePreviewHeight } from './previewHeight';
 
 const svg = (source: string) => {

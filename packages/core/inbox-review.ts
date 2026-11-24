@@ -1,5 +1,5 @@
 /**
- * Code review in the Plannotator Inbox (approval "inbox-code-review-direction",
+ * Code review in the ReviewTrail Inbox (approval "inbox-code-review-direction",
  * 2026-11-03; phase 1). Every word an agent can receive because of it lives
  * here, so one file holds the whole agent-facing surface:
  *
@@ -11,7 +11,7 @@
  * - the words of the person's verdict reply (`inboxReviewVerdictWords`).
  *
  * - Show me (approval "code-review-launch-build", item 1: Show me makes a
- *   Shape): the request the window sends, the refusal an old `plannotator
+ *   Shape): the request the window sends, the refusal an old `reviewtrail
  *   review draw` gets, and the guide brief's and the skills' lines for the
  *   overview's drawing. These ride Shape's own switch as well (approval
  *   "code-review-029-shape-off"): with Code review on and Shape off, an agent
@@ -59,7 +59,7 @@ export const INBOX_REVIEW_CURATE_DRAWING_LINE_NO_SHAPE = 'If a chapter is easier
 export const INBOX_REVIEW_RECHECK_DRAWING_LINE = "If a chapter of the earlier review had a diagram and you changed what it shows, draw it again in the chapter of this review that covers that change (`sections[].diagram`).";
 
 /**
- * Every review skill Plannotator knows, by name, as an agent reads it with Shape off or on. A chapter's diagram is
+ * Every review skill ReviewTrail knows, by name, as an agent reads it with Shape off or on. A chapter's diagram is
  * offered either way (Mermaid needs no Shape; approval "guide-chapter-diagrams"); with Shape off the curate line names
  * Mermaid only, and no skill asks for an overview drawing (approval "code-review-029-shape-off").
  * `diagrams` false (Settings → Capabilities → Chapter diagrams off): the curate and recheck diagram lines are left
@@ -149,8 +149,8 @@ export function inboxReviewSkills(options: InboxReviewSkillOptions = {}): readon
 /** The offered skills, in order, with Shape off. The "/" list's names and descriptions are the same either way. */
 export const INBOX_REVIEW_SKILLS: readonly InboxReviewSkill[] = inboxReviewSkills();
 
-/** The skill catalog's root for a built-in skill (the "/" list's right column: "Plannotator"). */
-export const INBOX_BUILTIN_SKILL_ROOT = 'plannotator';
+/** The skill catalog's root for a built-in skill (the "/" list's right column: "ReviewTrail"). */
+export const INBOX_BUILTIN_SKILL_ROOT = 'reviewtrail';
 
 /** A built-in review skill by name, or undefined (offered skills only); its instructions as read with Shape off unless `shape`, with diagram lines unless `diagrams` is false. */
 export function inboxReviewSkill(name: string, options: InboxReviewSkillOptions = {}): InboxReviewSkill | undefined {
@@ -247,9 +247,9 @@ export function inboxReviewVerdictWords(verdict: InboxReviewVerdict, title: stri
 // ───────────────────────────── Show me (approval "code-review-launch-build", item 1) ─────────────────────────────
 //
 // Show me asks the session that wrote the review for a Shape: the same board,
-// store and commands as Shape on its own. The details are `plannotator shape
+// store and commands as Shape on its own. The details are `reviewtrail shape
 // --help`'s. None of it reaches an agent while Code review is off: the window
-// offers no Show me, and `plannotator shape` is off unless a switch is on.
+// offers no Show me, and `reviewtrail shape` is off unless a switch is on.
 
 /** What a Show me points at: a review, its file and lines (null: the Overview, the whole review), the round asked in, the person's words. */
 export interface InboxShowMeTarget {
@@ -327,10 +327,10 @@ export function inboxShowMeRequest(input: { target: InboxShowMeTarget; title: st
       : `The person pressed Show me on "${quoted(part?.name ?? '')}"${after} in your Shape ${part?.board ?? ''}${words}.`,
     ...picture,
     input.again
-      ? `Bring your Shape ${input.again} up to date with the code as it is now, as a new version. \`plannotator shape --help\` has how.`
+      ? `Bring your Shape ${input.again} up to date with the code as it is now, as a new version. \`reviewtrail shape --help\` has how.`
       : part
-        ? `Make a new Shape of that part, so they can see it the way you see it, and leave ${part.board} as it is. It can show code the board doesn't. \`plannotator shape --help\` has how.`
-        : 'Make a Shape of it, so they can see it the way you see it. `plannotator shape --help` has how.',
+        ? `Make a new Shape of that part, so they can see it the way you see it, and leave ${part.board} as it is. It can show code the board doesn't. \`reviewtrail shape --help\` has how.`
+        : 'Make a Shape of it, so they can see it the way you see it. `reviewtrail shape --help` has how.',
     `Store it with \`${tie}\`: it opens ${target.review ? 'over the review ' : ''}by itself, so don't open a page.`,
     // A board with no review behind it has no diff for a click to land in: the agent draws it as any board.
     ...(target.review ? ['On each part that is code, put `data-code="path#L42"` (or `#L42-L48`) with the review\'s paths and the new file\'s line numbers: a click lands on those lines of the diff.'] : []),
@@ -430,10 +430,10 @@ export function checkInboxDrawing(
 }
 
 /**
- * What an old `plannotator review draw` or `review drawings` gets while Code review and Shape are on: Show me makes a
+ * What an old `reviewtrail review draw` or `review drawings` gets while Code review and Shape are on: Show me makes a
  * Shape now. With Shape off the review parse takes them, as with Code review off (approval "code-review-029-shape-off").
  */
-export const INBOX_REVIEW_DRAW_GONE = 'review_draw_gone: `plannotator review draw` is gone: Show me makes a Shape now. Run `plannotator shape --help`.';
+export const INBOX_REVIEW_DRAW_GONE = 'review_draw_gone: `reviewtrail review draw` is gone: Show me makes a Shape now. Run `reviewtrail shape --help`.';
 
 /**
  * get_guide_brief's field doc for a chapter's diagram, served only while Code review is on (it replaces the overview
@@ -455,7 +455,7 @@ export function inboxReviewChapterDiagramDoc(shapeOn: boolean): string {
     '  double hyphens is for prose.',
     '  Mermaid: { "kind": "mermaid", "source" }.',
     ...(shapeOn
-      ? ['  Or { "kind": "html", "source", "css"?, "width"?, "height"?, "tall"? }: `source` is a', '  drawing by the rules in `plannotator shape --help`.']
+      ? ['  Or { "kind": "html", "source", "css"?, "width"?, "height"?, "tall"? }: `source` is a', '  drawing by the rules in `reviewtrail shape --help`.']
       : []),
   ].join('\n');
 }

@@ -1,4 +1,4 @@
-import type { SinceBaseSections } from '@plannotator/shared/types';
+import type { SinceBaseSections } from '@reviewtrail/shared/types';
 import type { DiffFile } from '../types';
 import { buildFileTree, getVisualFileOrder, type FileTreeNode } from './buildFileTree';
 import { remapBlockTree } from './fileKindTree';

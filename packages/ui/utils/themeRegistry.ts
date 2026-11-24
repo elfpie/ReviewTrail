@@ -1,4 +1,4 @@
-import { isCustomThemeInfo } from '@plannotator/core/theme-file';
+import { isCustomThemeInfo } from '@reviewtrail/core/theme-file';
 import { parseThemeMode, type Mode } from '../components/themeModes';
 
 export interface ThemeColors {
@@ -25,8 +25,8 @@ export interface ThemeInfo {
 
 export const BUILT_IN_THEMES: ThemeInfo[] = [
   {
-    id: 'plannotator',
-    name: 'Plannotator',
+    id: 'reviewtrail',
+    name: 'ReviewTrail',
     builtIn: true,
     modeSupport: 'both',
     colors: {
@@ -35,8 +35,8 @@ export const BUILT_IN_THEMES: ThemeInfo[] = [
     },
   },
   {
-    id: 'plannotator-graphite',
-    name: 'Plannotator Graphite',
+    id: 'reviewtrail-graphite',
+    name: 'ReviewTrail Graphite',
     builtIn: true,
     modeSupport: 'both',
     colors: {
@@ -45,8 +45,8 @@ export const BUILT_IN_THEMES: ThemeInfo[] = [
     },
   },
   {
-    id: 'plannotator-modern',
-    name: 'Plannotator Modern',
+    id: 'reviewtrail-modern',
+    name: 'ReviewTrail Modern',
     builtIn: true,
     modeSupport: 'both',
     syntaxHighlighting: true,
@@ -616,18 +616,18 @@ export const BUILT_IN_THEMES: ThemeInfo[] = [
 
 // --- Custom themes ------------------------------------------------------------
 //
-// A person's own theme files (`plannotator theme add`, kept in the data dir).
+// A person's own theme files (`reviewtrail theme add`, kept in the data dir).
 // Each server writes a script into the page's head (pageWithCustomThemes in
 // packages/shared/theme-files.ts; none when there are no custom themes) that
 // runs before this module: it adds the themes' stylesheet and leaves
-// their registry entries on `window.__PLANNOTATOR_CUSTOM_THEMES__`, read here
+// their registry entries on `window.__REVIEWTRAIL_CUSTOM_THEMES__`, read here
 // once, so the first render already knows a custom id (cookies and config.json
 // name it like any palette). Each entry is checked again: it is data from a
 // script. A host page without that script has none.
 
 declare global {
   interface Window {
-    __PLANNOTATOR_CUSTOM_THEMES__?: unknown;
+    __REVIEWTRAIL_CUSTOM_THEMES__?: unknown;
   }
 }
 
@@ -651,7 +651,7 @@ function toCustomThemes(list: unknown): ThemeInfo[] {
 }
 
 let customThemes: ThemeInfo[] = toCustomThemes(
-  typeof window === 'undefined' ? undefined : window.__PLANNOTATOR_CUSTOM_THEMES__,
+  typeof window === 'undefined' ? undefined : window.__REVIEWTRAIL_CUSTOM_THEMES__,
 );
 
 /** The custom themes this page was given, in the order the server listed them (by name). */
@@ -736,7 +736,7 @@ export interface ThemePair {
 }
 
 /** The palette every fresh install starts on, in both halves. */
-export const DEFAULT_COLOR_THEME = 'plannotator';
+export const DEFAULT_COLOR_THEME = 'reviewtrail';
 
 export const DEFAULT_THEME_PAIR: ThemePair = {
   mode: 'dark',
@@ -759,13 +759,18 @@ export function themesForHalf(themes: ThemeInfo[], half: ThemeHalf): ThemeInfo[]
   return themes.filter(({ id }) => themeSupportsHalf(id, half));
 }
 
+function savedThemeId(id: unknown): unknown {
+  return typeof id === 'string' ? id.replace(/^plannotator(?=$|-modern$|-graphite$)/, 'reviewtrail') : id;
+}
+
 /**
  * Seed a pair from the single palette older versions persisted. A `both`
  * palette takes over both halves; a mode-restricted one takes the half it
  * supports and the other half falls back to the default palette.
  */
 export function seedThemePair(colorThemeId: unknown, mode: Mode): ThemePair {
-  const id = isKnownTheme(colorThemeId) ? colorThemeId : DEFAULT_COLOR_THEME;
+  const saved = savedThemeId(colorThemeId);
+  const id = isKnownTheme(saved) ? saved : DEFAULT_COLOR_THEME;
   return {
     mode,
     light: themeSupportsHalf(id, 'light') ? id : DEFAULT_COLOR_THEME,
@@ -782,7 +787,7 @@ export function normalizeThemePair(
   fallback: ThemePair = DEFAULT_THEME_PAIR,
 ): ThemePair {
   const half = (key: ThemeHalf): string => {
-    const candidate = input?.[key];
+    const candidate = savedThemeId(input?.[key]);
     if (isKnownTheme(candidate) && themeSupportsHalf(candidate, key)) return candidate;
     return themeSupportsHalf(fallback[key], key) ? fallback[key] : DEFAULT_COLOR_THEME;
   };
@@ -799,7 +804,7 @@ export function resolvePairTheme(pair: ThemePair, preferredMode: ThemeHalf): str
 }
 
 /* The pair a fresh install starts from. ThemeProvider installs its own props
-   here before the config store resolves, so a host embedding @plannotator/ui
+   here before the config store resolves, so a host embedding @reviewtrail/ui
    keeps its `defaultTheme` / `defaultColorTheme` defaults. */
 let defaultThemePair: ThemePair = DEFAULT_THEME_PAIR;
 

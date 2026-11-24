@@ -1,12 +1,12 @@
 /**
- * The `plannotator` agent tool switch in code review (DOM_TESTS=1): the
+ * The `reviewtrail` agent tool switch in code review (DOM_TESTS=1): the
  * one-time "turn it on" offer and the Settings row, from the serverConfig on
  * /api/diff. The plan editor's twin is packages/editor/App.agentTool.test.tsx.
  *
  * Regressions guarded: the offer missing from code review on Pi / OpenCode 2
  * or showing where the server reports no tool host; "Yes, turn it on" not posting
  * `{ agentTool: true }` or not retiring the offer; the Settings row missing
- * from code review, or editable under PLANNOTATOR_AGENT_TOOL.
+ * from code review, or editable under REVIEWTRAIL_AGENT_TOOL.
  */
 import { afterAll, afterEach, describe, expect, mock, test } from "bun:test";
 import React, { act } from "react";
@@ -15,8 +15,8 @@ import {
   resetStorageBackend,
   setStorageBackend,
   type StorageBackend,
-} from "@plannotator/ui/utils/storage";
-import { configStore } from "@plannotator/ui/config";
+} from "@reviewtrail/ui/utils/storage";
+import { configStore } from "@reviewtrail/ui/config";
 
 // Vite-only virtual module (`?worker&inline`): stubbed like App.panelView.test.tsx.
 mock.module("./workerPool", () => ({
@@ -31,7 +31,7 @@ const App = appModule?.default as typeof import("./App")["default"];
 const originalFetch = globalThis.fetch;
 const originalEventSource = globalThis.EventSource;
 
-const AGENT_TOOL_KEY = "plannotator-announce-agent-tool-seen";
+const AGENT_TOOL_KEY = "reviewtrail-announce-agent-tool-seen";
 const DIALOG = "[data-agent-tool-announcement-dialog]";
 const SETTING_ROW = "[data-agent-tool-setting]";
 
@@ -119,15 +119,15 @@ async function settle(): Promise<void> {
 
 /** Retire every earlier one-time announcement, Ask this session included. */
 function seedEarlierChainSeen(): void {
-  memory.set("plannotator-plan-look-choice-resolved", "true");
-  memory.set("plannotator-announce-tui-herdr-seen", "1");
-  memory.set("plannotator-announce-inbox-seen", "1");
-  memory.set("plannotator-announce-ask-session-seen", "1");
-  memory.set("plannotator-guide-intro-seen", "2");
-  memory.set("plannotator-guide-hint-acked", "true");
-  memory.set("plannotator-edit-mode-announcement-seen", "3");
-  memory.set("plannotator-token-hover-announcement-seen", "1");
-  memory.set("plannotator-review-dest-spotlight-seen", "1");
+  memory.set("reviewtrail-plan-look-choice-resolved", "true");
+  memory.set("reviewtrail-announce-tui-herdr-seen", "1");
+  memory.set("reviewtrail-announce-inbox-seen", "1");
+  memory.set("reviewtrail-announce-ask-session-seen", "1");
+  memory.set("reviewtrail-guide-intro-seen", "2");
+  memory.set("reviewtrail-guide-hint-acked", "true");
+  memory.set("reviewtrail-edit-mode-announcement-seen", "3");
+  memory.set("reviewtrail-token-hover-announcement-seen", "1");
+  memory.set("reviewtrail-review-dest-spotlight-seen", "1");
 }
 
 async function mount(origin: string, agentTool: Record<string, unknown> | undefined): Promise<void> {
@@ -213,13 +213,13 @@ describe.if(hasDom)("agent tool switch in code review", () => {
     expect(document.querySelector(SETTING_ROW)).toBeNull();
   });
 
-  test("the Settings row is locked under PLANNOTATOR_AGENT_TOOL, and there is no offer", async () => {
+  test("the Settings row is locked under REVIEWTRAIL_AGENT_TOOL, and there is no offer", async () => {
     seedEarlierChainSeen();
     await mount("pi", { ...PI_OFF, agentToolEnv: false });
     expect(document.querySelector(DIALOG)).toBeNull();
     await openSettings();
     const toggle = document.querySelector<HTMLButtonElement>(`${SETTING_ROW} button[role="switch"]`);
     expect(toggle?.disabled).toBe(true);
-    expect(document.querySelector(SETTING_ROW)?.textContent).toContain("PLANNOTATOR_AGENT_TOOL");
+    expect(document.querySelector(SETTING_ROW)?.textContent).toContain("REVIEWTRAIL_AGENT_TOOL");
   });
 });

@@ -4,7 +4,7 @@ import type {
   BitbucketPRMetadata,
   GitlabMRMetadata,
   PRContext,
-} from '@plannotator/shared/pr-types';
+} from '@reviewtrail/shared/pr-types';
 import { buildPRArtifacts } from './prArtifacts';
 
 const SHOT_URL = 'https://github.com/user-attachments/assets/1234-shot';

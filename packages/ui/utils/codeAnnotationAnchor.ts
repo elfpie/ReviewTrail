@@ -17,7 +17,7 @@
  * Pure; reads only the per-file patch text.
  */
 
-import type { DiffFile } from '@plannotator/core/diff-files';
+import type { DiffFile } from '@reviewtrail/core/diff-files';
 import type { CodeAnnotation } from '../types';
 
 /** Upper bound on recorded anchor text; larger selections record nothing. */

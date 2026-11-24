@@ -2,7 +2,7 @@
 
 ReviewTrail is a personal code-review fork of [Plannotator](https://github.com/backnotprop/plannotator). Read a change in execution order. A behavior can start in a caller, cross several files and revisit the original caller to show the outcome. Each step pairs the agent’s explanation with lines from the reviewed patch.
 
-## Install alongside Plannotator
+## Install ReviewTrail
 
 The source install requires Bun 1.4.4 or newer, Node.js 22.19 or newer, and Git. For GitHub PRs, authenticate the GitHub CLI. To generate a guide, configure a supported agent CLI on the same machine.
 

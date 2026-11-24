@@ -23,7 +23,7 @@ import {
   readDiffSideBytes,
   validateFilePath,
 } from "./review-core";
-import { parseDiffToFiles } from "@plannotator/core/diff-files";
+import { parseDiffToFiles } from "@reviewtrail/core/diff-files";
 
 export const REVIEW_IMAGE_ENDPOINT = "/api/review-image";
 

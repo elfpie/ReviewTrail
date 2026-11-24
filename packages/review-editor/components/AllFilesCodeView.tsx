@@ -26,12 +26,12 @@ import type {
   ConventionalLabel,
   DiffAnnotationMetadata,
   TokenAnnotationMeta,
-} from '@plannotator/ui/types';
-import { CommentPopover } from '@plannotator/ui/components/CommentPopover';
+} from '@reviewtrail/ui/types';
+import { CommentPopover } from '@reviewtrail/ui/components/CommentPopover';
 import { usePierreTheme } from '../hooks/usePierreTheme';
 import { useIsWorkerPoolReadyOrDisabled, useWorkerPoolThemeSync } from '../workerPool';
 import { EXPAND_COLOUR_WAIT_MS, MAX_LINE_DIFF_LENGTH } from '../utils/diffChromeMetrics';
-import { useConfigValue } from '@plannotator/ui/config';
+import { useConfigValue } from '@reviewtrail/ui/config';
 import type { SemDiffClient, SemDiffResult } from '../semDiff/semDiffClient';
 import type { PowerUpConfig, PowerUpFileState, PowerUpStatus } from '../semDiff/powerUp';
 import { POWER_UP_PERIOD_MS, POWER_UP_ROW, powerUpCss } from '../semDiff/powerUpCss';
@@ -43,8 +43,8 @@ import { keepArrowClicks } from '../utils/keepArrowClicks';
 import { joinReading, type Reading } from '../utils/readingEngaged';
 import { scrollWithPage, type PageScroll } from '../utils/scrollWithPage';
 import { newLineOf } from '../utils/newLineOf';
-import { fileKind } from '@plannotator/core/file-kind';
-import { packageFileKind } from '@plannotator/core/package-changes';
+import { fileKind } from '@reviewtrail/core/file-kind';
+import { packageFileKind } from '@reviewtrail/core/package-changes';
 import { getFileKindOrder } from '../utils/fileKindTree';
 import { buildCodeNavRequest } from '../utils/buildCodeNavRequest';
 import { getDiffSelection, getLineNumberFromNode, getSideFromNode, snapshotDiffSelection, rangeForGutterClick, type DiffSelectionSnapshot } from '../utils/diffSelection';
@@ -66,7 +66,7 @@ import {
   type ChangePlacement,
   type DiffChange,
 } from '../utils/changeNavigation';
-import { isContentlessBinaryPatch, isImagePreviewCandidate, isOversizedReviewStubPatch } from '@plannotator/shared/diff-paths';
+import { isContentlessBinaryPatch, isImagePreviewCandidate, isOversizedReviewStubPatch } from '@reviewtrail/shared/diff-paths';
 import { OversizedFileNotice } from './OversizedFileNotice';
 import { ToolbarHost, type ToolbarHostHandle } from './ToolbarHost';
 import type { DiffSelectionActions } from './SelectionChooser';
@@ -126,7 +126,7 @@ export type AllFilesOrder = 'tree' | 'kind' | 'list';
  *
  * P1 established the static, uncontrolled `initialItems` skeleton. P2 locked
  * down item identity and routed navigation + line selection through CodeView's
- * own APIs. P3 moved collapse + the full Plannotator FileHeader INTO CodeView
+ * own APIs. P3 moved collapse + the full ReviewTrail FileHeader INTO CodeView
  * via the `renderCustomHeader` render slot.
  *
  * P4 (this phase) routes annotations through CodeView item state:
@@ -367,7 +367,7 @@ export interface AllFilesCodeViewProps {
   activeSearchMatchId?: string | null;
   activeSearchMatch?: ReviewSearchMatch | null;
   // Token code navigation (P7). Cmd/Ctrl-click a token resolves symbol defs/refs.
-  onCodeNavRequest?: (request: import('@plannotator/shared/code-nav').CodeNavRequest) => void;
+  onCodeNavRequest?: (request: import('@reviewtrail/shared/code-nav').CodeNavRequest) => void;
   /**
    * Token hover cards. Absent (the default) means the feature is not wired at
    * all. Deliberately raw: the view reports the token event and its file, and
@@ -549,7 +549,7 @@ export function projectFileContextNotes(
     }));
 }
 
-// Diffshub-style stable path-based id allocation. Plannotator's file list is
+// Diffshub-style stable path-based id allocation. ReviewTrail's file list is
 // normally one entry per (new) path, so ids are identity (id === path) in the
 // common case. Pathological patches (e.g. a delete + re-add of the same path,
 // or repeated paths) would otherwise collapse two files onto one CodeView item,
@@ -4008,7 +4008,7 @@ export const AllFilesCodeView: React.FC<AllFilesCodeViewProps> = ({
     return () => registerViewTarget(null);
   }, [registerViewTarget, resolveViewTarget]);
 
-  // --- Custom header render slot (the full Plannotator FileHeader) -----------
+  // --- Custom header render slot (the full ReviewTrail FileHeader) -----------
 
   const fileHeaderInputs = useMemo(
     () => ({}),

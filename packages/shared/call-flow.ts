@@ -1,7 +1,7 @@
 /**
  * Isolated CallDiff execution over immutable review snapshots.
  *
- * CallDiff is a Node-native, synchronous Tree-sitter library. Plannotator runs
+ * CallDiff is a Node-native, synchronous Tree-sitter library. ReviewTrail runs
  * it in a short-lived Node worker (22.18 or newer) and never imports it into
  * Bun or Pi.
  */
@@ -25,7 +25,7 @@ import {
   getCallFlowPatchLanguageUsage,
 } from "./call-flow-languages";
 import type { CallFlowLanguageDefinition, CallFlowLanguageId } from "./call-flow-languages";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 import { gitColorFreeEnvironment } from "./review-core";
 import { indexCallFlowImpacts, parseCallDiffWorkerResult } from "./call-flow-types";
 import type {
@@ -178,7 +178,7 @@ try {
 }
 `;
 
-export function getCallFlowManagedRuntimeDir(dataDir = getPlannotatorDataDir()): string {
+export function getCallFlowManagedRuntimeDir(dataDir = getReviewTrailDataDir()): string {
   return join(dataDir, "vendor", "call-flow", `calldiff-${CALLDIFF_VERSION}`);
 }
 
@@ -192,7 +192,7 @@ function getLanguagePackageRoot(runtimeDir: string, language: CallFlowLanguageDe
 }
 
 function getLanguageLockMarker(runtimeDir: string, id: CallFlowLanguageId): string {
-  return join(getCallFlowGrammarCacheDir(runtimeDir), ".plannotator-locks", `${id}.json`);
+  return join(getCallFlowGrammarCacheDir(runtimeDir), ".reviewtrail-locks", `${id}.json`);
 }
 
 function packHasCommittedLock(runtimeDir: string, id: Exclude<CallFlowLanguageId, "javascript-typescript">): boolean {
@@ -308,12 +308,12 @@ export async function resolveCallFlowRuntime(): Promise<CallFlowRuntimeResolutio
   const nodeCheck = await checkCallFlowNode(nodePath);
   if (!nodeCheck.ok) return { ok: false, reason: "node-version", message: nodeCheck.message };
 
-  const override = process.env.PLANNOTATOR_CALLDIFF_PATH?.trim();
+  const override = process.env.REVIEWTRAIL_CALLDIFF_PATH?.trim();
   if (override && !isAbsolute(override)) {
     return {
       ok: false,
       reason: "override-relative",
-      message: "PLANNOTATOR_CALLDIFF_PATH must be an absolute path.",
+      message: "REVIEWTRAIL_CALLDIFF_PATH must be an absolute path.",
     };
   }
   const runtimeDir = override ?? getCallFlowManagedRuntimeDir();
@@ -326,12 +326,12 @@ export async function resolveCallFlowRuntime(): Promise<CallFlowRuntimeResolutio
       ok: false,
       reason: "runtime-unavailable",
       message: override
-        ? `PLANNOTATOR_CALLDIFF_PATH does not contain a built CallDiff package: ${runtimeDir}`
+        ? `REVIEWTRAIL_CALLDIFF_PATH does not contain a built CallDiff package: ${runtimeDir}`
         : "The Call flow core is not installed.",
     };
   }
   if (version !== CALLDIFF_VERSION) {
-    return { ok: false, reason: "version-mismatch", message: `CallDiff ${version} is installed; Plannotator requires ${CALLDIFF_VERSION}.` };
+    return { ok: false, reason: "version-mismatch", message: `CallDiff ${version} is installed; ReviewTrail requires ${CALLDIFF_VERSION}.` };
   }
   if (!override) {
     const revisionPath = join(runtimeDir, ".calldiff-revision");
@@ -697,7 +697,7 @@ for (const file of request.files) mod.extractFunctions(file, "");
 function ensureGrammarCacheManifest(cacheDir: string): void {
   mkdirSync(cacheDir, { recursive: true });
   writeFileSync(join(cacheDir, "package.json"), runtimeJson({
-    name: "plannotator-calldiff-grammar-cache",
+    name: "reviewtrail-calldiff-grammar-cache",
     private: true,
   }), "utf8");
 }
@@ -743,7 +743,7 @@ export async function preserveValidatedLanguagePacks(
 }
 
 /**
- * Folder names Plannotator itself creates for a managed core: the published
+ * Folder names ReviewTrail itself creates for a managed core: the published
  * `calldiff-<version>` and the `.previous-<pid>-<ms>` backup a core swap
  * leaves when it is interrupted. Nothing else in vendor/call-flow matches.
  */
@@ -758,11 +758,11 @@ function compareVersionTriples(a: readonly number[], b: readonly number[]): numb
 
 /**
  * Managed core folders under this data dir that no current or newer
- * Plannotator uses: cores of an older CallDiff pin, and interrupted-swap
+ * ReviewTrail uses: cores of an older CallDiff pin, and interrupted-swap
  * backups of an older or the current pin. A newer pin's folder and backups
  * are kept, so downgrading and upgrading again finds it still installed.
  */
-export function listStaleCallFlowRuntimeDirs(dataDir = getPlannotatorDataDir()): string[] {
+export function listStaleCallFlowRuntimeDirs(dataDir = getReviewTrailDataDir()): string[] {
   const currentDir = getCallFlowManagedRuntimeDir(dataDir);
   const parent = dirname(currentDir);
   const current = CALLDIFF_VERSION.split(".").map(Number);
@@ -788,9 +788,9 @@ export function listStaleCallFlowRuntimeDirs(dataDir = getPlannotatorDataDir()):
 
 /**
  * A stale core is renamed to this dot-prefixed name before it is deleted. No
- * Plannotator version resolves a dot-prefixed folder, so a delete cut short
+ * ReviewTrail version resolves a dot-prefixed folder, so a delete cut short
  * (a killed process, a busy file on Windows) never leaves a half-deleted
- * `calldiff-<x.y.z>` that an older Plannotator would take as installed.
+ * `calldiff-<x.y.z>` that an older ReviewTrail would take as installed.
  */
 const STALE_TOMBSTONE_PATTERN = /^\.calldiff-stale-\d+-\d+-\d+$/;
 
@@ -802,7 +802,7 @@ const STALE_TOMBSTONE_PATTERN = /^\.calldiff-stale-\d+-\d+-\d+$/;
  * Windows) stays whole and is retried by the next install. Tombstones,
  * including any an earlier interrupted delete left, are then removed.
  */
-export function removeStaleCallFlowRuntimeDirs(dataDir = getPlannotatorDataDir()): void {
+export function removeStaleCallFlowRuntimeDirs(dataDir = getReviewTrailDataDir()): void {
   const parent = dirname(getCallFlowManagedRuntimeDir(dataDir));
   const stamp = `${process.pid}-${Date.now()}`;
   listStaleCallFlowRuntimeDirs(dataDir).forEach((path, index) => {
@@ -982,7 +982,7 @@ async function installCallFlowLanguagePackUnlocked(
   const runtime = await resolveCallFlowRuntime();
   if (!runtime.ok || !runtime.runtime.managed || runtime.runtime.runtimeDir !== runtimeDir) {
     return { ok: false, status: "failed", runtimeDir, message: runtime.ok
-      ? "Language packs cannot be installed into PLANNOTATOR_CALLDIFF_PATH."
+      ? "Language packs cannot be installed into REVIEWTRAIL_CALLDIFF_PATH."
       : runtime.message };
   }
   if (runtime.runtime.installedLanguageIds.includes(id)) {
@@ -1198,7 +1198,7 @@ function grammarChecksForLanguages(runtime: CallFlowRuntime, ids: readonly CallF
 }
 
 async function createNpmBlocker(): Promise<{ path: string; cleanup: () => void }> {
-  const root = await mkdtemp(join(tmpdir(), "plannotator-call-flow-path-"));
+  const root = await mkdtemp(join(tmpdir(), "reviewtrail-call-flow-path-"));
   if (process.platform === "win32") {
     writeFileSync(join(root, "npm.cmd"), "@echo CallDiff package installation is disabled during analysis. 1>&2\r\n@exit /b 91\r\n", "utf8");
     writeFileSync(join(root, "npm.exe"), "", "utf8");
@@ -1258,7 +1258,7 @@ async function executeWorker(
   }
   if (result.aborted) throw new Error("Call-flow analysis was superseded by a newer review snapshot.");
   if (result.timedOut) throw new Error("CallDiff exceeded the 45 second analysis limit.");
-  if (result.outputLimitExceeded) throw new Error("CallDiff result exceeded Plannotator's 12 MB output limit.");
+  if (result.outputLimitExceeded) throw new Error("CallDiff result exceeded ReviewTrail's 12 MB output limit.");
   let parsed: unknown;
   try {
     parsed = JSON.parse(result.stdout);
@@ -1394,7 +1394,7 @@ export class CallFlowService {
     const usage = getCallFlowPatchLanguageUsage(input?.rawPatch ?? "");
     const required = new Map(usage.map(({ language, files }) => [language.id, files.length]));
     if (!enabled) {
-      const managed = !process.env.PLANNOTATOR_CALLDIFF_PATH;
+      const managed = !process.env.REVIEWTRAIL_CALLDIFF_PATH;
       const consentIds = [
         CALL_FLOW_CORE_LANGUAGE_ID,
         ...usage.filter(({ language }) => language.kind === "pack").map(({ language }) => language.id),
@@ -1417,7 +1417,7 @@ export class CallFlowService {
       };
     }
     const resolved = await this.resolveRuntimeCached();
-    const managedInstallState = !process.env.PLANNOTATOR_CALLDIFF_PATH && [
+    const managedInstallState = !process.env.REVIEWTRAIL_CALLDIFF_PATH && [
       "node-unavailable",
       "node-version",
       "runtime-unavailable",

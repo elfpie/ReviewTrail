@@ -1,6 +1,6 @@
 /**
  * Hover cards for issue, pull request and merge request links, on Bun. The
- * fetch, parsers, cache and route live in `@plannotator/shared/ref-cards`
+ * fetch, parsers, cache and route live in `@reviewtrail/shared/ref-cards`
  * (vendored to Pi, which runs them through `nodeRefCliRunner`); this module
  * adds the Bun runner and makes it the default.
  */
@@ -15,14 +15,14 @@ import {
   type BitbucketRefReader,
   type RefCards,
   type RefRunner,
-} from "@plannotator/shared/ref-cards";
-import { fetchBbPRCard } from "@plannotator/shared/pr-provider";
+} from "@reviewtrail/shared/ref-cards";
+import { fetchBbPRCard } from "@reviewtrail/shared/pr-provider";
 import { prCommandRuntime } from "./pr";
 
-import { childEnv } from "@plannotator/shared/child-env";
+import { childEnv } from "@reviewtrail/shared/child-env";
 import { sessionTailnetAskAllowed } from "./session-tailnet";
 
-export * from "@plannotator/shared/ref-cards";
+export * from "@reviewtrail/shared/ref-cards";
 
 /** Everything a stream gives until it ends, and a way to stop waiting for the rest. */
 function drain(stream: ReadableStream<Uint8Array>): { done: Promise<void>; text: () => string; stop: () => void } {

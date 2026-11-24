@@ -192,7 +192,7 @@ function makeConfigForwardingRuntime(
 }
 
 function initRepo(initialBranch = "main"): string {
-  const repoDir = makeTempDir("plannotator-review-core-");
+  const repoDir = makeTempDir("reviewtrail-review-core-");
   git(repoDir, ["init"]);
   git(repoDir, ["branch", "-M", initialBranch]);
   git(repoDir, ["config", "user.email", "review-core@example.com"]);
@@ -366,7 +366,7 @@ describe("review-core", () => {
 
   test("remote-default discovery still resolves an accessible ordinary remote", async () => {
     const repoDir = initRepo();
-    const remoteDir = makeTempDir("plannotator-review-core-remote-");
+    const remoteDir = makeTempDir("reviewtrail-review-core-remote-");
     git(remoteDir, ["init", "--bare", "--initial-branch=main"]);
     git(repoDir, ["remote", "add", "origin", remoteDir]);
     git(repoDir, ["push", "--set-upstream", "origin", "main"]);
@@ -641,7 +641,7 @@ describe("review-core", () => {
   const hasSshKeygen = spawnSync("ssh-keygen", ["-?"]).error === undefined;
   test.skipIf(!hasSshKeygen)("a signed commit's review names its commit when log.showSignature is on", async () => {
     const repoDir = initRepo();
-    const keyDir = makeTempDir("plannotator-review-core-key-");
+    const keyDir = makeTempDir("reviewtrail-review-core-key-");
     const key = join(keyDir, "key");
     const made = spawnSync("ssh-keygen", ["-q", "-t", "ed25519", "-N", "", "-C", "review-core", "-f", key]);
     if (made.status !== 0) throw new Error(String(made.stderr));
@@ -681,7 +681,7 @@ describe("review-core", () => {
 
   test("keeps gitlink pointers as normal subproject diffs and fingerprints them", async () => {
     const superproject = initRepo();
-    const submoduleSource = makeTempDir("plannotator-review-core-submodule-");
+    const submoduleSource = makeTempDir("reviewtrail-review-core-submodule-");
     git(submoduleSource, ["init"]);
     git(submoduleSource, ["config", "user.email", "submodule@example.com"]);
     git(submoduleSource, ["config", "user.name", "Submodule"]);
@@ -1426,7 +1426,7 @@ describe("review-core", () => {
 
   test("local-vs-remote includes committed, dirty, and untracked changes since the tracked branch", async () => {
     const repoDir = initRepo();
-    const remoteDir = makeTempDir("plannotator-review-core-upstream-");
+    const remoteDir = makeTempDir("reviewtrail-review-core-upstream-");
     git(remoteDir, ["init", "--bare", "--initial-branch=main"]);
     git(repoDir, ["remote", "add", "origin", remoteDir]);
     git(repoDir, ["push", "--set-upstream", "origin", "main"]);
@@ -1485,7 +1485,7 @@ describe("review-core", () => {
   });
 
   test("since-base handles an unborn HEAD without invoking merge-base", async () => {
-    const repoDir = makeTempDir("plannotator-review-core-unborn-");
+    const repoDir = makeTempDir("reviewtrail-review-core-unborn-");
     git(repoDir, ["init"]);
     git(repoDir, ["branch", "-M", "main"]);
     const runtime = makeRuntime(repoDir);
@@ -1499,7 +1499,7 @@ describe("review-core", () => {
   });
 
   test.each(["since-base", "uncommitted"] as const)("%s reviews staged and untracked files before the first commit", async (mode) => {
-    const repo = makeTempDir("plannotator-review-core-unborn-index-");
+    const repo = makeTempDir("reviewtrail-review-core-unborn-index-");
     git(repo, ["init"]);
     const runtime = makeRuntime(repo);
     writeFileSync(join(repo, "first.txt"), "staged content\n");
@@ -1695,7 +1695,7 @@ describe("review-core", () => {
     const repoDir = initRepo();
     const runtime = makeRuntime(repoDir);
 
-    const worktreeParent = makeTempDir("plannotator-review-core-worktree-");
+    const worktreeParent = makeTempDir("reviewtrail-review-core-worktree-");
     const worktreeDir = join(worktreeParent, "feature-worktree");
     git(repoDir, ["worktree", "add", "-b", "feature/review-core", worktreeDir]);
 

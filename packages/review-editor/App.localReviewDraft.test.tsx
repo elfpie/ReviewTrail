@@ -3,9 +3,9 @@
 import { afterEach, expect, mock, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { resetStorageBackend, setStorageBackend } from '@plannotator/ui/utils/storage';
-import { configStore } from '@plannotator/ui/config';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import { resetStorageBackend, setStorageBackend } from '@reviewtrail/ui/utils/storage';
+import { configStore } from '@reviewtrail/ui/config';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 
 mock.module('./workerPool', () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,
@@ -66,13 +66,13 @@ class StubEventSource {
 for (const lateResponse of ['superseded', 'failure', 'success'] as const) {
   test.skipIf(!hasDom)(`a late ${lateResponse} switch cannot discard the newer target's unread comments`, async () => {
     const memory = new Map<string, string>([
-      ['plannotator-plan-look-choice-resolved', 'true'],
-      ['plannotator-announce-tui-herdr-seen', '1'],
-      ['plannotator-guide-intro-seen', '2'],
-      ['plannotator-guide-hint-acked', 'true'],
-      ['plannotator-edit-mode-announcement-seen', '3'],
-      ['plannotator-token-hover-announcement-seen', '1'],
-      ['plannotator-review-dest-spotlight-seen', '1'],
+      ['reviewtrail-plan-look-choice-resolved', 'true'],
+      ['reviewtrail-announce-tui-herdr-seen', '1'],
+      ['reviewtrail-guide-intro-seen', '2'],
+      ['reviewtrail-guide-hint-acked', 'true'],
+      ['reviewtrail-edit-mode-announcement-seen', '3'],
+      ['reviewtrail-token-hover-announcement-seen', '1'],
+      ['reviewtrail-review-dest-spotlight-seen', '1'],
     ]);
     setStorageBackend({
       getItem: key => memory.get(key) ?? null,
@@ -165,13 +165,13 @@ for (const lateResponse of ['superseded', 'failure', 'success'] as const) {
 
 test.skipIf(!hasDom)('a refresh that lands on no draft target resumes saving, and its decision still names the page', async () => {
   const memory = new Map<string, string>([
-    ['plannotator-plan-look-choice-resolved', 'true'],
-    ['plannotator-announce-tui-herdr-seen', '1'],
-    ['plannotator-guide-intro-seen', '2'],
-    ['plannotator-guide-hint-acked', 'true'],
-    ['plannotator-edit-mode-announcement-seen', '3'],
-    ['plannotator-token-hover-announcement-seen', '1'],
-    ['plannotator-review-dest-spotlight-seen', '1'],
+    ['reviewtrail-plan-look-choice-resolved', 'true'],
+    ['reviewtrail-announce-tui-herdr-seen', '1'],
+    ['reviewtrail-guide-intro-seen', '2'],
+    ['reviewtrail-guide-hint-acked', 'true'],
+    ['reviewtrail-edit-mode-announcement-seen', '3'],
+    ['reviewtrail-token-hover-announcement-seen', '1'],
+    ['reviewtrail-review-dest-spotlight-seen', '1'],
   ]);
   setStorageBackend({
     getItem: key => memory.get(key) ?? null,

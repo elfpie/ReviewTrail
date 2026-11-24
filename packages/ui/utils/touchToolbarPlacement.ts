@@ -1,7 +1,7 @@
 /**
  * Where the selection toolbar (`components/AnnotationToolbar`) sits on a touch
  * screen, for hosts that opt in with
- * `configurePlannotatorUI({ touchSelectionToolbar: true })`.
+ * `configureReviewTrailUI({ touchSelectionToolbar: true })`.
  *
  * Why below: iOS Safari draws its own edit menu (Copy, Find Selection, Look
  * Up) above a text selection, and a page cannot turn that menu off for
@@ -27,7 +27,7 @@
  * would cover the end handle's way on and the lines the finger drags it to.
  *
  * Default: off, so a host that does not opt in (Workspaces) keeps the
- * toolbar's desktop placement everywhere, exactly as before. Plannotator's
+ * toolbar's desktop placement everywhere, exactly as before. ReviewTrail's
  * plan review, annotate, code review and Inbox pass true. With it on, nothing
  * changes where the main pointer is a mouse or trackpad.
  */

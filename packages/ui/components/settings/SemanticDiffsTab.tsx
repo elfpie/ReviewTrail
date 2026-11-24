@@ -7,7 +7,7 @@ type Failure = 'missing' | 'refused' | 'noCredit' | 'noAnswer';
 type Check = { kind: 'idle' } | { kind: 'checking' } | { kind: 'ok'; ms: number } | { kind: 'error'; failure: Failure };
 
 const ROUTE = '/api/sem-diff/opinion/settings';
-export const POWER_UP_CHANGED_EVENT = 'plannotator:power-up-changed';
+export const POWER_UP_CHANGED_EVENT = 'reviewtrail:power-up-changed';
 const PROVIDER_NAME: Record<Provider, string> = { jev: 'Jev', clef: 'Clef' };
 const ADD_KEY: Record<Provider, string> = { jev: 'Paste the key from your TypeSafe account', clef: 'Your Cloudflare account ID and a Workers AI token' };
 

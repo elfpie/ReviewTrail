@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { DEMO_GUIDE, DEMO_GUIDE_ID } from '../../demoGuide';
-import type { CodeGuideData } from '@plannotator/shared/guide';
+import type { CodeGuideData } from '@reviewtrail/shared/guide';
 
-export type { GuideDiffRef, GuideSection, CodeGuideOutput, CodeGuideData } from '@plannotator/shared/guide';
+export type { GuideDiffRef, GuideSection, CodeGuideOutput, CodeGuideData } from '@reviewtrail/shared/guide';
 
 export interface UseGuideDataReturn {
   guide: CodeGuideData | null;

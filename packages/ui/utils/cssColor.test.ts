@@ -36,10 +36,10 @@ describe('parseCssColor', () => {
     // oklch white / black are the anchors of the transform.
     expect(hex('oklch(1 0 0)')).toBe('#ffffff');
     expect(hex('oklch(0 0 0)')).toBe('#000000');
-    // Plannotator's own dark background; the round trip through OKLab must
+    // ReviewTrail's own dark background; the round trip through OKLab must
     // land within one 8-bit step of what Chrome computes for it.
-    const plannotatorBg = parseCssColor('oklch(0.15 0.02 260)')!;
-    const backAgain = rgbToOklch(plannotatorBg);
+    const reviewTrailBg = parseCssColor('oklch(0.15 0.02 260)')!;
+    const backAgain = rgbToOklch(reviewTrailBg);
     expect(backAgain.L).toBeCloseTo(0.15, 2);
     expect(backAgain.H).toBeCloseTo(260, 0);
     expect(hex('oklab(0.5 0 0)')).toBe(hex('oklch(0.5 0 0)'));

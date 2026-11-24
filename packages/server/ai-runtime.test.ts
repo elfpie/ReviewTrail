@@ -24,7 +24,7 @@ describe("createAIRuntime Codex discovery", () => {
   test("capabilities does not execute Codex and session activation does", async () => {
     if (process.platform === "win32") return;
 
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-lazy-codex-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-lazy-codex-"));
     tempDirs.push(dir);
     const marker = join(dir, "codex-ran");
     const codex = join(dir, "codex");
@@ -84,7 +84,7 @@ describe("createAIRuntime Codex discovery", () => {
   test("capabilities?activate= runs discovery once and shares it with the session path", async () => {
     if (process.platform === "win32") return;
 
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-activate-codex-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-activate-codex-"));
     tempDirs.push(dir);
     const marker = join(dir, "codex-ran");
     const codex = join(dir, "codex");
@@ -159,7 +159,7 @@ describe("createAIRuntime Pi discovery", () => {
   test("plain capabilities answers at once without spawning a slow pi; ?activate= spawns it", async () => {
     if (process.platform === "win32") return;
 
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-lazy-pi-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-lazy-pi-"));
     tempDirs.push(dir);
     const marker = join(dir, "pi-ran");
     const pi = join(dir, "pi");
@@ -224,7 +224,7 @@ describe("createAIRuntime Qwen Code", () => {
   test("registers qwen-sdk, lists the settings models without running qwen, and answers a question", async () => {
     if (process.platform === "win32") return;
 
-    const dir = mkdtempSync(join(tmpdir(), "plannotator-qwen-runtime-"));
+    const dir = mkdtempSync(join(tmpdir(), "reviewtrail-qwen-runtime-"));
     tempDirs.push(dir);
     const fake = fakeQwenCli(dir);
     const qwenHome = join(dir, "qwen-home");

@@ -1,4 +1,4 @@
-import type { SemanticDiffChange, SemanticDiffResponse, SemanticDiffUnreadFile } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffChange, SemanticDiffResponse, SemanticDiffUnreadFile } from '@reviewtrail/shared/semantic-diff-types';
 import type { SemDiffClient, SemDiffOpinionRequest } from './semDiffClient';
 import { semDiffChanges } from './semDiffChanges';
 

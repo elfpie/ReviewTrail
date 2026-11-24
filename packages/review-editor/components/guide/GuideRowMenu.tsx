@@ -1,7 +1,7 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Download, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import { useDismissablePopover } from '@plannotator/ui/hooks/useDismissablePopover';
+import { useDismissablePopover } from '@reviewtrail/ui/hooks/useDismissablePopover';
 import { useGuideExportInfo } from './GuideExportButton';
 
 const ITEM =

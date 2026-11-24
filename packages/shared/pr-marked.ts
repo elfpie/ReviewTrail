@@ -1,5 +1,5 @@
 /**
- * Text Plannotator keeps on a pull or merge request and finds again by a hidden marker (the Inbox's "Post decisions",
+ * Text ReviewTrail keeps on a pull or merge request and finds again by a hidden marker (the Inbox's "Post decisions",
  * design brief "export-decisions" step 2): one comment of the person's own whose body starts with a marker line, or one
  * section of the PR's description between a start and an end marker. A later post edits that same text in place; it
  * never adds a second one and never touches anything outside it.
@@ -59,7 +59,7 @@ export function isAccessRefusal(stderr: string, stdout = ""): boolean {
   return /\bHTTP 40[34]\b|\b40[34] (?:Forbidden|Not Found)\b|must have (?:admin|write|push)|Resource not accessible/i.test(`${stderr}\n${stdout}`);
 }
 
-/** The section's start marker is there without its end: nothing is written over text Plannotator can't bound. */
+/** The section's start marker is there without its end: nothing is written over text ReviewTrail can't bound. */
 export class PRMarkedBrokenSectionError extends Error {
   constructor() {
     super("The decisions section in the description has lost its end marker. Remove what is left of it, then post again.");

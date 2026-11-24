@@ -8,7 +8,7 @@ import {
   createVcsApi,
   resolveAvailableDiffType,
   resolveInitialDiffType,
-} from "@plannotator/shared/vcs-core";
+} from "@reviewtrail/shared/vcs-core";
 import {
   detectP4Workspace,
   getP4Context,
@@ -78,7 +78,7 @@ export type {
   VcsProvider,
   VcsSelection,
   WorktreeInfo,
-} from "@plannotator/shared/vcs-core";
+} from "@reviewtrail/shared/vcs-core";
 
 export {
   JJ_TRUNK_REVSET,
@@ -90,4 +90,4 @@ export {
   parseRemoteBookmark,
   parseWorktreeDiffType,
   validateFilePath,
-} from "@plannotator/shared/vcs-core";
+} from "@reviewtrail/shared/vcs-core";

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { CodeFileView, type CodeFileAnnotationInput } from '@plannotator/ui/components/CodeFilePopout';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import { CodeFileView, type CodeFileAnnotationInput } from '@reviewtrail/ui/components/CodeFilePopout';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import { useRepoFileText, repoFileEmptyMessage } from '../hooks/useRepoFileText';
 import { useScrollMemory } from '../hooks/useScrollMemory';
 import { wholeFileMarks, wholeFileMarksCss } from '../utils/wholeFileMarks';

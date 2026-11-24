@@ -27,7 +27,7 @@
  * commits endpoint — rows just render the initials fallback.
  */
 
-import { classifyForgeHost, normalizeForgeHost, type ForgePlatform } from "@plannotator/core/forge-refs";
+import { classifyForgeHost, normalizeForgeHost, type ForgePlatform } from "@reviewtrail/core/forge-refs";
 import { parseRemoteUrl, parseRemoteHost } from "./repo";
 
 export interface CommandResult {

@@ -5,7 +5,7 @@
  * Mirrors the structure of git.ts for consistent VCS abstraction.
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
+import { childEnv } from "@reviewtrail/shared/child-env";
 import {
   type DiffResult,
   type DiffType,
@@ -13,7 +13,7 @@ import {
   type GitContext,
   parseP4DiffType,
   validateFilePath,
-} from "@plannotator/shared/review-core";
+} from "@reviewtrail/shared/review-core";
 
 // --- P4 command runner ---
 

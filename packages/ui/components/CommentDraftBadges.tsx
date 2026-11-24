@@ -1,5 +1,5 @@
 /**
- * Visible comment drafts (opt-in, `configurePlannotatorUI({ visibleCommentDrafts })`): a floating "Draft" badge just
+ * Visible comment drafts (opt-in, `configureReviewTrailUI({ visibleCommentDrafts })`): a floating "Draft" badge just
  * under the end of each set of words whose comment was closed with words in it. The badge sits on top of the text,
  * never in it: it is absolutely placed in the document's column, so no line moves, and it stays inside the column.
  * A press opens the comment again with its words.

@@ -4,8 +4,8 @@
  * Persists successful Guided Reviews to disk so they survive server restarts
  * (issue #1112). Files live at:
  *
- *   ${PLANNOTATOR_DATA_DIR}/guides/{repo-key}/{id}.json      (envelope)
- *   ${PLANNOTATOR_DATA_DIR}/guides/{repo-key}/{id}.patch     (the diff the guide describes; portable export)
+ *   ${REVIEWTRAIL_DATA_DIR}/guides/{repo-key}/{id}.json      (envelope)
+ *   ${REVIEWTRAIL_DATA_DIR}/guides/{repo-key}/{id}.patch     (the diff the guide describes; portable export)
  *
  * repo-key is a sanitized `host__owner__repo` derived from the repository's
  * origin remote (or the PR url in PR mode), so a PR review and a local review
@@ -23,7 +23,7 @@
 import { join, resolve, basename } from "path";
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, renameSync, unlinkSync, existsSync } from "fs";
 import { createHash } from "crypto";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 import { parseRemoteUrl, parseRemoteHost } from "./repo";
 import { getDisplayRepo, parsePRUrl } from "./pr-types";
 import type { CodeGuideOutput, SavedGuideListEntry, SavedGuideWhere } from "./guide";
@@ -32,7 +32,7 @@ import {
   type GuideLaunchReview,
   type GuideSnapshot,
   type GuideSnapshotSource,
-} from "@plannotator/core/guide-format";
+} from "@reviewtrail/core/guide-format";
 
 export type { SavedGuideListEntry };
 
@@ -160,7 +160,7 @@ export function deriveGuideRepoKeyFallback(dirPath: string): string {
  * The shelf a review keys its guides under: the PR url when it parses, else
  * the origin remote of `gitCwd`, else that repository's top-level directory,
  * else `fallbackDir`. The one resolution both the review session and
- * `plannotator guide import` use, so an imported guide lands where the next
+ * `reviewtrail guide import` use, so an imported guide lands where the next
  * review looks.
  */
 export async function resolveGuideRepoKey(opts: {
@@ -213,7 +213,7 @@ export function makeGuideId(title: string, now: number = Date.now()): string {
 // ---------------------------------------------------------------------------
 
 function guidesDir(repoKey: string): string {
-  return join(getPlannotatorDataDir(), "guides", repoKey);
+  return join(getReviewTrailDataDir(), "guides", repoKey);
 }
 
 function guidePath(repoKey: string, id: string): string {
@@ -406,7 +406,7 @@ export function buildSavedGuideSnapshot(repoKey: string, envelope: SavedGuideEnv
 }
 
 /**
- * Put a guide written outside a review session (`plannotator guide import`)
+ * Put a guide written outside a review session (`reviewtrail guide import`)
  * on a repo shelf, so the next review of that repository lists it under
  * Guides like one it generated. The inverse of buildSavedGuideSnapshot: the
  * snapshot's patch becomes the sibling `.patch` (written first, as everywhere
@@ -498,7 +498,7 @@ export function findSavedGuideById(id: string): { repoKey: string; envelope: Sav
   if (!isValidGuideId(id)) return null;
   let repoKeys: string[];
   try {
-    repoKeys = readdirSync(join(getPlannotatorDataDir(), "guides"));
+    repoKeys = readdirSync(join(getReviewTrailDataDir(), "guides"));
   } catch {
     return null;
   }
@@ -513,7 +513,7 @@ export function findSavedGuideById(id: string): { repoKey: string; envelope: Sav
 export function listAllSavedGuides(): Array<{ repoKey: string; id: string; envelope: SavedGuideEnvelope }> {
   let repoKeys: string[];
   try {
-    repoKeys = readdirSync(join(getPlannotatorDataDir(), "guides"));
+    repoKeys = readdirSync(join(getReviewTrailDataDir(), "guides"));
   } catch {
     return [];
   }

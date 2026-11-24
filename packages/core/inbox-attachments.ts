@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox attachments: the browser-safe shapes and the file rules
+ * ReviewTrail Inbox attachments: the browser-safe shapes and the file rules
  * that need no filesystem.
  *
  * An agent attaches files to a message by path (`send_message`'s
@@ -38,7 +38,7 @@ import { CODE_FILE_REGEX } from "./code-file";
 import { ulid } from "./inbox-types";
 
 /**
- * How the window draws a file: Plannotator's viewer for its type. `code` (a
+ * How the window draws a file: ReviewTrail's viewer for its type. `code` (a
  * source file, a script, or any other UTF-8 text) is drawn as a code view
  * with line comments; `image` inline in the message and in an image viewer;
  * `video` in a player, with comments at moments; `audio` in a player too,
@@ -176,7 +176,7 @@ export interface InboxGuideCommentTarget {
 /**
  * Where a comment on the text of an agent's message sits (approval
  * "inbox-message-comments", 2026-10-19): the message itself, named by the
- * record's `message_id`. The annotation is Plannotator's text selection
+ * record's `message_id`. The annotation is ReviewTrail's text selection
  * (`originalText` is the exact words selected). `at` is the message's
  * `created_at`, kept so a reader (the window, the phone's surface) can name
  * the message ("your message from 2:58 PM") without looking it up.
@@ -235,7 +235,7 @@ export const INBOX_LIVE_ANNOTATION_MAX = 128 * 1024;
  * carries, or (with `message`) on the text of an agent's message.
  */
 export interface InboxAnnotationRecord {
-  /** The annotation's own id (Plannotator's `Annotation.id`). */
+  /** The annotation's own id (ReviewTrail's `Annotation.id`). */
   id: string;
   project_id: string;
   thread_id: string;
@@ -257,7 +257,7 @@ export interface InboxAnnotationRecord {
   message?: InboxMessageCommentTarget;
   /** Set on a comment on a running local site the thread shows (additive; see `InboxLiveCommentTarget`). */
   live?: InboxLiveCommentTarget;
-  /** Plannotator's `Annotation` (attachments) or the review app's `CodeAnnotation` (guided reviews), as the viewer made it (opaque to the store beyond the checks). */
+  /** ReviewTrail's `Annotation` (attachments) or the review app's `CodeAnnotation` (guided reviews), as the viewer made it (opaque to the store beyond the checks). */
   annotation: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -449,7 +449,7 @@ export function formatInboxVideoTime(seconds: number): string {
 
 /**
  * A comment on a video (contract: `adr/implementation/inbox-mobile.md`):
- * Plannotator's `Annotation` with this `blockId` and `inboxVideo: { time }`,
+ * ReviewTrail's `Annotation` with this `blockId` and `inboxVideo: { time }`,
  * the moment in seconds from the start (millisecond precision). The frame the
  * window grabbed, when there is one, rides `images[0]`. A comment on a
  * recording (`audio`) is the same shape, with no frame: one contract for every

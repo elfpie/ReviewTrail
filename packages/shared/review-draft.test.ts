@@ -1,8 +1,8 @@
 /**
  * PR review drafts reachable by target identity (#1590).
  *
- * Every test sandboxes drafts under its own temp PLANNOTATOR_DATA_DIR (set
- * inside the test, restored in afterEach) — never the real ~/.plannotator.
+ * Every test sandboxes drafts under its own temp REVIEWTRAIL_DATA_DIR (set
+ * inside the test, restored in afterEach) — never the real ~/.reviewtrail.
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
@@ -34,14 +34,14 @@ let savedDataDir: string | undefined;
 let dataDir: string;
 
 beforeEach(() => {
-  savedDataDir = process.env.PLANNOTATOR_DATA_DIR;
-  dataDir = mkdtempSync(join(tmpdir(), "plannotator-review-draft-"));
-  process.env.PLANNOTATOR_DATA_DIR = dataDir;
+  savedDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+  dataDir = mkdtempSync(join(tmpdir(), "reviewtrail-review-draft-"));
+  process.env.REVIEWTRAIL_DATA_DIR = dataDir;
 });
 
 afterEach(() => {
-  if (savedDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = savedDataDir;
+  if (savedDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = savedDataDir;
   rmSync(dataDir, { recursive: true, force: true });
 });
 

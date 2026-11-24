@@ -42,7 +42,7 @@ import {
   TAILSCALE_SERVE_TIMEOUT_MS,
   type TailscaleRunResult,
   type TailscaleRunner,
-} from "@plannotator/shared/tailscale";
+} from "@reviewtrail/shared/tailscale";
 import { allowServedHostname, resetServedHostnamesForTests } from "./request-host-guard";
 import { handleServerReady, SESSION_READY_LINE_PREFIX } from "./shared-handlers";
 import { writeUrlQr } from "./qr";
@@ -116,7 +116,7 @@ function runServeOff(port: number, run: TailscaleRunner): boolean {
 
 function warnLeakedMapping(port: number): void {
   process.stderr.write(
-    `[plannotator] Warning: could not remove the tailscale serve mapping for port ${port}. ` +
+    `[reviewtrail] Warning: could not remove the tailscale serve mapping for port ${port}. ` +
       `Remove it manually with: tailscale serve --https=${port} off\n`,
   );
 }
@@ -207,7 +207,7 @@ export function* enableServeSteps(port: number, options: TailscaleServeOptions =
       "conflict",
       `--tailscale: tailscale serve already routes port ${httpsPort} (background or foreground session). ` +
         `Clear it with \`tailscale serve --https=${httpsPort} off\` if it is stale, ` +
-        `or set PLANNOTATOR_PORT to a free port.`,
+        `or set REVIEWTRAIL_PORT to a free port.`,
     );
   }
   const serve = yield step(buildServeArgs(port, httpsPort), TAILSCALE_SERVE_TIMEOUT_MS);
@@ -252,7 +252,7 @@ function registerServeMapping(hostname: string, httpsPort: number, run: Tailscal
     // SIGHUP is routed through process.exit ONLY once a mapping exists.
     // Installing any SIGHUP listener overrides the ignored disposition
     // `nohup` relies on, so sessions without a serve mapping must never gain
-    // one — `nohup plannotator review &` has to keep surviving terminal
+    // one — `nohup reviewtrail review &` has to keep surviving terminal
     // close. With a mapping, terminal close must run the exit cleanup above
     // or the `--bg` mapping leaks.
     process.once("SIGHUP", onSigHup);

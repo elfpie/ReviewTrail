@@ -1,5 +1,5 @@
 /**
- * Context builders — translate Plannotator review state into system prompts
+ * Context builders — translate ReviewTrail review state into system prompts
  * that give the AI session the right background for answering questions.
  *
  * These are provider-agnostic: any AIProvider implementation can use them
@@ -19,7 +19,7 @@ import type { AIContext } from "./types.ts";
  * - What role it plays (plan reviewer, code reviewer, etc.)
  * - The content it should reference (plan markdown, diff patch, file)
  * - Any annotations the user has already made
- * - That it's operating inside Plannotator (not a general coding session)
+ * - That it's operating inside ReviewTrail (not a general coding session)
  */
 export function buildSystemPrompt(ctx: AIContext): string {
   switch (ctx.mode) {
@@ -37,11 +37,11 @@ export function buildSystemPrompt(ctx: AIContext): string {
  *
  * When forking from a parent session, we don't need a full system prompt
  * (the parent's history already provides context). Instead, we inject a
- * short "you are now in Plannotator" preamble with the relevant content.
+ * short "you are now in ReviewTrail" preamble with the relevant content.
  */
 export function buildForkPreamble(ctx: AIContext): string {
   const lines: string[] = [
-    "The user is now reviewing your work in Plannotator and has a question.",
+    "The user is now reviewing your work in ReviewTrail and has a question.",
     "Answer the user's message directly and concisely based on the conversation " +
       "history and the context below. Do not re-review or summarize the work unless they ask.",
     "",
@@ -163,7 +163,7 @@ function bounded(text: string): string {
  * material it was given for context.
  */
 const ANSWER_DIRECTLY =
-  "You are a helpful assistant inside Plannotator. Respond to the user's message directly and concisely. " +
+  "You are a helpful assistant inside ReviewTrail. Respond to the user's message directly and concisely. " +
   "The material below is context for what the user is looking at — do NOT review, summarize, or critique it unless the user's message asks you to. " +
   "Only investigate further (read files, run git) if the user's question actually requires it.";
 
@@ -173,7 +173,7 @@ function buildPlanReviewPrompt(
   const sections: string[] = [
     ANSWER_DIRECTLY,
     "",
-    "The user is reviewing an implementation plan in Plannotator.",
+    "The user is reviewing an implementation plan in ReviewTrail.",
     "",
     "## Plan Under Review",
   ];
@@ -217,7 +217,7 @@ function buildCodeReviewPrompt(): string {
   return [
     ANSWER_DIRECTLY,
     "",
-    "The user is reviewing a set of code changes in Plannotator. Their messages " +
+    "The user is reviewing a set of code changes in ReviewTrail. Their messages " +
       "describe the changeset under review and how to inspect it — either a git " +
       "command to run, or the diff inline.",
   ].join("\n");
@@ -229,7 +229,7 @@ function buildAnnotatePrompt(
   const sections: string[] = [
     ANSWER_DIRECTLY,
     "",
-    "The user is annotating a markdown document in Plannotator.",
+    "The user is annotating a markdown document in ReviewTrail.",
     "",
     `## Document: ${ctx.annotate.filePath}`,
   ];

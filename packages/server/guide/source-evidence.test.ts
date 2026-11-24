@@ -1,10 +1,10 @@
 import { expect, test } from "bun:test";
 import { attachEvidence } from "./source-evidence";
-import { sanitizeGuideSection } from "@plannotator/core/guide-prompt";
-import { buildGuideSnapshot, parseGuideSnapshot } from "@plannotator/core/guide-format";
-import { createOfflineGuide } from "@plannotator/core/offline-guide";
-import { readBehavior, repeatedEditGroups } from "@plannotator/core/reading-path";
-import { parseDiffToFiles } from "@plannotator/core/diff-files";
+import { sanitizeGuideSection } from "@reviewtrail/core/guide-prompt";
+import { buildGuideSnapshot, parseGuideSnapshot } from "@reviewtrail/core/guide-format";
+import { createOfflineGuide } from "@reviewtrail/core/offline-guide";
+import { readBehavior, repeatedEditGroups } from "@reviewtrail/core/reading-path";
+import { parseDiffToFiles } from "@reviewtrail/core/diff-files";
 
 const file = (path: string, replacement: string) =>
   `diff --git a/${path} b/${path}\n--- a/${path}\n+++ b/${path}\n@@ -1 +1 @@\n-old();\n+${replacement}\n`;

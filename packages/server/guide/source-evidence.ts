@@ -1,8 +1,8 @@
-import type { GuideSection } from "@plannotator/core/guide";
-import { readPassages, type Passage } from "@plannotator/core/reading-path";
-import { diffHunkLines, parseDiffToFiles, type DiffHunk } from "@plannotator/core/diff-files";
-import type { DiffType } from "@plannotator/core/diff-type";
-import { validateFilePath, readDiffSideBytes, readGitObjectBytes, resolveDiffSideSources, type DiffSideSource, type FileBytesRead, type ReviewGitRuntime } from "@plannotator/shared/review-core";
+import type { GuideSection } from "@reviewtrail/core/guide";
+import { readPassages, type Passage } from "@reviewtrail/core/reading-path";
+import { diffHunkLines, parseDiffToFiles, type DiffHunk } from "@reviewtrail/core/diff-files";
+import type { DiffType } from "@reviewtrail/core/diff-type";
+import { validateFilePath, readDiffSideBytes, readGitObjectBytes, resolveDiffSideSources, type DiffSideSource, type FileBytesRead, type ReviewGitRuntime } from "@reviewtrail/shared/review-core";
 
 export const SOURCE_LIMIT = 512 * 1024;
 type ReadSide = (path: string) => Promise<FileBytesRead>;

@@ -11,7 +11,7 @@
  *
  * Stored through the settings registry (`agentSwitch` in config/settings.ts):
  * cookies (not localStorage, because each hook invocation runs on a random
- * port) plus `agentSwitch` in ~/.plannotator/config.json, which wins over the
+ * port) plus `agentSwitch` in ~/.reviewtrail/config.json, which wins over the
  * cookie (#1390: the Glimpse webview keeps no cookies between runs).
  */
 

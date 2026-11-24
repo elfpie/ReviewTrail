@@ -1,1 +1,1 @@
-export * from '@plannotator/core/feedback-templates';
+export * from '@reviewtrail/core/feedback-templates';

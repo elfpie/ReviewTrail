@@ -18,7 +18,7 @@ import {
   isQuestionDirectiveKind,
   type IndexedQuestion,
   type QuestionAnswer,
-} from "@plannotator/core/question-block";
+} from "@reviewtrail/core/question-block";
 
 /** A question block rendered outside a Viewer's document index (plan diff,
  *  other markdown surfaces): parsed alone, unnumbered. Its contract lines

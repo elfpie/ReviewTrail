@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClampedCommentBody } from './ClampedCommentBody';
-import { SEVERITY_STYLES, DiffAnnotationMetadata } from '@plannotator/ui/types';
+import { SEVERITY_STYLES, DiffAnnotationMetadata } from '@reviewtrail/ui/types';
 import { SuggestionBlock } from './SuggestionBlock';
 import { CommentMeta } from './CommentMeta';
 import { CommentActions } from './CommentActions';

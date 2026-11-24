@@ -1,6 +1,6 @@
 import React from 'react';
-import type { ConventionalLabel, ConventionalDecoration } from '@plannotator/ui/types';
-import { isCurrentUser } from '@plannotator/ui/utils/identity';
+import type { ConventionalLabel, ConventionalDecoration } from '@reviewtrail/ui/types';
+import { isCurrentUser } from '@reviewtrail/ui/utils/identity';
 import { ConventionalLabelBadge } from './ConventionalLabelPicker';
 import { formatRelativeTime } from '../utils/formatRelativeTime';
 

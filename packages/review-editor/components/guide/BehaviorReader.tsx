@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { diffHunkLines, parseDiffToFiles, type DiffFile } from '@plannotator/core/diff-files';
-import type { CodeGuideData, GuideDiffRef } from '@plannotator/shared/guide';
-import { renderMarkdownProse } from '@plannotator/guide-viewer/renderMarkdownProse';
-import { renderInlineMarkdown } from '@plannotator/guide-viewer/renderInlineMarkdown';
-import type { SelectedLineRange } from '@plannotator/ui/types';
+import { diffHunkLines, parseDiffToFiles, type DiffFile } from '@reviewtrail/core/diff-files';
+import type { CodeGuideData, GuideDiffRef } from '@reviewtrail/shared/guide';
+import { renderMarkdownProse } from '@reviewtrail/guide-viewer/renderMarkdownProse';
+import { renderInlineMarkdown } from '@reviewtrail/guide-viewer/renderInlineMarkdown';
+import type { SelectedLineRange } from '@reviewtrail/ui/types';
 import { DEMO_GUIDE_ID } from '../../demoGuide';
-import { isReviewTest, passageLines, readBehavior, repeatedEditGroups, sourceExcerpt, type GuideSourceExcerpt, type Passage } from '@plannotator/core/reading-path';
+import { isReviewTest, passageLines, readBehavior, repeatedEditGroups, sourceExcerpt, type GuideSourceExcerpt, type Passage } from '@reviewtrail/core/reading-path';
 
 const button = 'rounded border border-border px-2.5 py-1 text-xs hover:bg-muted focus-visible:outline-primary';
 type Comment = (file: string, range: SelectedLineRange) => void;

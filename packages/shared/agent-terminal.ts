@@ -1,1 +1,1 @@
-export * from '@plannotator/core/agent-terminal';
+export * from '@reviewtrail/core/agent-terminal';

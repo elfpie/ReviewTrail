@@ -9,8 +9,8 @@
  * added only for a document with the host-theme marker. Host theme tokens
  * are pushed under the viewer-owned `--pn-*` prefix, which the annotation CSS reads.
  *
- * Documents that WANT to follow the host theme (e.g. Plannotator-generated
- * artifacts) opt in with `<meta name="plannotator-theme" content="host">`,
+ * Documents that WANT to follow the host theme (e.g. ReviewTrail-generated
+ * artifacts) opt in with `<meta name="reviewtrail-theme" content="host">`,
  * which re-enables the bare-token push, the `light` class on their root, and
  * `color-scheme` sync — for that document only.
  *
@@ -57,19 +57,19 @@ export const PN_TOKEN_PREFIX = "--pn-";
  * this class so author-written <ins>/<del> markup is never restyled.
  */
 export const DIFF_HIGHLIGHT_CSS =
-  "ins.plannotator-diff{background:#e6ffec;color:#0a7d33;text-decoration:none;border-radius:2px;box-shadow:0 0 0 1px #abf2bc inset}" +
-  "del.plannotator-diff{background:#ffebe9;color:#b31d28;text-decoration:line-through;border-radius:2px;box-shadow:0 0 0 1px #ffc1bc inset}";
+  "ins.reviewtrail-diff{background:#e6ffec;color:#0a7d33;text-decoration:none;border-radius:2px;box-shadow:0 0 0 1px #abf2bc inset}" +
+  "del.reviewtrail-diff{background:#ffebe9;color:#b31d28;text-decoration:line-through;border-radius:2px;box-shadow:0 0 0 1px #ffc1bc inset}";
 
 /**
  * True when the document opts in to following the host theme via
- * `<meta name="plannotator-theme" content="host">` (attribute order/quoting agnostic).
+ * `<meta name="reviewtrail-theme" content="host">` (attribute order/quoting agnostic).
  */
 export function hasHostThemeOptIn(rawHtml: string): boolean {
   const metas = rawHtml.match(/<meta\b[^>]*>/gi);
   if (!metas) return false;
   return metas.some(
     (tag) =>
-      /\bname\s*=\s*["']?plannotator-theme["']?/i.test(tag) &&
+      /\bname\s*=\s*["']?reviewtrail-theme["']?/i.test(tag) &&
       /\bcontent\s*=\s*["']?host["']?/i.test(tag),
   );
 }
@@ -103,7 +103,7 @@ export interface SrcdocInjectionOptions {
   /**
    * The key of this load's link guard (`linkGuard.ts`). On the URL path the
    * bridge asset installs the guard itself and reads the key from its tag
-   * (`data-plannotator-link-key`); the inline path injects the guard first in
+   * (`data-reviewtrail-link-key`); the inline path injects the guard first in
    * the document instead ({@link injectLinkGuard}) and ignores this.
    */
   linkKey?: string;
@@ -151,12 +151,12 @@ function escapeAttribute(value: string): string {
 
 /**
  * The bridge `<script>` element, the ONE injection point for both delivery
- * paths. Inline is the default and Plannotator's only path; the URL form is
+ * paths. Inline is the default and ReviewTrail's only path; the URL form is
  * the opt-in for hosts that serve the generated `bridge-script.asset.js`.
  */
 export function buildBridgeScriptTag(bridgeScriptUrl?: string, linkKey?: string): string {
   if (bridgeScriptUrl) {
-    const key = linkKey && LINK_KEY_RE.test(linkKey) ? ` data-plannotator-link-key="${linkKey}"` : "";
+    const key = linkKey && LINK_KEY_RE.test(linkKey) ? ` data-reviewtrail-link-key="${linkKey}"` : "";
     return `<script src="${escapeAttribute(bridgeScriptUrl)}"${key}></script>`;
   }
   if (!BRIDGE_SCRIPT) {
@@ -165,7 +165,7 @@ export function buildBridgeScriptTag(bridgeScriptUrl?: string, linkKey?: string)
     // rendered an HtmlViewer without `bridgeScriptUrl`: an empty inline
     // script would be a silently dead surface, so fail loudly instead.
     throw new Error(
-      "@plannotator/ui HtmlViewer: the inline bridge script is stubbed out "
+      "@reviewtrail/ui HtmlViewer: the inline bridge script is stubbed out "
         + "(bridge-script.lite alias) but no bridgeScriptUrl was passed.",
     );
   }
@@ -178,7 +178,7 @@ export function buildBridgeScriptTag(bridgeScriptUrl?: string, linkKey?: string)
 // long code lines wrapped instead of running off the sheet. Otherwise an
 // arbitrary page prints exactly as it would from a browser tab.
 const DOCUMENT_PRINT_CSS = `
-@layer plannotator-print-defaults {
+@layer reviewtrail-print-defaults {
 @media print {
   :where(pre) { white-space: pre-wrap; overflow-wrap: anywhere; }
 }
@@ -189,13 +189,13 @@ const DOCUMENT_PRINT_CSS = `
 `;
 
 // Only a document that opts in to the host's look
-// (`<meta name="plannotator-theme" content="host">`, which Plannotator's own
+// (`<meta name="reviewtrail-theme" content="host">`, which ReviewTrail's own
 // explainers carry) gets pagination: each sibling section on a new sheet,
 // headings kept with what follows, and figures, images, diagrams, code and
 // tables kept whole where they fit. Low specificity leaves authored print
 // layouts in control.
 const SECTION_BREAK_PRINT_CSS = `
-@layer plannotator-print-defaults {
+@layer reviewtrail-print-defaults {
 @media print {
   :where(html, body) { min-height: 0; }
   :where(section ~ section) { break-before: page; }
@@ -295,7 +295,7 @@ export function buildSrcdocInjection({
 
 /**
  * A document-authored CSP `<meta>` tag (e.g. `default-src 'none'` in
- * Plannotator's own portable guided-review exports) blocks the inline bridge
+ * ReviewTrail's own portable guided-review exports) blocks the inline bridge
  * script and disables annotation entirely. The iframe `sandbox` attribute is
  * the security boundary for the annotate surface; the page's CSP was written
  * for its standalone context, so it is removed before injection.
@@ -311,12 +311,12 @@ const META_CSP_RE =
   /<meta\s[^>]*http-equiv\s*=\s*["']?\s*content-security-policy\s*["']?[^>]*\/?>/gi;
 
 export function neutralizeMetaCsp(rawHtml: string): string {
-  return rawHtml.replace(META_CSP_RE, "<!-- plannotator: meta CSP removed for annotation -->");
+  return rawHtml.replace(META_CSP_RE, "<!-- reviewtrail: meta CSP removed for annotation -->");
 }
 
 /**
  * A server marks a document it opened outside its session's roots with
- * `<meta name="plannotator-network" content="none">` (Plannotator's servers:
+ * `<meta name="reviewtrail-network" content="none">` (ReviewTrail's servers:
  * `HTML_NO_NETWORK_MARKER` in packages/shared/html-assets.ts). Such a page gets
  * no network in the frame: see {@link injectNoNetworkCsp}. Attribute order and
  * quoting agnostic, and read anywhere in the text, so nothing the page puts
@@ -328,7 +328,7 @@ export function hasNoNetworkMarker(rawHtml: string): boolean {
   if (!metas) return false;
   return metas.some(
     (tag) =>
-      /\bname\s*=\s*["']?plannotator-network["']?/i.test(tag) &&
+      /\bname\s*=\s*["']?reviewtrail-network["']?/i.test(tag) &&
       /\bcontent\s*=\s*["']?none["']?/i.test(tag),
   );
 }

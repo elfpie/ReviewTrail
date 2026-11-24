@@ -1,7 +1,7 @@
 import { useId, useMemo, useRef, useState } from 'react';
-import { useMentionAutocomplete } from '@plannotator/ui/hooks/useMentionAutocomplete';
-import { MentionAutocompleteMenu, mentionActiveOptionId } from '@plannotator/ui/components/MentionAutocomplete';
-import type { MentionSource } from '@plannotator/ui/utils/mentions';
+import { useMentionAutocomplete } from '@reviewtrail/ui/hooks/useMentionAutocomplete';
+import { MentionAutocompleteMenu, mentionActiveOptionId } from '@reviewtrail/ui/components/MentionAutocomplete';
+import type { MentionSource } from '@reviewtrail/ui/utils/mentions';
 import type { LiveSendTag } from './api';
 import { agentLabel, type LiveAgent } from './model';
 import { LiveHostMark } from './LiveMark';

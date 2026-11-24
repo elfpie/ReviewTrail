@@ -714,7 +714,7 @@ describe("questionStatus", () => {
   });
 });
 
-describe("Replaces: lines (the Plannotator Inbox)", () => {
+describe("Replaces: lines (the ReviewTrail Inbox)", () => {
   const OLD = "msg_01M4H6G73M9H3Z32T859E72DPY/q-4f7db09f";
 
   test("are read wherever they sit, never as the prompt or context, and leave the key alone", () => {

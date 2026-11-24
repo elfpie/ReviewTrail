@@ -1,7 +1,7 @@
 /**
  * Fuzzy path matching for Go to File (⌘P / Ctrl+P) in code review.
  *
- * Plannotator's own matcher. A path matches a query when every term's
+ * ReviewTrail's own matcher. A path matches a query when every term's
  * characters appear in the path in order. Each candidate alignment is built
  * greedily from a few starting points (word starts first) and scored; the
  * best one wins. Scores reward characters at word starts (after `/ . _ -`, a

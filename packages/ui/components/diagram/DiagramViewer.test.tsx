@@ -54,7 +54,7 @@ const FIXTURE = '06-flowchart-review-decision';
 const CAPTURE_ID = 'diagram-fixture';
 const SVG = readFileSync(join(FIXTURES, `${FIXTURE}.svg`), 'utf8');
 const SOURCE = ['flowchart LR', '  U([Reviewer]) --> D{Approve?}', '  D -->|Yes| M[(Merge)]', '  D -->|No| R[Revise]', ''].join('\n');
-const THEME = { colorTheme: 'plannotator', mode: 'dark' } as const;
+const THEME = { colorTheme: 'reviewtrail', mode: 'dark' } as const;
 
 interface CapturedElement {
   readonly bbox: { x: number; y: number; width: number; height: number };

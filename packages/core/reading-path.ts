@@ -1,5 +1,5 @@
-import { GUIDE_LINK_TARGET_SOURCE, parseGuideLink } from '@plannotator/core/guide-links';
-import { diffHunkLines, type DiffFile, type DiffHunk, type DiffHunkLine } from '@plannotator/core/diff-files';
+import { GUIDE_LINK_TARGET_SOURCE, parseGuideLink } from '@reviewtrail/core/guide-links';
+import { diffHunkLines, type DiffFile, type DiffHunk, type DiffHunkLine } from '@reviewtrail/core/diff-files';
 
 export interface Passage {
   title: string;

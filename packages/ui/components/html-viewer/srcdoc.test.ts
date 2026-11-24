@@ -7,13 +7,13 @@
  * documents), no `color-scheme`, no root classes, no styling of author
  * elements on screen. Print-only pagination defaults are the exception.
  * Host tokens travel only under the viewer-owned `--pn-*` prefix
- * unless the document opts in via <meta name="plannotator-theme" content="host">.
+ * unless the document opts in via <meta name="reviewtrail-theme" content="host">.
  *
  * These tests are the mutation guard: reintroducing any bare-token injection
  * for non-opted-in documents must go red here.
  */
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
-import { parseHtmlElementContext } from "@plannotator/core/html-anchor";
+import { parseHtmlElementContext } from "@reviewtrail/core/html-anchor";
 import { exportAnnotations } from "../../utils/parser";
 import { ANNOTATION_HIGHLIGHT_CSS, BRIDGE_SCRIPT } from "./bridge-script";
 import {
@@ -84,13 +84,13 @@ describe("buildSrcdocInjection", () => {
   });
 
   test("diff CSS is absent on plain renders and scoped when active", () => {
-    expect(buildSrcdocInjection(base)).not.toContain("plannotator-diff");
+    expect(buildSrcdocInjection(base)).not.toContain("reviewtrail-diff");
     const active = buildSrcdocInjection({ ...base, diffActive: true });
     expect(active).toContain(DIFF_HIGHLIGHT_CSS);
     // Scoped to diff-generated markup only — never bare ins/del selectors that
     // would restyle author elements.
-    expect(DIFF_HIGHLIGHT_CSS).toContain("ins.plannotator-diff");
-    expect(DIFF_HIGHLIGHT_CSS).toContain("del.plannotator-diff");
+    expect(DIFF_HIGHLIGHT_CSS).toContain("ins.reviewtrail-diff");
+    expect(DIFF_HIGHLIGHT_CSS).toContain("del.reviewtrail-diff");
     expect(/(^|[}\s;])(ins|del)\s*\{/.test(DIFF_HIGHLIGHT_CSS)).toBe(false);
   });
 });
@@ -99,7 +99,7 @@ describe("viewer CSS/script namespace", () => {
   test("annotation CSS reads only --pn- variables", () => {
     expect(ANNOTATION_HIGHLIGHT_CSS).toContain("var(--pn-");
     expect(/var\(--(?!pn-)/.test(ANNOTATION_HIGHLIGHT_CSS)).toBe(false);
-    expect(ANNOTATION_HIGHLIGHT_CSS).toContain("[data-plannotator-vim-reticle]");
+    expect(ANNOTATION_HIGHLIGHT_CSS).toContain("[data-reviewtrail-vim-reticle]");
     expect(ANNOTATION_HIGHLIGHT_CSS).toContain("@media (prefers-reduced-motion: reduce)");
     expect(BRIDGE_SCRIPT).toContain("return 'PREVIOUS BLOCK'");
     expect(BRIDGE_SCRIPT).toContain("return 'NEXT BLOCK'");
@@ -116,12 +116,12 @@ describe("viewer CSS/script namespace", () => {
 describe("hasHostThemeOptIn", () => {
   test("detects the meta tag across attribute order and quoting", () => {
     expect(
-      hasHostThemeOptIn('<head><meta name="plannotator-theme" content="host"></head>'),
+      hasHostThemeOptIn('<head><meta name="reviewtrail-theme" content="host"></head>'),
     ).toBe(true);
     expect(
-      hasHostThemeOptIn("<head><meta content='host' name='plannotator-theme'/></head>"),
+      hasHostThemeOptIn("<head><meta content='host' name='reviewtrail-theme'/></head>"),
     ).toBe(true);
-    expect(hasHostThemeOptIn("<head><meta name=plannotator-theme content=host></head>")).toBe(
+    expect(hasHostThemeOptIn("<head><meta name=reviewtrail-theme content=host></head>")).toBe(
       true,
     );
   });
@@ -129,7 +129,7 @@ describe("hasHostThemeOptIn", () => {
   test("does not trigger on absent, foreign, or mismatched metas", () => {
     expect(hasHostThemeOptIn("<html><body><p>hi</p></body></html>")).toBe(false);
     expect(hasHostThemeOptIn('<meta name="viewport" content="host">')).toBe(false);
-    expect(hasHostThemeOptIn('<meta name="plannotator-theme" content="self">')).toBe(false);
+    expect(hasHostThemeOptIn('<meta name="reviewtrail-theme" content="self">')).toBe(false);
   });
 });
 
@@ -147,7 +147,7 @@ describe("link guard placement", () => {
     const out = injectLinkGuard(injectSandboxShim(injectIntoHead(page, INJECTION)), KEY);
     const at = out.indexOf(GUARD);
     expect(out.startsWith(`<!DOCTYPE html>${GUARD}<html><head>`)).toBe(true);
-    expect(at).toBeLessThan(out.indexOf("plannotatorSandboxShim"));
+    expect(at).toBeLessThan(out.indexOf("reviewTrailSandboxShim"));
     expect(at).toBeLessThan(out.indexOf("window.headScript"));
     expect(at).toBeLessThan(out.indexOf("bridge()"));
   });
@@ -171,13 +171,13 @@ describe("link guard placement", () => {
 // no-network marker (packages/shared HTML_NO_NETWORK_MARKER); the srcdoc then
 // starts with `connect-src 'none'`, ahead of every page script.
 describe("no-network documents", () => {
-  const MARKER = '<meta name="plannotator-network" content="none">';
+  const MARKER = '<meta name="reviewtrail-network" content="none">';
   const INJECTION = "<style></style><script>bridge()</script>";
 
   test("the marker is read across attribute order and quoting, wherever the page put text around it", () => {
     expect(hasNoNetworkMarker(`<!DOCTYPE html><html><head>${MARKER}</head></html>`)).toBe(true);
-    expect(hasNoNetworkMarker("<meta content='none' name='plannotator-network'/>")).toBe(true);
-    expect(hasNoNetworkMarker("<meta name=plannotator-network content=none>")).toBe(true);
+    expect(hasNoNetworkMarker("<meta content='none' name='reviewtrail-network'/>")).toBe(true);
+    expect(hasNoNetworkMarker("<meta name=reviewtrail-network content=none>")).toBe(true);
     // Inside a comment or a script string the page opened before it: still read.
     expect(hasNoNetworkMarker(`<!-- ${MARKER} -->`)).toBe(true);
     expect(hasNoNetworkMarker(`<script>var s = "${MARKER.replace(/"/g, "'")}";</script>`)).toBe(true);
@@ -185,8 +185,8 @@ describe("no-network documents", () => {
 
   test("no marker, another name or another value: no policy", () => {
     expect(hasNoNetworkMarker("<!DOCTYPE html><html><body><p>hi</p></body></html>")).toBe(false);
-    expect(hasNoNetworkMarker('<meta name="plannotator-theme" content="none">')).toBe(false);
-    expect(hasNoNetworkMarker('<meta name="plannotator-network" content="all">')).toBe(false);
+    expect(hasNoNetworkMarker('<meta name="reviewtrail-theme" content="none">')).toBe(false);
+    expect(hasNoNetworkMarker('<meta name="reviewtrail-network" content="all">')).toBe(false);
   });
 
   test("the policy goes right after the doctype, before any page script", () => {
@@ -262,7 +262,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           super.observe(target, options);
         }
       };
-    Object.defineProperty(window, "__plannotatorLinkGuard", {
+    Object.defineProperty(window, "__reviewTrailLinkGuard", {
       configurable: true,
       value: {
         follow: (kind: string, msg: Record<string, unknown>) => {
@@ -303,11 +303,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     window.print = () => { prints += 1; };
     try {
       window.dispatchEvent(new MessageEvent("message", {
-        data: { type: "plannotator-bridge-print" },
+        data: { type: "reviewtrail-bridge-print" },
         source: null,
       }));
       expect(prints).toBe(0);
-      postBridge({ type: "plannotator-bridge-print" });
+      postBridge({ type: "reviewtrail-bridge-print" });
       expect(prints).toBe(1);
     } finally {
       window.print = originalPrint;
@@ -351,7 +351,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
   // root element; nothing annotation-related is written into the page's DOM.
 
   function overlayHost(): HTMLElement | null {
-    return document.querySelector<HTMLElement>("[data-plannotator-overlay-host]");
+    return document.querySelector<HTMLElement>("[data-reviewtrail-overlay-host]");
   }
 
   function overlayRoot(): ParentNode | null {
@@ -363,7 +363,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
   function allMarkers(): HTMLButtonElement[] {
     const root = overlayRoot();
     if (!root) return [];
-    return Array.from(root.querySelectorAll<HTMLButtonElement>("button[data-plannotator-marker]"));
+    return Array.from(root.querySelectorAll<HTMLButtonElement>("button[data-reviewtrail-marker]"));
   }
 
   function visibleMarkers(): HTMLButtonElement[] {
@@ -393,8 +393,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
    * model (happy-dom lays nothing out, so highlight geometry is all 0x0). */
   function committedRanges(id: string): Range[] {
     const internals = (window as unknown as {
-      __plannotatorBridgeInternals?: { committedRanges: (annId: string) => Range[] };
-    }).__plannotatorBridgeInternals;
+      __reviewTrailBridgeInternals?: { committedRanges: (annId: string) => Range[] };
+    }).__reviewTrailBridgeInternals;
     return internals ? internals.committedRanges(id) : [];
   }
 
@@ -417,7 +417,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const root = document.documentElement;
 
     postBridge({
-      type: "plannotator-bridge-theme",
+      type: "reviewtrail-bridge-theme",
       tokens: { "--pn-muted": "red", "--muted": "blue" },
       isLight: true,
       hostTheme: false,
@@ -427,7 +427,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(root.classList.contains("light")).toBe(false);
 
     postBridge({
-      type: "plannotator-bridge-theme",
+      type: "reviewtrail-bridge-theme",
       tokens: { "--pn-muted": "red", "--muted": "blue" },
       isLight: true,
       hostTheme: true,
@@ -450,11 +450,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     ].join("");
 
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "pinpoint",
     });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
 
@@ -465,20 +465,20 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     document.body.dispatchEvent(disabledMove);
     expect(disabledMove.defaultPrevented).toBe(false);
-    expect(document.querySelector("[data-plannotator-vim-badge]")).toBeNull();
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")).toBeNull();
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
     });
     postBridge({
-      type: "plannotator-bridge-focus-vim",
+      type: "reviewtrail-bridge-focus-vim",
     });
     expect(document.body.getAttribute("tabindex")).toBe("-1");
-    expect(document.body.hasAttribute("data-plannotator-vim-focus-owner")).toBe(true);
-    const initial = document.querySelector(".plannotator-pinpoint-hover");
+    expect(document.body.hasAttribute("data-reviewtrail-vim-focus-owner")).toBe(true);
+    const initial = document.querySelector(".reviewtrail-pinpoint-hover");
     expect(initial?.textContent).toBe("Keyboard document");
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("BLOCK · PINPOINT");
 
     const tab = new KeyboardEvent("keydown", {
@@ -488,7 +488,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     document.body.dispatchEvent(tab);
     expect(tab.defaultPrevented).toBe(false);
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.textContent)
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.textContent)
       .toBe("Keyboard document");
 
     const move = new KeyboardEvent("keydown", {
@@ -498,13 +498,13 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     document.body.dispatchEvent(move);
     expect(move.defaultPrevented).toBe(true);
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.textContent)
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.textContent)
       .toBe("First paragraph");
 
     const bridgeMessages: Array<Record<string, unknown>> = [];
     const capture = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === "plannotator-bridge-selection") bridgeMessages.push(data);
+      if (data?.type === "reviewtrail-bridge-selection") bridgeMessages.push(data);
     };
     window.addEventListener("message", capture);
     const comment = new KeyboardEvent("keydown", {
@@ -517,7 +517,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     window.removeEventListener("message", capture);
     expect(comment.defaultPrevented).toBe(true);
     expect(bridgeMessages.at(-1)).toMatchObject({
-      type: "plannotator-bridge-selection",
+      type: "reviewtrail-bridge-selection",
       text: "First paragraph",
       modeOverride: "comment",
     });
@@ -543,7 +543,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(activateLink.defaultPrevented).toBe(false);
 
     postBridge({
-      type: "plannotator-bridge-cancel-selection",
+      type: "reviewtrail-bridge-cancel-selection",
     });
     document.body.innerHTML = [
       "<table><tbody>",
@@ -553,7 +553,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       "<p>After table</p>",
     ].join("");
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "pinpoint",
     });
     for (const key of ["l", "l"]) {
@@ -563,7 +563,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         cancelable: true,
       }));
     }
-    const a1 = document.querySelector(".plannotator-pinpoint-hover");
+    const a1 = document.querySelector(".reviewtrail-pinpoint-hover");
     expect(a1?.tagName).toBe("TD");
     expect(a1?.textContent).toBe("A1");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
@@ -571,51 +571,51 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       bubbles: true,
       cancelable: true,
     }));
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.textContent).toBe("A2");
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.textContent).toBe("A2");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "h",
       bubbles: true,
       cancelable: true,
     }));
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.tagName).toBe("TR");
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.tagName).toBe("TR");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "j",
       bubbles: true,
       cancelable: true,
     }));
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.textContent).toBe("B1B2");
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.textContent).toBe("B1B2");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "h",
       bubbles: true,
       cancelable: true,
     }));
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.tagName).toBe("TABLE");
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.tagName).toBe("TABLE");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "j",
       bubbles: true,
       cancelable: true,
     }));
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.textContent)
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.textContent)
       .toBe("After table");
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<p>Alpha <strong>bravo</strong> charlie</p>";
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
     });
     postBridge({
-      type: "plannotator-bridge-focus-vim",
+      type: "reviewtrail-bridge-focus-vim",
     });
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "l",
       bubbles: true,
       cancelable: true,
     }));
-    expect(document.querySelector(".plannotator-pinpoint-hover")?.tagName).toBe("STRONG");
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")?.tagName).toBe("STRONG");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "v",
       bubbles: true,
@@ -631,20 +631,20 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     }
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<p>Alpha bravo charlie</p>";
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "drag",
     });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
     });
     postBridge({
-      type: "plannotator-bridge-focus-vim",
+      type: "reviewtrail-bridge-focus-vim",
     });
     const visual = new KeyboardEvent("keydown", {
       key: "v",
@@ -665,27 +665,27 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       cancelable: true,
     });
     document.body.dispatchEvent(action);
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("ACTION · SELECT");
 
     postBridge({
-      type: "plannotator-bridge-cancel-selection",
+      type: "reviewtrail-bridge-cancel-selection",
     });
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("VISUAL · SELECT");
     expect(window.getSelection()?.toString()).toBe("Alpha ");
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<p>Collapsed text target</p>";
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
     });
     postBridge({
-      type: "plannotator-bridge-focus-vim",
+      type: "reviewtrail-bridge-focus-vim",
     });
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "l",
@@ -706,7 +706,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     document.body.dispatchEvent(collapsedCopy);
     expect(collapsedCopy.defaultPrevented).toBe(false);
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("NORMAL · SELECT");
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "Escape",
@@ -727,16 +727,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(inactiveEscape.defaultPrevented).toBe(false);
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<p>Block one</p><p>Block two</p>";
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
     });
     postBridge({
-      type: "plannotator-bridge-focus-vim",
+      type: "reviewtrail-bridge-focus-vim",
     });
     for (const key of ["V", "j"]) {
       document.body.dispatchEvent(new KeyboardEvent("keydown", {
@@ -754,7 +754,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(window.getSelection()?.toString()).toBe("Block one");
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     expect(document.body.hasAttribute("tabindex")).toBe(false);
@@ -769,9 +769,9 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       if (
         data
         && [
-          "plannotator-bridge-vim-command",
-          "plannotator-bridge-vim-state",
-          "plannotator-bridge-vim-help",
+          "reviewtrail-bridge-vim-command",
+          "reviewtrail-bridge-vim-state",
+          "reviewtrail-bridge-vim-help",
         ]
           .includes(typeof data.type === "string" ? data.type : "")
       ) {
@@ -781,11 +781,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     window.addEventListener("message", capture);
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
       hudEnabled: false,
     });
-    postBridge({ type: "plannotator-bridge-focus-vim" });
+    postBridge({ type: "reviewtrail-bridge-focus-vim" });
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "j",
       bubbles: true,
@@ -793,23 +793,23 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     }));
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
     expect(hudMessages).toEqual([]);
-    expect(document.querySelector("[data-plannotator-vim-badge]")).not.toBeNull();
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")).not.toBeNull();
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<h1>First block</h1><p>Second block</p>";
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "pinpoint",
     });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
       hudEnabled: true,
     });
-    postBridge({ type: "plannotator-bridge-focus-vim" });
+    postBridge({ type: "reviewtrail-bridge-focus-vim" });
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "j",
       bubbles: true,
@@ -817,25 +817,25 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     }));
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-    expect(document.querySelector("[data-plannotator-vim-badge]")).toBeNull();
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")).toBeNull();
     expect(hudMessages).toContainEqual({
-      type: "plannotator-bridge-vim-state",
+      type: "reviewtrail-bridge-vim-state",
       phase: "block",
     });
     expect(hudMessages).toContainEqual({
-      type: "plannotator-bridge-vim-command",
+      type: "reviewtrail-bridge-vim-command",
       actionId: "moveDown",
       key: "j",
       context: "block",
     });
     const reticle = document.querySelector<HTMLElement>(
-      "[data-plannotator-vim-reticle]",
+      "[data-reviewtrail-vim-reticle]",
     );
     expect(reticle).not.toBeNull();
     expect(reticle?.dataset.vimTargetPhase).toBe("block");
     expect(reticle?.dataset.vimTargetLabel).toBe("BLOCK · PARAGRAPH");
     expect(reticle?.querySelectorAll("[data-vim-reticle-corner]")).toHaveLength(4);
-    expect(document.querySelector(".plannotator-pinpoint-hover")).toBeNull();
+    expect(document.querySelector(".reviewtrail-pinpoint-hover")).toBeNull();
 
     document.body.dispatchEvent(new KeyboardEvent("keydown", {
       key: "?",
@@ -844,18 +844,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     }));
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
     expect(hudMessages).toContainEqual({
-      type: "plannotator-bridge-vim-help",
+      type: "reviewtrail-bridge-vim-help",
       open: true,
     });
-    expect(document.querySelector("[data-plannotator-vim-help]")).toBeNull();
+    expect(document.querySelector("[data-reviewtrail-vim-help]")).toBeNull();
 
     postBridge({
-      type: "plannotator-bridge-set-vim-help",
+      type: "reviewtrail-bridge-set-vim-help",
       open: false,
     });
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
     expect(hudMessages).toContainEqual({
-      type: "plannotator-bridge-vim-help",
+      type: "reviewtrail-bridge-vim-help",
       open: false,
     });
 
@@ -878,7 +878,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(reticle?.dataset.vimTargetLabel).toBe("VISUAL · EXACT TOKEN");
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     window.removeEventListener("message", capture);
@@ -890,18 +890,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const copyMessages: Array<Record<string, unknown>> = [];
     const capture = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === "plannotator-bridge-vim-copy") {
+      if (data?.type === "reviewtrail-bridge-vim-copy") {
         copyMessages.push(data);
       }
     };
     window.addEventListener("message", capture);
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
       hudEnabled: true,
     });
-    postBridge({ type: "plannotator-bridge-focus-vim" });
+    postBridge({ type: "reviewtrail-bridge-focus-vim" });
     for (const key of ["V", "y"]) {
       document.body.dispatchEvent(new KeyboardEvent("keydown", {
         key,
@@ -913,17 +913,17 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     window.removeEventListener("message", capture);
 
     expect(copyMessages).toContainEqual({
-      type: "plannotator-bridge-vim-copy",
+      type: "reviewtrail-bridge-vim-copy",
       text: "Keyboard review fixture",
     });
     const reticle = document.querySelector<HTMLElement>(
-      "[data-plannotator-vim-reticle]",
+      "[data-reviewtrail-vim-reticle]",
     );
     expect(reticle?.dataset.vimTargetPhase).toBe("block");
     expect(reticle?.dataset.vimTargetLabel).toBe("BLOCK · HEADING");
 
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.replaceChildren();
@@ -931,20 +931,20 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
   test("restores the committed Visual range after annotation markup mutates the DOM", () => {
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<p>Alpha bravo charlie</p>";
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "drag",
     });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
       hudEnabled: false,
     });
-    postBridge({ type: "plannotator-bridge-focus-vim" });
+    postBridge({ type: "reviewtrail-bridge-focus-vim" });
 
     for (const key of ["v", "w", "c"]) {
       document.body.dispatchEvent(new KeyboardEvent("keydown", {
@@ -953,16 +953,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         cancelable: true,
       }));
     }
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("ACTION · SELECT");
 
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "vim-committed-range",
       annotationType: "comment",
     });
 
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("VISUAL · SELECT");
     expect(window.getSelection()?.toString()).toBe("Alpha ");
     // Committed range EXTENT: the record's range binds exactly the visual
@@ -982,9 +982,9 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(document.querySelector("[data-bind-id]")).toBeNull();
     expect(document.querySelector("mark")).toBeNull();
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.replaceChildren();
@@ -992,20 +992,20 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
   test("restores a whole-block Visual range after annotation markup mutates the DOM", () => {
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.innerHTML = "<p>Whole block target</p><p>After</p>";
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "drag",
     });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: true,
       hudEnabled: false,
     });
-    postBridge({ type: "plannotator-bridge-focus-vim" });
+    postBridge({ type: "reviewtrail-bridge-focus-vim" });
 
     for (const key of ["V", "c"]) {
       document.body.dispatchEvent(new KeyboardEvent("keydown", {
@@ -1014,16 +1014,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         cancelable: true,
       }));
     }
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("ACTION · SELECT");
 
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "vim-committed-block-range",
       annotationType: "comment",
     });
 
-    expect(document.querySelector("[data-plannotator-vim-badge]")?.textContent)
+    expect(document.querySelector("[data-reviewtrail-vim-badge]")?.textContent)
       .toBe("VISUAL BLOCK · SELECT");
     expect(window.getSelection()?.toString()).toBe("Whole block target");
     // Committed range EXTENT: the whole-block commit binds exactly the
@@ -1034,9 +1034,9 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(markersFor("vim-committed-block-range").length).toBe(1);
     expect(document.querySelector("[data-bind-id]")).toBeNull();
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     document.body.replaceChildren();
@@ -1047,22 +1047,22 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<div id="hero"><p class="intro">Anchor target text</p><p>Second paragraph</p></div>',
     ].join("");
     postBridge({
-      type: "plannotator-bridge-set-vim-mode",
+      type: "reviewtrail-bridge-set-vim-mode",
       enabled: false,
     });
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "pinpoint",
     });
     // Mode affordance: crosshair cursor attribute while pinpoint is active.
-    expect(document.body.hasAttribute("data-plannotator-pinpoint-cursor")).toBe(true);
+    expect(document.body.hasAttribute("data-reviewtrail-pinpoint-cursor")).toBe(true);
 
     const target = document.querySelector<HTMLElement>("p.intro");
     if (!target) throw new Error("target paragraph missing");
 
     // Hover: the overlay box appears; the page element gains no class/style.
     target.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, cancelable: true }));
-    const box = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]");
+    const box = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]");
     if (!box) throw new Error("pinpoint hover box missing");
     expect(box.style.display).toBe("block");
     expect(target.className).toBe("intro");
@@ -1074,7 +1074,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const messages: Array<Record<string, unknown>> = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === "plannotator-bridge-selection") messages.push(data);
+      if (data?.type === "reviewtrail-bridge-selection") messages.push(data);
     };
     window.addEventListener("message", collect);
     const click = new MouseEvent("click", { bubbles: true, cancelable: true });
@@ -1096,7 +1096,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(matches.length).toBe(1);
     expect(matches[0]).toBe(target);
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // Restoration writes NOTHING into the page: every restore below must
     // leave the author DOM byte-identical.
@@ -1105,7 +1105,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // Anchor-first restore: the resolved element owns the placed marker and
     // the scoped text range paints the overlay highlight.
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "pin-restore",
       originalText: "Anchor target text",
       annotationType: "comment",
@@ -1129,18 +1129,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(target.contains(restoredRanges[0]!.endContainer)).toBe(true);
     // Scrolling the annotation lands on the anchored element itself.
     const anchoredScroll = collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "pin-restore" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "pin-restore" });
     });
     expect(anchoredScroll[0]).toBe(target);
     expect(document.body.innerHTML).toBe(pageSnapshot);
-    postBridge({ type: "plannotator-bridge-remove-mark", id: "pin-restore" });
+    postBridge({ type: "reviewtrail-bridge-remove-mark", id: "pin-restore" });
     expect(markersFor("pin-restore").length).toBe(0);
 
     // Text drift under a STABLE anchor (#id): the element still identifies
     // itself, so when the text is gone everywhere it gets a placed marker
     // (still counts as restored).
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "pin-badge",
       originalText: "Text that no longer exists anywhere",
       annotationType: "comment",
@@ -1158,7 +1158,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // snapshot is a rejection, not an exemption): restoration falls back to
     // the document-wide text search instead of trusting the element.
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "pin-no-snapshot",
       originalText: "Second paragraph",
       annotationType: "comment",
@@ -1167,17 +1167,17 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markersFor("pin-no-snapshot").length).toBe(1);
     const fallbackScroll = collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "pin-no-snapshot" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "pin-no-snapshot" });
     });
     // The text was found in the SECOND paragraph, not the anchored element.
     expect(fallbackScroll[0]?.textContent).toBe("Second paragraph");
     expect(fallbackScroll[0]).not.toBe(target);
-    postBridge({ type: "plannotator-bridge-remove-mark", id: "pin-no-snapshot" });
+    postBridge({ type: "reviewtrail-bridge-remove-mark", id: "pin-no-snapshot" });
 
     // Fail-closed anchors: a weak selector whose text snapshot no longer
     // matches must not resolve (falls back to document-wide text search).
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "pin-stale",
       originalText: "Second paragraph",
       annotationType: "comment",
@@ -1186,19 +1186,19 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markersFor("pin-stale").length).toBe(1);
     const staleScroll = collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "pin-stale" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "pin-stale" });
     });
     expect(staleScroll[0]?.textContent).toBe("Second paragraph");
     expect(staleScroll[0]).not.toBe(target);
     expect(document.body.innerHTML).toBe(pageSnapshot);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     expect(visibleMarkers().length).toBe(0);
     postBridge({
-      type: "plannotator-bridge-set-input-method",
+      type: "reviewtrail-bridge-set-input-method",
       method: "drag",
     });
-    expect(document.body.hasAttribute("data-plannotator-pinpoint-cursor")).toBe(false);
+    expect(document.body.hasAttribute("data-reviewtrail-pinpoint-cursor")).toBe(false);
     document.body.replaceChildren();
   });
 
@@ -1209,26 +1209,26 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
   // Interact hands the embed back so it can be used natively.
   test("armed pinpoint makes nested frames pointer-transparent and Interact restores them", async () => {
     document.body.innerHTML = '<iframe src="about:blank"></iframe>';
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
-    postBridge({ type: "plannotator-bridge-set-annotate-mode", active: true });
-    expect(document.body.hasAttribute("data-plannotator-frame-inert")).toBe(true);
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-annotate-mode", active: true });
+    expect(document.body.hasAttribute("data-reviewtrail-frame-inert")).toBe(true);
 
-    postBridge({ type: "plannotator-bridge-set-annotate-mode", active: false });
-    expect(document.body.hasAttribute("data-plannotator-frame-inert")).toBe(false);
+    postBridge({ type: "reviewtrail-bridge-set-annotate-mode", active: false });
+    expect(document.body.hasAttribute("data-reviewtrail-frame-inert")).toBe(false);
 
     // Re-arming, then switching input method away, also clears it.
-    postBridge({ type: "plannotator-bridge-set-annotate-mode", active: true });
-    expect(document.body.hasAttribute("data-plannotator-frame-inert")).toBe(true);
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
-    expect(document.body.hasAttribute("data-plannotator-frame-inert")).toBe(false);
+    postBridge({ type: "reviewtrail-bridge-set-annotate-mode", active: true });
+    expect(document.body.hasAttribute("data-reviewtrail-frame-inert")).toBe(true);
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
+    expect(document.body.hasAttribute("data-reviewtrail-frame-inert")).toBe(false);
 
     // String-level guard: happy-dom honors neither pointer-events nor :is(),
     // so the attribute alone would pass with a typo'd rule. The rule that
     // actually makes the embed pinnable must ship in the annotation CSS.
     expect(ANNOTATION_HIGHLIGHT_CSS).toContain(
-      "body[data-plannotator-frame-inert] :is(iframe, frame, embed, object) {",
+      "body[data-reviewtrail-frame-inert] :is(iframe, frame, embed, object) {",
     );
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     document.body.replaceChildren();
   });
 
@@ -1241,14 +1241,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const wrapper = document.querySelector<HTMLElement>("div.frame")!;
     const frame = document.querySelector<HTMLElement>("iframe")!;
     frame.getBoundingClientRect = () => rectOf(0, 0, 600, 400);
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
-    postBridge({ type: "plannotator-bridge-set-annotate-mode", active: true });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-annotate-mode", active: true });
 
     await new Promise((resolve) => setTimeout(resolve, 0));
     const messages: Array<Record<string, unknown>> = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === "plannotator-bridge-selection") messages.push(data);
+      if (data?.type === "reviewtrail-bridge-selection") messages.push(data);
     };
     window.addEventListener("message", collect);
     wrapper.dispatchEvent(
@@ -1264,8 +1264,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // The pin box covers the embed, not the wrapper.
     expect(messages[0]!.rect).toMatchObject({ width: 600, height: 400 });
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     document.body.replaceChildren();
   });
 
@@ -1287,12 +1287,12 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML = chainA + chainB;
     const target = document.querySelector<HTMLElement>("p");
     if (!target || target.textContent !== "Deeply buried text") throw new Error("deep target missing");
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const messages: Array<Record<string, unknown>> = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === "plannotator-bridge-selection") messages.push(data);
+      if (data?.type === "reviewtrail-bridge-selection") messages.push(data);
     };
     window.addEventListener("message", collect);
     const started = performance.now();
@@ -1308,8 +1308,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // under happy-dom's slow selector engine.
     expect(elapsed).toBeLessThan(2000);
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1323,7 +1323,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       "<p>Save draft</p>",
     ].join("");
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "role-anchor",
       originalText: "Save draft",
       annotationType: "comment",
@@ -1332,18 +1332,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markersFor("role-anchor").length).toBe(1);
     const roleScroll = collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "role-anchor" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "role-anchor" });
     });
     // The annotation followed the TEXT into the paragraph — never the button.
     expect(roleScroll[0]?.tagName).toBe("P");
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
 
     // data-* attributes ARE author-controlled identity: a data-testid anchor
     // whose text drifted still resolves, and with the text gone everywhere the
     // element gets the placed marker.
     document.body.innerHTML = '<div data-testid="stats">New numbers</div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "data-anchor",
       originalText: "Old numbers",
       annotationType: "comment",
@@ -1352,10 +1352,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markersFor("data-anchor").length).toBe(1);
     const dataScroll = collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "data-anchor" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "data-anchor" });
     });
     expect(dataScroll[0]).toBe(document.querySelector('div[data-testid="stats"]'));
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -1364,7 +1364,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // check even after the element's content drifted completely.
     document.body.innerHTML = '<div data-cy="metrics">Fresh content</div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "cy-anchor",
       originalText: "Stale content gone from the page",
       annotationType: "comment",
@@ -1373,7 +1373,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markersFor("cy-anchor").length).toBe(1);
     expect(document.querySelector("[data-bind-id]")).toBeNull();
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -1409,7 +1409,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const messages: Array<Record<string, unknown>> = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === "plannotator-bridge-selection") messages.push(data);
+      if (data?.type === "reviewtrail-bridge-selection") messages.push(data);
     };
     window.addEventListener("message", collect);
     const click = new MouseEvent("click", {
@@ -1427,18 +1427,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
   test("chips and small buttons on div/span markup are individually targetable", async () => {
     document.body.innerHTML = SIGNOFF_MARKUP;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const chip = document.querySelector<HTMLElement>("span.rowchip");
     if (!chip) throw new Error("chip fixture missing");
 
     // Hover resolves the chip itself — not the enclosing section.
     hoverAt(chip, 100, 100);
-    const box = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]");
+    const box = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]");
     expect(box?.style.display).toBe("block");
     expect(
-      document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]")?.textContent,
+      document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]")?.textContent,
     ).toBe("rowchip");
     expect(chip.className).toBe("rowchip"); // page DOM untouched
 
@@ -1452,32 +1452,32 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const chipMatches = document.querySelectorAll(chipAnchor.selector);
     expect(chipMatches.length).toBe(1);
     expect(chipMatches[0]).toBe(chip);
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // The R1 chip and the small button resolve the same way.
     const dnum = document.querySelector<HTMLElement>("span.dnum");
     if (!dnum) throw new Error("dnum fixture missing");
     hoverAt(dnum, 200, 100);
     expect(
-      document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]")?.textContent,
+      document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]")?.textContent,
     ).toBe("dnum");
     const dnumResult = await clickAndCollectSelection(dnum, 200, 100);
     expect(dnumResult.messages.length).toBe(1);
     expect(dnumResult.messages[0]!.text).toBe("R1");
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     const btn = document.querySelector<HTMLElement>("span.btn");
     if (!btn) throw new Error("button fixture missing");
     hoverAt(btn, 300, 100);
     expect(
-      document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]")?.textContent,
+      document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]")?.textContent,
     ).toBe("btn primary");
     const btnResult = await clickAndCollectSelection(btn, 300, 100);
     expect(btnResult.messages.length).toBe(1);
     expect(btnResult.messages[0]!.text).toBe("Create");
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1487,22 +1487,22 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // where the card itself is the deepest rendered element — selects the
     // card, no keyboard or cycling involved.
     document.body.innerHTML = SIGNOFF_MARKUP;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const frame = document.querySelector<HTMLElement>("div.frame");
     if (!frame) throw new Error("frame fixture missing");
     hoverAt(frame, 400, 150);
     expect(
-      document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]")?.textContent,
+      document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]")?.textContent,
     ).toBe("frame");
     const { messages } = await clickAndCollectSelection(frame, 400, 150);
     expect(messages.length).toBe(1);
     expect((messages[0]!.anchor as { tagName: string }).tagName).toBe("div");
     expect(String(messages[0]!.text)).toContain("no-jargon");
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1523,21 +1523,21 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     card.getBoundingClientRect = () => mockRect(5, 5, 200, 100);
 
     try {
-      postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+      postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
       hoverAt(dot, 12, 12);
-      const box = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]");
+      const box = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]");
       // The 8x8 dot is under 16px on both axes — the hover box outlines the
       // 200x100 card instead (a floor, not a whitelist).
       expect(box?.style.display).toBe("block");
       expect(box?.style.left).toBe("5px");
       expect(box?.style.width).toBe("200px");
       expect(
-        document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]")?.textContent,
+        document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]")?.textContent,
       ).toBe("card");
     } finally {
       document.body.getBoundingClientRect = originalBodyRect;
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
       document.body.replaceChildren();
     }
   });
@@ -1556,11 +1556,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<video id="l-video"></video>',
       "</div>",
     ].join("");
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const label = () =>
-      document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]")?.textContent;
+      document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]")?.textContent;
     const cases: Array<[string, string]> = [
       ["#l-aria", "Close dialog"], // aria-label beats classes
       ["#l-role", "tablist"], // role beats a hash-looking class
@@ -1583,7 +1583,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(label()).toBe(expected);
     }
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1598,8 +1598,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<span class="icon-menu"></span>',
       "<p>Sibling text</p></div>",
     ].join("");
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const close = document.querySelector<HTMLElement>("span.icon-close");
     if (!close) throw new Error("icon fixture missing");
@@ -1612,13 +1612,13 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const anchor = messages[0]!.anchor as { selector: string; tagName: string; text?: string };
     expect(anchor.selector).toBe('span[data-testid="close-btn"]');
     expect(anchor.text).toBe("");
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // Round trip: the stable-identity anchor resolves without a text check,
     // so the icon gets a placed marker even though text search can never
     // succeed ("[element: icon close]" appears nowhere in the page).
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "identity-pin",
       originalText: "[element: icon close]",
       annotationType: "comment",
@@ -1627,7 +1627,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markersFor("identity-pin").length).toBe(1);
     expect(document.querySelector("[data-bind-id]")).toBeNull();
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     expect(visibleMarkers().length).toBe(0);
 
     // A text-less element with only classes (weak selector) ships NO anchor:
@@ -1641,8 +1641,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(menuResult.messages[0]!.text).toBe("[element: icon menu]");
     expect(menuResult.messages[0]!.anchor).toBeUndefined();
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1664,8 +1664,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<img id="i-srcset-w" srcset="hero-480.jpg 480w, hero-960.jpg 960w">',
       "</div>",
     ].join("");
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const cases: Array<[string, string]> = [
       ["#i-alt", '[element: Image "Team photo" (team.jpg)]'],
@@ -1690,10 +1690,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       const { messages } = await clickAndCollectSelection(el, x, 40);
       expect(messages.length).toBe(1);
       expect(messages[0]!.text).toBe(expected);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     }
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1712,8 +1712,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<img id="p-src" alt="Team" src="https://cdn.test/team.jpg?sig=SECRET">',
       "</div>",
     ].join("");
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const cases: Array<[string, string, string]> = [
       ["#p-srcset", "[element: Image (hero-480.jpg)]", "Feedback on the <img> element (hero-480.jpg)"],
@@ -1738,10 +1738,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         originalText: quote, createdA: 1, elementContext,
       }]);
       expect(out).toContain(`## 1. ${heading}\n`);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     }
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1750,7 +1750,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // it. Drafts saved before the description grew must keep their marker.
     document.body.innerHTML = '<div><img id="hero" alt="Hero" src="hero.png"><p>Body</p></div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "old-image-pin",
       originalText: "[element: Image]",
       annotationType: "comment",
@@ -1758,7 +1758,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     await flushOverlay();
     expect(markersFor("old-image-pin").length).toBe(1);
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -1775,8 +1775,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<span class="icon"></span>',
       "</div>",
     ].join("");
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const second = document.querySelectorAll<HTMLElement>("span.icon")[1];
     if (!second) throw new Error("sibling fixture missing");
@@ -1784,7 +1784,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const { messages } = await clickAndCollectSelection(second, 120, 60);
     expect(messages.length).toBe(1);
     expect(messages[0]!.anchor).toBeUndefined();
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // The old-world failure mode, replayed: after the first icon is removed,
     // span.icon:nth-of-type(2) is gone and span.icon:nth-of-type(1) IS a
@@ -1793,7 +1793,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     second.parentElement!.removeChild(document.querySelectorAll("span.icon")[0]!);
     for (const selector of ["div.strip > span:nth-of-type(2)", "div.strip > span:nth-of-type(1)"]) {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: `rebind-${selector}`,
         originalText: "[element: icon]",
         annotationType: "comment",
@@ -1804,7 +1804,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(visibleMarkers().length).toBe(0);
     expect(document.querySelector("[data-bind-id]")).toBeNull();
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1823,8 +1823,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       '<img src="data:image/png;base64,iVBORw0KGgo=">',
       "</div>",
     ].join("");
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     type Anchor = { selector: string; tagName: string; text?: string };
     const images = () => document.querySelectorAll<HTMLElement>("div.gallery > img");
@@ -1832,12 +1832,12 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       hoverAt(el, x, 40);
       const { messages } = await clickAndCollectSelection(el, x, 40);
       expect(messages.length).toBe(1);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       return messages[0]!.anchor as Anchor | undefined;
     };
     const restore = async (id: string, anchor: Anchor) => {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id,
         originalText: "[element: Image]",
         annotationType: "comment",
@@ -1853,7 +1853,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(anchor?.text).toMatch(/^src:charts\/b\.png\?[0-9a-f]{8}$/);
     expect(JSON.stringify(anchor)).not.toContain("SECRET");
     expect(await restore("b", anchor!)).toBe(1);
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
 
     // A sibling inserted in front moves the positional selector onto charts/a.png;
     // the source check rejects that element and finds charts/b.png by its source.
@@ -1861,7 +1861,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     inserted.setAttribute("src", "charts/new.png");
     images()[0]!.before(inserted);
     expect(await restore("b-moved", anchor!)).toBe(1);
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     // Once no element shows charts/b.png, nothing binds, at any position.
     images()[2]!.setAttribute("src", "charts/c.png");
     expect(await restore("b-gone", anchor!)).toBe(0);
@@ -1874,7 +1874,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(visibleMarkers().length).toBe(0);
     expect(document.querySelector("[data-bind-id]")).toBeNull();
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -1889,8 +1889,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.head.prepend(baseEl);
     try {
       document.body.innerHTML = '<div class="gallery"><p>Report</p><img src="thumb?id=1"><img src="charts/a.png"></div>';
-      postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+      postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
       type Anchor = { selector: string; tagName: string; text?: string };
       const images = () => document.querySelectorAll<HTMLElement>("div.gallery > img");
@@ -1898,14 +1898,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         hoverAt(el, x, 40);
         const { messages } = await clickAndCollectSelection(el, x, 40);
         expect(messages.length).toBe(1);
-        postBridge({ type: "plannotator-bridge-cancel-selection" });
+        postBridge({ type: "reviewtrail-bridge-cancel-selection" });
         return messages[0]!.anchor as Anchor | undefined;
       };
       const restore = async (id: string, anchor: Anchor) => {
-        postBridge({ type: "plannotator-bridge-find-and-mark", id, originalText: "[element: Image]", annotationType: "comment", anchor });
+        postBridge({ type: "reviewtrail-bridge-find-and-mark", id, originalText: "[element: Image]", annotationType: "comment", anchor });
         await flushOverlay();
         const count = markersFor(id).length;
-        postBridge({ type: "plannotator-bridge-clear-marks" });
+        postBridge({ type: "reviewtrail-bridge-clear-marks" });
         return count;
       };
 
@@ -1924,7 +1924,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       images()[0]!.setAttribute("src", "thumb?id=1");
       expect(await restore("thumb-same-query", thumb!)).toBe(1);
     } finally {
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
       baseEl.remove();
       document.body.replaceChildren();
     }
@@ -1947,8 +1947,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
   test("a pinpointed <nav> carries an element context: identity, path, role, name, hooks, skeleton, surroundings", async () => {
     document.body.innerHTML = CONTEXT_MARKUP;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     const nav = document.querySelector<HTMLElement>("nav#site-nav")!;
     hoverAt(nav, 30, 30);
     const { messages } = await clickAndCollectSelection(nav, 30, 30);
@@ -1981,7 +1981,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(JSON.stringify(context)).not.toContain("s3cr3t");
     // Srcdoc sessions carry no page identity (that is live-mode only).
     expect(context.page).toBeUndefined();
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // A text-less icon button: the quote stays the placeholder the export
     // rewrites, and the context names the element the placeholder cannot.
@@ -1994,7 +1994,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(buttonContext.role).toBe("button");
     expect(buttonContext.landmark).toBe('nav#site-nav "Primary"');
     expect(buttonContext.attrs).toEqual([["aria-label", "Open menu"]]);
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // URLs lose their query and fragment (tokens live there) and keep their
     // path, in every form: absolute and relative alike.
@@ -2005,16 +2005,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(linkContext.attrs).toEqual([["href", "https://acme.test/home?…"]]);
     expect(linkContext.role).toBe("link");
     expect(JSON.stringify(linkContext)).not.toContain("token=abc");
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     // Fresh coordinates: the hover hit-test is keyed on the pointer position.
     const about = document.querySelector<HTMLElement>('a[href="/about?tab=2"]')!;
     hoverAt(about, 90, 12);
     const rel = await clickAndCollectSelection(about, 90, 12, { metaKey: true });
     expect((rel.messages[0]!.context as { attrs: Array<[string, string]> }).attrs).toEqual([["href", "/about?…"]]);
     expect(JSON.stringify(rel.messages[0]!.context)).not.toContain("tab=2");
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2022,8 +2022,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const items: string[] = [];
     for (let i = 0; i < 400; i++) items.push(`<li class="row">Row number ${i} with some words in it</li>`);
     document.body.innerHTML = `<main><ul id="big" class="list">${items.join("")}</ul></main>`;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     const list = document.querySelector<HTMLElement>("ul#big")!;
     hoverAt(list, 30, 30);
     const { messages } = await clickAndCollectSelection(list, 30, 30);
@@ -2035,23 +2035,23 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // The adaptive skeleton shows a few children and counts the rest.
     expect(outline).toContain("more: li×");
     expect(String(context.text).length).toBeLessThanOrEqual(301); // 300 + ellipsis
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
   test("marker click ownership is identity-gated, not selector-gated (D5)", async () => {
     // A page element spoofing our marker attributes is NOT a viewer overlay:
     // it hovers and annotates like any other element.
-    document.body.innerHTML = "<div data-plannotator-marker class=\"fake-marker\">7</div><p id=\"pin-me\">Pinned text</p>";
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    document.body.innerHTML = "<div data-reviewtrail-marker class=\"fake-marker\">7</div><p id=\"pin-me\">Pinned text</p>";
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const spoof = document.querySelector<HTMLElement>("div.fake-marker");
     if (!spoof) throw new Error("spoof fixture missing");
     hoverAt(spoof, 40, 40);
     expect(
-      document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]")?.style.display,
+      document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]")?.style.display,
     ).toBe("block");
     const { click, messages } = await clickAndCollectSelection(spoof, 40, 40);
     expect(click.defaultPrevented).toBe(true);
@@ -2061,7 +2061,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // A REAL placed marker owns its click: it posts mark-click (which the
     // parent maps to focusing the annotation in the panel), not a selection.
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "badge-owner",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -2074,8 +2074,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
       if (
-        data?.type === "plannotator-bridge-selection"
-        || data?.type === "plannotator-bridge-mark-click"
+        data?.type === "reviewtrail-bridge-selection"
+        || data?.type === "reviewtrail-bridge-mark-click"
       ) collected.push(data);
     };
     window.addEventListener("message", collect);
@@ -2083,11 +2083,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     window.removeEventListener("message", collect);
     expect(collected).toEqual([
-      { type: "plannotator-bridge-mark-click", id: "badge-owner" },
+      { type: "reviewtrail-bridge-mark-click", id: "badge-owner" },
     ]);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2132,18 +2132,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
   }
 
   function pinnedBoxCount(): number {
-    return document.querySelectorAll("[data-plannotator-pinpoint-box][data-pinned]").length;
+    return document.querySelectorAll("[data-reviewtrail-pinpoint-box][data-pinned]").length;
   }
 
   async function startMultiDraft(options?: { arm?: boolean }): Promise<{
     primaryKey: string;
     keys: Map<string, string>; // className -> target key
   }> {
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     const alpha = document.querySelector<HTMLElement>("p.alpha")!;
     const selections = await collectMessages(
-      ["plannotator-bridge-selection"],
+      ["reviewtrail-bridge-selection"],
       () => clickAt(alpha, 20, 20, false),
     );
     expect(selections.length).toBe(1);
@@ -2154,7 +2154,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // The parent arms multi-select only when its comment composer mirrors the
     // draft — replayed here unless the test wants an UNARMED draft.
     if (options?.arm !== false) {
-      postBridge({ type: "plannotator-bridge-arm-multi-select", key: primaryKey });
+      postBridge({ type: "reviewtrail-bridge-arm-multi-select", key: primaryKey });
     }
     const keys = new Map<string, string>();
     keys.set("alpha", primaryKey);
@@ -2166,7 +2166,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const { keys } = await startMultiDraft();
     const beta = document.querySelector<HTMLElement>("p.beta")!;
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(beta, 40, 40, true),
     );
     expect(added.length).toBe(1);
@@ -2176,8 +2176,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(context.text).toBe("Beta text");
     expect(new TextEncoder().encode(JSON.stringify(context)).length).toBeLessThanOrEqual(1024);
     expect(keys.get("alpha")).toBeTruthy();
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2186,13 +2186,13 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await startMultiDraft();
     const img = document.querySelector<HTMLElement>("img#extra")!;
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(img, 60, 60, true),
     );
     expect(added.length).toBe(1);
     expect(added[0]!.text).toBe('[element: Image "Pricing chart" (pricing.png)]');
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2205,7 +2205,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // Shift-click beta: joins the draft, posts a validated target DTO, and
     // gets its own pinned outline box (primary keeps the main box).
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(beta, 40, 40, true),
     );
     expect(added.length).toBe(1);
@@ -2219,7 +2219,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(pinnedBoxCount()).toBe(2);
 
     const addedGamma = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(gamma, 60, 60, true),
     );
     expect(addedGamma.length).toBe(1);
@@ -2228,17 +2228,17 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // Shift-click beta AGAIN: toggle-off by DOM identity — the removal is
     // echoed to the parent and beta's outline box disappears.
     const removed = await collectMessages(
-      ["plannotator-bridge-multi-target-added", "plannotator-bridge-multi-target-removed"],
+      ["reviewtrail-bridge-multi-target-added", "reviewtrail-bridge-multi-target-removed"],
       () => clickAt(beta, 40, 40, true),
     );
     expect(removed.length).toBe(1);
-    expect(removed[0]!.type).toBe("plannotator-bridge-multi-target-removed");
+    expect(removed[0]!.type).toBe("reviewtrail-bridge-multi-target-removed");
     expect(removed[0]!.key).toBe(keys.get("beta"));
     expect(pinnedBoxCount()).toBe(2);
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     expect(pinnedBoxCount()).toBe(0);
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2250,7 +2250,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "multi-commit",
       annotationType: "comment",
     });
@@ -2268,7 +2268,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
     // A SECOND annotation numbers 2 — multi-target markers consumed one slot.
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "second-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -2280,8 +2280,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(numbers.filter((n) => n === "1").length).toBeGreaterThanOrEqual(2);
     expect(numbers.filter((n) => n === "2").length).toBe(1);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2294,7 +2294,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
     // Shift-click the PRIMARY: it is removed and beta is promoted.
     const removals = await collectMessages(
-      ["plannotator-bridge-multi-target-removed"],
+      ["reviewtrail-bridge-multi-target-removed"],
       () => clickAt(document.querySelector("p.alpha")!, 20, 20, true),
     );
     expect(removals.length).toBe(1);
@@ -2303,37 +2303,37 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
     // Committing now marks the PROMOTED element (beta), not alpha.
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "promoted-commit",
       annotationType: "comment",
     });
     const promotedMarkers = markersFor("promoted-commit");
     expect(promotedMarkers.length).toBe(1);
     const promotedScroll = collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "promoted-commit" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "promoted-commit" });
     });
     expect(promotedScroll[0]).toBe(document.querySelector("p.beta"));
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
 
     // Fresh draft with ONLY a primary: shift-clicking it cancels the draft —
     // a later create-mark must commit nothing.
     const again = await startMultiDraft();
     const cancel = await collectMessages(
-      ["plannotator-bridge-multi-target-removed"],
+      ["reviewtrail-bridge-multi-target-removed"],
       () => clickAt(document.querySelector("p.alpha")!, 20, 20, true),
     );
     expect(cancel.length).toBe(1);
     expect(cancel[0]!.key).toBe(again.primaryKey);
     expect(pinnedBoxCount()).toBe(0);
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "cancelled-commit",
       annotationType: "comment",
     });
     expect(markersFor("cancelled-commit").length).toBe(0);
     expect(visibleMarkers().length).toBe(0);
 
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2347,40 +2347,40 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const beta = document.querySelector<HTMLElement>("p.beta")!;
 
     const messages = await collectMessages(
-      ["plannotator-bridge-multi-target-added", "plannotator-bridge-selection"],
+      ["reviewtrail-bridge-multi-target-added", "reviewtrail-bridge-selection"],
       () => clickAt(beta, 40, 40, true),
     );
     // No multi-target-added; the shift-click replaced the draft instead.
     expect(messages.length).toBe(1);
-    expect(messages[0]!.type).toBe("plannotator-bridge-selection");
+    expect(messages[0]!.type).toBe("reviewtrail-bridge-selection");
     expect(messages[0]!.text).toBe("Beta text");
     expect(pinnedBoxCount()).toBe(1); // only the (new) primary's main box
 
     // Committing registers nothing beyond the new primary — no orphan pins.
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "unarmed-commit",
       annotationType: "comment",
     });
     expect(markersFor("unarmed-commit").length).toBeLessThanOrEqual(1);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
   test("a stale or mismatched arm key never arms a draft", async () => {
     document.body.innerHTML = MULTI_MARKUP;
     await startMultiDraft({ arm: false });
-    postBridge({ type: "plannotator-bridge-arm-multi-select", key: "not-the-primary" });
+    postBridge({ type: "reviewtrail-bridge-arm-multi-select", key: "not-the-primary" });
     const messages = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(document.querySelector("p.beta")!, 40, 40, true),
     );
     expect(messages.length).toBe(0);
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2392,31 +2392,31 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // bridge accumulates outlines/pins the saved annotation will not carry.
     document.body.innerHTML = MULTI_MARKUP;
     const { primaryKey } = await startMultiDraft(); // armed comment draft
-    postBridge({ type: "plannotator-bridge-arm-multi-select", key: primaryKey });
+    postBridge({ type: "reviewtrail-bridge-arm-multi-select", key: primaryKey });
 
     // New draft via plain click (no cancel-selection, no re-arm) — exactly
     // what a toolbar mode change followed by a pinpoint click produces.
     const beta = document.querySelector<HTMLElement>("p.beta")!;
-    await collectMessages(["plannotator-bridge-selection"], () => clickAt(beta, 40, 40, false));
+    await collectMessages(["reviewtrail-bridge-selection"], () => clickAt(beta, 40, 40, false));
 
     // Shift-click on the unarmed new draft must NOT add a target.
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(document.querySelector("p.gamma") ?? document.querySelector("p.alpha")!, 40, 40, true),
     );
     expect(added.length).toBe(0);
 
     // Committing the new draft registers at most its own primary: no orphans.
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "stale-arm-commit",
       annotationType: "comment",
     });
     expect(markersFor("stale-arm-commit").length).toBeLessThanOrEqual(1);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2424,7 +2424,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML = MULTI_MARKUP;
     const { primaryKey } = await startMultiDraft();
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(document.querySelector("p.beta")!, 40, 40, true),
     );
     const betaKey = String(added[0]!.key);
@@ -2434,22 +2434,22 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // (hostile multi-target-removed) and echoes remove-target back. The
     // bridge, which never removed it, now performs the SAME promotion —
     // both sides converge on beta as the primary.
-    postBridge({ type: "plannotator-bridge-remove-target", key: primaryKey });
+    postBridge({ type: "reviewtrail-bridge-remove-target", key: primaryKey });
     expect(pinnedBoxCount()).toBe(1);
 
     // Idempotency: the same removal again (double echo) is a no-op.
-    postBridge({ type: "plannotator-bridge-remove-target", key: primaryKey });
+    postBridge({ type: "reviewtrail-bridge-remove-target", key: primaryKey });
     expect(pinnedBoxCount()).toBe(1);
 
     // Committing pins the promoted element (beta), matching the parent model.
     postBridge({
-      type: "plannotator-bridge-create-mark",
+      type: "reviewtrail-bridge-create-mark",
       id: "resync-commit",
       annotationType: "comment",
     });
     expect(markersFor("resync-commit").length).toBe(1);
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     void betaKey;
     document.body.replaceChildren();
   });
@@ -2458,25 +2458,25 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML = MULTI_MARKUP;
     await startMultiDraft();
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => clickAt(document.querySelector("p.beta")!, 40, 40, true),
     );
     const betaKey = String(added[0]!.key);
     expect(pinnedBoxCount()).toBe(2);
 
     const echoes = await collectMessages(
-      ["plannotator-bridge-multi-target-removed"],
-      () => postBridge({ type: "plannotator-bridge-remove-target", key: betaKey }),
+      ["reviewtrail-bridge-multi-target-removed"],
+      () => postBridge({ type: "reviewtrail-bridge-remove-target", key: betaKey }),
     );
     expect(echoes.length).toBe(0); // the parent already updated its own list
     expect(pinnedBoxCount()).toBe(1);
 
     // flash-target on the survivor must not throw or change draft state.
-    postBridge({ type: "plannotator-bridge-flash-target", key: betaKey });
+    postBridge({ type: "reviewtrail-bridge-flash-target", key: betaKey });
     expect(pinnedBoxCount()).toBe(1);
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2484,19 +2484,19 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const paragraphs: string[] = [];
     for (let i = 0; i < 20; i++) paragraphs.push(`<p class="cap-${i}">Cap target ${i}</p>`);
     document.body.innerHTML = `<div id="cap-stage">${paragraphs.join("")}</div>`;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     const primarySelections = await collectMessages(
-      ["plannotator-bridge-selection"],
+      ["reviewtrail-bridge-selection"],
       () => clickAt(document.querySelector("p.cap-0")!, 10, 10, false), // primary
     );
     postBridge({
-      type: "plannotator-bridge-arm-multi-select",
+      type: "reviewtrail-bridge-arm-multi-select",
       key: String(primarySelections[0]!.targetKey),
     });
 
     const added = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => {
         for (let i = 1; i < 20; i++) {
           clickAt(document.querySelector(`p.cap-${i}`)!, 10 + i, 10, true);
@@ -2505,8 +2505,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     );
     expect(added.length).toBe(16);
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2518,37 +2518,37 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const paragraphs: string[] = [];
     for (let i = 0; i < 20; i++) paragraphs.push(`<p class="hcap-${i}">Host cap target ${i}</p>`);
     document.body.innerHTML = `<div id="hcap-stage">${paragraphs.join("")}</div>`;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     const first = await collectMessages(
-      ["plannotator-bridge-selection"],
+      ["reviewtrail-bridge-selection"],
       () => clickAt(document.querySelector("p.hcap-0")!, 10, 10, false),
     );
     postBridge({
-      type: "plannotator-bridge-arm-multi-select",
+      type: "reviewtrail-bridge-arm-multi-select",
       key: String(first[0]!.targetKey),
       max: 2,
     });
     const capped = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => {
         for (let i = 1; i < 10; i++) clickAt(document.querySelector(`p.hcap-${i}`)!, 10 + i, 10, true);
       },
     );
     expect(capped.length).toBe(2);
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
 
     // Next draft, armed without a max: the package cap applies again.
     const second = await collectMessages(
-      ["plannotator-bridge-selection"],
+      ["reviewtrail-bridge-selection"],
       () => clickAt(document.querySelector("p.hcap-0")!, 10, 10, false),
     );
     postBridge({
-      type: "plannotator-bridge-arm-multi-select",
+      type: "reviewtrail-bridge-arm-multi-select",
       key: String(second[0]!.targetKey),
     });
     const uncapped = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => {
         for (let i = 1; i < 20; i++) clickAt(document.querySelector(`p.hcap-${i}`)!, 10 + i, 10, true);
       },
@@ -2556,26 +2556,26 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(uncapped.length).toBe(16);
 
     // A max above the package cap, or garbage, never raises it.
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     const third = await collectMessages(
-      ["plannotator-bridge-selection"],
+      ["reviewtrail-bridge-selection"],
       () => clickAt(document.querySelector("p.hcap-0")!, 10, 10, false),
     );
     postBridge({
-      type: "plannotator-bridge-arm-multi-select",
+      type: "reviewtrail-bridge-arm-multi-select",
       key: String(third[0]!.targetKey),
       max: 999,
     });
     const clamped = await collectMessages(
-      ["plannotator-bridge-multi-target-added"],
+      ["reviewtrail-bridge-multi-target-added"],
       () => {
         for (let i = 1; i < 20; i++) clickAt(document.querySelector(`p.hcap-${i}`)!, 10 + i, 10, true);
       },
     );
     expect(clamped.length).toBe(16);
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2588,43 +2588,43 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const reports: string[][] = [];
     const listener = (e: MessageEvent) => {
       const d = bridgeMessageData(e);
-      if (d && d.type === "plannotator-bridge-unanchored") reports.push(d.ids as string[]);
+      if (d && d.type === "reviewtrail-bridge-unanchored") reports.push(d.ids as string[]);
     };
     window.addEventListener("message", listener);
     try {
       document.body.innerHTML = "<p>Report target copy</p>";
-      postBridge({ type: "plannotator-bridge-clear-marks" });
+      postBridge({ type: "reviewtrail-bridge-clear-marks" });
       await flushOverlay();
       const baseline = reports.length;
       // Everything restores: change-only would emit nothing.
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "report-live",
         originalText: "Report target copy",
         annotationType: "comment",
       });
-      postBridge({ type: "plannotator-bridge-report-unanchored" });
+      postBridge({ type: "reviewtrail-bridge-report-unanchored" });
       await flushOverlay();
       expect(reports.length).toBe(baseline + 1);
       expect(reports.at(-1)).toEqual([]);
       // The request is consumed: an idle pass emits nothing more.
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       await flushOverlay();
       expect(reports.length).toBe(baseline + 1);
       // With a failure in the batch the forced report carries it, once.
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "report-ghost",
         originalText: "Text this page never had",
         annotationType: "comment",
       });
-      postBridge({ type: "plannotator-bridge-report-unanchored" });
+      postBridge({ type: "reviewtrail-bridge-report-unanchored" });
       await flushOverlay();
       expect(reports.at(-1)).toEqual(["report-ghost"]);
       expect(reports.length).toBe(baseline + 2);
     } finally {
       window.removeEventListener("message", listener);
-      postBridge({ type: "plannotator-bridge-clear-marks" });
+      postBridge({ type: "reviewtrail-bridge-clear-marks" });
       document.body.replaceChildren();
     }
   });
@@ -2635,7 +2635,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // smooth: hosts that never pass it see no change.
     document.body.innerHTML = "<p class=\"scroll-target\">Scroll behavior target</p>";
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "scroll-behavior",
       originalText: "Scroll behavior target",
       annotationType: "comment",
@@ -2647,22 +2647,22 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       behaviors.push(typeof arg === "object" && arg ? arg.behavior : undefined);
     };
     try {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "scroll-behavior" });
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "scroll-behavior", behavior: "auto" });
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "scroll-behavior", behavior: "instant" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "scroll-behavior" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "scroll-behavior", behavior: "auto" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "scroll-behavior", behavior: "instant" });
     } finally {
       Element.prototype.scrollIntoView = original;
     }
     // Absent: smooth. 'auto': honored. Anything else: smooth (fail closed).
     expect(behaviors).toEqual(["smooth", "auto", "smooth"]);
-    postBridge({ type: "plannotator-bridge-remove-mark", id: "scroll-behavior" });
+    postBridge({ type: "reviewtrail-bridge-remove-mark", id: "scroll-behavior" });
     document.body.replaceChildren();
   });
 
   test("find-and-mark restores additional anchors as same-numbered pins, fail-closed", async () => {
     document.body.innerHTML = MULTI_MARKUP;
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "restore-multi",
       originalText: "Alpha text",
       annotationType: "comment",
@@ -2688,7 +2688,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     ).toBe(true);
     expect(document.querySelector("[data-bind-id]")).toBeNull();
 
-    postBridge({ type: "plannotator-bridge-remove-mark", id: "restore-multi" });
+    postBridge({ type: "reviewtrail-bridge-remove-mark", id: "restore-multi" });
     expect(markersFor("restore-multi").length).toBe(0);
     expect(
       visibleHighlights().some(
@@ -2704,8 +2704,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // path is per-event hit-testing: element identity plus closest() walks,
     // zero document-wide queries. Graph builds remain click/vim-time only.
     document.body.innerHTML = SIGNOFF_MARKUP;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
 
     const targets = Array.from(document.querySelectorAll<HTMLElement>("span, div, section"));
     const originalQsa = document.querySelectorAll.bind(document);
@@ -2726,7 +2726,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(documentWideQueries).toBe(0);
     } finally {
       (document as { querySelectorAll: typeof document.querySelectorAll }).querySelectorAll = originalQsa;
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
       document.body.replaceChildren();
     }
   });
@@ -2757,7 +2757,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const pageSnapshot = document.body.innerHTML;
 
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "neutral-a",
       originalText: "Anchor target text",
       annotationType: "comment",
@@ -2765,19 +2765,19 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     await flushOverlay();
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "neutral-b",
       originalText: "Second paragraph",
       annotationType: "deletion",
     });
     await flushOverlay();
     postBridge({
-      type: "plannotator-bridge-sync-annotations",
+      type: "reviewtrail-bridge-sync-annotations",
       annotations: [{ id: "neutral-a", number: 1 }, { id: "neutral-b", number: 2 }],
     });
-    postBridge({ type: "plannotator-bridge-focus-mark", id: "neutral-b" });
+    postBridge({ type: "reviewtrail-bridge-focus-mark", id: "neutral-b" });
     collectScrollTargets(() => {
-      postBridge({ type: "plannotator-bridge-scroll-to", id: "neutral-a" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to", id: "neutral-a" });
     });
 
     // The author DOM is byte-identical after restore + sync + focus + scroll.
@@ -2787,7 +2787,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     if (!host) throw new Error("overlay host missing");
     expect(host.parentElement).toBe(document.documentElement);
     expect(document.body.contains(host)).toBe(false);
-    expect(document.body.querySelector("[data-plannotator-marker]")).toBeNull();
+    expect(document.body.querySelector("[data-reviewtrail-marker]")).toBeNull();
     expect(host.style.position).toBe("fixed");
     expect(host.style.pointerEvents).toBe("none");
     expect(host.style.zIndex).toBe("2147483647");
@@ -2795,8 +2795,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(markersFor("neutral-a").length).toBe(1);
     expect(markersFor("neutral-b").length).toBe(1);
 
-    postBridge({ type: "plannotator-bridge-focus-mark", id: null });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-focus-mark", id: null });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -2806,7 +2806,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await withLayout(async () => {
       geo.getBoundingClientRect = () => rectOf(100, 50, 200, 100);
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "geo-ann",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -2822,21 +2822,21 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // reprojects the NORMALIZED point against the new rect — it never
       // reuses the old pixels.
       geo.getBoundingClientRect = () => rectOf(300, 50, 100, 100);
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       const moved = markersFor("geo-ann");
       expect(moved.length).toBe(1);
       expect(moved[0]!.style.left).toBe("325px");
       expect(moved[0]!.style.top).toBe("100px");
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("pinpoint click captures the normalized selected point onto the posted anchor", async () => {
     document.body.innerHTML = '<p id="cap">Capture me</p>';
     const cap = document.querySelector<HTMLElement>("#cap")!;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
     const originalBodyRect = document.body.getBoundingClientRect;
     document.body.getBoundingClientRect = () => rectOf(0, 0, 1024, 768);
     cap.getBoundingClientRect = () => rectOf(100, 50, 200, 100);
@@ -2848,7 +2848,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
       // Committing places the marker at the captured point's projection.
       postBridge({
-        type: "plannotator-bridge-create-mark",
+        type: "reviewtrail-bridge-create-mark",
         id: "cap-ann",
         annotationType: "comment",
       });
@@ -2859,8 +2859,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     } finally {
       document.body.getBoundingClientRect = originalBodyRect;
     }
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.replaceChildren();
   });
 
@@ -2877,7 +2877,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
   test("unresolved targets omit their markers instead of guessing", async () => {
     document.body.innerHTML = '<div data-testid="vanishing">Now you see me</div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "vanish-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -2890,7 +2890,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // so the marker is omitted — never left floating over unrelated content.
     document.body.innerHTML = "<p>Completely different content</p>";
     bumpDomGeneration();
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     expect(markersFor("vanish-ann").length).toBe(0);
     // The annotation record survives (it stays reachable via the panel), so
     // a page that brings the element back re-resolves and re-renders it
@@ -2898,10 +2898,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML = '<div data-testid="vanishing">Back again</div>';
     advancePastDeadSearchBackoff();
     bumpDomGeneration();
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     expect(markersFor("vanish-ann").length).toBe(1);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -2911,7 +2911,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await withLayout(async () => {
       el.getBoundingClientRect = () => rectOf(100, -500, 200, 100); // above viewport
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "off-ann",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -2921,14 +2921,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(markersFor("off-ann").length).toBe(0);
 
       el.getBoundingClientRect = () => rectOf(100, 2000, 200, 100); // below viewport
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("off-ann").length).toBe(0);
 
       el.getBoundingClientRect = () => rectOf(100, 300, 200, 100); // scrolled back in
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("off-ann").length).toBe(1);
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -2941,7 +2941,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // associated with its (40px-wide) target.
       edge.getBoundingClientRect = () => rectOf(0, 40, 40, 40);
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "edge-ann",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -2961,7 +2961,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // where fully visible edge-flush elements lost their markers.
       sliver.getBoundingClientRect = () => rectOf(0, 2, 4, 4);
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "sliver-ann",
         originalText: "Text that exists nowhere on this page either",
         annotationType: "comment",
@@ -2973,7 +2973,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(sliverMarkers[0]!.style.left).toBe("29px");
       expect(sliverMarkers[0]!.style.top).toBe("29px");
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -2989,7 +2989,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       b.getBoundingClientRect = () => rectOf(100, 100, 50, 50);
       for (const [id, selector] of [["co-1", 'div[data-testid="co-a"]'], ["co-2", 'div[data-testid="co-b"]']] as const) {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id,
           originalText: "Text that exists nowhere on this page",
           annotationType: "comment",
@@ -3008,11 +3008,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(one[0]!.style.top).toBe("125px");
       expect(two[0]!.style.top).toBe("125px");
       // Deterministic: a re-render yields identical placement.
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("co-1")[0]!.style.left).toBe("118.75px");
       expect(markersFor("co-2")[0]!.style.left).toBe("131.25px");
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3023,7 +3023,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     ].join("");
     for (const [id, selector] of [["n-1", 'div[data-testid="n-a"]'], ["n-2", 'div[data-testid="n-b"]']] as const) {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id,
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -3037,7 +3037,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
     // The parent's ordered collection is authoritative — numbers follow it.
     postBridge({
-      type: "plannotator-bridge-sync-annotations",
+      type: "reviewtrail-bridge-sync-annotations",
       annotations: [{ id: "n-2", number: 1 }, { id: "n-1", number: 2 }],
     });
     expect(markerNumber(markersFor("n-2")[0]!)).toBe("1");
@@ -3045,7 +3045,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     expect(markerNumber(markersFor("n-1")[0]!)).toBe("2");
     expect(markersFor("n-1")[0]!.getAttribute("aria-label")).toBe("Comment 2");
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3056,7 +3056,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     ].join("");
     for (const [id, selector] of [["m-1", 'div[data-testid="m-a"]'], ["m-2", 'div[data-testid="m-b"]']] as const) {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id,
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -3065,20 +3065,20 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       await flushOverlay();
     }
     postBridge({
-      type: "plannotator-bridge-sync-annotations",
+      type: "reviewtrail-bridge-sync-annotations",
       annotations: [{ id: "m-1", number: 5 }, { id: "m-2", number: 6 }],
     });
     expect(markerNumber(markersFor("m-1")[0]!)).toBe("5");
 
     // A completely malformed list leaves the previous numbering untouched.
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: 42 });
-    postBridge({ type: "plannotator-bridge-sync-annotations" });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: 42 });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations" });
     expect(markerNumber(markersFor("m-1")[0]!)).toBe("5");
     expect(markerNumber(markersFor("m-2")[0]!)).toBe("6");
 
     // Junk entries are skipped; only well-formed (id, integer >= 1) apply.
     postBridge({
-      type: "plannotator-bridge-sync-annotations",
+      type: "reviewtrail-bridge-sync-annotations",
       annotations: [
         { id: "m-1", number: 7 },
         { id: "m-2", number: 0 },
@@ -3093,7 +3093,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // m-2 fell back to registration order (2), not a hostile number.
     expect(markerNumber(markersFor("m-2")[0]!)).toBe("2");
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3111,7 +3111,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     ];
     try {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "focus-multi",
         originalText: "Alpha beta gamma delta",
         annotationType: "comment",
@@ -3123,28 +3123,28 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       );
       expect(commentRects.length).toBe(2);
 
-      postBridge({ type: "plannotator-bridge-focus-mark", id: "focus-multi" });
+      postBridge({ type: "reviewtrail-bridge-focus-mark", id: "focus-multi" });
       const focusRects = visibleHighlights("pn-hl-focus").filter(
         (el) => el.getAttribute("data-annotation-id") === "focus-multi",
       );
       expect(focusRects.length).toBe(2);
       expect(focusRects.map((el) => el.style.top).sort()).toEqual(["10px", "40px"]);
 
-      postBridge({ type: "plannotator-bridge-focus-mark", id: null });
+      postBridge({ type: "reviewtrail-bridge-focus-mark", id: null });
       expect(visibleHighlights("pn-hl-focus").length).toBe(0);
     } finally {
       (Range.prototype as { getClientRects: typeof originalGetClientRects }).getClientRects =
         originalGetClientRects;
       document.body.getBoundingClientRect = originalBodyRect;
     }
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("draft selection highlight is overlay-projected and clears on cancel", async () => {
     document.body.innerHTML = "<p>Draft highlight target</p>";
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     const p = document.querySelector("p")!;
     const range = document.createRange();
     range.selectNodeContents(p);
@@ -3158,19 +3158,19 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // Draft state never mutates the page.
     expect(document.body.innerHTML).toBe("<p>Draft highlight target</p>");
 
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     expect(visibleHighlights("pn-hl-draft").length).toBe(0);
     document.body.replaceChildren();
   });
 
   test("rich copy: the selection only flags support; the markup is built when the parent asks", async () => {
     document.body.innerHTML = '<p>Plain <strong>bold <a href="/docs">link</a></strong> tail</p>';
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     const received: Record<string, unknown>[] = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data && /^plannotator-bridge-(selection|rich-copy)$/.test(String(data.type))) received.push(data);
+      if (data && /^reviewtrail-bridge-(selection|rich-copy)$/.test(String(data.type))) received.push(data);
     };
     window.addEventListener("message", collect);
     try {
@@ -3181,14 +3181,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       window.getSelection()!.addRange(range);
       strong.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
       const selection = await waitUntil("the selection message", () =>
-        received.find((m) => m.type === "plannotator-bridge-selection"),
+        received.find((m) => m.type === "reviewtrail-bridge-selection"),
       );
       expect(selection.richCopy).toBe(true);
       expect(selection).not.toHaveProperty("html");
 
-      postBridge({ type: "plannotator-bridge-rich-copy-request", id: "rc-test" });
+      postBridge({ type: "reviewtrail-bridge-rich-copy-request", id: "rc-test" });
       const answer = await waitUntil("the rich copy answer", () =>
-        received.find((m) => m.type === "plannotator-bridge-rich-copy"),
+        received.find((m) => m.type === "reviewtrail-bridge-rich-copy"),
       );
       expect(answer.id).toBe("rc-test");
       expect(answer.text).toBe("bold link");
@@ -3196,21 +3196,21 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(String(answer.html)).toContain("<strong>bold <a href=");
     } finally {
       window.removeEventListener("message", collect);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       document.body.replaceChildren();
     }
   });
 
   test("rich copy: a throw while building the markup still answers, without markup", async () => {
     document.body.innerHTML = "<p>Throwing target</p>";
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     const received: Record<string, unknown>[] = [];
     let selected = false;
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data && data.type === "plannotator-bridge-selection") selected = true;
-      if (data && data.type === "plannotator-bridge-rich-copy") received.push(data);
+      if (data && data.type === "reviewtrail-bridge-selection") selected = true;
+      if (data && data.type === "reviewtrail-bridge-rich-copy") received.push(data);
     };
     window.addEventListener("message", collect);
     const realClone = Range.prototype.cloneContents;
@@ -3223,27 +3223,27 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       p.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
       await waitUntil("the selection message", () => selected);
       Range.prototype.cloneContents = () => { throw new Error("boom"); };
-      postBridge({ type: "plannotator-bridge-rich-copy-request", id: "rc-throw" });
+      postBridge({ type: "reviewtrail-bridge-rich-copy-request", id: "rc-throw" });
       await waitUntil("the rich copy answer", () => received.length > 0);
       expect(received).toEqual([
-        { type: "plannotator-bridge-rich-copy", id: "rc-throw", html: "", text: "Throwing target", truncated: false, tooLarge: false },
+        { type: "reviewtrail-bridge-rich-copy", id: "rc-throw", html: "", text: "Throwing target", truncated: false, tooLarge: false },
       ]);
     } finally {
       Range.prototype.cloneContents = realClone;
       window.removeEventListener("message", collect);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       document.body.replaceChildren();
     }
   });
 
   test("rich copy: past 256 KiB the bridge sends the text cut and marked, and no markup", async () => {
     document.body.innerHTML = `<p>${"y".repeat(300_000)}</p>`;
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     const received: Record<string, unknown>[] = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data && /^plannotator-bridge-(selection|rich-copy)$/.test(String(data.type))) received.push(data);
+      if (data && /^reviewtrail-bridge-(selection|rich-copy)$/.test(String(data.type))) received.push(data);
     };
     window.addEventListener("message", collect);
     try {
@@ -3254,29 +3254,29 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       window.getSelection()!.addRange(range);
       p.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
       const until = (type: string) => waitUntil(type, () => received.find((m) => m.type === type));
-      const selection = await until("plannotator-bridge-selection");
+      const selection = await until("reviewtrail-bridge-selection");
       expect(selection.textCut).toBe(true);
       expect(String(selection.text)).toHaveLength(10_000);
 
-      postBridge({ type: "plannotator-bridge-rich-copy-request", id: "rc-long" });
-      const answer = await until("plannotator-bridge-rich-copy");
+      postBridge({ type: "reviewtrail-bridge-rich-copy-request", id: "rc-long" });
+      const answer = await until("reviewtrail-bridge-rich-copy");
       expect(String(answer.text)).toHaveLength(262_144);
       expect(answer).toMatchObject({ id: "rc-long", html: "", truncated: true, tooLarge: true });
     } finally {
       window.removeEventListener("message", collect);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       document.body.replaceChildren();
     }
   });
 
   test("rich copy: the plain text is the selection's own text, with its line breaks", async () => {
     document.body.innerHTML = "<h1>Heading</h1>\n    <p>Para</p>\n    <ul><li>Item one</li><li>Item two</li></ul>";
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     const received: Record<string, unknown>[] = [];
     const collect = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data && /^plannotator-bridge-(selection|rich-copy)$/.test(String(data.type))) received.push(data);
+      if (data && /^reviewtrail-bridge-(selection|rich-copy)$/.test(String(data.type))) received.push(data);
     };
     const until = async (type: string) => {
       for (let i = 0; i < 200 && !received.some((m) => m.type === type); i++) {
@@ -3297,27 +3297,27 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       window.getSelection()!.removeAllRanges();
       window.getSelection()!.addRange(range);
       document.querySelector("li")!.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true }));
-      const selection = await until("plannotator-bridge-selection");
+      const selection = await until("reviewtrail-bridge-selection");
       expect(selection.text).toBe(rendered);
 
-      postBridge({ type: "plannotator-bridge-rich-copy-request", id: "rc-blocks" });
-      const answer = await until("plannotator-bridge-rich-copy");
+      postBridge({ type: "reviewtrail-bridge-rich-copy-request", id: "rc-blocks" });
+      const answer = await until("reviewtrail-bridge-rich-copy");
       expect(answer).toMatchObject({ id: "rc-blocks", text: rendered, truncated: false, tooLarge: false });
       expect(String(answer.html)).toContain("<li>Item one</li>");
     } finally {
       Selection.prototype.toString = realToString;
       window.removeEventListener("message", collect);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       document.body.replaceChildren();
     }
   });
 
   test("hit-testing for new selections yields placed markers to reach the page beneath", async () => {
     document.body.innerHTML = '<p id="beneath">Beneath text</p><div data-testid="hit">H</div>';
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
     // Materialize the overlay host + a marker.
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "hit-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -3333,12 +3333,12 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     (document as { elementFromPoint: typeof document.elementFromPoint }).elementFromPoint = () =>
       host.hasAttribute("data-pn-hittest") ? beneath : host;
     try {
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
       hoverAt(beneath, 77, 77);
-      const label = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]");
+      const label = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]");
       expect(label?.style.display).toBe("block");
       expect(label?.textContent).toBe("Paragraph");
-      const box = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]");
+      const box = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]");
       expect(box?.style.display).toBe("block");
       // The yield is transient: hit-testing restored marker interactivity.
       expect(host.hasAttribute("data-pn-hittest")).toBe(false);
@@ -3351,10 +3351,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // data-pn-hittest attribute — a typo in the CSS rule would still pass
     // it. The exact rule must ship in the overlay CSS.
     expect(BRIDGE_SCRIPT).toContain(
-      ":host([data-pn-hittest]) .pn-marker, [data-plannotator-overlay-host][data-pn-hittest] .pn-marker { pointer-events: none !important; }",
+      ":host([data-pn-hittest]) .pn-marker, [data-reviewtrail-overlay-host][data-pn-hittest] .pn-marker { pointer-events: none !important; }",
     );
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3378,7 +3378,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       ];
       try {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "clip-hl",
           originalText: "Clipped highlight text",
           annotationType: "comment",
@@ -3393,18 +3393,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           { top: "90px", height: "10px" },
         ]);
         // The focus flash paints the same clip-tested rects.
-        postBridge({ type: "plannotator-bridge-focus-mark", id: "clip-hl" });
+        postBridge({ type: "reviewtrail-bridge-focus-mark", id: "clip-hl" });
         const focusRects = visibleHighlights("pn-hl-focus").filter(
           (el) => el.getAttribute("data-annotation-id") === "clip-hl",
         );
         expect(focusRects.length).toBe(2);
-        postBridge({ type: "plannotator-bridge-focus-mark", id: null });
+        postBridge({ type: "reviewtrail-bridge-focus-mark", id: null });
       } finally {
         (Range.prototype as { getClientRects: typeof originalGetClientRects }).getClientRects =
           originalGetClientRects;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3415,7 +3415,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const visibility: boolean[] = [];
     const listener = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === 'plannotator-bridge-pin-visibility') visibility.push(data.visible as boolean);
+      if (data?.type === 'reviewtrail-bridge-pin-visibility') visibility.push(data.visible as boolean);
     };
     window.addEventListener('message', listener);
     try {
@@ -3423,8 +3423,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         let top = 100;
         pin.getBoundingClientRect = () => slide.style.display === 'none'
           ? rectOf(0, 0, 0, 0) : rectOf(100, top, 200, 100);
-        postBridge({ type: 'plannotator-bridge-set-input-method', method: 'pinpoint' });
-        const selected = await collectMessages(['plannotator-bridge-selection'], () => clickAt(pin, 110, 110, false));
+        postBridge({ type: 'reviewtrail-bridge-set-input-method', method: 'pinpoint' });
+        const selected = await collectMessages(['reviewtrail-bridge-selection'], () => clickAt(pin, 110, 110, false));
         const reconcile = async () => {
           window.dispatchEvent(new Event('resize'));
           await flushOverlay();
@@ -3433,7 +3433,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         slide.style.display = 'none';
         await reconcile();
         expect(visibility.at(-1)).toBe(false);
-        expect(document.querySelector<HTMLElement>('[data-plannotator-pinpoint-box]')?.style.display).toBe('none');
+        expect(document.querySelector<HTMLElement>('[data-reviewtrail-pinpoint-box]')?.style.display).toBe('none');
         slide.style.display = '';
         await reconcile();
         expect(visibility.at(-1)).toBe(true);
@@ -3457,7 +3457,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         other.setAttribute('aria-label', 'Other diagram');
         slide.appendChild(other);
         other.getBoundingClientRect = () => rectOf(400, 100, 100, 100);
-        postBridge({ type: 'plannotator-bridge-arm-multi-select', key: selected[0]!.targetKey, max: 16 });
+        postBridge({ type: 'reviewtrail-bridge-arm-multi-select', key: selected[0]!.targetKey, max: 16 });
         pin.style.visibility = 'hidden';
         await reconcile();
         expect(visibility.at(-1)).toBe(false);
@@ -3478,8 +3478,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       });
     } finally {
       window.removeEventListener('message', listener);
-      postBridge({ type: 'plannotator-bridge-cancel-selection' });
-      postBridge({ type: 'plannotator-bridge-set-input-method', method: 'drag' });
+      postBridge({ type: 'reviewtrail-bridge-cancel-selection' });
+      postBridge({ type: 'reviewtrail-bridge-set-input-method', method: 'drag' });
       document.body.replaceChildren();
     }
   });
@@ -3492,16 +3492,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const rects: Array<{ top: number }> = [];
     const listener = (event: MessageEvent) => {
       const data = bridgeMessageData(event);
-      if (data?.type === 'plannotator-bridge-pin-visibility') visibility.push(data.visible as boolean);
-      if (data?.type === 'plannotator-bridge-selection-rect') rects.push(data.rect as { top: number });
+      if (data?.type === 'reviewtrail-bridge-pin-visibility') visibility.push(data.visible as boolean);
+      if (data?.type === 'reviewtrail-bridge-selection-rect') rects.push(data.rect as { top: number });
     };
     window.addEventListener('message', listener);
     try {
       await withLayout(async () => {
         first.getBoundingClientRect = () => slide.style.display === 'none'
           ? rectOf(0, 0, 0, 0) : rectOf(100, 100, 200, 100);
-        postBridge({ type: 'plannotator-bridge-set-input-method', method: 'pinpoint' });
-        await collectMessages(['plannotator-bridge-selection'], () => clickAt(first, 110, 110, false));
+        postBridge({ type: 'reviewtrail-bridge-set-input-method', method: 'pinpoint' });
+        await collectMessages(['reviewtrail-bridge-selection'], () => clickAt(first, 110, 110, false));
         const reconcile = async () => {
           await flushOverlay(); // let the mutation observer advance the generation
           window.dispatchEvent(new Event('resize'));
@@ -3523,7 +3523,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         expect(visibility.at(-1)).toBe(true);
         // The composer is re-anchored on the new element.
         expect(rects.at(-1)?.top).toBe(260);
-        const box = document.querySelector<HTMLElement>('[data-plannotator-pinpoint-box][data-pinned]');
+        const box = document.querySelector<HTMLElement>('[data-reviewtrail-pinpoint-box][data-pinned]');
         expect(box?.style.display).toBe('block');
         expect(box?.style.top).toBe('260px');
         // The new element hiding hides the composer again: it is the target now.
@@ -3541,8 +3541,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       });
     } finally {
       window.removeEventListener('message', listener);
-      postBridge({ type: 'plannotator-bridge-cancel-selection' });
-      postBridge({ type: 'plannotator-bridge-set-input-method', method: 'drag' });
+      postBridge({ type: 'reviewtrail-bridge-cancel-selection' });
+      postBridge({ type: 'reviewtrail-bridge-set-input-method', method: 'drag' });
       document.body.replaceChildren();
     }
   });
@@ -3553,7 +3553,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await withLayout(async () => {
       slide.getBoundingClientRect = () => rectOf(100, 100, 200, 100);
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "vis-ann",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -3565,7 +3565,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // visibility:hidden keeps a full-size rect — the marker must not
       // render over whatever visible content stacks in the same box.
       slide.style.visibility = "hidden";
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("vis-ann").length).toBe(0);
       slide.style.visibility = "";
 
@@ -3575,21 +3575,21 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // control — and computed opacity doesn't inherit, so an opacity gate
       // wouldn't catch faded containers' descendants anyway.
       slide.style.opacity = "0";
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("vis-ann").length).toBe(1);
       slide.style.opacity = "";
 
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("vis-ann").length).toBe(1);
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("dead-target re-search is generation-gated, never per-render (M3)", async () => {
     document.body.innerHTML = "<p>Ephemeral searchable text</p>";
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "gen-ann",
       originalText: "Ephemeral searchable text",
       annotationType: "comment",
@@ -3604,7 +3604,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // The text disappears; the next invalidation triggers ONE failed search.
     document.body.innerHTML = "<p>Different content</p>";
     bumpDomGeneration();
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
 
     // Repeated renders WITHOUT a new text-capable invalidation must not
     // re-run the whole-document sweep (findTextRange = createTreeWalker).
@@ -3618,7 +3618,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     }) as typeof document.createTreeWalker;
     try {
       for (let i = 0; i < 5; i++) {
-        postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+        postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       }
       expect(sweeps).toBe(0);
 
@@ -3626,11 +3626,11 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // unlocks exactly one more search…
       advancePastDeadSearchBackoff();
       bumpDomGeneration();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(sweeps).toBeGreaterThan(0);
       const afterUnlock = sweeps;
       // …whose failure is cached again for that generation.
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(sweeps).toBe(afterUnlock);
     } finally {
       (document as { createTreeWalker: typeof document.createTreeWalker }).createTreeWalker =
@@ -3642,14 +3642,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML = "<p>Ephemeral searchable text</p>";
     advancePastDeadSearchBackoff();
     bumpDomGeneration();
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     expect(
       visibleHighlights("pn-hl-comment").some(
         (el) => el.getAttribute("data-annotation-id") === "gen-ann",
       ),
     ).toBe(true);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3661,19 +3661,19 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     const reports: string[][] = [];
     const listener = (e: MessageEvent) => {
       const d = bridgeMessageData(e);
-      if (d && d.type === "plannotator-bridge-unanchored") reports.push(d.ids as string[]);
+      if (d && d.type === "reviewtrail-bridge-unanchored") reports.push(d.ids as string[]);
     };
     window.addEventListener("message", listener);
     try {
       document.body.innerHTML = "<p>Anchored copy</p>";
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "live-ann",
         originalText: "Anchored copy",
         annotationType: "comment",
       });
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "ghost-ann",
         originalText: "Text this page never contained",
         annotationType: "comment",
@@ -3686,7 +3686,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // emissions deliver async like all postMessage traffic, so the flush
       // guarantees any duplicate would have arrived before the count check.)
       const countAfterRestore = reports.length;
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       await flushOverlay();
       expect(reports.length).toBe(countAfterRestore);
 
@@ -3694,7 +3694,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       document.body.innerHTML =
         "<p>Anchored copy</p><p>Text this page never contained</p>";
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "ghost-ann",
         originalText: "Text this page never contained",
         annotationType: "comment",
@@ -3707,7 +3707,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       document.body.innerHTML = "<p>Unrelated content</p>";
       advancePastDeadSearchBackoff();
       bumpDomGeneration();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       await flushOverlay();
       expect(reports.at(-1)).toEqual(["ghost-ann", "live-ann"]);
 
@@ -3715,17 +3715,17 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       document.body.innerHTML = "<p>Anchored copy</p>";
       advancePastDeadSearchBackoff();
       bumpDomGeneration();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       await flushOverlay();
       expect(reports.at(-1)).toEqual(["ghost-ann"]);
 
       // clear-marks empties the report along with the records.
-      postBridge({ type: "plannotator-bridge-clear-marks" });
+      postBridge({ type: "reviewtrail-bridge-clear-marks" });
       await flushOverlay();
       expect(reports.at(-1)).toEqual([]);
     } finally {
       window.removeEventListener("message", listener);
-      postBridge({ type: "plannotator-bridge-clear-marks" });
+      postBridge({ type: "reviewtrail-bridge-clear-marks" });
       document.body.replaceChildren();
     }
   });
@@ -3741,7 +3741,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       .join("");
     for (let i = 0; i < 4; i++) {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: `boff-${i}`,
         originalText: `Backoff text ${i}`,
         annotationType: "comment",
@@ -3764,21 +3764,21 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // Pass 1: only the per-pass budget (2) may search, even though all
       // four targets are eligible.
       bumpDomGeneration();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(sweeps).toBe(2);
       // The skipped-but-eligible targets get a scheduled follow-up pass.
       await flushOverlay();
       expect(sweeps).toBe(4);
       // No eligible targets remain: no further passes run searches.
       await flushOverlay();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(sweeps).toBe(4);
 
       // Mutation-heavy page: generation bumps every "frame". The wall-clock
       // backoff must keep every failed target locked regardless.
       for (let i = 0; i < 5; i++) {
         bumpDomGeneration();
-        postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+        postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
         await flushOverlay();
       }
       expect(sweeps).toBe(4);
@@ -3787,7 +3787,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // resumes (still budgeted per pass).
       advancePastDeadSearchBackoff();
       bumpDomGeneration();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(sweeps).toBe(6);
       await flushOverlay();
       expect(sweeps).toBe(8);
@@ -3803,12 +3803,12 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       .join("");
     advancePastDeadSearchBackoff();
     bumpDomGeneration();
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     await flushOverlay();
     expect(committedRanges("boff-0").length).toBe(1);
     expect(committedRanges("boff-3").length).toBe(1);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3819,7 +3819,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // Element target far below the viewport (beyond the cull margin).
       el.getBoundingClientRect = () => rectOf(100, 2000, 200, 100);
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "cull-el-ann",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -3839,7 +3839,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         return realGetComputedStyle(...args);
       }) as typeof window.getComputedStyle;
       try {
-        postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+        postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
         expect(markersFor("cull-el-ann").length).toBe(0);
         expect(styleReads).toBe(0);
       } finally {
@@ -3849,9 +3849,9 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
       // Scrolled back into view, the marker renders again.
       el.getBoundingClientRect = () => rectOf(100, 300, 200, 100);
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("cull-el-ann").length).toBe(1);
-      postBridge({ type: "plannotator-bridge-remove-mark", id: "cull-el-ann" });
+      postBridge({ type: "reviewtrail-bridge-remove-mark", id: "cull-el-ann" });
 
       // Range targets cull on the range's bounding rect BEFORE collecting
       // client rects (the per-rect clip/containment work never runs).
@@ -3866,7 +3866,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       };
       try {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "cull-range-ann",
           originalText: "Cull range text",
           annotationType: "comment",
@@ -3885,7 +3885,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           .getBoundingClientRect = originalRangeBounds;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3904,7 +3904,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await withLayout(async () => {
       for (let i = 0; i < 3; i++) {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: `b3-ann-${i}`,
           originalText: "Text that exists nowhere on this page",
           annotationType: "comment",
@@ -3920,14 +3920,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(counts).toEqual([1, 1, 1]);
       expect(visibleMarkers().length).toBe(3);
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("page mutations schedule no reconcile when the overlay has zero work (B4)", async () => {
-    postBridge({ type: "plannotator-bridge-clear-marks" });
-    postBridge({ type: "plannotator-bridge-cancel-selection" });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     document.body.innerHTML = "<p>B4 idle text</p>";
     await flushOverlay(); // drain anything pending before counting
 
@@ -3949,7 +3949,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
       // With a committed record, the same mutation schedules the reconcile.
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "b4-ann",
         originalText: "B4 idle text",
         annotationType: "comment",
@@ -3966,7 +3966,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       (window as { requestAnimationFrame: typeof window.requestAnimationFrame })
         .requestAnimationFrame = realRaf;
     }
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -3979,9 +3979,9 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         rectOf(100, 100, 200, 20),
       ];
       try {
-        postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+        postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "hover-ann",
           originalText: "Hover affordance text",
           annotationType: "comment",
@@ -4017,7 +4017,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           originalGetClientRects;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4029,9 +4029,9 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         rectOf(100, 100, 200, 20),
       ];
       try {
-        postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+        postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "race-ann",
           originalText: "Hover race text",
           annotationType: "comment",
@@ -4050,12 +4050,12 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           clientX: 150,
           clientY: 110,
         }));
-        postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+        postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
         await flushOverlay();
         expect(painted[0]!.classList.contains("pn-hl-hover")).toBe(false);
         // Pinpoint-mode mousemoves skip the hover-clearing branch, so a
         // re-render is where stale state would resurface — it must not.
-        postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+        postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
         await flushOverlay();
         expect(painted[0]!.classList.contains("pn-hl-hover")).toBe(false);
       } finally {
@@ -4063,8 +4063,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           originalGetClientRects;
       }
     });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4074,7 +4074,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       .join("");
     for (let i = 0; i < 3; i++) {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: `print-recover-${i}`,
         originalText: `Print recover text ${i}`,
         annotationType: "comment",
@@ -4107,7 +4107,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         // targets silently prints fewer highlights.
         window.dispatchEvent(new Event("beforeprint"));
         expect(sweeps).toBe(3);
-        const layer = document.querySelector<HTMLElement>("[data-plannotator-print-layer]");
+        const layer = document.querySelector<HTMLElement>("[data-reviewtrail-print-layer]");
         if (!layer) throw new Error("print layer missing");
         expect(layer.childNodes.length).toBe(3);
         window.dispatchEvent(new Event("afterprint"));
@@ -4118,7 +4118,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           originalCreateTreeWalker;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4131,7 +4131,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       ];
       try {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "print-ann",
           originalText: "Printable highlight text",
           annotationType: "comment",
@@ -4139,7 +4139,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         await flushOverlay();
         window.dispatchEvent(new Event("beforeprint"));
         const layer = document.querySelector<HTMLElement>(
-          "[data-plannotator-print-layer]",
+          "[data-reviewtrail-print-layer]",
         );
         if (!layer) throw new Error("print layer missing");
         // On the ROOT element (not <body>): a page styling body
@@ -4158,22 +4158,22 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         // Highlights print; markers don't (parity with pre-overlay badges).
         expect(layer.querySelector("button")).toBeNull();
         window.dispatchEvent(new Event("afterprint"));
-        expect(document.querySelector("[data-plannotator-print-layer]")).toBeNull();
+        expect(document.querySelector("[data-reviewtrail-print-layer]")).toBeNull();
       } finally {
         (Range.prototype as { getClientRects: typeof originalGetClientRects }).getClientRects =
           originalGetClientRects;
       }
     });
     // The injected CSS guards the layer against ever painting on screen.
-    expect(ANNOTATION_HIGHLIGHT_CSS).toContain("[data-plannotator-print-layer]");
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    expect(ANNOTATION_HIGHLIGHT_CSS).toContain("[data-reviewtrail-print-layer]");
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("clicking a committed highlight selects its annotation (M5 click-to-select)", async () => {
     document.body.innerHTML = "<p>big highlight target</p><p>small nested note</p>";
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
     const originalGetClientRects = Range.prototype.getClientRects;
     const originalBodyRect = document.body.getBoundingClientRect;
     document.body.getBoundingClientRect = () => rectOf(0, 0, 1024, 768);
@@ -4194,14 +4194,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     };
     try {
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "click-big",
         originalText: "big highlight target",
         annotationType: "comment",
       });
       await flushOverlay();
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "click-small",
         originalText: "small nested note",
         annotationType: "comment",
@@ -4210,32 +4210,32 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
       // Inside both rects: the smallest highlight wins the overlap.
       const overlapping = await collectMessages(
-        ["plannotator-bridge-mark-click"],
+        ["reviewtrail-bridge-mark-click"],
         () => clickBody(50, 25),
       );
       expect(overlapping).toEqual([
-        { type: "plannotator-bridge-mark-click", id: "click-small" },
+        { type: "reviewtrail-bridge-mark-click", id: "click-small" },
       ]);
 
       // Inside only the big rect.
       const bigOnly = await collectMessages(
-        ["plannotator-bridge-mark-click"],
+        ["reviewtrail-bridge-mark-click"],
         () => clickBody(200, 90),
       );
       expect(bigOnly).toEqual([
-        { type: "plannotator-bridge-mark-click", id: "click-big" },
+        { type: "reviewtrail-bridge-mark-click", id: "click-big" },
       ]);
 
       // Outside every rect: page clicks pass through untouched.
       const missed = await collectMessages(
-        ["plannotator-bridge-mark-click"],
+        ["reviewtrail-bridge-mark-click"],
         () => clickBody(600, 600),
       );
       expect(missed.length).toBe(0);
 
       // Shift-clicks belong to multi-select, never click-to-select.
       const shifted = await collectMessages(
-        ["plannotator-bridge-mark-click"],
+        ["reviewtrail-bridge-mark-click"],
         () => clickBody(50, 25, true),
       );
       expect(shifted.length).toBe(0);
@@ -4244,7 +4244,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         originalGetClientRects;
       document.body.getBoundingClientRect = originalBodyRect;
     }
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4262,7 +4262,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // whose containing-block chain skips the clipper.
       fixedEl.getBoundingClientRect = () => rectOf(300, 300, 200, 50);
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "fixed-ann",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -4274,18 +4274,18 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       // Same geometry with static positioning: the clipper applies and the
       // detached marker is omitted (clip-container omission preserved).
       fixedEl.style.position = "";
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("fixed-ann").length).toBe(0);
 
       // contain:layout makes the clipper a fixed containing block: its
       // overflow clipping then APPLIES to the fixed target again (5a).
       fixedEl.style.position = "fixed";
       wrap.style.contain = "layout";
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("fixed-ann").length).toBe(0);
       wrap.style.contain = "";
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4299,7 +4299,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       clipwrap.getBoundingClientRect = () => rectOf(0, 0, 200, 100);
       clippedEl.getBoundingClientRect = () => rectOf(0, 150, 200, 50); // scrolled past the edge
       postBridge({
-        type: "plannotator-bridge-find-and-mark",
+        type: "reviewtrail-bridge-find-and-mark",
         id: "clip-omit",
         originalText: "Text that exists nowhere on this page",
         annotationType: "comment",
@@ -4309,10 +4309,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(markersFor("clip-omit").length).toBe(0);
 
       clippedEl.getBoundingClientRect = () => rectOf(0, 20, 200, 50); // scrolled back in
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(markersFor("clip-omit").length).toBe(1);
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4330,7 +4330,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       ];
       try {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "redline-ann",
           originalText: "Redline paragraph text",
           annotationType: "deletion",
@@ -4346,7 +4346,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           originalGetClientRects;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4354,7 +4354,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML =
       '<div id="m10-a">First</div><div data-testid="m10-b">Second</div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "dedup-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -4368,17 +4368,17 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     // one marker may render (coincident same-number markers would spread).
     document.body.innerHTML = '<div id="m10-a" data-testid="m10-b">Merged</div>';
     bumpDomGeneration();
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     expect(markersFor("dedup-ann").length).toBe(1);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("clear-marks clears synced numbering (m11)", async () => {
     document.body.innerHTML = '<div id="renum">Target</div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "renum-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -4386,16 +4386,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     await flushOverlay();
     postBridge({
-      type: "plannotator-bridge-sync-annotations",
+      type: "reviewtrail-bridge-sync-annotations",
       annotations: [{ id: "renum-ann", number: 7 }],
     });
     expect(markerNumber(markersFor("renum-ann")[0]!)).toBe("7");
 
     // clear-marks then re-register the SAME id: the stale synced number must
     // not leak — fallback numbering restarts at 1.
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "renum-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -4404,7 +4404,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     await flushOverlay();
     expect(markerNumber(markersFor("renum-ann")[0]!)).toBe("1");
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4418,7 +4418,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         rects;
       try {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "long-ann",
           originalText: "Long wrapped selection",
           annotationType: "comment",
@@ -4440,15 +4440,15 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           originalGetClientRects;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   test("pinpoint hover over a placed marker advertises the marker, not the element beneath (m6)", async () => {
     document.body.innerHTML = '<p id="under">Beneath paragraph</p><div id="m6-t">Marked</div>';
-    postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
+    postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "hover-ann",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -4456,7 +4456,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     });
     await flushOverlay();
     postBridge({
-      type: "plannotator-bridge-sync-annotations",
+      type: "reviewtrail-bridge-sync-annotations",
       annotations: [{ id: "hover-ann", number: 3 }],
     });
     const markerBtn = markersFor("hover-ann")[0];
@@ -4465,14 +4465,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     (document as { elementFromPoint: typeof document.elementFromPoint }).elementFromPoint = () =>
       markerBtn as unknown as Element;
     try {
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
       hoverAt(document.body, 60, 60);
       // Hover shows the MARKER's identity (the click selects its comment)…
-      const label = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-label]");
+      const label = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-label]");
       expect(label?.style.display).toBe("block");
       expect(label?.textContent).toBe("Comment 3");
       // …with no annotate affordance for the element beneath.
-      const box = document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]");
+      const box = document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]");
       expect(box?.style.display ?? "none").toBe("none");
       // m8: the label paints AFTER the overlay host (equal z-index resolves
       // by DOM order), so marker bubbles can never occlude it.
@@ -4492,8 +4492,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       (document as { elementFromPoint: typeof document.elementFromPoint }).elementFromPoint =
         originalElementFromPoint;
     }
-    postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4512,7 +4512,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         rects;
       try {
         postBridge({
-          type: "plannotator-bridge-find-and-mark",
+          type: "reviewtrail-bridge-find-and-mark",
           id: "huge-ann",
           originalText: "Huge wrapped selection",
           annotationType: "comment",
@@ -4534,7 +4534,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
           originalGetClientRects;
       }
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4551,7 +4551,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
     document.body.innerHTML = "<p>Body swap text</p>";
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "swap-ann",
       originalText: "Body swap text",
       annotationType: "comment",
@@ -4572,7 +4572,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       addedNodes: [document.body] as unknown as NodeList,
       removedNodes: [] as unknown as NodeList,
     }]);
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     expect(
       visibleHighlights("pn-hl-comment").some(
         (el) => el.getAttribute("data-annotation-id") === "swap-ann",
@@ -4598,8 +4598,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         addedNodes: [host] as unknown as NodeList,
         removedNodes: [] as unknown as NodeList,
       }]);
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       expect(sweeps).toBe(0);
     } finally {
       (document as { createTreeWalker: typeof document.createTreeWalker }).createTreeWalker =
@@ -4617,14 +4617,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       addedNodes: [document.body] as unknown as NodeList,
       removedNodes: [] as unknown as NodeList,
     }]);
-    postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+    postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
     expect(
       visibleHighlights("pn-hl-comment").some(
         (el) => el.getAttribute("data-annotation-id") === "swap-ann",
       ),
     ).toBe(true);
 
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
@@ -4632,7 +4632,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
     document.body.innerHTML =
       '<div id="m10-a">First</div><div data-testid="m10-b">Second</div>';
     postBridge({
-      type: "plannotator-bridge-find-and-mark",
+      type: "reviewtrail-bridge-find-and-mark",
       id: "dedup-vis",
       originalText: "Text that exists nowhere on this page",
       annotationType: "comment",
@@ -4655,7 +4655,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       wrap.getBoundingClientRect = () => rectOf(100, 0, 100, 100);
       merged.getBoundingClientRect = () => rectOf(0, 0, 200, 50);
       bumpDomGeneration();
-      postBridge({ type: "plannotator-bridge-sync-annotations", annotations: [] });
+      postBridge({ type: "reviewtrail-bridge-sync-annotations", annotations: [] });
       const dedupMarkers = markersFor("dedup-vis");
       expect(dedupMarkers.length).toBe(1);
       // The SECOND target's point (x 0.75 -> 150px) survived; y 25 clamps
@@ -4663,13 +4663,13 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(dedupMarkers[0]!.style.left).toBe("150px");
       expect(dedupMarkers[0]!.style.top).toBe("29px");
     });
-    postBridge({ type: "plannotator-bridge-clear-marks" });
+    postBridge({ type: "reviewtrail-bridge-clear-marks" });
     document.body.replaceChildren();
   });
 
   // --- Local-site link navigation -----------------------------------------
   // A srcdoc document's base URL is the PARENT page's, so an unhandled link
-  // resolves onto the Plannotator server and its catch-all answers with the
+  // resolves onto the ReviewTrail server and its catch-all answers with the
   // app itself: the whole editor rendered inside the annotated document.
   // The bridge must therefore never let this frame navigate.
   describe("link navigation", () => {
@@ -4686,7 +4686,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       windowLinkPosts = [];
       const capture = (event: MessageEvent) => {
         const data = bridgeMessageData(event);
-        if (data && data.type === "plannotator-bridge-link-click") windowLinkPosts.push(data);
+        if (data && data.type === "reviewtrail-bridge-link-click") windowLinkPosts.push(data);
       };
       window.addEventListener("message", capture);
       stopCapture = () => window.removeEventListener("message", capture);
@@ -4711,16 +4711,16 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
 
     function setUp(html: string, armed: boolean) {
       document.body.innerHTML = html;
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "pinpoint" });
-      postBridge({ type: "plannotator-bridge-set-annotate-mode", active: armed });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "pinpoint" });
+      postBridge({ type: "reviewtrail-bridge-set-annotate-mode", active: armed });
       startCapture();
     }
 
     afterEach(() => {
       stopCapture?.();
       stopCapture = null;
-      postBridge({ type: "plannotator-bridge-set-annotate-mode", active: true });
-      postBridge({ type: "plannotator-bridge-set-input-method", method: "drag" });
+      postBridge({ type: "reviewtrail-bridge-set-annotate-mode", active: true });
+      postBridge({ type: "reviewtrail-bridge-set-input-method", method: "drag" });
       document.body.replaceChildren();
     });
 
@@ -4784,7 +4784,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       const target = document.querySelector<HTMLElement>("#deep")!;
       let scrolled = 0;
       target.scrollIntoView = () => { scrolled += 1; };
-      postBridge({ type: "plannotator-bridge-scroll-to-fragment", fragment: "deep" });
+      postBridge({ type: "reviewtrail-bridge-scroll-to-fragment", fragment: "deep" });
       expect(scrolled).toBe(1);
     });
 
@@ -4792,7 +4792,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       const selections: Array<Record<string, unknown>> = [];
       const collect = (event: MessageEvent) => {
         const data = bridgeMessageData(event);
-        if (data?.type === "plannotator-bridge-selection") selections.push(data);
+        if (data?.type === "reviewtrail-bridge-selection") selections.push(data);
       };
       window.addEventListener("message", collect);
       return { selections, stop: () => window.removeEventListener("message", collect) };
@@ -4837,24 +4837,24 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         expect(capturedLinkPosts).toEqual([]);
         expect(selections.length).toBe(1);
         expect(selections[0]!.pinpoint).toBe(true);
-        postBridge({ type: "plannotator-bridge-cancel-selection" });
+        postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       });
     }
 
     test("armed pinpoint: no pin outline over a link a click follows, until Cmd/Ctrl is held (key or pointer)", () => {
       setUp('<p id="intro">Intro</p><a id="rel" href="next.html">Next</a><a id="btn" href="#">Button</a>', true);
-      postBridge({ type: "plannotator-bridge-set-vim-mode", enabled: false });
+      postBridge({ type: "reviewtrail-bridge-set-vim-mode", enabled: false });
       let at = 0;
-      const box = () => document.querySelector<HTMLElement>("[data-plannotator-pinpoint-box]")?.style.display ?? "none";
+      const box = () => document.querySelector<HTMLElement>("[data-reviewtrail-pinpoint-box]")?.style.display ?? "none";
       const move = (selector: string, init: MouseEventInit = {}) =>
         document.querySelector(selector)!.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, cancelable: true, clientX: 5 + (at += 7), clientY: 5, ...init }));
       move("#intro");
       expect(box()).toBe("block");
       move("#rel");
       expect(box()).toBe("none");
-      expect(document.body.hasAttribute("data-plannotator-pin-modifier")).toBe(false);
+      expect(document.body.hasAttribute("data-reviewtrail-pin-modifier")).toBe(false);
       document.dispatchEvent(new KeyboardEvent("keydown", { key: "Meta", metaKey: true, bubbles: true }));
-      expect(document.body.hasAttribute("data-plannotator-pin-modifier")).toBe(true);
+      expect(document.body.hasAttribute("data-reviewtrail-pin-modifier")).toBe(true);
       expect(box()).toBe("block");
       document.dispatchEvent(new KeyboardEvent("keyup", { key: "Meta", bubbles: true }));
       expect(box()).toBe("none");
@@ -4903,7 +4903,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         const anchor = selections[0]!.anchor as { selector: string; tagName: string };
         expect(anchor.tagName).toBe("a");
         expect(document.querySelector(anchor.selector)).toBe(document.querySelector("#rel"));
-        postBridge({ type: "plannotator-bridge-cancel-selection" });
+        postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       });
     }
 
@@ -4928,7 +4928,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       stop();
       expect(scrolled).toBe(1);
       expect(selections.length).toBe(1);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
     });
 
     test("armed pinpoint: a drag that selected text and ended on a link neither follows nor pins", async () => {
@@ -4980,8 +4980,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(end.defaultPrevented).toBe(false);
       expect(capturedLinkPosts.map((p) => p.href)).toEqual(["next.html"]);
       expect(selections).toEqual([]);
-      expect(document.body.hasAttribute("data-plannotator-touch")).toBe(true);
-      document.body.removeAttribute("data-plannotator-touch");
+      expect(document.body.hasAttribute("data-reviewtrail-touch")).toBe(true);
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     test("touch, armed: press-and-hold pins the link for a comment, and the release never follows it", async () => {
@@ -5002,7 +5002,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(selections[0]!.text).toBe("Entry point");
       expect(selections[0]!.element).toBeUndefined();
       // Selection is off on links only while the finger is down.
-      expect(document.body.hasAttribute("data-plannotator-link-hold")).toBe(true);
+      expect(document.body.hasAttribute("data-reviewtrail-link-hold")).toBe(true);
       // The release: cancelled, so no click is synthesized; one that arrives anyway is swallowed.
       const end = touch("touchend", "#rel", 10, 10, false);
       expect(end.defaultPrevented).toBe(true);
@@ -5012,15 +5012,15 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(click.defaultPrevented).toBe(true);
       expect(capturedLinkPosts).toEqual([]);
       expect(selections.length).toBe(1);
-      expect(document.body.hasAttribute("data-plannotator-link-hold")).toBe(false);
+      expect(document.body.hasAttribute("data-reviewtrail-link-hold")).toBe(false);
       // The next tap is a tap again.
       touch("touchstart", "#rel", 10, 10);
       touch("touchend", "#rel", 10, 10, false);
       clickLink("#rel");
       await flushPosts();
       expect(capturedLinkPosts.map((p) => p.href)).toEqual(["next.html"]);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
-      document.body.removeAttribute("data-plannotator-touch");
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     function pointer(type: string, selector: string, pointerType: string, pointerId = 1): Event {
@@ -5042,14 +5042,14 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
         touch("touchstart", "#rel", 10, 10);
         await wait(560);
         touch("touchend", "#rel", 10, 10, false);
-        postBridge({ type: "plannotator-bridge-cancel-selection" });
+        postBridge({ type: "reviewtrail-bridge-cancel-selection" });
         await flushPosts();
         next();
         const click = clickLink("#rel");
         await flushPosts();
         expect(click.defaultPrevented).toBe(true); // the frame never navigates itself
         expect(capturedLinkPosts.map((p) => p.href)).toEqual(["next.html"]);
-        document.body.removeAttribute("data-plannotator-touch");
+        document.body.removeAttribute("data-reviewtrail-touch");
       });
     }
 
@@ -5058,23 +5058,23 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       await flushPosts();
       touch("touchstart", "#rel", 10, 10);
       await wait(560);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
       // No touchend reached the bridge. The next tap is a tap.
       touch("touchstart", "#rel", 10, 10);
       touch("touchend", "#rel", 10, 10, false);
       clickLink("#rel");
       await flushPosts();
       expect(capturedLinkPosts.map((p) => p.href)).toEqual(["next.html"]);
-      document.body.removeAttribute("data-plannotator-touch");
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     test("touch, armed: a tap never turns selection off, so link text stays quotable by a drag", async () => {
       setUp('<p>Start with <a id="rel" href="next.html">the detail page</a> today.</p>', true);
       await flushPosts();
       touch("touchstart", "#rel", 10, 10);
-      expect(document.body.hasAttribute("data-plannotator-link-hold")).toBe(true);
+      expect(document.body.hasAttribute("data-reviewtrail-link-hold")).toBe(true);
       touch("touchend", "#rel", 10, 10, false);
-      expect(document.body.hasAttribute("data-plannotator-link-hold")).toBe(false);
+      expect(document.body.hasAttribute("data-reviewtrail-link-hold")).toBe(false);
       clickLink("#rel");
       await flushPosts();
       // The only rule that turns link selection off is scoped to a hold in progress.
@@ -5084,10 +5084,10 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       for (const rule of rules) {
         const selectors = rule.slice(0, rule.indexOf("{"));
         if (/:is\(a, area\)/.test(selectors)) {
-          for (const sel of selectors.split(/,\s*\n/)) expect(sel).toContain("data-plannotator-link-hold");
+          for (const sel of selectors.split(/,\s*\n/)) expect(sel).toContain("data-reviewtrail-link-hold");
         }
       }
-      document.body.removeAttribute("data-plannotator-touch");
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     test("touch, armed: a finger that moves past the slop (a scroll) cancels the hold", async () => {
@@ -5103,7 +5103,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       stop();
       expect(selections).toEqual([]);
       expect(end.defaultPrevented).toBe(false);
-      document.body.removeAttribute("data-plannotator-touch");
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     test("touch, armed: Android's long-press contextmenu fires the hold at once and shows no menu", async () => {
@@ -5122,8 +5122,8 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       await flushPosts();
       stop();
       expect(selections.length).toBe(1);
-      postBridge({ type: "plannotator-bridge-cancel-selection" });
-      document.body.removeAttribute("data-plannotator-touch");
+      postBridge({ type: "reviewtrail-bridge-cancel-selection" });
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     test("touch, Interact: a hold pins nothing (the platform's own long-press), a tap follows", async () => {
@@ -5139,7 +5139,7 @@ describe.if(hasDom)("bridge theme handler (DOM)", () => {
       expect(selections).toEqual([]);
       expect(end.defaultPrevented).toBe(false);
       expect(capturedLinkPosts.map((p) => p.href)).toEqual(["next.html"]);
-      document.body.removeAttribute("data-plannotator-touch");
+      document.body.removeAttribute("data-reviewtrail-touch");
     });
 
     test("javascript: hrefs stay the page's own scripting", async () => {
@@ -5161,7 +5161,7 @@ describe("injectIntoHead", () => {
   });
 
   test("removes document-authored CSP meta tags so the bridge can execute", () => {
-    // The exact tag Plannotator's own portable guided-review exports embed;
+    // The exact tag ReviewTrail's own portable guided-review exports embed;
     // with it present the inline bridge script is blocked and annotation dies.
     const csp =
       '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:; font-src \'none\'; connect-src \'none\'; media-src \'none\'; object-src \'none\'; base-uri \'none\'; form-action \'none\'; frame-src \'none\'">';

@@ -17,7 +17,7 @@ export const INBOX_MUSE_OLD_MCP_KEY = "mcp_servers";
 export const INBOX_MUSE_SETTINGS_SEED: Readonly<Record<string, unknown>> = { schema_version: 1 };
 
 export function museMcpEntry(command: readonly string[]): { type: "stdio"; command: string; args: string[]; mode: "optional" } {
-  const [program = "plannotator", ...args] = command;
+  const [program = "reviewtrail", ...args] = command;
   return { type: "stdio", command: program, args, mode: "optional" };
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { getOpenInApp } from "@plannotator/core/open-in-apps";
+import { getOpenInApp } from "@reviewtrail/core/open-in-apps";
 import { locateOpenInApp, type OpenInLocateDeps } from "./open-in-locate";
 
 // Every dependency is stubbed: nothing here reads this computer's PATH or disk.

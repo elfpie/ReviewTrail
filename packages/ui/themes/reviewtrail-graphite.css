@@ -1,8 +1,8 @@
-/* Plannotator Graphite. Dark half: a near-neutral graphite tuned to stay readable
+/* ReviewTrail Graphite. Dark half: a near-neutral graphite tuned to stay readable
    in daylight (lifted ground, larger surface steps, secondary text at APCA Lc 60+,
-   the purple primary kept inside sRGB). Light half: Plannotator's light, unchanged.
-   Approved 2026-10-24 (.product/approved/plannotator-graphite/). */
-.theme-plannotator-graphite {
+   the purple primary kept inside sRGB). Light half: ReviewTrail's light, unchanged.
+   Approved 2026-10-24 (.product/approved/reviewtrail-graphite/). */
+.theme-reviewtrail-graphite {
   --background: oklch(0.225 0.006 286);
   --foreground: oklch(0.945 0.003 286);
   --card: oklch(0.295 0.006 286);
@@ -35,8 +35,8 @@
   --focus-highlight: oklch(0.745 0.116 200);
 }
 
-.theme-plannotator-graphite.light {
-  /* Plannotator light inherits this from its own dark block; keep the same value. */
+.theme-reviewtrail-graphite.light {
+  /* ReviewTrail light inherits this from its own dark block; keep the same value. */
   --focus-highlight: oklch(0.70 0.20 200);
   --background: oklch(0.97 0.005 260);
   --foreground: oklch(0.18 0.02 260);

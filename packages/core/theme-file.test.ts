@@ -31,7 +31,7 @@ import {
   type ThemeFile,
 } from './theme-file';
 
-const ok = (extra: Record<string, unknown> = {}) => ({ plannotatorTheme: 1, id: 'harbor', name: 'Harbor', dark: { background: '#0f1419' }, ...extra });
+const ok = (extra: Record<string, unknown> = {}) => ({ reviewTrailTheme: 1, id: 'harbor', name: 'Harbor', dark: { background: '#0f1419' }, ...extra });
 
 describe('colours: one colour or nothing', () => {
   test('the four colour forms pass, in the shapes people write them', () => {
@@ -111,7 +111,7 @@ describe('validating a theme file', () => {
   test('a good file passes, the name trimmed', () => {
     const result = validateThemeFile(ok({ name: '  Harbor  ', light: { background: 'oklch(0.97 0.01 240)' } }));
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.theme).toEqual({ plannotatorTheme: 1, id: 'harbor', name: 'Harbor', dark: { background: '#0f1419' }, light: { background: 'oklch(0.97 0.01 240)' } });
+    if (result.ok) expect(result.theme).toEqual({ reviewTrailTheme: 1, id: 'harbor', name: 'Harbor', dark: { background: '#0f1419' }, light: { background: 'oklch(0.97 0.01 240)' } });
   });
 
   test('each refusal names the field that is wrong', () => {
@@ -120,7 +120,7 @@ describe('validating a theme file', () => {
       return r.ok ? null : r.problem.field;
     };
     expect(field([])).toBe('(file)');
-    expect(field({ ...ok(), plannotatorTheme: 2 })).toBe('plannotatorTheme');
+    expect(field({ ...ok(), reviewTrailTheme: 2 })).toBe('reviewTrailTheme');
     expect(field(ok({ colors: {} }))).toBe('colors');
     expect(field(ok({ id: 'Harbor' }))).toBe('id');
     expect(field(ok({ id: '-x' }))).toBe('id');
@@ -134,7 +134,7 @@ describe('validating a theme file', () => {
     expect(field(ok({ dark: { '--background': '#000' } }))).toBe('dark.--background');
     expect(field(ok({ dark: { 'font-sans': 'Comic Sans' } }))).toBe('dark.font-sans');
     expect(field(ok({ light: { primary: 'url(x)' } }))).toBe('light.primary');
-    expect(field({ plannotatorTheme: 1, id: 'harbor', name: 'Harbor' })).toBe('dark');
+    expect(field({ reviewTrailTheme: 1, id: 'harbor', name: 'Harbor' })).toBe('dark');
   });
 
   test('a name with an invisible or text-direction character is refused (it could read as another name in a terminal)', () => {
@@ -181,11 +181,11 @@ describe('the stylesheet a theme writes', () => {
   });
 
   test('a value that slipped past validation is never written', () => {
-    const forged = { plannotatorTheme: 1, id: 'harbor', name: 'H', dark: { background: '#000;} body{display:none' } } as unknown as ThemeFile;
+    const forged = { reviewTrailTheme: 1, id: 'harbor', name: 'H', dark: { background: '#000;} body{display:none' } } as unknown as ThemeFile;
     expect(() => themeFileCss(forged)).toThrow();
     expect(() => themeFileCss({ ...forged, dark: { 'x;}': '#000' } } as unknown as ThemeFile)).toThrow();
-    expect(() => themeFileCss({ plannotatorTheme: 1, id: 'a b{', name: 'H', dark: {} })).toThrow();
-    expect(() => themeFileCss({ plannotatorTheme: 1, id: 'dracula', name: 'H', dark: {} })).toThrow();
+    expect(() => themeFileCss({ reviewTrailTheme: 1, id: 'a b{', name: 'H', dark: {} })).toThrow();
+    expect(() => themeFileCss({ reviewTrailTheme: 1, id: 'dracula', name: 'H', dark: {} })).toThrow();
   });
 
   test('a left-out token takes the default theme value for its own half', () => {
@@ -202,7 +202,7 @@ describe('the stylesheet a theme writes', () => {
   });
 
   test('a one-half theme is drawn under the bare class and says which half it has', () => {
-    const r = validateThemeFile({ plannotatorTheme: 1, id: 'paper', name: 'Paper', light: { background: '#fbfaf7' } });
+    const r = validateThemeFile({ reviewTrailTheme: 1, id: 'paper', name: 'Paper', light: { background: '#fbfaf7' } });
     if (!r.ok) throw new Error('fixture');
     expect(themeFileModeSupport(r.theme)).toBe('light-only');
     const css = themeFileCss(r.theme);
@@ -317,9 +317,9 @@ describe('code colours (syntax)', () => {
     if (!r.ok) throw new Error('fixture');
     const payload = themeSyntaxPayload(r.theme);
     expect(Object.keys(payload)).toEqual(['dark']);
-    const theme = syntaxTextMateTheme('plannotator-custom-harbor-dark', 'dark', JSON.parse(JSON.stringify(payload.dark)));
+    const theme = syntaxTextMateTheme('reviewtrail-custom-harbor-dark', 'dark', JSON.parse(JSON.stringify(payload.dark)));
     expect(theme).toEqual({
-      name: 'plannotator-custom-harbor-dark',
+      name: 'reviewtrail-custom-harbor-dark',
       type: 'dark',
       colors: { 'editor.foreground': '#f8f8f2', 'editor.background': '#272822' },
       tokenColors: [{ settings: { foreground: '#f8f8f2', background: '#272822' } }, { scope: 'keyword', settings: { foreground: '#f92672' } }],
@@ -332,4 +332,11 @@ describe('code colours (syntax)', () => {
     const oklch = syntaxTextMateTheme('n', 'dark', { ...payload.dark!, background: 'oklch(0.2 0 0)' });
     expect(oklch!.colors['editor.background']).toMatch(/^#[0-9a-f]{6,8}$/);
   });
+});
+
+
+test("reads a theme saved before the rename using the current marker", () => {
+  const { reviewTrailTheme, ...theme } = ok();
+  const result = validateThemeFile({ ...theme, plannotatorTheme: reviewTrailTheme });
+  expect(result.ok && result.theme).toEqual(ok());
 });

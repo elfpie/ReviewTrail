@@ -32,7 +32,7 @@
  */
 export const SANDBOX_SHIM_SCRIPT = `(function() {
   var h = window.history;
-  if (h && !(h.replaceState && h.replaceState.plannotatorSandboxShim)) {
+  if (h && !(h.replaceState && h.replaceState.reviewTrailSandboxShim)) {
     ['pushState', 'replaceState'].forEach(function(name) {
       var original = h[name];
       if (typeof original !== 'function') return;
@@ -59,7 +59,7 @@ export const SANDBOX_SHIM_SCRIPT = `(function() {
           return original.call(this, state, unused, own + hash);
         }
       };
-      shim.plannotatorSandboxShim = true;
+      shim.reviewTrailSandboxShim = true;
       h[name] = shim;
     });
   }

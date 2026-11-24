@@ -1,5 +1,5 @@
 import React from 'react';
-import { SparklesIcon } from '@plannotator/ui/components/SparklesIcon';
+import { SparklesIcon } from '@reviewtrail/ui/components/SparklesIcon';
 import { CopyButton } from './CopyButton';
 
 interface CommentActionsProps {

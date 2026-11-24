@@ -1,6 +1,6 @@
-import { storage } from '@plannotator/ui/utils/storage';
+import { storage } from '@reviewtrail/ui/utils/storage';
 
-const HINT_ACKED_KEY = 'plannotator-guide-hint-acked';
+const HINT_ACKED_KEY = 'reviewtrail-guide-hint-acked';
 
 export function needsGuideHint(): boolean {
   return storage.getItem(HINT_ACKED_KEY) !== 'true';

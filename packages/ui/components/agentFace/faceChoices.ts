@@ -4,7 +4,7 @@
  */
 
 // The face ids are the Inbox's (core inbox-types.ts, "Agent faces": the server keeps each agent's face).
-import { INBOX_AGENT_FACES, INBOX_GLASS_FACES, isInboxAgentFace, isInboxOwnFace, type InboxAgentFace, type InboxBuiltInFace, type InboxGlassFace, type InboxOwnFace } from '@plannotator/core/inbox-types';
+import { INBOX_AGENT_FACES, INBOX_GLASS_FACES, isInboxAgentFace, isInboxOwnFace, type InboxAgentFace, type InboxBuiltInFace, type InboxGlassFace, type InboxOwnFace } from '@reviewtrail/core/inbox-types';
 
 /** The Glass colours, round the hue wheel: Black and Yellow keep the ids they were stored under (`glass`, `yellow`). */
 export const GLASS_FACES = INBOX_GLASS_FACES;

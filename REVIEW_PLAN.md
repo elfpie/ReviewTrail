@@ -12,6 +12,7 @@ Reach at least 9/10 satisfaction for each reviewer on typical 2,000-line agent-w
 - [x] Account for files outside the walkthrough and fold tests at the end. Keep the full diff accessible.
 - [x] Package a review-only entry point and verify a local review round trip.
 - [x] Give the fork its own command, data directory, browser preferences, Claude Code skill and Pi extension so it can run alongside Plannotator.
+- [x] Rename the fork-owned packages, environment variables, UI, theme IDs and guide format to ReviewTrail. Verify that older guide files still open and that migrating a fork preference preserves the upstream cookie.
 - [x] Inventory external requests, including optional transfers of review content. Record the user's approval for GitHub review operations and the configured LLM in [the network inventory](NETWORK_AUDIT.md).
 - [x] Remove usage telemetry (N1), upstream starring (N4), and hosted guide sharing (N13). Keep a local, self-contained HTML export.
 - [x] Extract a single review server for Claude and Pi. Remove the plan, annotation, Inbox, relay, mobile, marketing and hosted-service applications.

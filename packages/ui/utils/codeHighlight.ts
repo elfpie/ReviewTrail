@@ -293,7 +293,7 @@ function notifyHighlightSwap(el: HTMLElement): void {
   }
 }
 
-// ── Fences off screen (opt-in: configurePlannotatorUI({ deferOffscreenCodeHighlight: true })) ──
+// ── Fences off screen (opt-in: configureReviewTrailUI({ deferOffscreenCodeHighlight: true })) ──
 //
 // Highlighted markup costs far more than the code's own text: Shiki's tokens
 // (~5 ms per 100 lines with the JavaScript engine) and then a span per token
@@ -317,7 +317,7 @@ function notifyHighlightSwap(el: HTMLElement): void {
 
 let deferOffscreen = false;
 
-/** Turn the off-screen deferral on or off (configurePlannotatorUI). Off finishes every waiting fence now. */
+/** Turn the off-screen deferral on or off (configureReviewTrailUI). Off finishes every waiting fence now. */
 export function setDeferOffscreenCodeHighlight(on: boolean): void {
   deferOffscreen = on;
   if (!on) flushPendingHighlights();
@@ -337,7 +337,7 @@ export interface CodeHighlightWorker {
 
 let highlightWorker: CodeHighlightWorker | null = null;
 
-/** Set (or clear) the background maker of waiting fences' markup (configurePlannotatorUI). */
+/** Set (or clear) the background maker of waiting fences' markup (configureReviewTrailUI). */
 export function setCodeHighlightWorker(next: CodeHighlightWorker | null): void {
   highlightWorker = next;
 }

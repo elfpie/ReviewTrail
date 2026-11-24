@@ -20,13 +20,13 @@ import {
 let dataDir: string;
 let saved: string | undefined;
 beforeEach(() => {
-  dataDir = mkdtempSync(join(tmpdir(), "plannotator-sessions-"));
-  saved = process.env.PLANNOTATOR_DATA_DIR;
-  process.env.PLANNOTATOR_DATA_DIR = dataDir;
+  dataDir = mkdtempSync(join(tmpdir(), "reviewtrail-sessions-"));
+  saved = process.env.REVIEWTRAIL_DATA_DIR;
+  process.env.REVIEWTRAIL_DATA_DIR = dataDir;
 });
 afterEach(() => {
-  if (saved === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = saved;
+  if (saved === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = saved;
   rmSync(dataDir, { recursive: true, force: true });
 });
 
@@ -65,7 +65,7 @@ test("listLiveSessions reads only: a half-written or dead entry is skipped, neve
   for (let i = 0; i < 3; i++) expect(listLiveSessions().map((s) => s.pid)).toEqual([process.pid]);
   expect(readdirSync(dir).sort()).toEqual([`${dead}.json`, "424242.json", `${process.pid}.json`, "99.json.abc.tmp"].sort());
 
-  // listSessions keeps its cleanup (plannotator sessions); the temp file is not its business either.
+  // listSessions keeps its cleanup (reviewtrail sessions); the temp file is not its business either.
   expect(listSessions().map((s) => s.pid)).toEqual([process.pid]);
   expect(readdirSync(dir).sort()).toEqual([`${process.pid}.json`, "99.json.abc.tmp"].sort());
 });
@@ -78,7 +78,7 @@ test("listLiveSessions on a data dir with no sessions folder answers nothing and
 test("registerSession never throws when the data dir can't be written (a file in its place)", () => {
   const blocked = join(dataDir, "not-a-dir");
   writeFileSync(blocked, "x");
-  process.env.PLANNOTATOR_DATA_DIR = blocked;
+  process.env.REVIEWTRAIL_DATA_DIR = blocked;
   expect(() => registerSession(info(process.pid))).not.toThrow();
 });
 
@@ -155,7 +155,7 @@ describe("in-process sessions (OpenCode)", () => {
     ].join("\n");
     const run = (arg: string) =>
       Bun.spawn([process.execPath, "-e", script, "--", arg], {
-        env: { ...process.env, PLANNOTATOR_DATA_DIR: dataDir, PLANNOTATOR_INBOX_CONNECT: "0", PLANNOTATOR_UPDATE_CHECK: "0" },
+        env: { ...process.env, REVIEWTRAIL_DATA_DIR: dataDir, REVIEWTRAIL_INBOX_CONNECT: "0", REVIEWTRAIL_UPDATE_CHECK: "0" },
         stdout: "pipe",
         stderr: "inherit",
       });

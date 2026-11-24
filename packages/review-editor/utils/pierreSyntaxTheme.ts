@@ -6,8 +6,8 @@
  * `resolveSyntaxTheme`, so Pierre never gets a name it cannot load.
  */
 import { registerCustomTheme, resolveTheme } from '@pierre/diffs';
-import { connectCustomSyntaxThemes, type CustomSyntaxPierre } from '@plannotator/ui/utils/customSyntaxThemes';
-import { resolveSyntaxTheme } from '@plannotator/ui/utils/syntaxTheme';
+import { connectCustomSyntaxThemes, type CustomSyntaxPierre } from '@reviewtrail/ui/utils/customSyntaxThemes';
+import { resolveSyntaxTheme } from '@reviewtrail/ui/utils/syntaxTheme';
 
 export function resolvePierreSyntaxTheme(colorTheme: string, mode: 'dark' | 'light'): { dark: string; light: string } | undefined {
   connectCustomSyntaxThemes({ registerCustomTheme, resolveTheme } as unknown as CustomSyntaxPierre);

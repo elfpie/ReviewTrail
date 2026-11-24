@@ -14,7 +14,7 @@ import {
   reviewMarkdownPreviewShortcuts,
   reviewExplorerShortcuts,
   type ShortcutSurface,
-} from '@plannotator/ui/shortcuts';
+} from '@reviewtrail/ui/shortcuts';
 import { reviewCallTreeShortcuts } from './components/callTree/callTree.shortcuts';
 
 export const reviewEditorShortcuts = defineShortcutScope({

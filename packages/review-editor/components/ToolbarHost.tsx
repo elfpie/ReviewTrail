@@ -6,10 +6,10 @@ import type {
   ConventionalLabel,
   SelectedLineRange,
   TokenAnnotationMeta,
-} from '@plannotator/ui/types';
+} from '@reviewtrail/ui/types';
 import type { DiffTokenEventBaseProps } from '@pierre/diffs';
-import { useConfigValue } from '@plannotator/ui/config';
-import { useHighlightCopy } from '@plannotator/ui/utils/highlightCopy';
+import { useConfigValue } from '@reviewtrail/ui/config';
+import { useHighlightCopy } from '@reviewtrail/ui/utils/highlightCopy';
 import { useAnnotationToolbar } from '../hooks/useAnnotationToolbar';
 import { AnnotationToolbar } from './AnnotationToolbar';
 import { SuggestionModal } from './SuggestionModal';

@@ -34,7 +34,7 @@ import { getVcsContext, type DiffType, type GitContext } from "./vcs";
 
 const tempDirs: string[] = [];
 const originalPath = process.env.PATH;
-const originalDataDir = process.env.PLANNOTATOR_DATA_DIR;
+const originalDataDir = process.env.REVIEWTRAIL_DATA_DIR;
 
 /**
  * The discovery tests build their fixtures with real `git` (six spawns per repo in initRepo).
@@ -97,20 +97,20 @@ async function waitForFile(path: string): Promise<void> {
   throw new Error(`Timed out waiting for ${path}`);
 }
 
-// Sandbox every test's data dir so a contributor's ~/.plannotator/config.json
+// Sandbox every test's data dir so a contributor's ~/.reviewtrail/config.json
 // (e.g. reviewAnalysis.callFlow: true) can never change server behavior.
 // The root bunfig preload does this too, but not when bun runs from this
 // package directory. Tests that need a specific dir still override it.
 beforeEach(() => {
-  process.env.PLANNOTATOR_DATA_DIR = makeTempDir("plannotator-review-workspace-data-");
+  process.env.REVIEWTRAIL_DATA_DIR = makeTempDir("reviewtrail-review-workspace-data-");
 });
 
 afterEach(() => {
   process.env.PATH = originalPath;
   if (originalDataDir === undefined) {
-    delete process.env.PLANNOTATOR_DATA_DIR;
+    delete process.env.REVIEWTRAIL_DATA_DIR;
   } else {
-    process.env.PLANNOTATOR_DATA_DIR = originalDataDir;
+    process.env.REVIEWTRAIL_DATA_DIR = originalDataDir;
   }
   for (const dir of tempDirs.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
@@ -120,13 +120,13 @@ afterEach(() => {
 describe("review-workspace", () => {
   describe("diff switch", () => {
     it.skipIf(process.platform === "win32")("does not partially commit a valid switch superseded by an invalid request", async () => {
-      const repoDir = makeTempDir("plannotator-switch-atomic-");
-      const nodeDir = makeTempDir("plannotator-switch-atomic-node-");
+      const repoDir = makeTempDir("reviewtrail-switch-atomic-");
+      const nodeDir = makeTempDir("reviewtrail-switch-atomic-node-");
       initRepo(repoDir);
       writeFileSync(join(repoDir, "README.md"), "# Dirty\n", "utf-8");
       const gitContext = await getVcsContext(repoDir, "git");
       const blocker = makeBlockingNode(nodeDir);
-      writeFileSync(join(process.env.PLANNOTATOR_DATA_DIR!, "config.json"), JSON.stringify({ reviewAnalysis: { callFlow: true } }), "utf-8");
+      writeFileSync(join(process.env.REVIEWTRAIL_DATA_DIR!, "config.json"), JSON.stringify({ reviewAnalysis: { callFlow: true } }), "utf-8");
       process.env.PATH = `${blocker.binDir}:${originalPath ?? ""}`;
       const initialPatch = "diff --git a/initial.txt b/initial.txt\n";
       const server = await startReviewServer({
@@ -444,7 +444,7 @@ describe("review-workspace", () => {
       // The function is designed to discover repos WITHIN a workspace root,
       // not the root itself. This allows the workspace root to be a git repo
       // (e.g., a meta-repo) while still discovering nested repos.
-      const root = makeTempDir("plannotator-workspace-root-repo-");
+      const root = makeTempDir("reviewtrail-workspace-root-repo-");
       initRepo(root);
 
       const repos = discoverWorkspaceRepoPaths(root);
@@ -455,7 +455,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("discovers multiple nested VCS repos", () => {
-      const root = makeTempDir("plannotator-workspace-multi-");
+      const root = makeTempDir("reviewtrail-workspace-multi-");
 
       // Create nested repos
       const frontend = join(root, "frontend");
@@ -478,8 +478,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("uses a symlinked Git repo's logical workspace path end to end", async () => {
-      const root = makeTempDir("plannotator-workspace-symlink-git-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-git-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-git-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-git-target-");
       const targetRepo = join(targetRoot, "backend-service");
       const alias = join(root, "backend");
       mkdirSync(targetRepo, { recursive: true });
@@ -495,8 +495,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("discovers a symlinked JJ repo using its logical workspace path", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-jj-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-jj-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-jj-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-jj-target-");
       const targetRepo = join(targetRoot, "jj-service");
       const alias = join(root, "frontend");
       mkdirSync(join(targetRepo, ".jj"), { recursive: true });
@@ -506,8 +506,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("discovers repos nested below a symlinked directory", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-nested-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-nested-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-nested-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-nested-target-");
       const targetRepo = join(targetRoot, "services", "api");
       const alias = join(root, "projects");
       mkdirSync(targetRepo, { recursive: true });
@@ -518,7 +518,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("does not recurse forever through a directory-link cycle", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-cycle-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-cycle-");
       const container = join(root, "packages");
       const repo = join(container, "api");
       mkdirSync(repo, { recursive: true });
@@ -529,8 +529,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("ignores broken directory links", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-broken-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-broken-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-broken-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-broken-target-");
       const brokenTarget = join(targetRoot, "removed");
       mkdirSync(brokenTarget, { recursive: true });
       linkDirectory(brokenTarget, join(root, "broken"));
@@ -540,8 +540,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it.skipIf(process.platform === "win32")("ignores symlinks to files", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-file-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-file-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-file-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-file-target-");
       const targetFile = join(targetRoot, "README.md");
       writeFileSync(targetFile, "not a directory\n", "utf-8");
       symlinkSync(targetFile, join(root, "linked-file"), "file");
@@ -553,8 +553,8 @@ describe("review-workspace", () => {
       // Regression for the #1060 follow-up: a symlink inside the workspace
       // pointing at a large unrelated tree must not be enumerated unboundedly
       // before the server starts. The walk shares the file-discovery budget.
-      const root = makeTempDir("plannotator-workspace-symlink-budget-");
-      const huge = makeTempDir("plannotator-workspace-symlink-budget-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-budget-");
+      const huge = makeTempDir("reviewtrail-workspace-symlink-budget-target-");
       // 40 directories, each with 5 subdirectories — 200+ nodes, no repos.
       for (let i = 0; i < 40; i++) {
         for (let j = 0; j < 5; j++) {
@@ -568,22 +568,22 @@ describe("review-workspace", () => {
       mkdirSync(repo, { recursive: true });
       initRepo(repo);
 
-      const prior = process.env.PLANNOTATOR_FILE_BROWSER_MAX_FILES;
-      process.env.PLANNOTATOR_FILE_BROWSER_MAX_FILES = "25";
+      const prior = process.env.REVIEWTRAIL_FILE_BROWSER_MAX_FILES;
+      process.env.REVIEWTRAIL_FILE_BROWSER_MAX_FILES = "25";
       try {
         const repos = discoverWorkspaceRepoPaths(root);
         expect(repos).toEqual([repo]);
       } finally {
-        if (prior === undefined) delete process.env.PLANNOTATOR_FILE_BROWSER_MAX_FILES;
-        else process.env.PLANNOTATOR_FILE_BROWSER_MAX_FILES = prior;
+        if (prior === undefined) delete process.env.REVIEWTRAIL_FILE_BROWSER_MAX_FILES;
+        else process.env.REVIEWTRAIL_FILE_BROWSER_MAX_FILES = prior;
       }
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("keeps discovering symlinked repos under the default budget", () => {
       // The budget must not break the feature it bounds: an external
       // symlinked repo is still found with default limits.
-      const root = makeTempDir("plannotator-workspace-symlink-budget-ok-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-budget-ok-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-budget-ok-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-budget-ok-target-");
       const targetRepo = join(targetRoot, "service");
       mkdirSync(targetRepo, { recursive: true });
       initRepo(targetRepo);
@@ -593,8 +593,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("chooses the first logical alias deterministically for duplicate targets", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-duplicates-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-duplicates-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-duplicates-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-duplicates-target-");
       const targetRepo = join(targetRoot, "service");
       const alphaAlias = join(root, "alpha");
       mkdirSync(targetRepo, { recursive: true });
@@ -606,8 +606,8 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("does not follow a directory link whose logical name is skipped", () => {
-      const root = makeTempDir("plannotator-workspace-symlink-skip-");
-      const targetRoot = makeTempDir("plannotator-workspace-symlink-skip-target-");
+      const root = makeTempDir("reviewtrail-workspace-symlink-skip-");
+      const targetRoot = makeTempDir("reviewtrail-workspace-symlink-skip-target-");
       const targetRepo = join(targetRoot, "dependency-repo");
       const realRepo = join(root, "app");
       mkdirSync(targetRepo, { recursive: true });
@@ -620,7 +620,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("stops recursion at git repo boundaries (does not discover nested repos inside other repos)", () => {
-      const root = makeTempDir("plannotator-workspace-boundary-");
+      const root = makeTempDir("reviewtrail-workspace-boundary-");
 
       // Create a repo with a nested directory that would be a repo
       const parentRepo = join(root, "parent");
@@ -644,7 +644,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("discovers nested jj repos", () => {
-      const root = makeTempDir("plannotator-workspace-jj-");
+      const root = makeTempDir("reviewtrail-workspace-jj-");
       const jjRepo = join(root, "jj-app");
       mkdirSync(join(jjRepo, ".jj"), { recursive: true });
 
@@ -654,7 +654,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("skips ignored directories", () => {
-      const root = makeTempDir("plannotator-workspace-skip-");
+      const root = makeTempDir("reviewtrail-workspace-skip-");
 
       // Create node_modules with a fake .git (should be skipped)
       const nodeModules = join(root, "node_modules", "some-pkg");
@@ -673,7 +673,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("returns empty array when root has no git repos", () => {
-      const root = makeTempDir("plannotator-workspace-empty-");
+      const root = makeTempDir("reviewtrail-workspace-empty-");
 
       // Create some non-git directories
       mkdirSync(join(root, "src"), { recursive: true });
@@ -686,7 +686,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("sorts results alphabetically", () => {
-      const root = makeTempDir("plannotator-workspace-sort-");
+      const root = makeTempDir("reviewtrail-workspace-sort-");
 
       const zebra = join(root, "zebra");
       const alpha = join(root, "alpha");
@@ -706,7 +706,7 @@ describe("review-workspace", () => {
     }, GIT_FIXTURE_TIMEOUT_MS);
 
     it("handles deeply nested repos", () => {
-      const root = makeTempDir("plannotator-workspace-deep-");
+      const root = makeTempDir("reviewtrail-workspace-deep-");
 
       const deepRepo = join(root, "a", "b", "c", "d", "repo");
       mkdirSync(deepRepo, { recursive: true });
@@ -752,7 +752,7 @@ describe("review-workspace", () => {
 
   describe("workspace review server integration", () => {
     it("short-circuits binary file expansion before provider content retrieval", async () => {
-      const root = makeTempDir("plannotator-workspace-binary-content-");
+      const root = makeTempDir("reviewtrail-workspace-binary-content-");
       const repo = join(root, "api");
       mkdirSync(join(repo, ".git"), { recursive: true });
       let fileContentCalls = 0;
@@ -826,7 +826,7 @@ describe("review-workspace", () => {
     });
 
     it("maps one workspace mode across mixed Git and JJ repos", async () => {
-      const root = makeTempDir("plannotator-workspace-mixed-vcs-");
+      const root = makeTempDir("reviewtrail-workspace-mixed-vcs-");
       const gitRepo = join(root, "api");
       const jjRepo = join(root, "web");
       mkdirSync(join(gitRepo, ".git"), { recursive: true });
@@ -904,7 +904,7 @@ describe("review-workspace", () => {
     });
 
     it("limits mixed GitButler workspaces to the safe aggregate-current mode", async () => {
-      const root = makeTempDir("plannotator-workspace-gitbutler-");
+      const root = makeTempDir("reviewtrail-workspace-gitbutler-");
       const gitRepo = join(root, "api");
       const gitButlerRepo = join(root, "web");
       mkdirSync(join(gitRepo, ".git"), { recursive: true });
@@ -959,7 +959,7 @@ describe("review-workspace", () => {
     });
 
     it("normalizes agent annotation paths to workspace-prefixed paths", async () => {
-      const root = makeTempDir("plannotator-workspace-agent-path-");
+      const root = makeTempDir("reviewtrail-workspace-agent-path-");
       const api = join(root, "api");
       mkdirSync(join(api, ".git"), { recursive: true });
 
@@ -1016,7 +1016,7 @@ describe("review-workspace", () => {
     });
 
     it("keeps requested Git-only workspace modes available when another child repo fails detection", async () => {
-      const root = makeTempDir("plannotator-workspace-partial-failure-");
+      const root = makeTempDir("reviewtrail-workspace-partial-failure-");
       const api = join(root, "api");
       const broken = join(root, "broken");
       mkdirSync(join(api, ".git"), { recursive: true });
@@ -1073,7 +1073,7 @@ describe("review-workspace", () => {
     });
 
     it("preserves a failed GitButler child's identity and never falls back to Git operations", async () => {
-      const root = makeTempDir("plannotator-workspace-failed-gitbutler-");
+      const root = makeTempDir("reviewtrail-workspace-failed-gitbutler-");
       const api = join(root, "api");
       const broken = join(root, "broken");
       mkdirSync(join(api, ".git"), { recursive: true });
@@ -1126,7 +1126,7 @@ describe("review-workspace", () => {
     });
 
     it("passes hide-whitespace through child repo diffs", async () => {
-      const root = makeTempDir("plannotator-workspace-whitespace-");
+      const root = makeTempDir("reviewtrail-workspace-whitespace-");
       const api = join(root, "api");
       mkdirSync(api, { recursive: true });
       initRepo(api);
@@ -1144,7 +1144,7 @@ describe("review-workspace", () => {
     }, 15_000);
 
     it("serves combined diffs and maps prefixed paths back to child repos", async () => {
-      const root = makeTempDir("plannotator-workspace-server-");
+      const root = makeTempDir("reviewtrail-workspace-server-");
       const api = join(root, "api");
       const web = join(root, "web");
       mkdirSync(api, { recursive: true });

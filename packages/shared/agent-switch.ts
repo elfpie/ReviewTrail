@@ -1,1 +1,1 @@
-export * from '@plannotator/core/agent-switch';
+export * from '@reviewtrail/core/agent-switch';

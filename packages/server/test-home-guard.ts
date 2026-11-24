@@ -1,5 +1,5 @@
 /**
- * Test runs only: a server started under PLANNOTATOR_TEST_SANDBOX refuses the
+ * Test runs only: a server started under REVIEWTRAIL_TEST_SANDBOX refuses the
  * real home. The sandbox flag and a temp data dir do not move `~/.agents/skills`
  * or the `inbox mcp` shim's read of `~/.env` (the server's own Qwen reads are
  * sandboxed). No HOME, or an empty one, is the real home too: `os.homedir()` falls
@@ -39,15 +39,15 @@ export function testHomeRefusal(
   accountHome: () => string | null = accountHomeFromShell,
   osHome: () => string = homedir,
 ): string | null {
-  if (!env.PLANNOTATOR_TEST_SANDBOX || platform === "win32") return null;
+  if (!env.REVIEWTRAIL_TEST_SANDBOX || platform === "win32") return null;
   const home = env.HOME?.trim();
   const account = accountHome();
   const real = account ? canonical(account) : null;
   if (!home || canonical(home) === real) {
-    return `PLANNOTATOR_TEST_SANDBOX is set and HOME is ${home || "not set"}, which is the real home. Set HOME to a scratch folder in this test's env.`;
+    return `REVIEWTRAIL_TEST_SANDBOX is set and HOME is ${home || "not set"}, which is the real home. Set HOME to a scratch folder in this test's env.`;
   }
   if (real && canonical(osHome()) === real) {
-    return `PLANNOTATOR_TEST_SANDBOX is set and HOME is ${home}, but os.homedir() is still the real home (${account}): HOME was changed after the process started. Start the process with a scratch HOME in its env (bun run test:sandbox does).`;
+    return `REVIEWTRAIL_TEST_SANDBOX is set and HOME is ${home}, but os.homedir() is still the real home (${account}): HOME was changed after the process started. Start the process with a scratch HOME in its env (bun run test:sandbox does).`;
   }
   return null;
 }

@@ -1,6 +1,6 @@
 import type { SecondOpinionLink, SemanticDiffOperation } from '@plannotator/sem-jiff';
 import { SKIM_KINDS } from '@plannotator/sem-jiff/summary';
-import type { SemanticDiffChange } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffChange } from '@reviewtrail/shared/semantic-diff-types';
 
 const CHANGE_TYPE: Record<SemanticDiffOperation['type'], string> = {
   moved: 'moved',

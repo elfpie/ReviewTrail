@@ -18,7 +18,7 @@
  *   image: the agent can crop the exact spot whatever zoom the reviewer used.
  *
  * Same contract as `diagram-anchor.ts`: the types here are what
- * `@plannotator/ui/types`'s `Annotation.imageRegion` carries, and
+ * `@reviewtrail/ui/types`'s `Annotation.imageRegion` carries, and
  * `parseImageRegion` is the one fail-closed validator every ingest (the
  * external-annotation POST and PATCH, the feedback archive, the export) runs.
  * Browser-safe, no dependencies.
@@ -51,7 +51,7 @@ export const MAX_IMAGE_REGION_SRC_LENGTH = 2048;
 export const MAX_IMAGE_REGION_DIMENSION = 1_000_000;
 
 /** The wire key a host that stores anchors as an opaque JSON blob uses;
- * Plannotator carries the region on the annotation itself under
+ * ReviewTrail carries the region on the annotation itself under
  * `imageRegion`. */
 export const IMAGE_REGION_KEY = 'imageRegion';
 

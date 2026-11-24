@@ -15,7 +15,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import React, { useState } from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { indexQuestionBlocks, type QuestionAnswer } from '@plannotator/core/question-block';
+import { indexQuestionBlocks, type QuestionAnswer } from '@reviewtrail/core/question-block';
 import type { Annotation } from '../../types';
 import { exportAnnotations, parseMarkdownToBlocks } from '../../utils/parser';
 import { plainTextPasteInsertion } from '../../utils/pasteInsert';

@@ -55,7 +55,7 @@ export interface GuideSection {
 }
 
 /** The kinds of picture a guide overview or chapter can carry. Mermaid renders through
- *  Plannotator's diagram engine; HTML is a sanitized custom picture (not drawn
+ *  ReviewTrail's diagram engine; HTML is a sanitized custom picture (not drawn
  *  by any viewer yet; accepted only where the producer can sanitize it). */
 export type GuideOverviewDiagramKind = 'mermaid' | 'html';
 

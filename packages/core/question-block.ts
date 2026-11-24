@@ -1,6 +1,6 @@
 /**
  * `:::question` directive blocks: a question an agent embeds in a markdown
- * document, rendered by `@plannotator/ui` as answer controls in place.
+ * document, rendered by `@reviewtrail/ui` as answer controls in place.
  *
  * Pure and browser-safe (no DOM, no node). Everything a host needs lives
  * here: the block grammar and parser, the stable question key, the answer
@@ -88,9 +88,9 @@
  *   when both are present the link wins. Each form is read once per block;
  *   any other `Decision:` value is context prose. A `Decision:` line BEFORE
  *   the prompt is the prompt. Neither form changes the question key. A host
- *   with no decisions (the Plannotator Inbox) parses with
+ *   with no decisions (the ReviewTrail Inbox) parses with
  *   `{ decisionLines: false }`, which reads every `Decision:` line as prose.
- * - Replaces (the Plannotator Inbox): a `Replaces: <message id>/<key>` line
+ * - Replaces (the ReviewTrail Inbox): a `Replaces: <message id>/<key>` line
  *   (or a bare `<message id>`, several separated by commas, semicolons or
  *   spaces) names the earlier question(s) this one replaces. Read only when
  *   EVERY token of its value is id-shaped (`msg_` + a 26-character ULID,
@@ -163,7 +163,7 @@ export interface QuestionChoice {
   /** A picture choice: the choice's first markdown image. The picture picks
    *  the choice; the answer is still the label. Absent otherwise. */
   image?: QuestionChoiceImage;
-  /** `Pros:` under a `- [ ]` choice (option lines, the Plannotator Inbox):
+  /** `Pros:` under a `- [ ]` choice (option lines, the ReviewTrail Inbox):
    *  its items, split on `;`. Absent otherwise: the line stays in the
    *  description. */
   pros?: string[];
@@ -285,7 +285,7 @@ export interface ParsedQuestion {
   decisionOnAnswer?: true;
   /** `Decision: [statement](url)`: the decision this question became. */
   decision?: QuestionDecisionLink;
-  /** `Replaces: <message id>/<key>` (the Plannotator Inbox): the earlier
+  /** `Replaces: <message id>/<key>` (the ReviewTrail Inbox): the earlier
    *  questions this one replaces, each token as written. Absent when the
    *  block has no such line. The host checks them (the Inbox refuses an id
    *  that names no open question of the thread). */
@@ -578,7 +578,7 @@ const hash8 = (value: string): string => {
 };
 
 /** The same FNV-1a hash the question keys use, for a host's own block keys
- *  (the Plannotator Inbox's `:::action`, `a-` + 8 hex). */
+ *  (the ReviewTrail Inbox's `:::action`, `a-` + 8 hex). */
 export const blockKeyHash8 = (value: string): string => hash8(value);
 
 /** `q-` + hash8(kind + "\n" + normalized prompt). Stable across plan versions
@@ -1013,7 +1013,7 @@ const DESC_REC_MARKER_RE = /^[*_]{0,2}(?:[([]\s*recommended\s*[)\]][*_]{0,2}\s*(
  * `recommended` is a marker: "Use the recommended defaults", "(not
  * recommended)" and "(recommended by the vendor)" are not. `parseQuestionBlock`
  * reads it (as the recommendation only when the block has no `Recommended:`
- * line); the Plannotator Inbox reads a stored label through it.
+ * line); the ReviewTrail Inbox reads a stored label through it.
  */
 export const questionChoiceWithoutRecommendedMarker = (
   choice: { label: string; description?: string | null },
@@ -1048,7 +1048,7 @@ export const questionChoiceWithoutRecommendedMarker = (
 
 /** A label with the first markdown image written in it taken out (spacing
  *  collapsed), or its alt text when the image was all the label held. Null
- *  when the label holds no image, or nothing would be left. The Plannotator
+ *  when the label holds no image, or nothing would be left. The ReviewTrail
  *  Inbox reads a stored label through it: a record from before picture
  *  choices kept `![B](b.png) B` as the label, which the card now reads as `B`. */
 export const questionLabelWithoutImage = (label: string): string | null => {
@@ -1062,7 +1062,7 @@ export const questionLabelWithoutImage = (label: string): string | null => {
 /**
  * A task-list choice's text (what follows `- [ ] `) read as this parser reads
  * it: the label split from the description (never inside an image), then
- * the picture taken out. The Plannotator Inbox reads a record stored by an
+ * the picture taken out. The ReviewTrail Inbox reads a record stored by an
  * older parser through it: a dash inside an image's alt text used to split
  * the label there (`![Drawer A - closest](a.png) Drawer A` was stored as the
  * label `![Drawer A`).
@@ -1122,7 +1122,7 @@ export interface ParseQuestionBlockOptions {
    *  the default parse reads still ends the choice, bullet or recommendation
    *  above it, so the prompt, key and choices are always the default parse's
    *  (an answer stored against either parse matches the other). The
-   *  Plannotator Inbox passes false: it records no decisions. */
+   *  ReviewTrail Inbox passes false: it records no decisions. */
   decisionLines?: boolean;
   /** Read the contract lines (`Stakes:`, `Shows:`, `Why:`, `Reversible:`)
    *  into `stakes`, `shows`, `why` and `reversible`. Default true. False: each
@@ -1141,7 +1141,7 @@ export interface ParseQuestionBlockOptions {
    *  stays where it always went (a choice's description, or context), so
    *  plan review, annotate and every older reader show it as text. The key,
    *  labels and answers of `- [ ]` choices are the same either way. Only the
-   *  Plannotator Inbox passes true. */
+   *  ReviewTrail Inbox passes true. */
   optionLines?: boolean;
   /** Read change lines (a question that proposes a change): `Where:`,
    *  `Before:`, `After:` and `Source:` at the block's own indent into
@@ -1154,7 +1154,7 @@ export interface ParseQuestionBlockOptions {
    *  parse would have kept it as a context line of its own (never the
    *  continuation of a plain bullet or a recommendation), so the prompt, the
    *  key, the labels and the recommendation are the default parse's. Only the
-   *  Plannotator Inbox's cards pass true; its server stores the default
+   *  ReviewTrail Inbox's cards pass true; its server stores the default
    *  parse. */
   changeLines?: boolean;
 }
@@ -1793,7 +1793,7 @@ export interface QuestionBlockLocation {
 /**
  * Every parseable question block of a markdown document, in document order,
  * located by line. For a server that has to find or verify a question without
- * the UI parser: the keys and block boundaries are the ones `@plannotator/ui`
+ * the UI parser: the keys and block boundaries are the ones `@reviewtrail/ui`
  * renders, because both split the document with the same
  * `./markdown-structure` helpers (frontmatter, backtick code fences, display
  * math, directives, raw HTML blocks, link reference resolution). A
@@ -1843,7 +1843,7 @@ export interface DirectiveBlockLocation {
  * order, found exactly as `findQuestionBlocks` finds question blocks (the
  * block splitter's code fences, display math, directives and raw HTML blocks
  * hide a `:::` opener). For a host with directives of its own (the
- * Plannotator Inbox's `:::action`): it adds no grammar to plan review.
+ * ReviewTrail Inbox's `:::action`): it adds no grammar to plan review.
  */
 export const findDirectiveBlocks = (
   markdown: string,
@@ -1860,7 +1860,7 @@ export const findDirectiveBlocks = (
  * body or a raw HTML block, and not a directive's opener (the walk
  * `findDirectiveBlocks` makes, so the two cannot differ). `lineNumber` is
  * the line's 1-based line in `markdown`. For a host that checks lines the
- * parser leaves as text (the Plannotator Inbox's `:::question {#x}` warning).
+ * parser leaves as text (the ReviewTrail Inbox's `:::question {#x}` warning).
  *
  * `line` is the parser's processed text, not the source line: link
  * references are resolved, and after a display math block that closes
@@ -1954,7 +1954,7 @@ export interface QuestionAnswer {
   note?: string;
   skipped?: boolean;
   /**
-   * With `skipped`: the Plannotator Inbox skipped it with a Send, because the
+   * With `skipped`: the ReviewTrail Inbox skipped it with a Send, because the
    * person pressed "Skip them" there (not Skip on the card). Printed as
    * "Skipped by the person". Read only with `skipped: true`.
    */
@@ -1967,7 +1967,7 @@ const cap = (value: string, max: number): string => (value.length > max ? value.
 
 /**
  * An answer's copy of its question's prompt, cut at `MAX_QUESTION_PROMPT_CHARS`
- * between characters (never inside an emoji). The Plannotator Inbox compares
+ * between characters (never inside an emoji). The ReviewTrail Inbox compares
  * a posted answer's prompt with its question's through this same cut.
  */
 export function capQuestionPrompt(prompt: string): string {
@@ -2423,7 +2423,7 @@ export const buildQuestionAnswerAnnotation = (
 // ───────────────────────── Authoring guide ─────────────────────────
 
 /**
- * The syntax reference as one string, for a host's agent prompts. Plannotator
+ * The syntax reference as one string, for a host's agent prompts. ReviewTrail
  * writes its own skill text from this same source.
  */
 export const QUESTION_AUTHORING_GUIDE = `## Asking the reviewer questions

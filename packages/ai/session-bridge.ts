@@ -1,6 +1,6 @@
 /**
  * "Ask this session": an Ask AI provider answered by the agent session that
- * opened Plannotator, instead of a separate SDK agent.
+ * opened ReviewTrail, instead of a separate SDK agent.
  *
  * The host (Pi today; OpenCode and Claude Code mods later) implements the
  * small, host-neutral `SessionBridge` interface below. `SessionBridgeProvider`
@@ -34,7 +34,7 @@ import type {
 /**
  * - `ready`: idle, a question can run now.
  * - `busy`: the agent is mid-turn on something else; a question waits or interrupts.
- * - `blocked`: the session is waiting on THIS Plannotator decision, so a real
+ * - `blocked`: the session is waiting on THIS ReviewTrail decision, so a real
  *   turn can never run (only a transient answer could).
  * - `gone`: the session ended or was replaced.
  */
@@ -135,7 +135,7 @@ export const SESSION_ASK_TAKEN_OVER_BY_PERSON_TEXT =
 
 /** Why "Interrupt and ask now" refuses a turn another message took over. */
 export const SESSION_ASK_TAKEN_OVER_INTERRUPT_TEXT =
-	"The session is now answering another message, so Plannotator will not stop it. Ask when it finishes instead.";
+	"The session is now answering another message, so ReviewTrail will not stop it. Ask when it finishes instead.";
 
 const HOST_LABELS: Record<SessionBridgeHost, string> = {
 	pi: "Pi",
@@ -159,7 +159,7 @@ export function sessionBridgeLabel(
 // ---------------------------------------------------------------------------
 
 export const SESSION_ASK_HEADER =
-	"[Plannotator Ask AI] A question from the reviewer in Plannotator. Answer it briefly, here in the session. Do not edit files or start new work unless the question asks you to.";
+	"[ReviewTrail Ask AI] A question from the reviewer in ReviewTrail. Answer it briefly, here in the session. Do not edit files or start new work unless the question asks you to.";
 
 /**
  * Added to a transient (quick-answer) question. The host answers from the
@@ -425,7 +425,7 @@ function errorMessage(code: string, error: string): AIMessage {
 }
 
 const GONE_TEXT = "This session is no longer available (it was closed, replaced, or resumed elsewhere).";
-const BLOCKED_TEXT = "This session is waiting on this Plannotator decision, so it cannot answer right now.";
+const BLOCKED_TEXT = "This session is waiting on this ReviewTrail decision, so it cannot answer right now.";
 const BUSY_TEXT = "The session is busy with another turn.";
 const SUPERSEDED_QUERY = Symbol("superseded-session-ask");
 

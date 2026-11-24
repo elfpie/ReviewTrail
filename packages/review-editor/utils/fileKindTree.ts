@@ -5,7 +5,7 @@
  * One builder feeds the tree's rows, its j/k order and the all-files order, so
  * the three never disagree.
  */
-import { groupByFileKind, type FileKind } from '@plannotator/core/file-kind';
+import { groupByFileKind, type FileKind } from '@reviewtrail/core/file-kind';
 import type { DiffFile } from '../types';
 import { buildFileTree, getVisualFileOrder, type FileTreeNode } from './buildFileTree';
 

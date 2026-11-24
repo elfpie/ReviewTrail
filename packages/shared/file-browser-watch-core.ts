@@ -183,7 +183,7 @@ const DEFAULT_DEBOUNCE_MS = 180;
 const DEFAULT_CAP_RETRY_MS = 2_000;
 /**
  * The per-directory watch budget. A quarter of the user's inotify allowance,
- * so Plannotator never takes most of what editors and dev servers need
+ * so ReviewTrail never takes most of what editors and dev servers need
  * (#1439), kept between 1,024 (twice this repository's ~280 tracked folders,
  * enough for a typical working copy's ~750) and 8,192.
  */
@@ -302,7 +302,7 @@ export function createFileBrowserWatchRegistry<S>(
 	const log = (message: string, error?: unknown) => {
 		try {
 			if (options.log) options.log(message, error);
-			else console.error(`[plannotator] ${message}`, error ?? "");
+			else console.error(`[reviewtrail] ${message}`, error ?? "");
 		} catch {
 			// Logging must never take down the server.
 		}

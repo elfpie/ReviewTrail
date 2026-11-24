@@ -33,7 +33,7 @@ export function newQwenAskAISessionId(): string {
 	return QWEN_ASK_AI_SESSION_PREFIX + crypto.randomUUID().slice(QWEN_ASK_AI_SESSION_PREFIX.length);
 }
 
-/** `sessionId` is the Plannotator session's id; a result line reports it. */
+/** `sessionId` is the ReviewTrail session's id; a result line reports it. */
 export function mapQwenLine(line: Record<string, unknown>, sessionId: string): AIMessage[] {
 	if (line.parent_tool_use_id != null) return [];
 

@@ -31,7 +31,6 @@ export default defineConfig({
     host: '0.0.0.0',
   },
   define: {
-    __REVIEWTRAIL__: true,
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [demoFileContentPlugin(), react(), tailwindcss(), katexWoff2Only(), packedApp()],
@@ -41,19 +40,19 @@ export default defineConfig({
       // thread + worker). See build/shiki-wasm-stub.ts. `resolve.alias` is
       // shared with the worker build below; `plugins` would not be.
       'shiki/wasm': path.resolve(__dirname, '../../build/shiki-wasm-stub.ts'),
-      // Highlights, Pierre's second highlighter (WASM), never runs: Plannotator
+      // Highlights, Pierre's second highlighter (WASM), never runs: ReviewTrail
       // highlights with Shiki. See build/pierre-highlights-stub.ts.
       '@pierre/highlights/themes/loader': path.resolve(__dirname, '../../build/pierre-highlights-stub.ts'),
       '@pierre/highlights': path.resolve(__dirname, '../../build/pierre-highlights-stub.ts'),
       '@pierre/patches': path.resolve(__dirname, '../../build/pierre-patches-stub.ts'),
       '@pierre/diffs': '@pierre/diffs-sem',
       '@': path.resolve(__dirname, '.'),
-      '@plannotator/shared': path.resolve(__dirname, '../../packages/shared'),
-      '@plannotator/ui': path.resolve(__dirname, '../../packages/ui'),
-      '@plannotator/review-editor/styles': path.resolve(__dirname, '../../packages/review-editor/index.css'),
-      '@plannotator/review-editor/tree-styles': path.resolve(__dirname, '../../packages/review-editor/pierreTree.css'),
-      '@plannotator/review-editor/worker-pool': path.resolve(__dirname, '../../packages/review-editor/workerPool.tsx'),
-      '@plannotator/review-editor': path.resolve(__dirname, '../../packages/review-editor/App.tsx'),
+      '@reviewtrail/shared': path.resolve(__dirname, '../../packages/shared'),
+      '@reviewtrail/ui': path.resolve(__dirname, '../../packages/ui'),
+      '@reviewtrail/review-editor/styles': path.resolve(__dirname, '../../packages/review-editor/index.css'),
+      '@reviewtrail/review-editor/tree-styles': path.resolve(__dirname, '../../packages/review-editor/pierreTree.css'),
+      '@reviewtrail/review-editor/worker-pool': path.resolve(__dirname, '../../packages/review-editor/workerPool.tsx'),
+      '@reviewtrail/review-editor': path.resolve(__dirname, '../../packages/review-editor/App.tsx'),
     }
   },
   // The Pierre highlight worker (?worker&inline) contains a dynamic

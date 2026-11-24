@@ -1,5 +1,5 @@
 /**
- * The comment card and visible comment drafts (both opt-in; Plannotator Inbox,
+ * The comment card and visible comment drafts (both opt-in; ReviewTrail Inbox,
  * approval "inbox-comment-box", round 3).
  *
  * `commentCard`: `CommentPopover` draws as a small card by the words it is
@@ -7,7 +7,7 @@
  * full docks it at the foot of the view instead), a chevron at the top right
  * that closes it and keeps the words, one row with the tools at the left, the
  * bin, and a solid "Comment" button at the right end. The card's look ships in
- * `@plannotator/ui/comment-card.css`, which a host that turns this on imports.
+ * `@reviewtrail/ui/comment-card.css`, which a host that turns this on imports.
  *
  * `visibleCommentDrafts`: closing a text-selection comment that holds words
  * (the chevron, Escape) keeps its words highlighted, palely, with a floating

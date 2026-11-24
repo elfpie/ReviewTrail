@@ -1,7 +1,7 @@
 /**
  * The comment composer's textarea with its token highlight layer (skill
  * references, host `@` mentions), moved out of CommentPopover so a host can
- * put the same field in its own composer (the Plannotator Inbox's reply box
+ * put the same field in its own composer (the ReviewTrail Inbox's reply box
  * and New message). CommentPopover renders it with every default, so its
  * markup is unchanged.
  */

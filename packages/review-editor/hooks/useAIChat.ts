@@ -5,8 +5,8 @@ import {
   type AIRetryOptions,
   type AskAIParams,
   type PendingPermission,
-} from '@plannotator/ui/hooks/useAIChat';
-import { buildReviewContextPreamble, buildSessionReviewIdentity } from '@plannotator/ui/utils/aiPrompt';
+} from '@reviewtrail/ui/hooks/useAIChat';
+import { buildReviewContextPreamble, buildSessionReviewIdentity } from '@reviewtrail/ui/utils/aiPrompt';
 export type { AIChatEntry, PendingPermission };
 
 interface Viewing {

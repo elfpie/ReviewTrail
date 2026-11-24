@@ -1,5 +1,5 @@
 /**
- * Where visible comment drafts wait between mounts (opt-in: `configurePlannotatorUI({ visibleCommentDrafts })`).
+ * Where visible comment drafts wait between mounts (opt-in: `configureReviewTrailUI({ visibleCommentDrafts })`).
  *
  * The words of a comment not sent live in CommentPopover's draft store, keyed by `draftKey`; that store already
  * outlives a popover. This shelf keeps what each one is on (the selection's stored positions and quote), per

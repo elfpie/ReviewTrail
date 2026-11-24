@@ -84,7 +84,7 @@ afterEach(() => {
 });
 
 /**
- * A Plannotator server's AI runtime with a pull bridge, plus a host process
+ * A ReviewTrail server's AI runtime with a pull bridge, plus a host process
  * simulated by the real pull client talking to it through `fetch`.
  */
 function setup(options: Partial<PullSessionBridgeOptions> = {}, host = fakeHost(), wire: { olderServer?: boolean } = {}, client: { statusIntervalMs?: number } = {}) {
@@ -428,9 +428,9 @@ describe("pull session bridge", () => {
 describe("takePullSessionBridgeConfig", () => {
   test("reads the host's config once and scrubs it from the environment", () => {
     const env: Record<string, string | undefined> = {
-      PLANNOTATOR_SESSION_BRIDGE_TOKEN: TOKEN,
-      PLANNOTATOR_SESSION_BRIDGE_HOST: "opencode",
-      PLANNOTATOR_SESSION_BRIDGE_MODES: "turn,transient",
+      REVIEWTRAIL_SESSION_BRIDGE_TOKEN: TOKEN,
+      REVIEWTRAIL_SESSION_BRIDGE_HOST: "opencode",
+      REVIEWTRAIL_SESSION_BRIDGE_MODES: "turn,transient",
       OTHER: "kept",
     };
     expect(takePullSessionBridgeConfig(env)).toEqual({ token: TOKEN, host: "opencode", modes: { turn: true, transient: true } });
@@ -439,7 +439,7 @@ describe("takePullSessionBridgeConfig", () => {
   });
 
   test("refuses a short token or an unknown host", () => {
-    expect(takePullSessionBridgeConfig({ PLANNOTATOR_SESSION_BRIDGE_TOKEN: "short", PLANNOTATOR_SESSION_BRIDGE_HOST: "opencode" })).toBeUndefined();
-    expect(takePullSessionBridgeConfig({ PLANNOTATOR_SESSION_BRIDGE_TOKEN: TOKEN, PLANNOTATOR_SESSION_BRIDGE_HOST: "someone" })).toBeUndefined();
+    expect(takePullSessionBridgeConfig({ REVIEWTRAIL_SESSION_BRIDGE_TOKEN: "short", REVIEWTRAIL_SESSION_BRIDGE_HOST: "opencode" })).toBeUndefined();
+    expect(takePullSessionBridgeConfig({ REVIEWTRAIL_SESSION_BRIDGE_TOKEN: TOKEN, REVIEWTRAIL_SESSION_BRIDGE_HOST: "someone" })).toBeUndefined();
   });
 });

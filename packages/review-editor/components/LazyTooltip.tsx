@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tooltip } from '@plannotator/ui/components/Tooltip';
+import { Tooltip } from '@reviewtrail/ui/components/Tooltip';
 
 type TooltipProps = React.ComponentProps<typeof Tooltip>;
 

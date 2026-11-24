@@ -1,7 +1,7 @@
 /**
- * What another Tailscale account sees when it opens this computer's Plannotator
+ * What another Tailscale account sees when it opens this computer's ReviewTrail
  * over the tailnet (the Inbox, or a `--tailscale` review or annotate session).
- * Plannotator is single player: over Tailscale it opens only for the account
+ * ReviewTrail is single player: over Tailscale it opens only for the account
  * that owns this computer. A browser gets a small readable page; an API call,
  * the event stream or `/mcp` gets the same words as JSON.
  */
@@ -12,7 +12,7 @@ export const TAILNET_NOT_OWNER_CODE = "tailnet_identity_refused";
 export function tailnetNotOwnerMessage(what: "Inbox" | "session"): string {
   return what === "Inbox"
     ? "This Inbox belongs to this computer's owner. It opens only for the Tailscale account that owns this computer."
-    : "This Plannotator session belongs to this computer's owner. It opens only for the Tailscale account that owns this computer.";
+    : "This ReviewTrail session belongs to this computer's owner. It opens only for the Tailscale account that owns this computer.";
 }
 
 const escapeHtml = (value: string) =>
@@ -30,7 +30,7 @@ export function tailnetNotOwnerPage(what: "Inbox" | "session", login: string | n
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Plannotator</title>
+<title>ReviewTrail</title>
 <style>
   :root { color-scheme: light dark; --bg: #fafafa; --fg: #1a1a1a; --muted: #5c5c5c; --card: #fff; --line: #e4e4e4; }
   @media (prefers-color-scheme: dark) { :root { --bg: #141414; --fg: #ededed; --muted: #a3a3a3; --card: #1d1d1d; --line: #2e2e2e; } }
@@ -48,7 +48,7 @@ export function tailnetNotOwnerPage(what: "Inbox" | "session", login: string | n
 <body>
 <main>
 <h1>${title}</h1>
-<p>Plannotator opens over Tailscale only for the Tailscale account that owns this computer.</p>
+<p>ReviewTrail opens over Tailscale only for the Tailscale account that owns this computer.</p>
 ${who}
 </main>
 </body>
@@ -61,7 +61,7 @@ ${who}
  * an owner for: the key only says who the owner is on a tagged machine (which has none), and is ignored otherwise.
  */
 export function allowIgnoredLine(owner: string): string {
-  return `inboxTailscaleAllow in config.json is ignored: over Tailscale, Plannotator opens only for this computer's owner, ${owner}.`;
+  return `inboxTailscaleAllow in config.json is ignored: over Tailscale, ReviewTrail opens only for this computer's owner, ${owner}.`;
 }
 
 const NO_STORE = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };

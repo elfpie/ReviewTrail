@@ -23,7 +23,7 @@ import {
   savedGuideWhere,
   type SavedGuideEnvelope,
 } from "./guide-store";
-import type { GuideLaunchReview } from "@plannotator/core/guide-format";
+import type { GuideLaunchReview } from "@reviewtrail/core/guide-format";
 
 const REPO_KEY = "github.com__acme__widgets";
 
@@ -54,14 +54,14 @@ let dataDir = "";
 let previousDataDir: string | undefined;
 
 beforeEach(() => {
-  dataDir = mkdtempSync(join(tmpdir(), "plannotator-guide-store-"));
-  previousDataDir = process.env.PLANNOTATOR_DATA_DIR;
-  process.env.PLANNOTATOR_DATA_DIR = dataDir;
+  dataDir = mkdtempSync(join(tmpdir(), "reviewtrail-guide-store-"));
+  previousDataDir = process.env.REVIEWTRAIL_DATA_DIR;
+  process.env.REVIEWTRAIL_DATA_DIR = dataDir;
 });
 
 afterEach(() => {
-  if (previousDataDir === undefined) delete process.env.PLANNOTATOR_DATA_DIR;
-  else process.env.PLANNOTATOR_DATA_DIR = previousDataDir;
+  if (previousDataDir === undefined) delete process.env.REVIEWTRAIL_DATA_DIR;
+  else process.env.REVIEWTRAIL_DATA_DIR = previousDataDir;
   rmSync(dataDir, { recursive: true, force: true });
 });
 

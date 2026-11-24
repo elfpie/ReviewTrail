@@ -13,7 +13,7 @@ import { describe, expect, test } from 'bun:test';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { CUSTOM_THEME_LIMIT, type ThemeFile } from '@plannotator/core/theme-file';
+import { CUSTOM_THEME_LIMIT, type ThemeFile } from '@reviewtrail/core/theme-file';
 import {
   customThemeSyntaxJson,
   customThemesAnswer,
@@ -27,8 +27,8 @@ import {
   saveCustomTheme,
 } from './theme-files';
 
-const scratch = () => mkdtempSync(join(tmpdir(), 'plannotator-theme-files-'));
-const theme = (id: string, name = id): ThemeFile => ({ plannotatorTheme: 1, id, name, dark: { background: '#0f1419', foreground: '#d8dee6' } });
+const scratch = () => mkdtempSync(join(tmpdir(), 'reviewtrail-theme-files-'));
+const theme = (id: string, name = id): ThemeFile => ({ reviewTrailTheme: 1, id, name, dark: { background: '#0f1419', foreground: '#d8dee6' } });
 
 /** Run the served script against a stand-in document; what it handed the page. */
 function runScript(source: string): { themes: unknown; css: string | null } {
@@ -36,7 +36,7 @@ function runScript(source: string): { themes: unknown; css: string | null } {
   const doc = { createElement: () => ({ id: '', textContent: '' }), head: { appendChild: (el: { textContent: string }) => appended.push(el) } };
   const win: Record<string, unknown> = {};
   new Function('window', 'document', source)(win, doc);
-  return { themes: win.__PLANNOTATOR_CUSTOM_THEMES__, css: appended[0]?.textContent ?? null };
+  return { themes: win.__REVIEWTRAIL_CUSTOM_THEMES__, css: appended[0]?.textContent ?? null };
 }
 
 describe('the themes folder', () => {
@@ -158,14 +158,14 @@ describe('code colours', () => {
 });
 
 describe('the page as served (themes written in, no request)', () => {
-  const PAGE = '<!doctype html><html><head><script  src="/plannotator-themes.js"></script><script type="module" src="/assets/app.js"></script></head><body></body></html>';
+  const PAGE = '<!doctype html><html><head><script  src="/reviewtrail-themes.js"></script><script type="module" src="/assets/app.js"></script></head><body></body></html>';
 
   test('a person with no custom theme gets the page with the tag left out, the same string every time', () => {
     const dir = scratch();
     const page = pageWithCustomThemes(PAGE, dir);
-    expect(page).not.toContain('plannotator-themes');
-    expect(page).not.toContain('__PLANNOTATOR_CUSTOM_THEMES__');
-    expect(page.length).toBe(PAGE.length - '<script  src="/plannotator-themes.js"></script>'.length);
+    expect(page).not.toContain('reviewtrail-themes');
+    expect(page).not.toContain('__REVIEWTRAIL_CUSTOM_THEMES__');
+    expect(page.length).toBe(PAGE.length - '<script  src="/reviewtrail-themes.js"></script>'.length);
     // One string while nothing changes, so a compressed body made for it is reused.
     expect(pageWithCustomThemes(PAGE, dir)).toBe(page);
   });
@@ -174,7 +174,7 @@ describe('the page as served (themes written in, no request)', () => {
     const dir = scratch();
     saveCustomTheme(dir, { ...theme('harbor'), name: '</script><script>alert(1)</script>' });
     const page = pageWithCustomThemes(PAGE, dir);
-    expect(page).not.toContain('src="/plannotator-themes.js"');
+    expect(page).not.toContain('src="/reviewtrail-themes.js"');
     const inline = /<head><script>([^<]*)<\/script><script type="module"/.exec(page);
     expect(inline).not.toBeNull();
     expect(runScript(inline![1]!).css).toContain('.theme-harbor {');

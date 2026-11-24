@@ -1,7 +1,7 @@
 /**
  * The Mermaid anchor codec: the ONE module that owns Mermaid's rendered id
  * grammar. The pure half (types, the wire parser, `sameTarget`, the names,
- * `diagramSourceLine`) lives in `@plannotator/core/diagram-anchor` and is
+ * `diagramSourceLine`) lives in `@reviewtrail/core/diagram-anchor` and is
  * re-exported here so a host imports one module; this file adds the DOM
  * walkers that read a rendered svg.
  *
@@ -24,9 +24,9 @@ import {
   sameTarget,
   type DiagramFamily,
   type DiagramTarget,
-} from '@plannotator/core/diagram-anchor';
+} from '@reviewtrail/core/diagram-anchor';
 
-export * from '@plannotator/core/diagram-anchor';
+export * from '@reviewtrail/core/diagram-anchor';
 
 /**
  * The finder seam (the renderer slot pairs one with each engine): everything

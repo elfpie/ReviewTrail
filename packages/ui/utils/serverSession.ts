@@ -3,7 +3,7 @@
  *
  * The tab keeps the `serverSession` nonce the server advertised on its first
  * payload (`/api/plan`, `/api/diff`) and echoes it on every decision it posts.
- * A server that does not recognize it (a NEW Plannotator session that took
+ * A server that does not recognize it (a NEW ReviewTrail session that took
  * over the same port) answers `409 { code: "session_mismatch" }`; the tab then
  * shows the reload prompt (`ServerSessionReplacedBanner`) instead of treating
  * the refusal as an ordinary failure.
@@ -14,7 +14,7 @@
  */
 
 import { useSyncExternalStore } from 'react';
-import { SERVER_SESSION_FIELD, SERVER_SESSION_MISMATCH_CODE } from '@plannotator/core/server-session';
+import { SERVER_SESSION_FIELD, SERVER_SESSION_MISMATCH_CODE } from '@reviewtrail/core/server-session';
 
 let nonce: string | null = null;
 let replaced = false;

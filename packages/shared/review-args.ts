@@ -44,7 +44,7 @@ export interface ParsedReviewArgs {
   /**
    * `false` when the invocation carried `--no-git-remote-check` (issue #1553):
    * this session must make no `git ls-remote` call at all. Undefined means
-   * the flag was absent, leaving PLANNOTATOR_GIT_REMOTE_CHECK / config.gitRemoteCheck
+   * the flag was absent, leaving REVIEWTRAIL_GIT_REMOTE_CHECK / config.gitRemoteCheck
    * to decide. Hosts forward it to the review server, which resolves the
    * precedence in one place.
    */
@@ -55,7 +55,7 @@ export interface ParsedReviewArgs {
    * always has Approve and the CLI always prints the approval, so the flag
    * changes nothing here; it marks the intent for a host that otherwise only
    * logs a bare Approve (the Claude Code mod takes the command over as the
-   * `plannotator` tool's gated review).
+   * `reviewtrail` tool's gated review).
    */
   gate?: boolean;
   /**
@@ -289,7 +289,7 @@ export function resolveReviewTarget(
   return { ...(directories[0] === undefined ? {} : { directory: directories[0] }), ignored };
 }
 
-const REVIEW_CURRENT_PROJECT_LINE = "To review the current project instead, run: plannotator review";
+const REVIEW_CURRENT_PROJECT_LINE = "To review the current project instead, run: reviewtrail";
 
 /**
  * The refusal for a target that names nothing. People and agents both read
@@ -304,16 +304,16 @@ function missingReviewFolderMessage(word: string, resolved: string, cwd: string)
   ];
   const suggestions = suggestReviewFolders(word, cwd);
   if ((REVIEW_OPEN_DIFF_TYPES as readonly string[]).includes(word)) {
-    lines.push(`To open the current project's ${word} diff, run: plannotator review --diff-type ${word}`);
+    lines.push(`To open the current project's ${word} diff, run: reviewtrail --diff-type ${word}`);
   } else if (/^#?\d+$/.test(word)) {
     const number = word.replace("#", "");
-    lines.push(`To review pull request ${number}, pass its URL: plannotator review https://github.com/<owner>/<repo>/pull/${number}`);
+    lines.push(`To review pull request ${number}, pass its URL: reviewtrail review https://github.com/<owner>/<repo>/pull/${number}`);
   } else if (suggestions.length === 1) {
-    lines.push(`Did you mean ${suggestions[0]}? Run: plannotator review ${shellWord(suggestions[0]!)}`);
+    lines.push(`Did you mean ${suggestions[0]}? Run: reviewtrail ${shellWord(suggestions[0]!)}`);
   } else if (suggestions.length > 1) {
     lines.push(`Did you mean one of these folders? ${suggestions.join(", ")}`);
   } else {
-    lines.push("To review another folder, run: plannotator review <path to an existing folder>");
+    lines.push("To review another folder, run: reviewtrail <path to an existing folder>");
   }
   lines.push(REVIEW_CURRENT_PROJECT_LINE);
   return lines.join("\n");
@@ -322,7 +322,7 @@ function missingReviewFolderMessage(word: string, resolved: string, cwd: string)
 function reviewFileTargetMessage(word: string, resolved: string): string {
   return [
     `${resolved} is a file, not a folder; nothing was opened.`,
-    `To comment on the file, run: plannotator annotate ${shellWord(word)}`,
+    `To comment on the file, run: reviewtrail annotate ${shellWord(word)}`,
     REVIEW_CURRENT_PROJECT_LINE,
   ].join("\n");
 }

@@ -5,8 +5,8 @@
  * Priority: org/repo from remote → repo name → directory name
  */
 
-import type { RepoInfo } from "@plannotator/shared/repo";
-import { parseRemoteUrl, parseRemoteHost, getDirName } from "@plannotator/shared/repo";
+import type { RepoInfo } from "@reviewtrail/shared/repo";
+import { parseRemoteUrl, parseRemoteHost, getDirName } from "@reviewtrail/shared/repo";
 import { gitStdout } from "./project";
 
 /**

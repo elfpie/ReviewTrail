@@ -6,7 +6,7 @@
  * in beta), next to Shiki. It picks one at RUNTIME from `preferredHighlighter`
  * (default `'shiki-js'`, `DEFAULT_HIGHLIGHTER` in its `dist/constants.js`), so the
  * Highlights backend sits behind a dynamic import the bundler still follows.
- * Plannotator stays on Shiki (`'shiki-js'`, see
+ * ReviewTrail stays on Shiki (`'shiki-js'`, see
  * `packages/review-editor/workerPool.tsx` and `packages/ui/utils/codeHighlight.ts`),
  * so that branch never runs. Without this stub it would still put the
  * Highlights chunk, its inlined WASM (~440 KB base64) and its theme catalog into
@@ -24,7 +24,7 @@
 
 function unavailable(): never {
   throw new Error(
-    '@pierre/highlights is not bundled by Plannotator: code is highlighted with Shiki ' +
+    '@pierre/highlights is not bundled by ReviewTrail: code is highlighted with Shiki ' +
       "(preferredHighlighter: 'shiki-js'). Remove the `@pierre/highlights` aliases in the app vite config to re-enable it.",
   );
 }

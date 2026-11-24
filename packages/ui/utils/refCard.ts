@@ -1,11 +1,11 @@
 /**
  * Where an issue / PR / MR hover card's data comes from (`components/RefHoverCard`).
  *
- * A host seam in the `configurePlannotatorUI` style: the default is NO
- * transport, so a host that installs none (every `@plannotator/ui` consumer
+ * A host seam in the `configureReviewTrailUI` style: the default is NO
+ * transport, so a host that installs none (every `@reviewtrail/ui` consumer
  * that does not opt in) draws no card and makes no request: byte for byte as
  * before. A host that can fetch installs one with `setRefCardTransport` or
- * `configurePlannotatorUI({ refCardTransport })`: the Inbox over its
+ * `configureReviewTrailUI({ refCardTransport })`: the Inbox over its
  * `/api/inbox/ref` route, plan review, annotate and code review over
  * `GET /api/ref` (`refCardRouteTransport` below).
  *
@@ -14,11 +14,11 @@
  * this one only spares the round trip while a person moves between links.
  */
 
-import { forgeRefKey, parseForgeRefUrl, type ForgeRef, type ForgeRefCardResult } from '@plannotator/core/forge-ref-card';
+import { forgeRefKey, parseForgeRefUrl, type ForgeRef, type ForgeRefCardResult } from '@reviewtrail/core/forge-ref-card';
 
 import { providedRefCardTarget } from './refCardProviders';
 
-export type { ForgeRef, ForgeRefCardResult } from '@plannotator/core/forge-ref-card';
+export type { ForgeRef, ForgeRefCardResult } from '@reviewtrail/core/forge-ref-card';
 
 /** Fetch the card for a link. Resolve null when the host does not read that link. */
 export type RefCardTransport = (href: string, ref: ForgeRef, signal: AbortSignal) => Promise<ForgeRefCardResult | null>;
@@ -42,7 +42,7 @@ export function getRefCardTransport(): RefCardTransport | null {
 }
 
 /**
- * A transport over a server route answering like Plannotator's `GET /api/ref`
+ * A transport over a server route answering like ReviewTrail's `GET /api/ref`
  * (and the Inbox's `/api/inbox/ref`): `?url=<link>` → `{ ok, data | error,
  * fetchedAt }`. A 404 means the route is not there (an older server) or is off
  * (a session other devices can reach): the transport then stops asking for

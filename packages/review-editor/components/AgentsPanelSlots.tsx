@@ -1,7 +1,7 @@
-import { formatCount, plural } from '@plannotator/ui/utils/countFormat';
+import { formatCount, plural } from '@reviewtrail/ui/utils/countFormat';
 import React, { useCallback, useMemo } from 'react';
-import type { AgentJobInfo } from '@plannotator/ui/types';
-import type { FindingLike } from '@plannotator/ui/components/AgentsTab';
+import type { AgentJobInfo } from '@reviewtrail/ui/types';
+import type { FindingLike } from '@reviewtrail/ui/components/AgentsTab';
 import { useSavedGuides } from '../hooks/guide/useSavedGuides';
 import { GuidesList } from './guide/GuidesList';
 

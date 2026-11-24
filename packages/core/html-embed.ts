@@ -280,4 +280,4 @@ export function embedIdFromUrl(url: string): string | null {
  * URL. Sent by the Inbox's attached-page route (packages/server/inbox-pages.ts)
  * and read by ui's HtmlViewer `frameUrl`.
  */
-export const SERVED_FRAME_GONE = "plannotator-frame-gone";
+export const SERVED_FRAME_GONE = "reviewtrail-frame-gone";

@@ -2,7 +2,7 @@
  * Reviews in the Inbox (approval "inbox-reviews-page", 2026-11-04; DESIGN r2,
  * PR 2 "Server index"): the shapes `GET /api/inbox/reviews` answers and the
  * pure rules the server and the window share. Browser-safe, no dependencies
- * beyond core's pull rules. Reached through `@plannotator/core/inbox-types`,
+ * beyond core's pull rules. Reached through `@reviewtrail/core/inbox-types`,
  * so core's export map is unchanged.
  *
  * Reviews is a pivot view of the Inbox's own threads, never a copy (the

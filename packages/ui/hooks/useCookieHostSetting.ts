@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 
 /**
- * "Open Plannotator at plannotator.localhost" (#2184) for Settings → General: on
- * writes `urlHost: "plannotator.localhost"` to config.json, off removes it.
+ * "Open ReviewTrail at reviewtrail.localhost" (#2184) for Settings → General: on
+ * writes `urlHost: "reviewtrail.localhost"` to config.json, off removes it.
  * The server sends it as `serverConfig.cookieHost` only for a local session
  * (never remote mode or `--tailscale`), and writes it with POST /api/config.
  * Deliberately not a settings-registry entry: the registry is bundled into
@@ -10,7 +10,7 @@ import { useCallback, useState } from 'react';
  */
 export interface CookieHostSetting {
   on: boolean;
-  /** PLANNOTATOR_URL_HOST is set (its value; "" when set empty): the switch is locked. */
+  /** REVIEWTRAIL_URL_HOST is set (its value; "" when set empty): the switch is locked. */
   env?: string;
   /** config.json holds another `urlHost` (a tailnet name, `auto`, an IP): locked, never replaced. */
   urlHost?: string;
@@ -30,12 +30,12 @@ export function cookieHostDescription(
 ): string {
   if (setting.env !== undefined) {
     return setting.env.trim() === ''
-      ? 'Set by PLANNOTATOR_URL_HOST in your environment (empty).'
-      : `Set by PLANNOTATOR_URL_HOST=${setting.env.trim()} in your environment.`;
+      ? 'Set by REVIEWTRAIL_URL_HOST in your environment (empty).'
+      : `Set by REVIEWTRAIL_URL_HOST=${setting.env.trim()} in your environment.`;
   }
   if (setting.urlHost !== undefined) return `config.json sets urlHost to ${setting.urlHost}; this switch never replaces it.`;
   const notifications = options.inbox ? ' Notifications need allowing once there.' : '';
-  return `Keeps Plannotator's cookies away from your other localhost apps. Starts from the next session; this browser's preferences start fresh once.${notifications}`;
+  return `Keeps ReviewTrail's cookies away from your other localhost apps. Starts from the next session; this browser's preferences start fresh once.${notifications}`;
 }
 
 interface CookieHostState {

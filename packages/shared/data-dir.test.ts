@@ -6,13 +6,13 @@ import { join } from "node:path";
 // Bun resolves homedir() from the environment captured at process start, so
 // mutating process.env.HOME inside this test process has no effect. Each case
 // therefore runs the resolver in a subprocess with a fully controlled
-// environment (fake HOME, explicit PLANNOTATOR_DATA_DIR / XDG_DATA_HOME).
+// environment (fake HOME, explicit REVIEWTRAIL_DATA_DIR / XDG_DATA_HOME).
 const MODULE_PATH = join(import.meta.dir, "data-dir.ts");
 
 let fakeHome = "";
 
 beforeEach(() => {
-  fakeHome = mkdtempSync(join(tmpdir(), "plannotator-data-dir-home-"));
+  fakeHome = mkdtempSync(join(tmpdir(), "reviewtrail-data-dir-home-"));
 });
 
 afterEach(() => {
@@ -20,7 +20,7 @@ afterEach(() => {
 });
 
 function resolveDataDir(env: Record<string, string>): string {
-  const script = `console.log(require(${JSON.stringify(MODULE_PATH)}).getPlannotatorDataDir());`;
+  const script = `console.log(require(${JSON.stringify(MODULE_PATH)}).getReviewTrailDataDir());`;
   const result = Bun.spawnSync({
     cmd: [process.execPath, "-e", script],
     env: { PATH: process.env.PATH ?? "", HOME: fakeHome, ...env },
@@ -31,101 +31,101 @@ function resolveDataDir(env: Record<string, string>): string {
   return result.stdout.toString().trim();
 }
 
-describe("getPlannotatorDataDir", () => {
-  test("PLANNOTATOR_DATA_DIR wins over the legacy directory and XDG_DATA_HOME", () => {
-    mkdirSync(join(fakeHome, ".plannotator"));
+describe("getReviewTrailDataDir", () => {
+  test("REVIEWTRAIL_DATA_DIR wins over the legacy directory and XDG_DATA_HOME", () => {
+    mkdirSync(join(fakeHome, ".reviewtrail"));
 
     const dir = resolveDataDir({
-      PLANNOTATOR_DATA_DIR: join(fakeHome, "custom-data"),
+      REVIEWTRAIL_DATA_DIR: join(fakeHome, "custom-data"),
       XDG_DATA_HOME: join(fakeHome, "xdg-data"),
     });
 
     expect(dir).toBe(join(fakeHome, "custom-data"));
   });
 
-  test("PLANNOTATOR_DATA_DIR expands a leading ~", () => {
-    const dir = resolveDataDir({ PLANNOTATOR_DATA_DIR: "~/relocated" });
+  test("REVIEWTRAIL_DATA_DIR expands a leading ~", () => {
+    const dir = resolveDataDir({ REVIEWTRAIL_DATA_DIR: "~/relocated" });
 
     expect(dir).toBe(join(fakeHome, "relocated"));
   });
 
-  test("an existing ~/.plannotator wins over XDG_DATA_HOME", () => {
-    mkdirSync(join(fakeHome, ".plannotator"));
+  test("an existing ~/.reviewtrail wins over XDG_DATA_HOME", () => {
+    mkdirSync(join(fakeHome, ".reviewtrail"));
 
     const dir = resolveDataDir({ XDG_DATA_HOME: join(fakeHome, "xdg-data") });
 
-    expect(dir).toBe(join(fakeHome, ".plannotator"));
+    expect(dir).toBe(join(fakeHome, ".reviewtrail"));
   });
 
-  test("XDG_DATA_HOME applies when set and ~/.plannotator does not exist", () => {
+  test("XDG_DATA_HOME applies when set and ~/.reviewtrail does not exist", () => {
     const dir = resolveDataDir({ XDG_DATA_HOME: join(fakeHome, "xdg-data") });
 
-    expect(dir).toBe(join(fakeHome, "xdg-data", "plannotator"));
+    expect(dir).toBe(join(fakeHome, "xdg-data", "reviewtrail"));
   });
 
   test("a relative XDG_DATA_HOME is ignored", () => {
     const dir = resolveDataDir({ XDG_DATA_HOME: "relative/xdg-data" });
 
-    expect(dir).toBe(join(fakeHome, ".plannotator"));
+    expect(dir).toBe(join(fakeHome, ".reviewtrail"));
   });
 
   test("an empty XDG_DATA_HOME is ignored", () => {
     const dir = resolveDataDir({ XDG_DATA_HOME: "  " });
 
-    expect(dir).toBe(join(fakeHome, ".plannotator"));
+    expect(dir).toBe(join(fakeHome, ".reviewtrail"));
   });
 
-  // #2305: an agent following old skill text made ~/.plannotator on an XDG
+  // #2305: an agent following old skill text made ~/.reviewtrail on an XDG
   // install, and every process then switched to that near-empty folder.
-  test("a stray ~/.plannotator does not hide an XDG folder that holds the data", () => {
+  test("a stray ~/.reviewtrail does not hide an XDG folder that holds the data", () => {
     const xdg = join(fakeHome, "xdg-data");
-    mkdirSync(join(xdg, "plannotator", "history"), { recursive: true });
+    mkdirSync(join(xdg, "reviewtrail", "history"), { recursive: true });
     // Exactly what the compound skill and old help text could leave behind.
-    mkdirSync(join(fakeHome, ".plannotator", "hooks", "compound"), { recursive: true });
-    writeFileSync(join(fakeHome, ".plannotator", "hooks", "compound", "enterplanmode-improve-hook.txt"), "1. x\n");
-    mkdirSync(join(fakeHome, ".plannotator", "plans"));
-    writeFileSync(join(fakeHome, ".plannotator", "plans", "compound-planning-report.html"), "<html>");
-    writeFileSync(join(fakeHome, ".plannotator", "config.json"), "{}");
+    mkdirSync(join(fakeHome, ".reviewtrail", "hooks", "compound"), { recursive: true });
+    writeFileSync(join(fakeHome, ".reviewtrail", "hooks", "compound", "enterplanmode-improve-hook.txt"), "1. x\n");
+    mkdirSync(join(fakeHome, ".reviewtrail", "plans"));
+    writeFileSync(join(fakeHome, ".reviewtrail", "plans", "compound-planning-report.html"), "<html>");
+    writeFileSync(join(fakeHome, ".reviewtrail", "config.json"), "{}");
 
-    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(xdg, "plannotator"));
+    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(xdg, "reviewtrail"));
   });
 
-  test("an empty ~/.plannotator does not hide an XDG folder that holds the data", () => {
+  test("an empty ~/.reviewtrail does not hide an XDG folder that holds the data", () => {
     const xdg = join(fakeHome, "xdg-data");
-    mkdirSync(join(xdg, "plannotator", "sessions"), { recursive: true });
-    mkdirSync(join(fakeHome, ".plannotator"));
+    mkdirSync(join(xdg, "reviewtrail", "sessions"), { recursive: true });
+    mkdirSync(join(fakeHome, ".reviewtrail"));
 
-    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(xdg, "plannotator"));
+    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(xdg, "reviewtrail"));
   });
 
-  test("~/.plannotator still wins when it holds Plannotator data, even if the XDG folder does too", () => {
+  test("~/.reviewtrail still wins when it holds ReviewTrail data, even if the XDG folder does too", () => {
     const xdg = join(fakeHome, "xdg-data");
-    mkdirSync(join(xdg, "plannotator", "history"), { recursive: true });
-    mkdirSync(join(fakeHome, ".plannotator"));
-    writeFileSync(join(fakeHome, ".plannotator", "install-flags.json"), "{}");
+    mkdirSync(join(xdg, "reviewtrail", "history"), { recursive: true });
+    mkdirSync(join(fakeHome, ".reviewtrail"));
+    writeFileSync(join(fakeHome, ".reviewtrail", "install-flags.json"), "{}");
 
-    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(fakeHome, ".plannotator"));
+    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(fakeHome, ".reviewtrail"));
   });
 
-  test("~/.plannotator still wins when the XDG folder exists but holds no data", () => {
+  test("~/.reviewtrail still wins when the XDG folder exists but holds no data", () => {
     const xdg = join(fakeHome, "xdg-data");
-    mkdirSync(join(xdg, "plannotator", "hooks"), { recursive: true });
-    mkdirSync(join(fakeHome, ".plannotator"));
+    mkdirSync(join(xdg, "reviewtrail", "hooks"), { recursive: true });
+    mkdirSync(join(fakeHome, ".reviewtrail"));
 
-    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(fakeHome, ".plannotator"));
+    expect(resolveDataDir({ XDG_DATA_HOME: xdg })).toBe(join(fakeHome, ".reviewtrail"));
   });
 
   test("an XDG folder with data is ignored when XDG_DATA_HOME is unset", () => {
-    mkdirSync(join(fakeHome, ".local", "share", "plannotator", "history"), { recursive: true });
-    mkdirSync(join(fakeHome, ".plannotator"));
+    mkdirSync(join(fakeHome, ".local", "share", "reviewtrail", "history"), { recursive: true });
+    mkdirSync(join(fakeHome, ".reviewtrail"));
 
-    expect(resolveDataDir({})).toBe(join(fakeHome, ".plannotator"));
+    expect(resolveDataDir({})).toBe(join(fakeHome, ".reviewtrail"));
   });
 
-  test("defaults to ~/.plannotator when nothing is set", () => {
+  test("defaults to ~/.reviewtrail when nothing is set", () => {
     const dir = resolveDataDir({});
 
-    expect(dir).toBe(join(fakeHome, ".plannotator"));
+    expect(dir).toBe(join(fakeHome, ".reviewtrail"));
   });
 });
 
@@ -161,7 +161,7 @@ import { appendFeedbackRecord } from ${JSON.stringify(join(import.meta.dir, "fee
 export { loadConfig, saveConfig, resolveFeedbackHistory, appendFeedbackRecord };
 
 export function writeStores(project: string) {
-  const dataDir = process.env.PLANNOTATOR_DATA_DIR!;
+  const dataDir = process.env.REVIEWTRAIL_DATA_DIR!;
   const history = join(dataDir, "guides", project, "1000-change.patch");
   assert.ok(saveGuidePatch(project, "1000-change", "history:" + project));
   for (const path of [history]) assert.ok(path.startsWith(dataDir + sep), path);
@@ -210,7 +210,7 @@ import { dirname } from "node:path";
 import { writeStores } from ${JSON.stringify(storesFile)};
 let writes;
 test("a nested test run owns a fresh sandbox rather than its parent's", () => {
-  const dataDir = process.env.PLANNOTATOR_DATA_DIR!;
+  const dataDir = process.env.REVIEWTRAIL_DATA_DIR!;
   assert.notEqual(dataDir, process.env.PARENT_DATA_DIR);
   assert.equal(dirname(dataDir), ${JSON.stringify(tempRoot)});
   writes = writeStores("nested");
@@ -230,7 +230,7 @@ import { dirname, join } from "node:path";
 import {
   appendFeedbackRecord, loadConfig, resolveFeedbackHistory, runChild, saveConfig, writeStores,
 } from ${JSON.stringify(storesFile)};
-const owned = process.env.PLANNOTATOR_DATA_DIR!;
+const owned = process.env.REVIEWTRAIL_DATA_DIR!;
 const override = ${JSON.stringify(override)};
 let writes;
 
@@ -247,10 +247,10 @@ test("preloading precedes storage imports without disabling explicit overrides",
   assert.equal(resolveFeedbackHistory({ feedbackHistory: true }), false);
   writes = writeStores("parent");
 
-  const savedHistory = process.env.PLANNOTATOR_FEEDBACK_HISTORY!;
+  const savedHistory = process.env.REVIEWTRAIL_FEEDBACK_HISTORY!;
   try {
-    process.env.PLANNOTATOR_DATA_DIR = override;
-    process.env.PLANNOTATOR_FEEDBACK_HISTORY = "1";
+    process.env.REVIEWTRAIL_DATA_DIR = override;
+    process.env.REVIEWTRAIL_FEEDBACK_HISTORY = "1";
     saveConfig({ displayName: "override" });
     assert.equal(loadConfig().displayName, "override");
     assert.equal(resolveFeedbackHistory(loadConfig()), true);
@@ -259,14 +259,14 @@ test("preloading precedes storage imports without disabling explicit overrides",
     assert.equal(overrideIndex, join(override, "feedback", "preload", "index.jsonl"));
     assert.equal(JSON.parse(readFileSync(overrideIndex!, "utf-8")).feedback, "override feedback");
 
-    process.env.PLANNOTATOR_DATA_DIR = owned;
+    process.env.REVIEWTRAIL_DATA_DIR = owned;
     assert.equal(loadConfig().displayName, "parent");
     const restoredIndex = appendFeedbackRecord({ ...input, feedback: "restored feedback" });
     assert.equal(restoredIndex, join(owned, "feedback", "preload", "index.jsonl"));
     assert.equal(JSON.parse(readFileSync(restoredIndex!, "utf-8")).feedback, "restored feedback");
   } finally {
-    process.env.PLANNOTATOR_DATA_DIR = owned;
-    process.env.PLANNOTATOR_FEEDBACK_HISTORY = savedHistory;
+    process.env.REVIEWTRAIL_DATA_DIR = owned;
+    process.env.REVIEWTRAIL_FEEDBACK_HISTORY = savedHistory;
   }
   assert.equal(resolveFeedbackHistory(loadConfig()), false);
   assertContributorUntouched();
@@ -291,7 +291,7 @@ afterAll(async () => {
   writeFileSync(${JSON.stringify(reportFile)}, JSON.stringify(writeStores("after-all")));
   // Deliberately exit with a caller-owned override selected. Cleanup must use
   // the preload's captured path, not whichever env value a test leaves behind.
-  process.env.PLANNOTATOR_DATA_DIR = override;
+  process.env.REVIEWTRAIL_DATA_DIR = override;
 });
 `);
 
@@ -308,9 +308,9 @@ afterAll(async () => {
       TMPDIR: tempRoot,
       TMP: tempRoot,
       TEMP: tempRoot,
-      PLANNOTATOR_RELAY_URL: "http://127.0.0.1:9",
-      PLANNOTATOR_DATA_DIR: contributor,
-      PLANNOTATOR_FEEDBACK_HISTORY: "1",
+      REVIEWTRAIL_RELAY_URL: "http://127.0.0.1:9",
+      REVIEWTRAIL_DATA_DIR: contributor,
+      REVIEWTRAIL_FEEDBACK_HISTORY: "1",
     },
     stdout: "pipe",
     stderr: "pipe",
@@ -332,8 +332,8 @@ afterAll(async () => {
     expect(JSON.parse(readFileSync(join(override, "config.json"), "utf-8")).displayName).toBe("override");
     expect(JSON.parse(readFileSync(join(override, "feedback", "preload", "index.jsonl"), "utf-8")).feedback)
       .toBe("override feedback");
-    expect(existsSync(join(home, ".plannotator"))).toBe(false);
-    expect(existsSync(join(xdg, "plannotator"))).toBe(false);
+    expect(existsSync(join(home, ".reviewtrail"))).toBe(false);
+    expect(existsSync(join(xdg, "reviewtrail"))).toBe(false);
   } finally {
     clearTimeout(timer);
   }

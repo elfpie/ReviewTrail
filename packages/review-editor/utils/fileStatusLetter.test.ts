@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { fileStatusLetter } from '@plannotator/ui/utils/fileStatusLetter';
+import { fileStatusLetter } from '@reviewtrail/ui/utils/fileStatusLetter';
 
 describe('one status vocabulary', () => {
   test('only additions and deletions spend colour; every letter is weight 500', () => {

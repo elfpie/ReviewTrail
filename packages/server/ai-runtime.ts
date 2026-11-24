@@ -1,4 +1,4 @@
-import { childPath } from "@plannotator/shared/child-env";
+import { childPath } from "@reviewtrail/shared/child-env";
 import {
   createAIEndpoints,
   createPullSessionBridge,
@@ -15,10 +15,10 @@ import {
   type QwenSDKConfig,
   type SessionBridge,
   type SessionBridgeHost,
-} from "@plannotator/ai";
-import { resolveWindowsCommandShim } from "@plannotator/ai/providers/command-path";
-import { isLoopbackHostHeader } from "@plannotator/shared/loopback-host";
-import { cameThroughTailscale } from "@plannotator/shared/tailnet-audience";
+} from "@reviewtrail/ai";
+import { resolveWindowsCommandShim } from "@reviewtrail/ai/providers/command-path";
+import { isLoopbackHostHeader } from "@reviewtrail/shared/loopback-host";
+import { cameThroughTailscale } from "@reviewtrail/shared/tailnet-audience";
 import { getLocalUrlHostname, isRemoteSession, isSshDetectedRemote } from "./remote";
 import type { SessionTailnetGate } from "./session-tailnet";
 import { isSshTunnelRequest } from "./this-machine";
@@ -46,7 +46,7 @@ interface CreateAIRuntimeOptions {
   getCwd?: () => string;
   /**
    * "Ask this session": a host that can answer Ask AI from the agent session
-   * that opened Plannotator passes its bridge here. With a bridge it is the
+   * that opened ReviewTrail passes its bridge here. With a bridge it is the
    * ONLY Ask AI provider: SDK providers serve model catalogs to the agent-job
    * launchers but are never offered or reachable for Ask AI.
    */
@@ -68,7 +68,7 @@ interface CreateAIRuntimeOptions {
    * "Ask this session" for a host that launched this server as a SEPARATE
    * process (the OpenCode plugin, the Claude Code mod): the host long-polls
    * `/api/ai/bridge/poll` with this token (session-bridge-pull.ts). Defaults to
-   * the config the host put in the environment (`PLANNOTATOR_SESSION_BRIDGE_*`),
+   * the config the host put in the environment (`REVIEWTRAIL_SESSION_BRIDGE_*`),
    * taken once per process and removed from `process.env`. Ignored when an
    * in-process `sessionBridge` is given, and off in remote mode. Like the
    * in-process bridge, it is then the only Ask AI provider.
@@ -120,17 +120,17 @@ export function launchingSessionHost(): SessionBridgeHost | undefined {
 
 /**
  * Set to "1" by the OpenCode 2 plugin on the CLI it launches when its host can
- * register the `plannotator` tool (a `tool.transform` domain). An OpenCode
+ * register the `reviewtrail` tool (a `tool.transform` domain). An OpenCode
  * plugin also bridges sessions where it cannot register the tool (a host
  * without the domain, or a plugin release from before the tool), so the
  * opencode advert needs this positive capability; without it the session
  * reports no tool host and the UI offers no switch for a tool that cannot
  * exist there.
  */
-export const OPENCODE_TOOL_CAPABLE_ENV = "PLANNOTATOR_OPENCODE_TOOL_CAPABLE";
+export const OPENCODE_TOOL_CAPABLE_ENV = "REVIEWTRAIL_OPENCODE_TOOL_CAPABLE";
 
 /**
- * The host the `plannotator` agent tool advert describes for a server: its
+ * The host the `reviewtrail` agent tool advert describes for a server: its
  * in-process bridge's host (OpenCode 2's embedded plan review), else the host
  * that launched the process. Only those integrations register the tool, and an
  * OpenCode host only when it says it can (`opencodeToolCapable`, the plugin's
@@ -169,7 +169,7 @@ export async function createAIRuntime(options: CreateAIRuntimeOptions = {}): Pro
 
   const registerSdkProviders = async (registry: ProviderRegistry): Promise<void> => {
     try {
-      await import("@plannotator/ai/providers/claude-agent-sdk");
+      await import("@reviewtrail/ai/providers/claude-agent-sdk");
       const claudePath = Bun.which("claude", { PATH: childPath() });
       const provider = await createProvider({
         type: "claude-agent-sdk",
@@ -185,7 +185,7 @@ export async function createAIRuntime(options: CreateAIRuntimeOptions = {}): Pro
     }
 
     try {
-      await import("@plannotator/ai/providers/codex-app-server");
+      await import("@reviewtrail/ai/providers/codex-app-server");
       const codexPath = Bun.which("codex", { PATH: childPath() });
       if (codexPath) {
         const provider = await createProvider({
@@ -201,7 +201,7 @@ export async function createAIRuntime(options: CreateAIRuntimeOptions = {}): Pro
     }
 
     try {
-      await import("@plannotator/ai/providers/pi-sdk");
+      await import("@reviewtrail/ai/providers/pi-sdk");
       const rawPiPath = Bun.which("pi", { PATH: childPath() });
       if (rawPiPath) {
         const piPath = resolveWindowsCommandShim(rawPiPath);
@@ -223,7 +223,7 @@ export async function createAIRuntime(options: CreateAIRuntimeOptions = {}): Pro
     }
 
     try {
-      await import("@plannotator/ai/providers/opencode-sdk");
+      await import("@reviewtrail/ai/providers/opencode-sdk");
       const opencodePath = Bun.which("opencode", { PATH: childPath() });
       if (opencodePath) {
         const provider = await createProvider({
@@ -243,7 +243,7 @@ export async function createAIRuntime(options: CreateAIRuntimeOptions = {}): Pro
     }
 
     try {
-      await import("@plannotator/ai/providers/qwen-sdk");
+      await import("@reviewtrail/ai/providers/qwen-sdk");
       const rawQwenPath = Bun.which("qwen", { PATH: childPath() });
       if (rawQwenPath) {
         const provider = await createProvider({

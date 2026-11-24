@@ -1,1 +1,1 @@
-export * from '@plannotator/core/server-session';
+export * from '@reviewtrail/core/server-session';

@@ -1,4 +1,4 @@
-import { PortInUseError } from "@plannotator/server/remote";
+import { PortInUseError } from "@reviewtrail/server/remote";
 
 /** Report an occupied review port without a stack trace. */
 export function exitOnPortInUse<A extends unknown[], R>(

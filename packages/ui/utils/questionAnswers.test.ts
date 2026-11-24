@@ -5,7 +5,7 @@
  * the Viewer instead of being ignored.
  */
 import { describe, expect, test } from 'bun:test';
-import { indexQuestionBlocks, type QuestionAnswer } from '@plannotator/core/question-block';
+import { indexQuestionBlocks, type QuestionAnswer } from '@reviewtrail/core/question-block';
 import { AnnotationType, type Annotation } from '../types';
 import { parseMarkdownToBlocks } from './parser';
 import {

@@ -172,9 +172,9 @@ describe("the bridge (hosts that load it by URL get the shim from it)", () => {
 
   test("leaves a live app's own history and storage alone", () => {
     const parent = {};
-    const frame = opaqueFrame("http://localhost:5173/", { __plannotatorLiveConfig: { token: "t", editorOrigins: [] }, parent, top: parent });
+    const frame = opaqueFrame("http://localhost:5173/", { __reviewTrailLiveConfig: { token: "t", editorOrigins: [] }, parent, top: parent });
     runBridge(frame);
     expect(() => frame.run("localStorage.getItem('theme')")).toThrow("sandboxed");
-    expect(frame.run("history.replaceState.plannotatorSandboxShim")).toBeUndefined();
+    expect(frame.run("history.replaceState.reviewTrailSandboxShim")).toBeUndefined();
   });
 });

@@ -1,1 +1,1 @@
-export { renderInlineMarkdown } from '@plannotator/guide-viewer/renderInlineMarkdown';
+export { renderInlineMarkdown } from '@reviewtrail/guide-viewer/renderInlineMarkdown';

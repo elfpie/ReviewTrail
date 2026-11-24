@@ -1,9 +1,9 @@
-import type { Origin } from "@plannotator/shared/agents";
-import type { PlannotatorConfig } from "@plannotator/shared/config";
+import type { Origin } from "@reviewtrail/shared/agents";
+import type { ReviewTrailConfig } from "@reviewtrail/shared/config";
 import {
   composeReviewApprovedMessage,
   getReviewDeniedSuffix,
-} from "@plannotator/shared/prompts";
+} from "@reviewtrail/shared/prompts";
 
 interface ReviewOutcome {
   approved: boolean;
@@ -40,7 +40,7 @@ export function reviewFeedbackWantsSuffix(result: {
 export function buildReviewOutput(
   result: ReviewOutcome,
   origin: Origin | undefined,
-  config?: PlannotatorConfig,
+  config?: ReviewTrailConfig,
 ): ReviewOutput {
   if (result.exit) {
     return {

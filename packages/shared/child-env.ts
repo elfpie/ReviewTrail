@@ -6,7 +6,7 @@
  * `execSync`) give a child the environment the process STARTED with when
  * their `env` option is missing or `undefined` (documented on Bun's
  * `SpawnOptions.env`). The CLI deletes secrets from `process.env` at startup
- * (the pull bridge's `PLANNOTATOR_SESSION_BRIDGE_TOKEN`, the host result and
+ * (the pull bridge's `REVIEWTRAIL_SESSION_BRIDGE_TOKEN`, the host result and
  * messages files, the review id, …), so a spawn without `env` would hand them
  * to git, gh and agent CLIs anyway. Node's async `spawn`/`execFile` and Bun
  * Shell read the live env and are not affected, but use this helper anywhere
@@ -22,7 +22,7 @@ export type ChildEnv = Record<string, string | undefined>;
 
 /**
  * What keeps a sandboxed child's git and gh away from the macOS Keychain and
- * from prompts. A sandbox (`PLANNOTATOR_TEST_SANDBOX`) runs with a scratch
+ * from prompts. A sandbox (`REVIEWTRAIL_TEST_SANDBOX`) runs with a scratch
  * HOME, where macOS finds no keychain, so any credential write there showed
  * "Keychain Not Found" on the person's screen, once per process.
  *
@@ -49,7 +49,7 @@ export const GIT_REPO_ENV = ["GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_
  * `extra`; outside it nothing is added.
  */
 export function childEnv(extra?: Readonly<ChildEnv>): ChildEnv {
-  const env: ChildEnv = { ...process.env, ...(process.env.PLANNOTATOR_TEST_SANDBOX ? SANDBOX_NO_KEYCHAIN_ENV : {}) };
+  const env: ChildEnv = { ...process.env, ...(process.env.REVIEWTRAIL_TEST_SANDBOX ? SANDBOX_NO_KEYCHAIN_ENV : {}) };
   if (extra) {
     for (const [key, value] of Object.entries(extra)) {
       if (value === undefined) delete env[key];
@@ -60,15 +60,15 @@ export function childEnv(extra?: Readonly<ChildEnv>): ChildEnv {
 }
 
 /**
- * Whether this process runs inside an agent Plannotator's Ask AI started:
- * `PLANNOTATOR_ASK_AI_CHILD` is exactly "1" (set by `askAiChildEnv` in
- * packages/ai/providers/ask-ai-env.ts). There, Plannotator's own integration
+ * Whether this process runs inside an agent ReviewTrail's Ask AI started:
+ * `REVIEWTRAIL_ASK_AI_CHILD` is exactly "1" (set by `askAiChildEnv` in
+ * packages/ai/providers/ask-ai-env.ts). There, ReviewTrail's own integration
  * stands down: the Inbox MCP shim lists no tools, the plan-review hook exits
  * 0, and the OpenCode plugin registers nothing. Any other value, or none, is
  * a person's session and changes nothing.
  */
 export function isAskAiChild(env: Readonly<ChildEnv> = process.env): boolean {
-  return env.PLANNOTATOR_ASK_AI_CHILD === "1";
+  return env.REVIEWTRAIL_ASK_AI_CHILD === "1";
 }
 
 /**

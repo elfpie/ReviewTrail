@@ -5,7 +5,7 @@ import type { ThemeHalf, ThemeInfo } from '../utils/themeRegistry';
 import { useThemePaletteHalves } from '../hooks/useThemePaletteHalves';
 import { configStore } from '../config/configStore';
 import { useConfigValue } from '../config/useConfig';
-import { FAVICON_STYLE_CHOICES, faviconDataUrl, type FaviconStyle } from '@plannotator/core/favicon';
+import { FAVICON_STYLE_CHOICES, faviconDataUrl, type FaviconStyle } from '@reviewtrail/core/favicon';
 
 interface ThemeTabProps {
   onPreview?: () => void;

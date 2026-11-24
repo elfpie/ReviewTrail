@@ -9,9 +9,9 @@ import { join } from "path";
 import { mkdirSync, writeFileSync } from "fs";
 import type { PRRuntime, PRMetadata, PRContext, PRReviewFileComment, PRReviewFileLevelComment, PRReviewCommentFailure, PRReviewAction, PRReviewSubmissionResult, CommandResult } from "./pr-types";
 import { decodeBase64Bytes, encodeApiFilePath, isNotFoundCommandFailure, type PRFileBytesResult, type PRTreeResult } from "./pr-types";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 import { isAccessRefusal, markedCommentText, PRMarkedForbiddenError, PRMarkedRaceError, spliceMarkedSection, startsWithMarker, type PRMarkedCommentInput, type PRMarkedResult, type PRMarkedSectionInput } from "./pr-marked";
-import { diffHunkLines, parseDiffToFiles } from "@plannotator/core/diff-files";
+import { diffHunkLines, parseDiffToFiles } from "@reviewtrail/core/diff-files";
 import { readGlVersionAt } from "./pr-gitlab-versions";
 import { foldFileLevelComments } from "./pr-github";
 import { postGlFileThreads } from "./pr-gitlab-file-threads";
@@ -900,7 +900,7 @@ export async function submitGlMRReview(
       const msg = commandFailure(noteResult);
       if (threads.posted === 0) throw new Error(`Failed to post MR note: ${msg}`);
       reviewBodyError = `Failed to post MR note: ${msg}`;
-      console.error(`[plannotator] ${reviewBodyError}`);
+      console.error(`[reviewtrail] ${reviewBodyError}`);
     } else {
       reviewBodyPosted = true;
     }
@@ -989,7 +989,7 @@ export async function submitGlMRReview(
       const failed = failedFileComments.map((failure) => failure.comment);
       let savedTo: string | null = null;
       try {
-        const dir = join(getPlannotatorDataDir(), "failed-comments");
+        const dir = join(getReviewTrailDataDir(), "failed-comments");
         mkdirSync(dir, { recursive: true });
         const slug = `${ref.host}-${ref.projectPath.replace(/\//g, "_")}-mr${ref.iid}-${Date.now()}`;
         savedTo = join(dir, `${slug}.json`);
@@ -998,7 +998,7 @@ export async function submitGlMRReview(
           JSON.stringify({ ref, headSha, baseSha, startSha, errors, failedComments: failed }, null, 2),
         );
       } catch (writeErr) {
-        console.error(`[plannotator] Failed to persist unposted comments: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`);
+        console.error(`[reviewtrail] Failed to persist unposted comments: ${writeErr instanceof Error ? writeErr.message : String(writeErr)}`);
       }
       recoveryFile = savedTo ?? undefined;
       const suffix = savedTo ? ` (unposted bodies saved to ${savedTo})` : "";
@@ -1015,7 +1015,7 @@ export async function submitGlMRReview(
       // approval request, then return the exact safe retry instead of making
       // callers infer that replaying the original review is safe.
       console.error(
-        `[plannotator] ${errors.length}/${fileComments.length} inline comments failed${suffix}:\n${errors.join("\n")}`,
+        `[reviewtrail] ${errors.length}/${fileComments.length} inline comments failed${suffix}:\n${errors.join("\n")}`,
       );
     }
   }

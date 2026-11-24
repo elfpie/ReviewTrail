@@ -1,1 +1,1 @@
-export * from "@plannotator/core/diff-files";
+export * from "@reviewtrail/core/diff-files";

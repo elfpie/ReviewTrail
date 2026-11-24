@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import type { AIChatEntry } from '../hooks/useAIChat';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 
 mock.module('../workerPool', () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,

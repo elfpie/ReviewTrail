@@ -97,7 +97,7 @@ describe("composePlanDeniedMessage (plan.answered)", () => {
     // The [x] = settled convention is what makes an answer survive the resubmit.
     expect(DEFAULT_PLAN_ANSWERED_PROMPT).toContain("- [x]");
     expect(DEFAULT_PLAN_ANSWERED_PROMPT).toContain("{{planFileRule}}");
-    const result = getPlanAnsweredPrompt("pi", {}, { ...vars, planFileRule: buildPlanFileRule("plannotator_submit_plan", "/p/plan.md") });
+    const result = getPlanAnsweredPrompt("pi", {}, { ...vars, planFileRule: buildPlanFileRule("reviewtrail_submit_plan", "/p/plan.md") });
     expect(result).toContain("/p/plan.md");
   });
 
@@ -201,7 +201,7 @@ describe("getPlanDeniedPrompt", () => {
 
   test("output is identical across runtimes modulo toolName (parity)", () => {
     const normalize = (s: string) =>
-      s.replace(/ExitPlanMode|submit_plan|exit_plan_mode|plannotator_submit_plan/g, "TOOL");
+      s.replace(/ExitPlanMode|submit_plan|exit_plan_mode|reviewtrail_submit_plan/g, "TOOL");
 
     const make = (rt: PromptRuntime) => normalize(getPlanDeniedPrompt(rt, {}, {
       toolName: getPlanToolName(rt),
@@ -569,11 +569,11 @@ describe("backward compatibility", () => {
 
   test("planDenyFeedback() with planFilePath produces same output", () => {
     const direct = getPlanDeniedPrompt(null, undefined, {
-      toolName: "plannotator_submit_plan",
-      planFileRule: buildPlanFileRule("plannotator_submit_plan", "plans/auth.md"),
+      toolName: "reviewtrail_submit_plan",
+      planFileRule: buildPlanFileRule("reviewtrail_submit_plan", "plans/auth.md"),
       feedback: "Fix it",
     });
-    expect(planDenyFeedback("Fix it", "plannotator_submit_plan", {
+    expect(planDenyFeedback("Fix it", "reviewtrail_submit_plan", {
       planFilePath: "plans/auth.md",
     })).toBe(direct);
   });
@@ -754,7 +754,7 @@ describe("getPlanToolName", () => {
     expect(getPlanToolName("claude-code")).toBe("ExitPlanMode");
     expect(getPlanToolName("opencode")).toBe("submit_plan");
     expect(getPlanToolName("copilot-cli")).toBe("exit_plan_mode");
-    expect(getPlanToolName("pi")).toBe("plannotator_submit_plan");
+    expect(getPlanToolName("pi")).toBe("reviewtrail_submit_plan");
     expect(getPlanToolName("gemini-cli")).toBe("exit_plan_mode");
     // oh-my-pi has no planning integration yet; this entry only keeps the
     // Claude Code convention as its fallback until one lands.

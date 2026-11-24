@@ -1,10 +1,10 @@
-import type { PlannotatorConfig } from "../config";
+import type { ReviewTrailConfig } from "../config";
 import { tailnetFetchSiteAllowed } from "./tailnet";
 
 export const CF_ACCESS_JWT_HEADER = "cf-access-jwt-assertion";
 export const CF_EDGE_HEADERS = [CF_ACCESS_JWT_HEADER, "cf-connecting-ip", "cf-ray", "cf-access-authenticated-user-email", "cf-ipcountry", "cf-visitor"] as const;
-export const DOOR_SECRET_HEADER = "plannotator-door";
-export const CF_ACCESS_ENV = "PLANNOTATOR_INBOX_CF_ACCESS";
+export const DOOR_SECRET_HEADER = "reviewtrail-door";
+export const CF_ACCESS_ENV = "REVIEWTRAIL_INBOX_CF_ACCESS";
 
 export interface CfAccessStored {
   on?: boolean;
@@ -44,7 +44,7 @@ export function parseCfAccessEnv(env: NodeJS.ProcessEnv = process.env): boolean 
   return undefined;
 }
 
-export function storedCfAccess(config: PlannotatorConfig): CfAccessStored | null {
+export function storedCfAccess(config: ReviewTrailConfig): CfAccessStored | null {
   const value = (config as { inboxCloudflareAccess?: unknown }).inboxCloudflareAccess;
   return value && typeof value === "object" && !Array.isArray(value) ? (value as CfAccessStored) : null;
 }
@@ -94,7 +94,7 @@ export function parseCfAccessSettings(stored: CfAccessStored, forbiddenPort: (po
 }
 
 export function resolveCfAccess(
-  config: PlannotatorConfig,
+  config: ReviewTrailConfig,
   env: NodeJS.ProcessEnv = process.env,
   forbiddenPort: (port: number) => boolean = () => false,
 ): CfAccessResolution {

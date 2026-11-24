@@ -34,7 +34,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { FileDiff as PierreFileDiff, getSingularPatch, processFile } from '@pierre/diffs';
 import { CodeView } from '@pierre/diffs/react';
 
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 mock.module('../workerPool', () => ({
   useIsWorkerPoolReadyOrDisabled: () => true,

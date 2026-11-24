@@ -3,7 +3,7 @@
  *
  * These handlers are provider-agnostic — they work with whatever AIProvider
  * is registered in the provided ProviderRegistry. They're designed to be
- * mounted into any Plannotator server (plan review, code review, annotate).
+ * mounted into any ReviewTrail server (plan review, code review, annotate).
  *
  * Endpoints:
  *   POST /api/ai/session       — Create or fork an AI session
@@ -15,7 +15,7 @@
  *   POST /api/ai/bridge/event  — "Ask this session" pull bridge: host progress events
  */
 
-import { resolveModelChoice } from "@plannotator/core/model-catalog";
+import { resolveModelChoice } from "@reviewtrail/core/model-catalog";
 import type { AIContext, AIMessage, AIProvider, CreateSessionOptions } from "./types.ts";
 import type { ProviderRegistry } from "./provider.ts";
 import type { SessionManager } from "./session-manager.ts";

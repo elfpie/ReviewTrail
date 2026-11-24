@@ -29,7 +29,7 @@ export const INBOX_QWEN_NAME = "Qwen Code";
 /**
  * Qwen Code's MCP client names (`initialize`'s `clientInfo.name`): a session
  * connects as `qwen-cli-mcp-client-<server name>`
- * (`qwen-cli-mcp-client-plannotator-inbox` here); its older one-shot
+ * (`qwen-cli-mcp-client-reviewtrail-inbox` here); its older one-shot
  * connection is `qwen-code-mcp-client`.
  */
 export const INBOX_QWEN_MCP_CLIENT_PREFIX = "qwen-cli-mcp-client-";

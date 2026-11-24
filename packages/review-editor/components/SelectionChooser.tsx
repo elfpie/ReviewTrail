@@ -1,7 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useVisibleViewportBounds, hasPrimaryCoarsePointer } from '@plannotator/ui/hooks/useViewportEnvironment';
-import { getPageMarks, holdPageMark } from '@plannotator/ui/utils/pageMarks';
+import { useVisibleViewportBounds, hasPrimaryCoarsePointer } from '@reviewtrail/ui/hooks/useViewportEnvironment';
+import { getPageMarks, holdPageMark } from '@reviewtrail/ui/utils/pageMarks';
 import { linesOffScreen, placeChooser, readSelectedLines, type ReadLines, type SelectionRange } from './selectionChooserPlace';
 
 /** Selected lines, as a host's selection action receives them. */

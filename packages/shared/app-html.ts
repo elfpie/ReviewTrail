@@ -1,7 +1,7 @@
 /**
  * Negotiated compression for the single-file app HTML (#1617).
  *
- * Every Plannotator server answers its SPA catch-all with the app page, and
+ * Every ReviewTrail server answers its SPA catch-all with the app page, and
  * the plan and review pages with the code-split chunks packed behind them
  * (./packed-app). Over a slow tunnel the bytes are the load time, so a session
  * reachable over a network sends the page and its text chunks brotli- or
@@ -13,7 +13,7 @@
  * `node:zlib` is used, which both runtimes provide.
  *
  * Which sessions compress (the `compress` argument): remote mode
- * (PLANNOTATOR_REMOTE or SSH detection) and `--tailscale`-published sessions,
+ * (REVIEWTRAIL_REMOTE or SSH detection) and `--tailscale`-published sessions,
  * i.e. exactly the sessions whose browser can be on another device. A plain
  * local session never compresses and its response is unchanged, headers
  * included: on loopback the transfer is free, and measured cold loads were
@@ -26,7 +26,7 @@
  * also to http://localhost / 127.0.0.1). Measured with Playwright: Chromium to
  * http://<LAN IP> sends `gzip, deflate`; WebKit sends `gzip, deflate` to every
  * plain-http origin. So:
- * - direct remote mode (http://<host>:19432, PLANNOTATOR_URL_HOST) is served
+ * - direct remote mode (http://<host>:19432, REVIEWTRAIL_URL_HOST) is served
  *   GZIP in practice, from every browser;
  * - `--tailscale` (HTTPS through `tailscale serve`) is served brotli;
  * - remote mode reached through an SSH port forward on localhost is served
@@ -241,7 +241,7 @@ export async function prepareAppHtml(
         },
       };
     } catch (err) {
-      console.error("[plannotator] App HTML compression failed; serving uncompressed:", err);
+      console.error("[reviewtrail] App HTML compression failed; serving uncompressed:", err);
     }
   }
   return {

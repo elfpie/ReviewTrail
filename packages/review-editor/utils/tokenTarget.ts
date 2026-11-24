@@ -1,5 +1,5 @@
 import type { DiffTokenEventBaseProps } from '@pierre/diffs';
-import type { CodeNavRequest } from '@plannotator/shared/code-nav';
+import type { CodeNavRequest } from '@reviewtrail/shared/code-nav';
 import { buildCodeNavRequest, buildTokenHoverRequest } from './buildCodeNavRequest';
 
 /**

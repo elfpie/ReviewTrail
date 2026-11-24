@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { FileKind } from '@plannotator/core/file-kind';
+import type { FileKind } from '@reviewtrail/core/file-kind';
 import type { DiffFile } from './types';
 import { FileKindIcon } from './FileKindIcon';
 import { useGuideHost } from './host';

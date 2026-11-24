@@ -2,8 +2,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync, realpathSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { parseDiffToFiles } from "@plannotator/core/diff-files";
-import { getPlannotatorDataDir } from "./data-dir";
+import { parseDiffToFiles } from "@reviewtrail/core/diff-files";
+import { getReviewTrailDataDir } from "./data-dir";
 import { parseWorktreeDiffType, type ReviewGitRuntime } from "./review-core";
 
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -114,7 +114,7 @@ function canonicalPath(path: string): string {
 }
 
 function recordPath(snapshot: ReviewProgressSnapshot, path: string): string {
-  return join(getPlannotatorDataDir(), "review-progress", snapshot.key, `${hash(path)}.json`);
+  return join(getReviewTrailDataDir(), "review-progress", snapshot.key, `${hash(path)}.json`);
 }
 
 export function loadReviewProgress(snapshot: ReviewProgressSnapshot, platformViewed: string[] = []) {
@@ -162,7 +162,7 @@ export function saveReviewProgress(snapshot: ReviewProgressSnapshot, changes: Re
   for (const change of changes) {
     const file = recordPath(snapshot, change.path);
     const tmp = `${file}.${randomUUID()}.tmp`;
-    mkdirSync(join(getPlannotatorDataDir(), "review-progress", snapshot.key), { recursive: true });
+    mkdirSync(join(getReviewTrailDataDir(), "review-progress", snapshot.key), { recursive: true });
     try {
       const record: ViewedRecord = {
         v: 1, path: change.path, fingerprint: change.fingerprint,
@@ -203,7 +203,7 @@ export async function handleReviewProgress(input: {
     saveReviewProgress(snapshot, body.changes);
     return { status: 200, body: { ok: true } };
   } catch (error) {
-    console.error("[plannotator] Could not save review progress:", error);
+    console.error("[reviewtrail] Could not save review progress:", error);
     return { status: 500, body: { error: "Could not save review progress" } };
   }
 }

@@ -14,7 +14,7 @@
  *  - weekly downloads: `GET <downloads>/downloads/point/last-week/<a,b,c>`
  *    (bulk for unscoped names; npm refuses scoped names in bulk).
  */
-import type { PackageMetadata } from "@plannotator/core/package-changes";
+import type { PackageMetadata } from "@reviewtrail/core/package-changes";
 
 export const NPM_REGISTRY = "https://registry.npmjs.org";
 export const NPM_API = "https://api.npmjs.org";
@@ -308,7 +308,7 @@ async function getJson(fetchImpl: typeof fetch, url: string): Promise<unknown | 
   try {
     res = await fetchImpl(url, {
       signal: AbortSignal.timeout(TIMEOUT_MS),
-      headers: { accept: "application/json", "user-agent": "plannotator-review" },
+      headers: { accept: "application/json", "user-agent": "reviewtrail-review" },
     });
   } catch (err) {
     throw new LookupError(true, err instanceof Error && err.name === "TimeoutError" ? "timed out" : "offline");
@@ -403,8 +403,8 @@ export async function lookupPackages(
 ): Promise<PackageLookupResult> {
   const env = deps.env ?? {};
   const fetchImpl = deps.fetchImpl ?? fetch;
-  const registry = baseUrl(env.PLANNOTATOR_PACKAGE_REGISTRY_URL, NPM_REGISTRY);
-  const api = baseUrl(env.PLANNOTATOR_PACKAGE_DOWNLOADS_URL, NPM_API);
+  const registry = baseUrl(env.REVIEWTRAIL_PACKAGE_REGISTRY_URL, NPM_REGISTRY);
+  const api = baseUrl(env.REVIEWTRAIL_PACKAGE_DOWNLOADS_URL, NPM_API);
   const results: PackageMetadata[] = requests.map((r) => ({ name: r.name, version: r.version, status: "ok" }));
   let offline = false;
   let failure: string | undefined;

@@ -1,14 +1,14 @@
 /**
  * "Open no browser" for tests and dev scripts: the value to give
- * PLANNOTATOR_BROWSER so that a session's openBrowser() runs a program that
+ * REVIEWTRAIL_BROWSER so that a session's openBrowser() runs a program that
  * exits at once and opens nothing.
  *
- * Why not `PLANNOTATOR_BROWSER=none`: a current build opens nothing for it
+ * Why not `REVIEWTRAIL_BROWSER=none`: a current build opens nothing for it
  * (packages/shared/browser-intent.ts), but a binary from before that change
  * read `none`, `true`, `false`, `:`, `0` and `1` as "no browser configured"
  * (#756) and fell through to the system default: `open <url>` on macOS,
  * `xdg-open` on Linux. Tests can reach such a binary (the version matrix, an
- * older installed `plannotator`), and a bug in the "none" handling itself
+ * older installed `reviewtrail`), and a bug in the "none" handling itself
  * would do the same, so a test that sets `none` could open real tabs on the
  * developer's screen. tests/no-browser-sentinel.test.ts fails on any test or
  * script that does, except a line marked as testing that handling.
@@ -43,7 +43,7 @@ function resolveNoBrowser(): string {
     const root = process.env.SystemRoot || process.env.windir || "C:\\Windows";
     const whoami = join(root, "System32", "whoami.exe");
     if (isExecutable(whoami)) return whoami;
-    throw new Error(`tests/helpers/no-browser.ts: ${whoami} not found; no no-op program to give PLANNOTATOR_BROWSER.`);
+    throw new Error(`tests/helpers/no-browser.ts: ${whoami} not found; no no-op program to give REVIEWTRAIL_BROWSER.`);
   }
   for (const candidate of ["/usr/bin/true", "/bin/true"]) {
     if (isExecutable(candidate)) return candidate;
@@ -54,8 +54,8 @@ function resolveNoBrowser(): string {
     if (isExecutable(candidate)) return candidate;
   }
   // Never fall back to a sentinel: that is the bug this file exists to avoid.
-  throw new Error("tests/helpers/no-browser.ts: no `true` executable found; no no-op program to give PLANNOTATOR_BROWSER.");
+  throw new Error("tests/helpers/no-browser.ts: no `true` executable found; no no-op program to give REVIEWTRAIL_BROWSER.");
 }
 
-/** Set PLANNOTATOR_BROWSER to this in every test and script that must open no browser. */
+/** Set REVIEWTRAIL_BROWSER to this in every test and script that must open no browser. */
 export const NO_BROWSER: string = resolveNoBrowser();

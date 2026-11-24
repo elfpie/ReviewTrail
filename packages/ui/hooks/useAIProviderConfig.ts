@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Origin } from '@plannotator/core/agents';
+import type { Origin } from '@reviewtrail/core/agents';
 import {
   getAIProviderSettings,
   resolveAIProviderSelection,

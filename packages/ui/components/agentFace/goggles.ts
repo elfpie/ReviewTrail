@@ -1,5 +1,5 @@
 /**
- * The Plannotator goggles' frame, one even-odd path in a 2048 grid (drawn at scale 0.5 in a 1024 one), and the
+ * The ReviewTrail goggles' frame, one even-odd path in a 2048 grid (drawn at scale 0.5 in a 1024 one), and the
  * lenses and mouth in that 1024 grid. The Agents heading's mark (GogglesMark) and the Glass faces (glassArt.ts) draw
  * the same shapes.
  */

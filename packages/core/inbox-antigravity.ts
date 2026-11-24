@@ -20,7 +20,7 @@
  * and the IDE publish both in `<data folder>/daemon/hub_<port>.json`. The CLI
  * does not: they exist only in the environment of a command the agent runs,
  * so the agent hands them over once per agy launch with
- * `plannotator inbox antigravity` (INBOX_ANTIGRAVITY_LINK_COMMAND).
+ * `reviewtrail inbox antigravity` (INBOX_ANTIGRAVITY_LINK_COMMAND).
  */
 
 /** The host id an Antigravity conversation is recorded under. */
@@ -35,7 +35,7 @@ export const INBOX_ANTIGRAVITY_ROOT_META_KEY = "antigravity.google/root_conversa
 export const INBOX_ANTIGRAVITY_ARTIFACTS_META_KEY = "antigravity.google/artifacts_dir";
 
 /** The command the agent runs in its own shell to hand its conversation's agent API to the Inbox. */
-export const INBOX_ANTIGRAVITY_LINK_COMMAND = "plannotator inbox antigravity";
+export const INBOX_ANTIGRAVITY_LINK_COMMAND = "reviewtrail inbox antigravity";
 
 /** Antigravity's products, by their data folder under `~/.gemini`. */
 export type InboxAntigravityProduct = "cli" | "app" | "ide";
@@ -99,7 +99,7 @@ export function isAntigravityToken(value: unknown): value is string {
 /** Where under `inbox/` a CLI conversation's hand-over is kept (`<conversation id>.json`, 0600). */
 export const INBOX_ANTIGRAVITY_LINKS_FOLDER = ["antigravity", "links"] as const;
 
-/** What a CLI conversation hands over (`plannotator inbox antigravity`). The token is a secret. */
+/** What a CLI conversation hands over (`reviewtrail inbox antigravity`). The token is a secret. */
 export interface InboxAntigravityLink {
   conversation: string;
   address: string;

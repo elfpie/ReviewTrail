@@ -10,7 +10,7 @@
  *
  * This module is the alias target that removes it. A host redirects the
  * `katex` specifier, for importers inside the `mermaid` package ONLY, to
- * `@plannotator/ui/utils/mermaid-math-slot` (HANDOFF.md "Lazy renderers and
+ * `@reviewtrail/ui/utils/mermaid-math-slot` (HANDOFF.md "Lazy renderers and
  * eager entries", item 2). Its default export has the one method Mermaid
  * calls, `renderToString`, and delegates to whatever renderer fills the slot
  * in `./math`: the host's loader result, or the eager KaTeX registration.
@@ -25,7 +25,7 @@
  * failed, and the error below surfaces in the block's error panel with the
  * source, instead of a silently unlabeled node.
  *
- * Nothing imports this module by default: Plannotator never aliases, so its
+ * Nothing imports this module by default: ReviewTrail never aliases, so its
  * Mermaid keeps its direct KaTeX (inlined by the single-file builds), and
  * this file must never import `katex` itself, or the redirect would re-create
  * the chunk it exists to remove (`tests/entry-assets.test.ts` pins that).

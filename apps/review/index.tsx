@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from '@plannotator/review-editor';
-import { ReviewWorkerPoolProvider } from '@plannotator/review-editor/worker-pool';
-import '@plannotator/review-editor/styles';
-import '@plannotator/review-editor/tree-styles';
+import App from '@reviewtrail/review-editor';
+import { ReviewWorkerPoolProvider } from '@reviewtrail/review-editor/worker-pool';
+import '@reviewtrail/review-editor/styles';
+import '@reviewtrail/review-editor/tree-styles';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

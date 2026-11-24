@@ -24,7 +24,7 @@ import { compressAppText, negotiateAppHtmlEncoding, prepareAppHtml } from "./app
 // update) serves the whole file as the page, and the browser then takes
 // everything after the marker as hidden text instead of rendering the index
 // and the chunks. The page itself says what happened (build/pack-app.ts).
-export const PACKED_ASSETS_MARKER = "<plaintext hidden><!--plannotator:packed-assets-->";
+export const PACKED_ASSETS_MARKER = "<plaintext hidden><!--reviewtrail:packed-assets-->";
 
 /** Every packed asset lives here (Vite's `assetsDir`); the build refuses any other path. */
 export const PACKED_ASSET_ROUTE_PREFIX = "/assets/";
@@ -151,7 +151,7 @@ export function openPackedApp(bundle: string, options: { page?: (html: string) =
       try {
         bytes = await body(pathname, entry, encoding);
       } catch (err) {
-        console.error("[plannotator] App chunk compression failed; serving uncompressed:", err);
+        console.error("[reviewtrail] App chunk compression failed; serving uncompressed:", err);
         encoding = "identity";
         bytes = await body(pathname, entry, encoding);
       }

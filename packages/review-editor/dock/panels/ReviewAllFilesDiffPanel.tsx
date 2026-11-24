@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
 import type { IDockviewPanelProps } from 'dockview-react';
-import { LazyBlockBoundary } from '@plannotator/ui/components/LazyBlockBoundary';
+import { LazyBlockBoundary } from '@reviewtrail/ui/components/LazyBlockBoundary';
 import { MarkdownPreviewFailed } from '../../components/DiffViewer';
 import { AllFilesCodeView } from '../../components/AllFilesCodeView';
 import { CommitDescriptionHeader } from '../../components/CommitDescriptionHeader';
@@ -12,7 +12,7 @@ import { peekImageSizes, useImageSizesReady } from '../../components/image-diff/
 import { imagePreviewHeight } from '../../components/image-diff/previewHeight';
 import { imageDiffSettings } from '../../components/image-diff/imageDiffSettings';
 import { COMPACT_FILE_HEADER_HEIGHT, FILE_HEADER_HEIGHT } from '../../utils/diffChromeMetrics';
-import { isImagePreviewCandidate } from '@plannotator/core/diff-paths';
+import { isImagePreviewCandidate } from '@reviewtrail/core/diff-paths';
 import { MarkdownViewMenu } from '../../components/MarkdownViewMenu';
 import { PackageChangesCard } from '../../components/PackageChangesCard';
 import { useCommitFolding } from './commitFolding';

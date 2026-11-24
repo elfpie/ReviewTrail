@@ -17,14 +17,14 @@ import {
   writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
-import { getPlannotatorDataDir } from "./data-dir";
+import { getReviewTrailDataDir } from "./data-dir";
 
 const DEFAULT_STALE_AFTER_MS = 30 * 60 * 1_000;
 const DEFAULT_WAIT_TIMEOUT_MS = 30 * 60 * 1_000;
 const DEFAULT_POLL_INTERVAL_MS = 250;
 
 export interface CallFlowInstallLockOptions {
-  /** Test seam; production always uses the shared Plannotator data dir. */
+  /** Test seam; production always uses the shared ReviewTrail data dir. */
   readonly lockPath?: string;
   readonly staleAfterMs?: number;
   readonly waitTimeoutMs?: number;
@@ -54,7 +54,7 @@ export async function withCallFlowInstallLock<T>(
   options: CallFlowInstallLockOptions = {},
 ): Promise<T> {
   const lockPath = options.lockPath
-    ?? join(getPlannotatorDataDir(), "vendor", "call-flow", ".install.lock");
+    ?? join(getReviewTrailDataDir(), "vendor", "call-flow", ".install.lock");
   const staleAfterMs = options.staleAfterMs ?? DEFAULT_STALE_AFTER_MS;
   const waitTimeoutMs = options.waitTimeoutMs ?? DEFAULT_WAIT_TIMEOUT_MS;
   const pollIntervalMs = options.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;

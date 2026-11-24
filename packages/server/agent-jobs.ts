@@ -8,9 +8,9 @@
  * Server-agnostic: takes a mode, server URL getter, and cwd getter.
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
-import { askAiChildEnv } from "@plannotator/ai/providers/ask-ai-env";
-import { killWindowsProcessTree, planAgentJobSpawn } from "@plannotator/ai/providers/command-path";
+import { childEnv } from "@reviewtrail/shared/child-env";
+import { askAiChildEnv } from "@reviewtrail/ai/providers/ask-ai-env";
+import { killWindowsProcessTree, planAgentJobSpawn } from "@reviewtrail/ai/providers/command-path";
 import { resolve as resolvePath } from "node:path";
 import { allowedToolsOf, CLAUDE_SHELL_BLOCKED_WARNING, detectClaudeShellBlocked, disallowedToolsOf, formatClaudeLogEvent } from "./claude-review";
 import {
@@ -33,16 +33,16 @@ import {
   serializeAgentSSEEvent,
   AGENT_HEARTBEAT_COMMENT,
   AGENT_HEARTBEAT_INTERVAL_MS,
-} from "@plannotator/shared/agent-jobs";
-import { resolveGuideLaunchInstructions } from "@plannotator/shared/guide-instructions-store";
-import { gitColorFreeEnvironment } from "@plannotator/shared/review-core";
-import { ghAccountEnvForPRUrl } from "@plannotator/shared/pr-github-account";
-import type { GuideLaunchReview } from "@plannotator/shared/guide-format";
-import { crossOriginRefusalBody } from "@plannotator/shared/request-origin";
+} from "@reviewtrail/shared/agent-jobs";
+import { resolveGuideLaunchInstructions } from "@reviewtrail/shared/guide-instructions-store";
+import { gitColorFreeEnvironment } from "@reviewtrail/shared/review-core";
+import { ghAccountEnvForPRUrl } from "@reviewtrail/shared/pr-github-account";
+import type { GuideLaunchReview } from "@reviewtrail/shared/guide-format";
+import { crossOriginRefusalBody } from "@reviewtrail/shared/request-origin";
 import { isSameOriginRequest } from "./request-origin-guard";
-import { checkServerSession, serverSessionMismatchBody } from "@plannotator/shared/server-session";
+import { checkServerSession, serverSessionMismatchBody } from "@reviewtrail/shared/server-session";
 
-export type { AgentJobInfo, AgentJobEvent, AgentCapabilities } from "@plannotator/shared/agent-jobs";
+export type { AgentJobInfo, AgentJobEvent, AgentCapabilities } from "@reviewtrail/shared/agent-jobs";
 
 // ---------------------------------------------------------------------------
 // Handler interface
@@ -370,7 +370,7 @@ export function createAgentJobHandler(options: AgentJobHandlerOptions): AgentJob
         stdout: captureStdout ? "pipe" : "ignore",
         stderr: "pipe",
         env: {
-          // The live env with Plannotator's own integration off (the Inbox MCP,
+          // The live env with ReviewTrail's own integration off (the Inbox MCP,
           // the agent tool, the plan and Stop hooks). No job uses it: each
           // returns its result on stdout or in its output file (ask-ai-env.ts).
           ...askAiChildEnv(),
@@ -384,8 +384,8 @@ export function createAgentJobHandler(options: AgentJobHandlerOptions): AgentJob
           // the server's directory instead of the review's (PR pool checkouts,
           // worktrees, workspace roots). A shell sets PWD to its cwd; so do we.
           PWD: resolvePath(spawnCwd),
-          PLANNOTATOR_AGENT_SOURCE: source,
-          PLANNOTATOR_API_URL: getServerUrl(),
+          REVIEWTRAIL_AGENT_SOURCE: source,
+          REVIEWTRAIL_API_URL: getServerUrl(),
           // A GitHub PR the active gh account can't see runs as the signed-in
           // account chosen for its repo (#2157); a job for any other PR gets nothing.
           ...ghAccountEnvForPRUrl(spawnOptions?.prUrl),

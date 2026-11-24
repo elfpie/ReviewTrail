@@ -5,7 +5,7 @@ import type {
   ConventionalLabel,
   SelectedLineRange,
   TokenAnnotationMeta,
-} from '@plannotator/ui/types';
+} from '@reviewtrail/ui/types';
 import type { DiffFile } from '../types';
 import type {
   LineAnnotationComposeRequest,

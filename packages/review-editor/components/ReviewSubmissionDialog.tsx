@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import { getPRPlatformCapabilities, type Platform, type PRReviewAction, type PRReviewFileLevelComment, type PRReviewSubmissionPartial } from '@plannotator/shared/pr-types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import { getPRPlatformCapabilities, type Platform, type PRReviewAction, type PRReviewFileLevelComment, type PRReviewSubmissionPartial } from '@reviewtrail/shared/pr-types';
 import { CopyButton } from './CopyButton';
 import {
   exportReviewFeedback,
@@ -9,14 +9,14 @@ import {
   formatConventionalPrefix,
   OUTDATED_ANNOTATION_LABEL,
 } from '../utils/exportFeedback';
-import { useCompactTouchLayout } from '@plannotator/ui/hooks/useIsMobile';
-import { canPostInline } from '@plannotator/ui/utils/codeAnnotationAnchor';
+import { useCompactTouchLayout } from '@reviewtrail/ui/hooks/useIsMobile';
+import { canPostInline } from '@reviewtrail/ui/utils/codeAnnotationAnchor';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from '@plannotator/ui/components/ui/dialog';
+} from '@reviewtrail/ui/components/ui/dialog';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -701,7 +701,7 @@ export function ReviewSubmissionDialog({
                         </div>
                         <div className="mt-1 text-muted-foreground">
                           {recoveryPersistsRefresh
-                            ? 'You can close and reopen this dialog or refresh this tab; Plannotator keeps this narrowed retry in tab-scoped recovery storage.'
+                            ? 'You can close and reopen this dialog or refresh this tab; ReviewTrail keeps this narrowed retry in tab-scoped recovery storage.'
                             : 'You can close and reopen this dialog on this page. Keep the page open because tab-scoped refresh recovery is unavailable.'}
                         </div>
                         {target.partial.recoveryFile && (

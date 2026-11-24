@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DiagramKind } from '@plannotator/core/diagram-anchor';
+import type { DiagramKind } from '@reviewtrail/core/diagram-anchor';
 import type { Block } from '../../types';
 import { sourceLineAttrs } from '../../utils/sourceLineAttrs';
 

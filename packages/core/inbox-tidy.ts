@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox: Tidy (owner-approved design, 2026-10-28). One action the
+ * ReviewTrail Inbox: Tidy (owner-approved design, 2026-10-28). One action the
  * person starts from the list header asks every live agent that may owe them
  * something to tidy its own threads, in one turn each: send what it finished
  * but held back, answer what the person wrote, withdraw stale questions, mark
@@ -26,20 +26,20 @@ export const INBOX_TIDY_COOLDOWN_MS = 30 * 60_000;
 export const INBOX_TIDY_RUN_SHOWN_MS = 24 * 60 * 60_000;
 
 /**
- * The first line of a Tidy note's body, under the wake's `Plannotator Inbox:
+ * The first line of a Tidy note's body, under the wake's `ReviewTrail Inbox:
  * Tidy (<id>)` line: who asks, and the spirit of it. The body carries it so
  * an older connection, which words the note as a New message, still reads
  * what it is.
  */
 export const INBOX_TIDY_INSTRUCTION =
-  "The person asked you, from the Plannotator Inbox, to tidy your threads there. Below is what the Inbox can see in each. Do only what still makes sense; where a thread is in order, leave it and send nothing.";
+  "The person asked you, from the ReviewTrail Inbox, to tidy your threads there. Below is what the Inbox can see in each. Do only what still makes sense; where a thread is in order, leave it and send nothing.";
 
 /**
  * The first line of a Tidy the person ran on threads they picked (approval "inbox-multi-select"), in place of
  * INBOX_TIDY_INSTRUCTION: every picked thread the session owns is listed, flagged or not.
  */
 export const INBOX_TIDY_PICKED_INSTRUCTION =
-  "The person picked these threads of yours in the Plannotator Inbox and asked you to tidy them. Read each one (read_thread with the id given), then do only what still makes sense; where a thread is in order, leave it and send nothing.";
+  "The person picked these threads of yours in the ReviewTrail Inbox and asked you to tidy them. Read each one (read_thread with the id given), then do only what still makes sense; where a thread is in order, leave it and send nothing.";
 
 /** The most a Tidy's own instructions may hold: one line, cut to this many characters. */
 export const INBOX_TIDY_WORDS_MAX = 500;
@@ -72,7 +72,7 @@ export function isInboxCombineRun(id: string | null | undefined): boolean {
 
 /** The paragraph under the instruction: what tidying can mean, and how to write back. */
 export const INBOX_TIDY_HOW =
-  "That can mean sending what you finished but held back, answering what the person wrote, withdrawing a question that no longer applies (its id in `supersedes`, with one line why), marking an action item you saw done (`done`), or moving a Board card whose work moved on. Check your own context too for anything you said you would send. Write in each thread with reply_to set to the id given. If you have a shell, do all of it in one script instead of one call at a time: `plannotator inbox call <action> '<json>'` runs any Inbox action (`card '{\"op\":\"list\"}'`, `send_message`, …) and prints its result as JSON, and `-` in place of the JSON reads it from stdin. Print only what you need back, and give each send_message and card create an idempotency_key, so a rerun cannot post twice. Send no summary.";
+  "That can mean sending what you finished but held back, answering what the person wrote, withdrawing a question that no longer applies (its id in `supersedes`, with one line why), marking an action item you saw done (`done`), or moving a Board card whose work moved on. Check your own context too for anything you said you would send. Write in each thread with reply_to set to the id given. If you have a shell, do all of it in one script instead of one call at a time: `reviewtrail inbox call <action> '<json>'` runs any Inbox action (`card '{\"op\":\"list\"}'`, `send_message`, …) and prints its result as JSON, and `-` in place of the JSON reads it from stdin. Print only what you need back, and give each send_message and card create an idempotency_key, so a rerun cannot post twice. Send no summary.";
 
 /** A session id a command line can carry: what Claude Code, Pi, OpenCode and the shim's `ses_` ids use, and nothing a shell would read. */
 const INBOX_SESSION_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
@@ -83,7 +83,7 @@ export function isInboxSessionId(value: unknown): value is string {
 }
 
 /**
- * The value `plannotator inbox call --session` takes for a session:
+ * The value `reviewtrail inbox call --session` takes for a session:
  * `<host>:<session>`, or the session alone when it has no host. Null for a
  * session id no command line should carry (an agent chose it, and the wake
  * text puts it in a command).
@@ -110,12 +110,12 @@ export function parseInboxSessionRef(value: string): { host: string | null; sess
  * (OpenCode and an MCP-only agent have no session in their shell).
  */
 export function inboxTidySessionLine(ref: string): string {
-  return `In that script, pass \`--session ${ref}\` to every \`plannotator inbox call\`, so it writes as you.`;
+  return `In that script, pass \`--session ${ref}\` to every \`reviewtrail inbox call\`, so it writes as you.`;
 }
 
 /** The line before the Tidy text at the end of an MCP-only agent's next Inbox tool result. */
 export function inboxTidyMcpLine(id: string, label = "Tidy"): string {
-  return `Plannotator Inbox: ${label} (${id}). Finish what this call was for first.`;
+  return `ReviewTrail Inbox: ${label} (${id}). Finish what this call was for first.`;
 }
 
 /** Whether a message is one of the Inbox's Tidy notes. */

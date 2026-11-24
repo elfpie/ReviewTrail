@@ -39,7 +39,7 @@ describe('codeBlockKeepsLayout', () => {
 
   test('lets ordinary code, commands, URLs and prose wrap', () => {
     expect(codeBlockKeepsLayout('function f() {\n    return someCall(a, b, c);\n}')).toBe(false);
-    expect(codeBlockKeepsLayout('bun build apps/hook/server/index.ts --compile --outfile ~/.local/bin/plannotator')).toBe(false);
+    expect(codeBlockKeepsLayout('bun build apps/hook/server/index.ts --compile --outfile ~/.local/bin/reviewtrail')).toBe(false);
     expect(codeBlockKeepsLayout('https://example.com/a/very/long/path?x=1&y=2')).toBe(false);
     expect(codeBlockKeepsLayout('First sentence.  Second sentence!  Third?  Done.')).toBe(false);
     expect(codeBlockKeepsLayout('trailing hard break  \nnext line')).toBe(false);
@@ -55,13 +55,13 @@ describe('fence theme resolution', () => {
   });
 
   test('falls back to the Pierre defaults for unmapped palettes', () => {
-    // The default Plannotator palette has no Shiki counterpart, so it renders
+    // The default ReviewTrail palette has no Shiki counterpart, so it renders
     // in exactly what @pierre/diffs uses when handed no theme at all.
     // A fence draws Pierre's default with its low-contrast colours fixed
     // (fenceSyntaxThemes.ts); the diff pane keeps Pierre's own.
-    expect(resolveSyntaxTheme('plannotator', 'dark')).toBeUndefined();
-    expect(resolveFenceTheme('plannotator', 'dark')).toBe(FENCE_SYNTAX_THEME.dark);
-    expect(resolveFenceTheme('plannotator', 'light')).toBe(FENCE_SYNTAX_THEME.light);
+    expect(resolveSyntaxTheme('reviewtrail', 'dark')).toBeUndefined();
+    expect(resolveFenceTheme('reviewtrail', 'dark')).toBe(FENCE_SYNTAX_THEME.dark);
+    expect(resolveFenceTheme('reviewtrail', 'light')).toBe(FENCE_SYNTAX_THEME.light);
   });
 
   test('falls back per mode when a palette only defines one side', () => {

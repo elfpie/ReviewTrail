@@ -1,4 +1,4 @@
-import type { CodeNavLocation } from '@plannotator/shared/code-nav';
+import type { CodeNavLocation } from '@reviewtrail/shared/code-nav';
 
 /**
  * The one definition a jump goes to (F12, and a Cmd/Ctrl-click on a token):

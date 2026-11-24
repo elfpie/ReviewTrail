@@ -18,8 +18,8 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import { contrastRatio, type Rgb } from '@plannotator/ui/utils/authorColor';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import { contrastRatio, type Rgb } from '@reviewtrail/ui/utils/authorColor';
 import { MarkdownBody } from './MarkdownBody';
 import { FileCommentCard } from './FileCommentBanner';
 

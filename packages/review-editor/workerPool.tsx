@@ -64,7 +64,7 @@ export function useIsWorkerPoolReadyOrDisabled(): boolean {
     if (workerPool == null) return;
     const timeout = setTimeout(() => {
       if (!isReadyRef.current) {
-        console.warn('Plannotator: highlight worker pool not ready after 5s — rendering without waiting.');
+        console.warn('ReviewTrail: highlight worker pool not ready after 5s — rendering without waiting.');
         isReadyRef.current = true;
         setIsReady(true);
       }
@@ -105,7 +105,7 @@ export function useWorkerPoolThemeSync(theme: { dark: string; light: string } | 
       // Un-poison the dedup so a later render retries — otherwise one failed
       // round-trip would pin the pool to the wrong theme for the session.
       if (lastSyncedTheme === key) lastSyncedTheme = '';
-      console.warn('Plannotator: failed to sync highlight theme to worker pool', err);
+      console.warn('ReviewTrail: failed to sync highlight theme to worker pool', err);
     });
   }, [workerPool, theme?.dark, theme?.light]); // eslint-disable-line react-hooks/exhaustive-deps
 }

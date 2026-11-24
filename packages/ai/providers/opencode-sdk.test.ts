@@ -2,7 +2,7 @@
  * Guards for the opencode-serve orphan leak:
  *
  * 1. The provider must spawn its OWN server on an OS-assigned port (port 0),
- *    never share a fixed default port. A shared port made every Plannotator
+ *    never share a fixed default port. A shared port made every ReviewTrail
  *    process attach to the first server spawned; interrupted sessions orphaned
  *    it and later sessions piled unevictable per-directory instances into it.
  * 2. A process "exit" handler must close the spawned server (the CLI routes
@@ -51,9 +51,9 @@ mock.module("@opencode-ai/sdk", () => ({
 			...opts,
 			closed: false,
 			env: {
-				PLANNOTATOR_ASK_AI_CHILD: process.env.PLANNOTATOR_ASK_AI_CHILD,
-				PLANNOTATOR_INBOX_TOOL: process.env.PLANNOTATOR_INBOX_TOOL,
-				PLANNOTATOR_AGENT_TOOL: process.env.PLANNOTATOR_AGENT_TOOL,
+				REVIEWTRAIL_ASK_AI_CHILD: process.env.REVIEWTRAIL_ASK_AI_CHILD,
+				REVIEWTRAIL_INBOX_TOOL: process.env.REVIEWTRAIL_INBOX_TOOL,
+				REVIEWTRAIL_AGENT_TOOL: process.env.REVIEWTRAIL_AGENT_TOOL,
 			},
 		};
 		spawned.push(record);
@@ -117,20 +117,20 @@ describe("OpenCodeProvider server lifecycle", () => {
 		provider.dispose();
 	});
 
-	test("`opencode serve` starts with Plannotator's integration off, and the host's own env is untouched", async () => {
-		const saved = process.env.PLANNOTATOR_INBOX_TOOL;
+	test("`opencode serve` starts with ReviewTrail's integration off, and the host's own env is untouched", async () => {
+		const saved = process.env.REVIEWTRAIL_INBOX_TOOL;
 		// The person turned the Inbox tool on for their own sessions.
-		process.env.PLANNOTATOR_INBOX_TOOL = "1";
+		process.env.REVIEWTRAIL_INBOX_TOOL = "1";
 		try {
 			const provider = makeProvider();
 			await provider.ensureServer();
-			expect(spawned[0]!.env).toEqual({ PLANNOTATOR_ASK_AI_CHILD: "1", PLANNOTATOR_INBOX_TOOL: "0", PLANNOTATOR_AGENT_TOOL: "0" });
-			expect(process.env.PLANNOTATOR_INBOX_TOOL).toBe("1");
-			expect(process.env.PLANNOTATOR_ASK_AI_CHILD).toBeUndefined();
+			expect(spawned[0]!.env).toEqual({ REVIEWTRAIL_ASK_AI_CHILD: "1", REVIEWTRAIL_INBOX_TOOL: "0", REVIEWTRAIL_AGENT_TOOL: "0" });
+			expect(process.env.REVIEWTRAIL_INBOX_TOOL).toBe("1");
+			expect(process.env.REVIEWTRAIL_ASK_AI_CHILD).toBeUndefined();
 			provider.dispose();
 		} finally {
-			if (saved === undefined) delete process.env.PLANNOTATOR_INBOX_TOOL;
-			else process.env.PLANNOTATOR_INBOX_TOOL = saved;
+			if (saved === undefined) delete process.env.REVIEWTRAIL_INBOX_TOOL;
+			else process.env.REVIEWTRAIL_INBOX_TOOL = saved;
 		}
 	});
 

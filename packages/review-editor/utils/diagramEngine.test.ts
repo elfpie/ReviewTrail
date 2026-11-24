@@ -6,7 +6,7 @@
  */
 import { afterEach, describe, expect, test } from 'bun:test';
 import * as React from 'react';
-import * as MathSlot from '@plannotator/ui/utils/math';
+import * as MathSlot from '@reviewtrail/ui/utils/math';
 import {
   __resetDiagramEngineForTests,
   loadDiagramEngine,

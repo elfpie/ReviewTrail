@@ -53,7 +53,7 @@ function inboxAddress(dataDir: string): InboxAddress | null {
   }
 }
 
-const NO_INBOX = { status: 503, json: { error: "The Plannotator Inbox is not running, so no agent can be reached from this review.", code: "inbox_off" } };
+const NO_INBOX = { status: 503, json: { error: "The ReviewTrail Inbox is not running, so no agent can be reached from this review.", code: "inbox_off" } };
 
 const INBOX_LIVE_PATHS = /^\/api\/live\/(state|agents|send|events|reply\/[A-Za-z0-9_]+|resolve\/[A-Za-z0-9_]+|send-now\/[A-Za-z0-9_]+|take-back\/[A-Za-z0-9_]+)$/;
 
@@ -134,10 +134,10 @@ export interface ReviewLiveSession {
 }
 
 export function reviewLiveSessionOf(env: Record<string, string | undefined>): ReviewLiveSession | null {
-  const thread = env.PLANNOTATOR_REVIEW_LIVE_THREAD;
-  const key = env.PLANNOTATOR_REVIEW_LIVE_KEY;
+  const thread = env.REVIEWTRAIL_REVIEW_LIVE_THREAD;
+  const key = env.REVIEWTRAIL_REVIEW_LIVE_KEY;
   if (!thread || !/^[A-Za-z0-9_]+$/.test(thread) || !key) return null;
-  return { thread, key, title: env.PLANNOTATOR_REVIEW_LIVE_TITLE || key };
+  return { thread, key, title: env.REVIEWTRAIL_REVIEW_LIVE_TITLE || key };
 }
 
 export function reviewLiveDecisionWords(result: { approved: boolean; feedback: string; exit?: boolean }): string | null {

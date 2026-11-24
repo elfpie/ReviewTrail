@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { RenderedMarkdown } from '@plannotator/ui/components/RenderedMarkdown';
-import { InlineImageTagsContext } from '@plannotator/ui/components/ImageResolverContext';
-import { CommentPopover } from '@plannotator/ui/components/CommentPopover';
-import { useAnnotationHighlighter } from '@plannotator/ui/hooks/useAnnotationHighlighter';
+import { RenderedMarkdown } from '@reviewtrail/ui/components/RenderedMarkdown';
+import { InlineImageTagsContext } from '@reviewtrail/ui/components/ImageResolverContext';
+import { CommentPopover } from '@reviewtrail/ui/components/CommentPopover';
+import { useAnnotationHighlighter } from '@reviewtrail/ui/hooks/useAnnotationHighlighter';
 import { proxiesGitHubImages, resolvePRImage } from '../utils/prImage';
 import { useReviewState } from '../dock/ReviewStateContext';
 import { renderPRDescriptionVideo } from './PRDescriptionVideo';

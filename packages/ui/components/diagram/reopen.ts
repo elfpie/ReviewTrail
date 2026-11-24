@@ -1,4 +1,4 @@
-import type { DiagramAnchor } from '@plannotator/core/diagram-anchor';
+import type { DiagramAnchor } from '@reviewtrail/core/diagram-anchor';
 
 /**
  * A comment being written that a host kept and asks to put back

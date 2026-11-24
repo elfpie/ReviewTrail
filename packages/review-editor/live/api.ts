@@ -1,5 +1,5 @@
-import { withServerSession } from '@plannotator/ui/utils/serverSession';
-import type { InboxReviewAnchor } from '@plannotator/core/review-threads';
+import { withServerSession } from '@reviewtrail/ui/utils/serverSession';
+import type { InboxReviewAnchor } from '@reviewtrail/core/review-threads';
 import type { LiveAgent, LiveState, LiveTarget } from './model';
 
 export class LiveError extends Error {

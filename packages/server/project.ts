@@ -4,13 +4,13 @@
  * Detects the current project name for tagging plans.
  * Priority: git repo name > directory name > null
  *
- * Pure string functions re-exported from @plannotator/shared/project.
+ * Pure string functions re-exported from @reviewtrail/shared/project.
  * detectProjectName() is Bun-specific (uses Bun.spawn).
  */
 
-import { childEnv } from "@plannotator/shared/child-env";
-import { extractRepoName, extractDirName } from "@plannotator/shared/project";
-export { sanitizeTag, extractRepoName, extractDirName } from "@plannotator/shared/project";
+import { childEnv } from "@reviewtrail/shared/child-env";
+import { extractRepoName, extractDirName } from "@reviewtrail/shared/project";
+export { sanitizeTag, extractRepoName, extractDirName } from "@reviewtrail/shared/project";
 
 /**
  * A git command's stdout, or null when it fails. Bun.spawn rather than Bun

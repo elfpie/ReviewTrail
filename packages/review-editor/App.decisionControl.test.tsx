@@ -34,7 +34,7 @@ import {
   resetStorageBackend,
   setStorageBackend,
   type StorageBackend,
-} from "@plannotator/ui/utils/storage";
+} from "@reviewtrail/ui/utils/storage";
 
 // Vite-only virtual module (`?worker&inline`) — bun cannot resolve it, so the
 // pool hooks are stubbed exactly like AllFilesCodeView.lifecycle.test.tsx does.
@@ -62,13 +62,13 @@ const memoryBackend: StorageBackend = {
  *  mode → token hover → terminal tools) so the header is interactable on
  *  first render. */
 function seedFirstRunSeen(): void {
-  memory.set("plannotator-plan-look-choice-resolved", "true");
-  memory.set("plannotator-announce-tui-herdr-seen", "1");
-  memory.set("plannotator-announce-inbox-seen", "1");
-  memory.set("plannotator-guide-intro-seen", "2");
-  memory.set("plannotator-guide-hint-acked", "true");
-  memory.set("plannotator-edit-mode-announcement-seen", "3");
-  memory.set("plannotator-review-dest-spotlight-seen", "1");
+  memory.set("reviewtrail-plan-look-choice-resolved", "true");
+  memory.set("reviewtrail-announce-tui-herdr-seen", "1");
+  memory.set("reviewtrail-announce-inbox-seen", "1");
+  memory.set("reviewtrail-guide-intro-seen", "2");
+  memory.set("reviewtrail-guide-hint-acked", "true");
+  memory.set("reviewtrail-edit-mode-announcement-seen", "3");
+  memory.set("reviewtrail-review-dest-spotlight-seen", "1");
 }
 
 /** External annotations delivered as the stream's opening snapshot, so a test
@@ -188,7 +188,7 @@ function seedPlatformSession(options?: { selfAuthored?: boolean; gitlab?: boolea
   };
   // The submission's success path opens the PR in a new tab by default;
   // window.open is not a browser here, so keep the toggle off.
-  memory.set("plannotator-platform-open-pr", "false");
+  memory.set("reviewtrail-platform-open-pr", "false");
 }
 
 const PATCH = [
@@ -484,7 +484,7 @@ describe.if(hasDom)("review decision control (agent mode)", () => {
     if (!discardItem) throw new Error("discard menu item not found");
     await act(async () => discardItem.click());
     await settle();
-    if (!document.querySelector('[data-plannotator-confirm-dialog="true"]')) {
+    if (!document.querySelector('[data-reviewtrail-confirm-dialog="true"]')) {
       throw new Error("discard confirm did not open");
     }
 
@@ -1121,7 +1121,7 @@ describe.if(hasDom)("review decision control (platform mode)", () => {
  * looked the same as before the click. It must say the feedback was not sent
  * and offer Retry and Copy feedback, with the review left as it was.
  */
-describe.if(hasDom)("review: a send that does not reach Plannotator", () => {
+describe.if(hasDom)("review: a send that does not reach ReviewTrail", () => {
   // Sonner keeps earlier tests' toasts in its module store, so find this one
   // by its title rather than taking the first toast on the page.
   const failureToast = () =>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { SavedGuideListEntry } from '@plannotator/shared/guide';
+import type { SavedGuideListEntry } from '@reviewtrail/shared/guide';
 
 export interface SavedGuides {
   guides: SavedGuideListEntry[] | null;

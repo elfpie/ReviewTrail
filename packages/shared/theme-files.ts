@@ -1,7 +1,7 @@
 /**
  * Custom themes in the data dir: `<data dir>/themes/<id>.json`, one theme file
- * each (packages/core/theme-file.ts). Written by `plannotator theme add`, read
- * by every server for the page's `/plannotator-themes.js`, and by the Inbox's
+ * each (packages/core/theme-file.ts). Written by `reviewtrail theme add`, read
+ * by every server for the page's `/reviewtrail-themes.js`, and by the Inbox's
  * settings route to accept a custom id.
  *
  * Every read validates again: a file edited by hand, or written by an older or
@@ -25,7 +25,7 @@ import {
   validateThemeFile,
   type CustomThemeInfo,
   type ThemeFile,
-} from "@plannotator/core/theme-file";
+} from "@reviewtrail/core/theme-file";
 
 /** The folder custom themes live in. */
 export function customThemesDir(dataDir: string): string {
@@ -121,7 +121,7 @@ export function saveCustomTheme(dataDir: string, theme: ThemeFile): SaveCustomTh
   const path = join(dir, `${theme.id}.json`);
   const replaced = existsSync(path);
   if (!replaced && listCustomThemes(dataDir).themes.length >= CUSTOM_THEME_LIMIT) {
-    return { ok: false, code: "too_many", message: `${CUSTOM_THEME_LIMIT} custom themes is the most; remove one first (plannotator theme remove <id>).` };
+    return { ok: false, code: "too_many", message: `${CUSTOM_THEME_LIMIT} custom themes is the most; remove one first (reviewtrail theme remove <id>).` };
   }
   // Indented to be read and edited by hand; compact when that would not fit (a theme with many code colour rules).
   const pretty = `${JSON.stringify(checked.theme, null, 2)}\n`;
@@ -179,10 +179,10 @@ function scriptSafeJson(value: unknown): string {
 
 /**
  * The themes script: written into each page's head where the build's
- * `/plannotator-themes.js` tag is (pageWithCustomThemes), so it runs before
+ * `/reviewtrail-themes.js` tag is (pageWithCustomThemes), so it runs before
  * the app's module script and before the first paint; the route answers it
  * too, for a page held from before. It hands the registry the
- * custom themes (`window.__PLANNOTATOR_CUSTOM_THEMES__`, read by
+ * custom themes (`window.__REVIEWTRAIL_CUSTOM_THEMES__`, read by
  * packages/ui/utils/themeRegistry.ts) and adds their stylesheet to the head.
  * With no custom themes it sets an empty list and adds nothing.
  */
@@ -193,11 +193,11 @@ export function customThemesScript(dataDir: string): string {
   } catch {
     payload = { themes: [], css: "" };
   }
-  return `(function(){var d=${scriptSafeJson(payload)};window.__PLANNOTATOR_CUSTOM_THEMES__=d.themes;if(!d.css)return;var s=document.createElement("style");s.id="plannotator-custom-themes";s.textContent=d.css;(document.head||document.documentElement).appendChild(s)})();\n`;
+  return `(function(){var d=${scriptSafeJson(payload)};window.__REVIEWTRAIL_CUSTOM_THEMES__=d.themes;if(!d.css)return;var s=document.createElement("style");s.id="reviewtrail-custom-themes";s.textContent=d.css;(document.head||document.documentElement).appendChild(s)})();\n`;
 }
 
 /** The page's tag for the themes script, as the build writes it (`<script vite-ignore src=...>` in each index.html). */
-const THEMES_TAG = /<script\b[^>]*\bsrc="\/plannotator-themes\.js"[^>]*><\/script>/;
+const THEMES_TAG = /<script\b[^>]*\bsrc="\/reviewtrail-themes\.js"[^>]*><\/script>/;
 
 /** The page as served to a person with no custom theme: the build's page without its themes tag (the release smoke's digests). */
 export function pageWithoutCustomThemes(html: string): string {
@@ -209,7 +209,7 @@ const pages: { html: string; bare: string; last: { script: string; page: string 
 
 /**
  * The page as a server sends it: the themes script written into the page at
- * the tag (`<script>…</script>`, the same script `/plannotator-themes.js`
+ * the tag (`<script>…</script>`, the same script `/reviewtrail-themes.js`
  * answers), or the tag left out when the data dir has no custom themes. So a
  * page load makes no request for themes, and a person with none gets a page
  * with nothing added. The same string comes back while the themes are
@@ -241,7 +241,7 @@ export function pageWithCustomThemes(html: string, dataDir: string): string {
 }
 
 /** The route every server answers with customThemesScript (and, with `?syntax=<id>`, customThemeSyntaxJson). */
-export const CUSTOM_THEMES_SCRIPT_PATH = "/plannotator-themes.js";
+export const CUSTOM_THEMES_SCRIPT_PATH = "/reviewtrail-themes.js";
 
 /**
  * One custom theme's code colours as JSON (`themeSyntaxPayload`: per half that

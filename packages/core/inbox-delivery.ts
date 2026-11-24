@@ -228,7 +228,7 @@ export function inboxDefaultSkip<M>(_messages: readonly M[], _statesOf: (message
 }
 
 /**
- * An agent message sent with no session, no host, no name and no wake: what `plannotator inbox call` sends from a
+ * An agent message sent with no session, no host, no name and no wake: what `reviewtrail inbox call` sends from a
  * shell that names no session and carries no agent's marker (a script, a hook, a cron job), or a raw MCP call naming
  * none of them. Nothing can be woken for it, and no session reads as its sender. A sender with any session id (a
  * stdio shim's `ses_…` included), or an agent's shell the CLI names (`inboxShellAgentOf`), is not one.

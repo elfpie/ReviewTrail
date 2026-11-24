@@ -11,7 +11,7 @@
  * the trim actually reads. Declared locally rather than imported from the
  * package's `dist/`, which resolves today only because the fork ships no
  * `exports` map; a republish that adds one would break consumers compiling
- * @plannotator/ui from source.
+ * @reviewtrail/ui from source.
  */
 export interface SelectedNodeLike {
   $node: { textContent: string | null };

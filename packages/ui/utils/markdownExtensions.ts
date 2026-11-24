@@ -1,7 +1,7 @@
 /**
  * Extra markdown extensions, renderer side (#1307).
  *
- * The server resolves `markdownExtensions` from `~/.plannotator/config.json`
+ * The server resolves `markdownExtensions` from `~/.reviewtrail/config.json`
  * and ships the normalized list with the annotate payload. The renderer needs
  * it for one job: deciding whether a relative link or a wiki-link target names
  * a local document it should open in the linked-doc overlay (`/api/doc`) or a
@@ -17,7 +17,7 @@
  * separate decision. Extras are added on top of it.
  */
 
-import { normalizeMarkdownExtensions } from "@plannotator/core/annotatable";
+import { normalizeMarkdownExtensions } from "@reviewtrail/core/annotatable";
 
 /** Built-in extensions the renderer treats as openable local documents. */
 const BUILTIN_LINKED_DOC_REGEX = /\.(mdx?|txt|adoc|asciidoc|html?)$/i;

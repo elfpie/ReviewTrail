@@ -65,7 +65,7 @@ export function setReviewPanelView(
 /**
  * The panel view the reviewer has actually persisted, or `undefined` when they
  * never chose one. Distinct from `configStore.get('reviewPanelView')`, which
- * cannot tell a stored choice apart from the built-in default. Plannotator
+ * cannot tell a stored choice apart from the built-in default. ReviewTrail
  * itself no longer needs the distinction (nothing seeds this setting any
  * more); it stays exported for hosts that must not write over a real choice.
  */
@@ -134,7 +134,7 @@ export function setProviderReviewDefaultDiffType(
  * review app) must consume the gate: someone who found the switch has
  * demonstrably discovered the feature and must never be told about it.
  */
-const AUTO_VIEWED_NOTICE_SEEN_KEY = 'plannotator-auto-viewed-notice-seen';
+const AUTO_VIEWED_NOTICE_SEEN_KEY = 'reviewtrail-auto-viewed-notice-seen';
 const AUTO_VIEWED_NOTICE_VERSION = '1';
 
 export function needsAutoViewedNotice(): boolean {

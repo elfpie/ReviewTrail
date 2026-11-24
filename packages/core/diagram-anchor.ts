@@ -1,7 +1,7 @@
 /**
  * Diagram anchors: the pure, browser-safe half of the diagram comment codec
  * (the DOM half — the finders that walk a rendered svg — lives in
- * `@plannotator/ui/utils/diagram-anchor` and `diagram-anchor-graphviz`).
+ * `@reviewtrail/ui/utils/diagram-anchor` and `diagram-anchor-graphviz`).
  *
  * A comment on a rendered diagram part is stored as ONE additive field on
  * the annotation, `diagramAnchor`:
@@ -23,7 +23,7 @@
  * the pane's gutter mark land on real text.
  *
  * Same contract as `html-anchor.ts`: the types here are what
- * `@plannotator/ui/types`'s `Annotation.diagramAnchor` carries, and
+ * `@reviewtrail/ui/types`'s `Annotation.diagramAnchor` carries, and
  * `parseDiagramAnchor` is the one fail-closed validator every ingest
  * (external-annotation POST, the feedback archive, the ui codec) runs.
  */
@@ -89,7 +89,7 @@ const KINDS: ReadonlySet<string> = new Set<DiagramTargetKind>(['node', 'edge', '
 export const MAX_DIAGRAM_ANCHOR_STRING_LENGTH = 400;
 
 /** The wire keys a host that stores anchors as an opaque JSON blob uses
- * (Workspaces' `anchor_json`); Plannotator carries the anchor on the
+ * (Workspaces' `anchor_json`); ReviewTrail carries the anchor on the
  * annotation itself under `diagramAnchor`. */
 export const DIAGRAM_ANCHOR_KEY = 'diagram';
 export const DIAGRAM_ADDITIONAL_TARGETS_KEY = 'diagramAdditionalTargets';
@@ -294,7 +294,7 @@ export function buildDiagramAnchorValue(
  * The opaque-blob wire shape a host that stores every anchor kind in one
  * JSON column writes (`originalText` is the primary target's label so a
  * comments panel's context line reads the same as a markdown or html
- * comment). Plannotator does not use this shape itself.
+ * comment). ReviewTrail does not use this shape itself.
  */
 export function buildDiagramAnchor(
   primary: DiagramTarget,

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import type { TailscaleRunner } from "@plannotator/shared/tailscale";
+import type { TailscaleRunner } from "@reviewtrail/shared/tailscale";
 import { readTailnetOwners, resetSessionTailnetForTests, sessionTailnetAskAllowed, setSessionTailnetOwners, setSessionTailnetServedUrl } from "./session-tailnet";
 
 // #2166: which Host the owner's tab may ask the agent session with. The

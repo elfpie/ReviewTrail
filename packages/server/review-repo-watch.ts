@@ -3,7 +3,7 @@ import {
 	createFileBrowserWatchRegistry,
 	type FileBrowserChangeEvent,
 	type FileBrowserWatchRegistry,
-} from "@plannotator/shared/file-browser-watch-core";
+} from "@reviewtrail/shared/file-browser-watch-core";
 import {
 	REPO_LIVE_POLL_MS,
 	nextRepoPollDelay,
@@ -12,8 +12,8 @@ import {
 	isUnderIgnoredEntry,
 	type RepoChangeGate,
 	type RepoLiveMode,
-} from "@plannotator/shared/repo-files";
-import { getGitMetadataWatchPaths } from "@plannotator/shared/workspace-status";
+} from "@reviewtrail/shared/repo-files";
+import { getGitMetadataWatchPaths } from "@reviewtrail/shared/workspace-status";
 
 // The code-review tree's live All files (`GET /api/repo-files/stream`). In
 // `watch` mode the repository root is watched with the same engine as

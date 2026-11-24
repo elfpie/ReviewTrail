@@ -1,4 +1,4 @@
-import type { PRReviewThread } from '@plannotator/shared/pr-types';
+import type { PRReviewThread } from '@reviewtrail/shared/pr-types';
 
 export function prThreadPlace(thread: PRReviewThread): { line: number; side: 'old' | 'new' } | null {
   const line = thread.line ?? thread.startLine;

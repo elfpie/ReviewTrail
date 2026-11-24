@@ -1,4 +1,4 @@
-import { monoFontStack, normalizeCssFontSize } from '@plannotator/ui/utils/cssFontFamily';
+import { monoFontStack, normalizeCssFontSize } from '@reviewtrail/ui/utils/cssFontFamily';
 
 /**
  * Font override CSS for Pierre's shadow DOM.

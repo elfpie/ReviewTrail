@@ -5,7 +5,7 @@ import {
   type DiagramAnchor,
   type DiagramKind,
   type DiagramTarget,
-} from '@plannotator/core/diagram-anchor';
+} from '@reviewtrail/core/diagram-anchor';
 import type { CommentAskAIContext } from '../components/CommentPopover';
 
 /**

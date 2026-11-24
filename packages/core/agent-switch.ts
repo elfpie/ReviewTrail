@@ -2,7 +2,7 @@
  * OpenCode's agent switch: which agent the session hands over to after a plan
  * is approved or code review feedback is sent.
  *
- * The choice is stored in a cookie AND in ~/.plannotator/config.json
+ * The choice is stored in a cookie AND in ~/.reviewtrail/config.json
  * (`agentSwitch`, #1390), because some webviews (Glimpse's WKWebView) keep no
  * cookies between runs, and a forgotten choice silently hands the session to
  * the build agent.

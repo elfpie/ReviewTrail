@@ -78,7 +78,7 @@ async function newSession(provider: SessionBridgeProvider) {
 }
 
 describe("SessionBridgeProvider", () => {
-  test("streams the session's answer and sends the question with the Plannotator header", async () => {
+  test("streams the session's answer and sends the question with the ReviewTrail header", async () => {
     const host = fakeBridge("ready");
     const provider = new SessionBridgeProvider(host.bridge, { pollIntervalMs: 5 });
     const session = await newSession(provider);

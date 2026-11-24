@@ -5,11 +5,11 @@ import {
   type CallTreeDoc,
   type CallTreeNode,
   type CallTreeRow,
-} from '@plannotator/shared/call-tree';
-import { CommentPopover, type CommentTargetChip } from '@plannotator/ui/components/CommentPopover';
-import { CodeSnippetPreview } from '@plannotator/ui/components/CodeSnippetPreview';
-import { useHoverPreview } from '@plannotator/ui/hooks/useHoverPreview';
-import type { CallFlowAnnotationTarget } from '@plannotator/ui/types';
+} from '@reviewtrail/shared/call-tree';
+import { CommentPopover, type CommentTargetChip } from '@reviewtrail/ui/components/CommentPopover';
+import { CodeSnippetPreview } from '@reviewtrail/ui/components/CodeSnippetPreview';
+import { useHoverPreview } from '@reviewtrail/ui/hooks/useHoverPreview';
+import type { CallFlowAnnotationTarget } from '@reviewtrail/ui/types';
 import { splitCallFlowSignature } from '../../utils/callFlowPresentation';
 import type { CallFlowNodeSource, CallFlowNodeSourceLoader } from '../../hooks/useCallFlowNodeSource';
 import { annotationTargetForCallFlowNode, CALL_FLOW_PREVIEW_CONTEXT_LINES, highlightSlice, searchRanges } from '../CallFlowTreeView';

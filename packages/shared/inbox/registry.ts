@@ -1,5 +1,5 @@
 /**
- * Plannotator Inbox registry: `${dataDir}/inbox/inbox.json`.
+ * ReviewTrail Inbox registry: `${dataDir}/inbox/inbox.json`.
  *
  * `{ v, pid, port, url, version, token, serverSession, startedAt, follows?, home?, tailnet?, lan?, tailscale? }`, mode
  * 0600, written by the Inbox server when it starts and LEFT IN PLACE when it
@@ -13,7 +13,7 @@
  *    `serverSession`. Stopped: a dead pid with no health answer, an answer
  *    from a different `serverSession` (the port was reused), or a live pid
  *    with nothing listening (a reused pid). A stopped Inbox is started with
- *    `plannotator inbox --background`. Busy: a live pid whose port takes the
+ *    `reviewtrail inbox --background`. Busy: a live pid whose port takes the
  *    request but does not answer in time; callers wait, never start a second
  *    writer on the store. Out of reach (`inboxOutOfReach`): stopped with a
  *    live pid, read by a process that cannot reach loopback (an agent's
@@ -27,7 +27,7 @@ import { randomBytes } from "node:crypto";
 import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, realpathSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { connect, createServer } from "node:net";
 import { join, resolve } from "node:path";
-import { isInboxHealth, type InboxHealth } from "@plannotator/core/inbox-types";
+import { isInboxHealth, type InboxHealth } from "@reviewtrail/core/inbox-types";
 import { inboxDir } from "./schema";
 import { INBOX_OFF_LINE } from "./connection";
 import { processMatchesEntry, proveInboxProcess, readProcessInfo, type ProcessInfo } from "./process-proof";
@@ -62,7 +62,7 @@ export interface InboxRegistryEntry {
    */
   lan?: { port: number; on?: boolean };
   /**
-   * "Over your tailnet" (`plannotator inbox --tailscale`, PLANNOTATOR_INBOX_TAILSCALE,
+   * "Over your tailnet" (`reviewtrail inbox --tailscale`, REVIEWTRAIL_INBOX_TAILSCALE,
    * config.json `inboxTailscale`): present while publishing is on.
    * `url` is the tailnet address while the publication works, `error` why
    * not when it does not. `https_port` + `proxy_port` name the serve mapping
@@ -381,9 +381,9 @@ export async function inboxOutOfReach(
   return (await (deps.loopback ?? defaultLoopback)()) ? null : detail;
 }
 
-/** Under the test sandbox, `PLANNOTATOR_TEST_LOOPBACK_BLOCKED=1` stands for an agent sandbox that blocks loopback. */
+/** Under the test sandbox, `REVIEWTRAIL_TEST_LOOPBACK_BLOCKED=1` stands for an agent sandbox that blocks loopback. */
 function defaultLoopback(): Promise<boolean> {
-  if (process.env.PLANNOTATOR_TEST_SANDBOX && process.env.PLANNOTATOR_TEST_LOOPBACK_BLOCKED === "1") return Promise.resolve(false);
+  if (process.env.REVIEWTRAIL_TEST_SANDBOX && process.env.REVIEWTRAIL_TEST_LOOPBACK_BLOCKED === "1") return Promise.resolve(false);
   return loopbackReachable();
 }
 
@@ -400,7 +400,7 @@ export function inboxEnsureFailedWords(error: unknown): string {
   if (error instanceof InboxUnreachableError) return error.message;
   // Not turned on here (turned-on.ts): the one line, as it is.
   if (error instanceof Error && error.message === INBOX_OFF_LINE) return error.message;
-  return `Plannotator Inbox is not running: ${error instanceof Error ? error.message : String(error)}`;
+  return `ReviewTrail Inbox is not running: ${error instanceof Error ? error.message : String(error)}`;
 }
 
 /**
@@ -414,7 +414,7 @@ export function inboxEnsureFailedWords(error: unknown): string {
  * cut), the lock is stale at once
  * instead of after `INBOX_START_LOCK_STALE_MS`, so the next start goes ahead
  * rather than giving up with "try again". A lock with no holders file (an
- * older Plannotator's) is stale by age alone, as before.
+ * older ReviewTrail's) is stale by age alone, as before.
  */
 export function acquireInboxStartLock(dataDir: string): (() => void) | null {
   const dir = inboxDir(dataDir);
@@ -499,7 +499,7 @@ export async function waitForInbox<T>(check: () => Promise<T | null>, timeoutMs:
   }
 }
 
-/** Why a record names no running Inbox of its data dir (`plannotator inbox stop` reports it; nothing is signalled). */
+/** Why a record names no running Inbox of its data dir (`reviewtrail inbox stop` reports it; nothing is signalled). */
 export type InboxStaleReason =
   /** The process it names has exited. */
   | "dead_pid"
@@ -571,7 +571,7 @@ export interface StopInboxOptions {
   /** How long each step waits for the process to exit. Default 5 s. */
   timeoutMs?: number;
   /**
-   * `plannotator inbox stop`: also prove the pid by its process (`ps`; see
+   * `reviewtrail inbox stop`: also prove the pid by its process (`ps`; see
    * process-proof.ts), so an Inbox that stopped answering can still be
    * stopped, and end with SIGKILL when it outlives SIGTERM. Off
    * (uninstall --purge): only a pid the port's health answer names is

@@ -54,10 +54,10 @@ const NO_PROVIDER_STATE: ThemeProviderState = {
   setMode: () => null,
   preferredMode: 'dark',
   resolvedMode: 'dark',
-  colorTheme: 'plannotator',
+  colorTheme: 'reviewtrail',
   setColorTheme: () => null,
-  lightTheme: 'plannotator',
-  darkTheme: 'plannotator',
+  lightTheme: 'reviewtrail',
+  darkTheme: 'reviewtrail',
   setHalfTheme: () => null,
   availableThemes: getAllThemes(),
   manageFavicon: false,
@@ -112,7 +112,7 @@ export function extendThemeSwitch(): void {
  * Sync theme classes on <html> without stripping non-theme classes (e.g. transitions-ready).
  *
  * A page that sets an inline `color-scheme` on <html> before its scripts run
- * (Plannotator's packed pages do, so the empty page does not paint white under
+ * (ReviewTrail's packed pages do, so the empty page does not paint white under
  * a dark theme) hands it over here: from the first render it follows the mode
  * on screen, so it never goes stale after a theme switch. A host page that sets
  * none keeps none.
@@ -164,16 +164,16 @@ interface ThemeProviderProps {
    * for both halves and kept in sync with the palette on screen.
    *
    * Note: the two halves themselves are a new concept with no pre-existing
-   * host data, so they always live under `plannotator-light-theme` /
-   * `plannotator-dark-theme`; these props rename only the two legacy values.
+   * host data, so they always live under `reviewtrail-light-theme` /
+   * `reviewtrail-dark-theme`; these props rename only the two legacy values.
    */
   colorThemeStorageKey?: string;
   /**
    * Opt in to letting this provider own `<link rel="icon">` on the document.
    *
-   * OFF by default, and deliberately so: `@plannotator/ui` is installed into
+   * OFF by default, and deliberately so: `@reviewtrail/ui` is installed into
    * host applications with their own branding, and a mounted provider must not
-   * silently replace a host page's favicon with Plannotator's. Plannotator's own
+   * silently replace a host page's favicon with ReviewTrail's. ReviewTrail's own
    * apps pass `manageFavicon`; hosts opt in only if they want the same feature.
    *
    * The value also gates the Settings favicon control (see ThemeTab), so a host
@@ -185,9 +185,9 @@ interface ThemeProviderProps {
 export function ThemeProvider({
   children,
   defaultTheme = 'dark',
-  defaultColorTheme = 'plannotator',
-  storageKey = 'plannotator-theme',
-  colorThemeStorageKey = 'plannotator-color-theme',
+  defaultColorTheme = 'reviewtrail',
+  storageKey = 'reviewtrail-theme',
+  colorThemeStorageKey = 'reviewtrail-color-theme',
   manageFavicon = false,
 }: ThemeProviderProps) {
   const legacyKeys = useMemo(
@@ -221,7 +221,7 @@ export function ThemeProvider({
     // frame already shows the chosen icon from the server's /favicon.ico. Glass
     // is a data URL of its .ico with its sizes, so the tab keeps the 16 or 32 frame.
     let cancelled = false;
-    void import('@plannotator/core/favicon').then(({ faviconDataUrl, faviconLinkType }) => {
+    void import('@reviewtrail/core/favicon').then(({ faviconDataUrl, faviconLinkType }) => {
       if (cancelled) return;
       let link = document.head.querySelector<HTMLLinkElement>('link[rel="icon"]');
       if (!link) {
@@ -242,7 +242,7 @@ export function ThemeProvider({
   // Hand the resolved pair to the store as a SEED, not a user choice: seeding
   // writes memory + cookies only. Routing it through set() would queue a
   // server write of a value nobody picked, which (flushing after the server
-  // config arrives) would overwrite the user's real ~/.plannotator/config.json
+  // config arrives) would overwrite the user's real ~/.reviewtrail/config.json
   // theme from any cookie-less visit.
   useEffect(() => {
     const seed = pendingSeed.current;
@@ -407,7 +407,7 @@ export function ThemeProvider({
 
 /**
  * Whether a ThemeProvider is mounted above. Outside one, `useTheme()` answers
- * the Plannotator palette in dark mode whatever the page shows, so a part
+ * the ReviewTrail palette in dark mode whatever the page shows, so a part
  * that must match the page (the code fences' colours, `useFenceTheme`) reads
  * the page itself instead.
  */

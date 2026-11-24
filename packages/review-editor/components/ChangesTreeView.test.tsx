@@ -8,7 +8,7 @@ import { markFirstCodePainted } from '../utils/firstCodePaint';
 
 markFirstCodePainted();
 import type { DiffFile } from '../types';
-import type { SinceBaseSections } from '@plannotator/shared/types';
+import type { SinceBaseSections } from '@reviewtrail/shared/types';
 import { key, searchInput, typeInSearch } from './treeKeys.testing';
 
 const hasDom = typeof document !== 'undefined';

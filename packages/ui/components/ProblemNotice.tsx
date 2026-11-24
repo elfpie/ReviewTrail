@@ -2,12 +2,12 @@
  * One problem, inline at the thing that failed (the errors system): an icon,
  * a bold line saying what happened, a muted line saying what it means, and
  * the one next step: a command to copy, a page to open, or Try again.
- * No toast, no dialog, no keyboard shortcut. Additive to @plannotator/ui: a
+ * No toast, no dialog, no keyboard shortcut. Additive to @reviewtrail/ui: a
  * host that never passes a problem draws nothing new.
  */
 
 import { useEffect, useRef, useState } from 'react';
-import type { Problem } from '@plannotator/core/problem';
+import type { Problem } from '@reviewtrail/core/problem';
 import { copyTextToClipboard } from '../utils/clipboard';
 
 /**

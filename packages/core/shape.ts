@@ -9,7 +9,7 @@
  * Browser-safe and dependency-free: the store (packages/shared/shape), the
  * CLI and the board's UI (packages/ui/components/shape) all read it.
  *
- *  - `checkShapeBoard` validates what an agent writes (`plannotator shape
+ *  - `checkShapeBoard` validates what an agent writes (`reviewtrail shape
  *    update --file`) and names the exact field that is wrong.
  *  - `shapeParts` lists the parts of a board: every `data-mark` of a drawn
  *    view, every Code step, the title and the claim. Ids

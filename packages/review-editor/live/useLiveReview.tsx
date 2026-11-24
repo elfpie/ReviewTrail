@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { LiveEndedBar } from './LiveEndedBar';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import type { HostLineNote } from '../components/hostLineNotes';
 import type { ReviewSidebarExtraTab } from '../components/ReviewSidebar';
 import { liveApi, liveKey, LiveError, postThreadsToPR, watchLive, type LiveSendTag } from './api';
-import { getPRPlatformCapabilities, type Platform as ReviewPlatform } from '@plannotator/shared/pr-types';
+import { getPRPlatformCapabilities, type Platform as ReviewPlatform } from '@reviewtrail/shared/pr-types';
 import { anchorOfComment, commentOfMessage, forgeCommentsOf, openThreadIds, placeThreads, stepThread, unsentComments, type LiveAgent, type LiveState, type PlacedThread } from './model';
 import { LiveThreadCard } from './LiveThreadCard';
 import { LiveThreadsTab } from './LiveThreadsTab';
 import { PRThreadCard, prThreadPlace } from './PRThreadCard';
-import type { PRReviewThread } from '@plannotator/shared/pr-types';
+import type { PRReviewThread } from '@reviewtrail/shared/pr-types';
 import { liveMentionSource } from './LiveComposer';
 import { setLiveCommentSource, takeCommentTags } from './commentTags';
 

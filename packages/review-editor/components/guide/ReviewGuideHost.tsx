@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
-import { GuideHostProvider, type GuideDiffRendererContext, type GuideGlobalComments, type GuideHostValue } from '@plannotator/guide-viewer/host';
+import { GuideHostProvider, type GuideDiffRendererContext, type GuideGlobalComments, type GuideHostValue } from '@reviewtrail/guide-viewer/host';
 import { useReviewState } from '../../dock/ReviewStateContext';
 import { AllFilesCodeView, type AllFilesCodeViewProps } from '../AllFilesCodeView';
-import { storage } from '@plannotator/ui/utils/storage';
+import { storage } from '@reviewtrail/ui/utils/storage';
 import { chapterDiagramRenderer, overviewDiagramRenderer } from './overviewDiagram';
 
 /**
  * The review app's guide host: adapts ReviewState into the narrow contract the
- * packaged guide chain consumes (`@plannotator/guide-viewer/host`), and names
+ * packaged guide chain consumes (`@reviewtrail/guide-viewer/host`), and names
  * `AllFilesCodeView` as the diff renderer with the full in-app wiring
  * (annotations, staging, viewed, search, AI markers).
  *

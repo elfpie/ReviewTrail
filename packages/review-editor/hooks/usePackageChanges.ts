@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import type { PackageChangeCard, PackageMetadata } from '@plannotator/core/package-changes';
-import { storage } from '@plannotator/ui/utils/storage';
+import type { PackageChangeCard, PackageMetadata } from '@reviewtrail/core/package-changes';
+import { storage } from '@reviewtrail/ui/utils/storage';
 
 /**
  * The page side of package changes. The server works out the cards (GET
@@ -125,7 +125,7 @@ export function resetPackageChangesCache(): void {
 
 // --- fold state: one remembered choice for every card --------------------------
 
-export const PACKAGE_CHANGES_FOLD_COOKIE = 'plannotator-package-changes-folded';
+export const PACKAGE_CHANGES_FOLD_COOKIE = 'reviewtrail-package-changes-folded';
 const foldListeners = new Set<() => void>();
 const readFolded = () => storage.getItem(PACKAGE_CHANGES_FOLD_COOKIE) === 'true';
 

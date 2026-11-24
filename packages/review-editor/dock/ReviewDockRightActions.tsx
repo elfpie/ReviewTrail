@@ -1,8 +1,8 @@
 import React from 'react';
 import { ChevronsUpDown, FoldVertical } from 'lucide-react';
-import { configStore, useConfigValue } from '@plannotator/ui/config';
-import { DiffDisplayOptionsPopover } from '@plannotator/ui/components/DiffDisplayOptions';
-import { DiffLayoutToggle } from '@plannotator/ui/components/DiffLayoutToggle';
+import { configStore, useConfigValue } from '@reviewtrail/ui/config';
+import { DiffDisplayOptionsPopover } from '@reviewtrail/ui/components/DiffDisplayOptions';
+import { DiffLayoutToggle } from '@reviewtrail/ui/components/DiffLayoutToggle';
 import { useReviewStateOptional } from './ReviewStateContext';
 import { REVIEW_ALL_FILES_PANEL_ID } from './reviewPanelTypes';
 import { useEveryDiffPaneTooNarrowForSplit } from '../workspace/splitFallback';

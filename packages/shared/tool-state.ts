@@ -1,6 +1,6 @@
 /**
  * Why gh or glab could not answer, as one of six states (the errors system,
- * first slice; words in `@plannotator/core/problem-words`). Both runtimes:
+ * first slice; words in `@reviewtrail/core/problem-words`). Both runtimes:
  * vendored to Pi beside `ref-cards.ts`.
  *
  * Read from the run itself first:
@@ -22,8 +22,8 @@
  * `peek` reads the cache without waiting, so a hover never waits on it.
  */
 
-import type { ProblemDiag } from "@plannotator/core/problem";
-import type { ToolCli, ToolState } from "@plannotator/core/problem-words";
+import type { ProblemDiag } from "@reviewtrail/core/problem";
+import type { ToolCli, ToolState } from "@reviewtrail/core/problem-words";
 import type { RefCommandResult, RefRunner } from "./ref-cards";
 
 /** The tool's last non-empty line, cut to 300 characters, color codes out: private, never sent to a window. */

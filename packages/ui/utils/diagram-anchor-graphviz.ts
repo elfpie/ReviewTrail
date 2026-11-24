@@ -22,7 +22,7 @@
  *
  * Pure: no React, no DOM globals beyond the Element the caller hands in.
  */
-import { diagramWholeSourceLines, lineMentions, sameTarget, type DiagramTarget } from '@plannotator/core/diagram-anchor';
+import { diagramWholeSourceLines, lineMentions, sameTarget, type DiagramTarget } from '@reviewtrail/core/diagram-anchor';
 import type { DiagramFinder } from './diagram-anchor';
 
 /** The selector of every element the pointer can address in a Graphviz svg. */

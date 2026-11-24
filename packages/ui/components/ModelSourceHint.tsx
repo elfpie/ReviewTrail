@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { ModelsSource } from '@plannotator/core/model-catalog';
+import type { ModelsSource } from '@reviewtrail/core/model-catalog';
 
 /** The tools whose model lists are discovered from the installed CLI. */
 export type ModelSourceTool = 'claude' | 'codex';

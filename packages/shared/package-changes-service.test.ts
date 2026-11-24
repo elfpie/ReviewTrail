@@ -12,7 +12,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { DiffFileStatus } from '@plannotator/core/diff-files';
+import type { DiffFileStatus } from '@reviewtrail/core/diff-files';
 import {
   createPackageChangesService,
   readLocalSettingsFile,
@@ -30,7 +30,7 @@ afterEach(() => {
 });
 
 function tempDir(): string {
-  const dir = mkdtempSync(join(tmpdir(), 'plannotator-pkg-svc-'));
+  const dir = mkdtempSync(join(tmpdir(), 'reviewtrail-pkg-svc-'));
   tempDirs.push(dir);
   return dir;
 }
@@ -233,13 +233,13 @@ describe('consent count and reads', () => {
     expect(out.lookup.total).toBe(4);
   });
 
-  test('PLANNOTATOR_PACKAGE_LOOKUP=0: no settings are read at all', async () => {
+  test('REVIEWTRAIL_PACKAGE_LOOKUP=0: no settings are read at all', async () => {
     const reads: string[] = [];
     let asked = false;
     const out = await analysis(host({
       settings: { kind: 'local', dirOf: async () => { asked = true; return null; } },
       home: tempDir(),
-      env: { PLANNOTATOR_PACKAGE_LOOKUP: '0' },
+      env: { REVIEWTRAIL_PACKAGE_LOOKUP: '0' },
       reads,
     }));
     expect(asked).toBe(false);

@@ -47,7 +47,7 @@ export const annotateMessageFeedback = (feedback: string): string =>
 
 /**
  * Browser-safe `{{placeholder}}` substitution with the same semantics as
- * resolveTemplate() in @plannotator/shared/prompts: unknown placeholders are
+ * resolveTemplate() in @reviewtrail/shared/prompts: unknown placeholders are
  * left untouched. Used by the clipboard copy paths to apply a server-resolved
  * feedback template without any node: imports.
  */
@@ -82,7 +82,7 @@ export type ClipboardFeedbackContext =
  * Plan review keeps the deliberately forceful plan-deny framing. Annotate
  * sessions use the server-resolved template when the server shipped one
  * (matching what Send Feedback produces, including user-customized
- * prompts.annotate.* templates in ~/.plannotator/config.json), and fall back
+ * prompts.annotate.* templates in ~/.reviewtrail/config.json), and fall back
  * to the built-in annotate defaults when it did not (e.g. shared/static
  * sessions never enter annotate mode and keep plan-deny behavior).
  */

@@ -1,6 +1,6 @@
 /**
  * "Ask this session" pull bridge, host half: drives an in-process
- * `SessionBridge` against a Plannotator server running in ANOTHER process.
+ * `SessionBridge` against a ReviewTrail server running in ANOTHER process.
  *
  * The host (e.g. the OpenCode plugin) implements `SessionBridge` over its own
  * session API exactly as an in-process host would, starts the server process
@@ -119,7 +119,7 @@ export async function runPullSessionBridgeClient(options: PullSessionBridgeClien
 			}
 			await res.body?.cancel().catch(() => {});
 		} catch (error) {
-			log(`[Plannotator] Session bridge event failed: ${error instanceof Error ? error.message : String(error)}`);
+			log(`[ReviewTrail] Session bridge event failed: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	};
 
@@ -264,7 +264,7 @@ export async function runPullSessionBridgeClient(options: PullSessionBridgeClien
 				if (signal.aborted) break;
 				failures += 1;
 				if (failures >= maxFailures) {
-					log(`[Plannotator] Session bridge stopped: the Plannotator server is not answering (${error instanceof Error ? error.message : String(error)}).`);
+					log(`[ReviewTrail] Session bridge stopped: the ReviewTrail server is not answering (${error instanceof Error ? error.message : String(error)}).`);
 					break;
 				}
 				await sleep(Math.min(4_000, 500 * 2 ** (failures - 1)), signal);
@@ -273,7 +273,7 @@ export async function runPullSessionBridgeClient(options: PullSessionBridgeClien
 			if (res.status === 401 || res.status === 403 || res.status === 404 || res.status === 405 || res.status === 503) {
 				// Wrong token, not loopback, an older binary with no bridge, or AI disabled.
 				await res.body?.cancel().catch(() => {});
-				if (res.status !== 404 && res.status !== 503) log(`[Plannotator] Session bridge refused (HTTP ${res.status}).`);
+				if (res.status !== 404 && res.status !== 503) log(`[ReviewTrail] Session bridge refused (HTTP ${res.status}).`);
 				break;
 			}
 			if (!res.ok) {

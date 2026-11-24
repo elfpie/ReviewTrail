@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { useFittedText } from '@plannotator/ui/hooks/useFittedText';
-import { ELLIPSIS, fitHeadTail, graphemes } from '@plannotator/ui/utils/textFit';
+import { useFittedText } from '@reviewtrail/ui/hooks/useFittedText';
+import { ELLIPSIS, fitHeadTail, graphemes } from '@reviewtrail/ui/utils/textFit';
 
 const TAIL = 8;
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import {
   buildExplainFindingPrompt,
   buildExplainFindingRequest,

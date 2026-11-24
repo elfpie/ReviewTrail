@@ -18,8 +18,8 @@
 import React from 'react';
 import { PlanDiffBadge } from './plan-diff/PlanDiffBadge';
 import type { PlanDiffStats } from '../utils/planDiffEngine';
-import { hostnameOrFallback } from '@plannotator/core/project';
-import { basenameFromPath } from '@plannotator/core/source-save';
+import { hostnameOrFallback } from '@reviewtrail/core/project';
+import { basenameFromPath } from '@reviewtrail/core/source-save';
 import { OpenInAppButton } from './OpenInAppButton';
 import { HostTitle } from './HostTitle';
 import { useConfigValue } from '../config';

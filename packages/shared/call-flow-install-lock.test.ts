@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 function lockPath(): string {
-  testDir ??= mkdtempSync(join(tmpdir(), "plannotator-call-flow-lock-"));
+  testDir ??= mkdtempSync(join(tmpdir(), "reviewtrail-call-flow-lock-"));
   return join(testDir, "runtime", ".install.lock");
 }
 

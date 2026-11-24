@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { MentionSource } from '@plannotator/ui/utils/mentions';
+import type { MentionSource } from '@reviewtrail/ui/utils/mentions';
 import type { LiveSendTag } from './api';
 
 const HOLD_MS = 5_000;

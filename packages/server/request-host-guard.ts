@@ -7,7 +7,7 @@
  */
 
 import os from "node:os";
-import { loadConfig, resolvePublicUrl, resolveUrlHost } from "@plannotator/shared/config";
+import { loadConfig, resolvePublicUrl, resolveUrlHost } from "@reviewtrail/shared/config";
 import {
   ALLOWED_HOSTS_ENV,
   forwardedPortHostPatterns,
@@ -17,8 +17,8 @@ import {
   machineHostnames,
   parseAllowedHosts,
   type RequestHostPolicy,
-} from "@plannotator/shared/request-host";
-import { isAutoUrlHost, resolveAutoHostCached } from "@plannotator/shared/tailscale";
+} from "@reviewtrail/shared/request-host";
+import { isAutoUrlHost, resolveAutoHostCached } from "@reviewtrail/shared/tailscale";
 import { isRemoteSession } from "./remote";
 
 /**
@@ -46,7 +46,7 @@ function remoteExtraHosts(): string[] {
     const urlHost = resolveUrlHost(config);
     const resolved = urlHost && isAutoUrlHost(urlHost) ? resolveAutoHostCached() : urlHost;
     if (resolved) hosts.push(resolved);
-    // A reverse proxy in front of PLANNOTATOR_PUBLIC_URL may forward the browser's Host.
+    // A reverse proxy in front of REVIEWTRAIL_PUBLIC_URL may forward the browser's Host.
     const publicUrl = resolvePublicUrl(config);
     if (publicUrl) hosts.push(new URL(publicUrl).hostname);
   } catch {
@@ -63,7 +63,7 @@ export interface RequestHostGuard {
 /**
  * Build the guard for one server. Env and config are read once, here.
  * `localOnly` (the Inbox, which always binds loopback and ignores
- * PLANNOTATOR_REMOTE) applies the local-mode rule whatever the environment.
+ * REVIEWTRAIL_REMOTE) applies the local-mode rule whatever the environment.
  */
 export function createRequestHostGuard(options: { localOnly?: boolean } = {}): RequestHostGuard {
   const remote = options.localOnly ? false : isRemoteSession();
@@ -89,7 +89,7 @@ export function createRequestHostGuard(options: { localOnly?: boolean } = {}): R
         headers: {
           "Content-Type": "text/plain; charset=utf-8",
           "X-Content-Type-Options": "nosniff",
-          "X-Plannotator-Error": HOST_NOT_ALLOWED_CODE,
+          "X-ReviewTrail-Error": HOST_NOT_ALLOWED_CODE,
         },
       });
     },

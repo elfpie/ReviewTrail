@@ -20,10 +20,10 @@
  * Type-only for the engine side; this module imports nothing at runtime.
  */
 import type { ComponentType } from 'react';
-import type { Block } from '@plannotator/ui/types';
+import type { Block } from '@reviewtrail/ui/types';
 
 /** Where the page puts the host before importing the engine. */
-export const DIAGRAM_ENGINE_HOST_KEY = '__plannotatorDiagramEngineHost';
+export const DIAGRAM_ENGINE_HOST_KEY = '__reviewTrailDiagramEngineHost';
 
 /** Bumped when the engine's exports or the host shape change incompatibly. */
 export const DIAGRAM_ENGINE_API_VERSION = 1;

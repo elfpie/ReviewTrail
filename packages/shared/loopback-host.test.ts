@@ -31,7 +31,7 @@ describe("isLoopbackHostHeader", () => {
 	});
 
 	test("without a configured name, no localhost subdomain counts (main's behavior, #2184)", () => {
-		for (const host of ["plannotator.localhost:5000", "a.b.localhost:5000", "evil.localhost:5000"]) {
+		for (const host of ["reviewtrail.localhost:5000", "a.b.localhost:5000", "evil.localhost:5000"]) {
 			expect(isLoopbackHostHeader(host, 5000)).toBe(false);
 			expect(isLoopbackHostHeader(host, 5000, undefined)).toBe(false);
 			expect(isLoopbackHostHeader(host, 5000, null)).toBe(false);
@@ -39,13 +39,13 @@ describe("isLoopbackHostHeader", () => {
 	});
 
 	test("the configured localhost subdomain counts, and only it", () => {
-		expect(isLoopbackHostHeader("plannotator.localhost:5000", 5000, "plannotator.localhost")).toBe(true);
-		expect(isLoopbackHostHeader("Plannotator.Localhost:5000", 5000, "plannotator.localhost")).toBe(true);
+		expect(isLoopbackHostHeader("reviewtrail.localhost:5000", 5000, "reviewtrail.localhost")).toBe(true);
+		expect(isLoopbackHostHeader("ReviewTrail.Localhost:5000", 5000, "reviewtrail.localhost")).toBe(true);
 		// The plain loopback names still count beside it.
-		expect(isLoopbackHostHeader("localhost:5000", 5000, "plannotator.localhost")).toBe(true);
-		expect(isLoopbackHostHeader("127.0.0.1:5000", 5000, "plannotator.localhost")).toBe(true);
-		for (const host of ["evil.localhost:5000", "x.plannotator.localhost:5000", "plannotator.localhost:5001", "plannotator.localhost"]) {
-			expect(isLoopbackHostHeader(host, 5000, "plannotator.localhost")).toBe(false);
+		expect(isLoopbackHostHeader("localhost:5000", 5000, "reviewtrail.localhost")).toBe(true);
+		expect(isLoopbackHostHeader("127.0.0.1:5000", 5000, "reviewtrail.localhost")).toBe(true);
+		for (const host of ["evil.localhost:5000", "x.reviewtrail.localhost:5000", "reviewtrail.localhost:5001", "reviewtrail.localhost"]) {
+			expect(isLoopbackHostHeader(host, 5000, "reviewtrail.localhost")).toBe(false);
 		}
 	});
 
@@ -56,8 +56,8 @@ describe("isLoopbackHostHeader", () => {
 	});
 
 	test("isLocalhostSubdomain needs a non-empty label in front", () => {
-		for (const ok of ["plannotator.localhost", "a.b.localhost", "x-1.LOCALHOST"]) expect(isLocalhostSubdomain(ok)).toBe(true);
-		for (const no of ["localhost", ".localhost", "a..localhost", "-a.localhost", "a-.localhost", "localhost.", "plannotator.localhost.evil.example", "a.localhost:5000"]) {
+		for (const ok of ["reviewtrail.localhost", "a.b.localhost", "x-1.LOCALHOST"]) expect(isLocalhostSubdomain(ok)).toBe(true);
+		for (const no of ["localhost", ".localhost", "a..localhost", "-a.localhost", "a-.localhost", "localhost.", "reviewtrail.localhost.evil.example", "a.localhost:5000"]) {
 			expect(isLocalhostSubdomain(no)).toBe(false);
 		}
 	});

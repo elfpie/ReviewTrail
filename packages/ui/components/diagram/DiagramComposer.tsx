@@ -1,5 +1,5 @@
 import { useContext, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { diagramTargetName, diagramTargetText } from '@plannotator/core/diagram-anchor';
+import { diagramTargetName, diagramTargetText } from '@reviewtrail/core/diagram-anchor';
 import { cn } from '../../lib/utils';
 import type { ScreenRect } from '../../utils/diagram-projection';
 import { SparklesIcon } from '../SparklesIcon';
@@ -69,7 +69,7 @@ export function DiagramComposer({
   /** Opt-in: the words it opens with (a comment the host kept and put back). Absent: empty, as always. */
   initialText?: string;
 }) {
-  // The comment card (opt-in, `configurePlannotatorUI({ commentCard })`): read once, so a box never changes look open.
+  // The comment card (opt-in, `configureReviewTrailUI({ commentCard })`): read once, so a box never changes look open.
   const [card] = useState(getCommentCardEnabled);
   const scope = useContext(CommentDraftScopeContext);
   const part = draft.primary.target;

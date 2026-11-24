@@ -6,7 +6,7 @@ const ROOT_LABELS: Record<SkillCatalogEntry['root'], string> = {
   claude: 'Claude',
   codex: 'Codex',
   universal: 'Agents',
-  plannotator: 'Plannotator',
+  reviewtrail: 'ReviewTrail',
 };
 
 interface SkillReferenceMenuProps {
@@ -27,7 +27,7 @@ interface SkillReferenceMenuProps {
   /** Upper bound on the list's height, in px. Default: 256. */
   maxListHeight?: number;
   /**
-   * Draw the host-served rows (root `plannotator`) as their own group (opt-in; the Inbox's "/" list): their icon in
+   * Draw the host-served rows (root `reviewtrail`) as their own group (opt-in; the Inbox's "/" list): their icon in
    * the theme's primary colour, and one hairline between the last of them and the first other row, only when both
    * kinds are listed. The hairline is presentational (no role, hidden from assistive tech): the options, their ids
    * and their order are the same with or without it. The caller lists those rows first (the hook's `hostRowsFirst`).
@@ -206,10 +206,10 @@ export const SkillReferenceMenu: React.FC<SkillReferenceMenuProps> = ({
         style={{ maxHeight: placement.maxListHeight }}
       >
         {items.map((item, index) => {
-          const hostRow = groupHostRows && item.root === 'plannotator';
+          const hostRow = groupHostRows && item.root === 'reviewtrail';
           // The one hairline: under the last host-served row, when a row of another kind follows it.
           const next = items[index + 1];
-          const dividerAfter = hostRow && next !== undefined && next.root !== 'plannotator';
+          const dividerAfter = hostRow && next !== undefined && next.root !== 'reviewtrail';
           return (
           <React.Fragment key={item.name}>
           <button
@@ -281,7 +281,7 @@ interface HumanOnlySkillNoticeProps {
 
 // Module-level seam (see packages/ui/CLAUDE.md): what every composer's
 // human-only line says the instructions go with, unless the composer says.
-// Plannotator's comments go with "your feedback"; the Inbox's comments on
+// ReviewTrail's comments go with "your feedback"; the Inbox's comments on
 // attached files ride a reply.
 const DEFAULT_DESTINATION = 'your feedback';
 let defaultDestination = DEFAULT_DESTINATION;

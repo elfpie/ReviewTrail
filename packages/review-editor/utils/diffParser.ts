@@ -1,1 +1,1 @@
-export { parseDiffToFiles } from '@plannotator/guide-viewer/diffParser';
+export { parseDiffToFiles } from '@reviewtrail/guide-viewer/diffParser';

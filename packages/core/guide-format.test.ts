@@ -1,6 +1,7 @@
 import { createOfflineGuide } from "./offline-guide";
 import { describe, expect, test } from "bun:test";
 import {
+  GUIDE_SNAPSHOT_KIND,
   GUIDE_SNAPSHOT_SCRIPT_ID,
   buildGuideSnapshot,
   detectGuideLanguages,
@@ -49,8 +50,8 @@ describe("compatibility: every shipped fixture parses with the current parser", 
         expect(parsed.value.guide.reviewed).toHaveLength(parsed.value.guide.sections.length);
         expect(parsed.value.source.kind).toBe(snapshot.source.kind);
         expect(parsed.value.version).toBe(snapshot.version);
-        // Parsing a shipped document gives it back unchanged.
-        expect(parsed.value).toEqual(JSON.parse(JSON.stringify(snapshot)));
+        // Only the legacy discriminator is normalized.
+        expect(parsed.value).toEqual({ ...JSON.parse(JSON.stringify(snapshot)), kind: GUIDE_SNAPSHOT_KIND });
       }
     });
   }
@@ -365,4 +366,14 @@ describe("format version 5: a chapter's diagram", () => {
       if (!parsed.ok) expect(parsed.error.path.startsWith("$.guide.sections[0].diagram")).toBe(true);
     });
   }
+});
+
+
+test("opens prior offline guides and normalizes their format identifier", () => {
+  const legacy = "plannotator-guided-review";
+  const snapshot = { ...FIXTURE_V1_LOCAL, kind: legacy };
+  const result = readEmbeddedGuideSnapshot({
+    getElementById: id => id === legacy ? { textContent: JSON.stringify(snapshot) } : null,
+  });
+  expect(result?.ok && result.value.kind).toBe("reviewtrail-guided-review");
 });

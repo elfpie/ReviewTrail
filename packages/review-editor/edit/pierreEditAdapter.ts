@@ -18,7 +18,7 @@
  * - `Marker` / `SelectionActionContext` have no public export path, so they
  *   are re-derived structurally from the `Editor` class type.
  */
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 
 type EditModule = typeof import('@pierre/diffs/edit');
 
@@ -104,7 +104,7 @@ export function buildEditorMarkers(annotations: CodeAnnotation[], filePath: stri
       end: { line: Math.max(ann.lineEnd, startLine + 1), character: 0 },
       severity: ann.severity === 'important' || ann.type === 'concern' ? 'warning' : 'info',
       message,
-      source: ann.source || ann.author || 'plannotator',
+      source: ann.source || ann.author || 'reviewtrail',
     });
   }
   return markers;

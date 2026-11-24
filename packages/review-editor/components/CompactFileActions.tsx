@@ -1,6 +1,6 @@
 import React from 'react';
 import { GitBranchPlus, MessageSquare, PencilLine } from 'lucide-react';
-import { OpenInAppButton } from '@plannotator/ui/components/OpenInAppButton';
+import { OpenInAppButton } from '@reviewtrail/ui/components/OpenInAppButton';
 
 interface CompactFileActionsProps {
   filePath: string;

@@ -13,7 +13,7 @@
  * Everything else is HtmlViewer, unchanged: the token and origin checks on
  * every bridge message, the comment-only clamp, Annotate/Interact, the Esc
  * ladder. The host owns the proxy, the token and where comments are stored.
- * Annotate's App keeps its inline copy today (Plannotator unchanged); it can
+ * Annotate's App keeps its inline copy today (ReviewTrail unchanged); it can
  * move onto this component once parity is checked in a browser.
  */
 

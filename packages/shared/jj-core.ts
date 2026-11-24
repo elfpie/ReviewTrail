@@ -32,7 +32,7 @@ export {
 } from "./review-core";
 
 /**
- * Global options every runtime prepends to a `jj` command, so output Plannotator
+ * Global options every runtime prepends to a `jj` command, so output ReviewTrail
  * parses never carries ANSI color or goes to a pager, whatever the user's
  * `ui.color` / `ui.paginate` say (#1661). `ui.color = "always"` colors
  * `jj diff --git` even through a pipe; `--color=never` overrides it.

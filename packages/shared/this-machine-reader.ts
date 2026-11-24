@@ -7,7 +7,7 @@
  *  - the session is not in remote mode (which binds every interface);
  *  - the session is not in a GitHub Codespace (`CODESPACES=true`), whose port
  *    forwarder presents `Host: localhost` to whoever the port is shared with;
- *  - `PLANNOTATOR_ALLOWED_HOSTS` is unset (it exists to put a proxy in front);
+ *  - `REVIEWTRAIL_ALLOWED_HOSTS` is unset (it exists to put a proxy in front);
  *  - the Host is a loopback or `*.localhost` name, and so is any
  *    `X-Forwarded-Host`;
  *  - no `Forwarded` or `X-Real-IP` header, no `tailscale serve` header, and

@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react";
 import { Menu } from "@base-ui/react/menu";
 import { Check, ChevronsDownUp, ChevronsUpDown, Copy, Ellipsis, Eye, EyeOff, FoldVertical, TextSearch, X } from "lucide-react";
-import { Tooltip } from "@plannotator/ui/components/Tooltip";
+import { Tooltip } from "@reviewtrail/ui/components/Tooltip";
 
 /**
  * Shared chrome for the left review panels (FileTree, SectionsPanel), approved

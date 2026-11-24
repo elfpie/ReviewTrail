@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { ChevronDown } from 'lucide-react';
-import type { SemanticDiffChange } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffChange } from '@reviewtrail/shared/semantic-diff-types';
 import { useReviewStateOptional } from '../dock/ReviewStateContext';
 import { REVIEW_PANEL_TYPES } from '../dock/reviewPanelTypes';
 import { PaneSlotContext } from '../workspace/paneContext';

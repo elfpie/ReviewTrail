@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RepoDirEntry, RepoFilesResponse, RepoOnDiskChange, RepoRevisionInfo } from '@plannotator/shared/repo-files';
+import type { RepoDirEntry, RepoFilesResponse, RepoOnDiskChange, RepoRevisionInfo } from '@reviewtrail/shared/repo-files';
 
 /**
  * The tree's All files: the repository at the diff's new side, fetched from

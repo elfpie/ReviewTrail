@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Crosshair, Diff, FileText } from 'lucide-react';
 import { EllipsisName } from '../components/EllipsisName';
-import { useFittedText } from '@plannotator/ui/hooks/useFittedText';
+import { useFittedText } from '@reviewtrail/ui/hooks/useFittedText';
 import { useReviewStateOptional } from '../dock/ReviewStateContext';
 import type { Pane, PaneTab } from './paneLayout';
 import { REVIEW_ALL_FILES_PANEL_ID, isReviewFilePreviewParams } from '../dock/reviewPanelTypes';

@@ -1,5 +1,5 @@
-import type { CodeAnnotation } from '@plannotator/ui/types';
-import type { AskAIParams } from '@plannotator/ui/hooks/useAIChat';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
+import type { AskAIParams } from '@reviewtrail/ui/hooks/useAIChat';
 import { annotationScope } from './annotationDisplay';
 import { extractLinesFromPatch } from './patchParser';
 

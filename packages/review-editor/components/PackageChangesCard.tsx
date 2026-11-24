@@ -4,9 +4,9 @@ import {
   type IndirectPackageChange,
   type PackageChange,
   type PackageMetadata,
-} from '@plannotator/core/package-changes';
+} from '@reviewtrail/core/package-changes';
 import { LazyTooltip as Tooltip } from './LazyTooltip';
-import { usePackageChangesSetting } from '@plannotator/ui/hooks/usePackageChangesSetting';
+import { usePackageChangesSetting } from '@reviewtrail/ui/hooks/usePackageChangesSetting';
 import {
   packageKey,
   setPackageChangesFolded,

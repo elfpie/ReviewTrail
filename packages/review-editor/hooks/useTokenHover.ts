@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
   CodeNavHoverResponse,
   CodeNavRequest,
-} from '@plannotator/shared/code-nav';
-import { DEFAULT_TOKEN_HOVER_DELAY_MS } from '@plannotator/shared/token-hover';
-import { isModKeyHeld, modEventKey } from '@plannotator/ui/utils/platform';
+} from '@reviewtrail/shared/code-nav';
+import { DEFAULT_TOKEN_HOVER_DELAY_MS } from '@reviewtrail/shared/token-hover';
+import { isModKeyHeld, modEventKey } from '@reviewtrail/ui/utils/platform';
 
 export type { CodeNavHoverResponse };
 

@@ -16,10 +16,10 @@ import { afterEach, expect, mock, test } from 'bun:test';
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { preloadHighlighter } from '@pierre/diffs';
-import type { CodeAnnotation } from '@plannotator/ui/types';
+import type { CodeAnnotation } from '@reviewtrail/ui/types';
 import type { DiffFile } from '../types';
 
-const realResolveSyntaxTheme = (await import('@plannotator/ui/utils/syntaxTheme')).resolveSyntaxTheme;
+const realResolveSyntaxTheme = (await import('@reviewtrail/ui/utils/syntaxTheme')).resolveSyntaxTheme;
 
 // workerPool imports a Vite-only `?worker&inline` module bun cannot load. Without a pool, CodeView uses the shared
 // highlighter on the main thread.

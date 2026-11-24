@@ -1,7 +1,7 @@
 /**
  * A ```html fence drawn as a live page in the document (approval
  * "inbox-inline-html", 2026-10-28; the policy and the page's protocol are
- * @plannotator/core/html-embed). Only for a host that serves embed documents
+ * @reviewtrail/core/html-embed). Only for a host that serves embed documents
  * (`HtmlEmbedHost`, the Viewer's `htmlEmbeds`); without one a fence stays
  * code, as before.
  *
@@ -38,8 +38,8 @@ import {
   readEmbedMessage,
   type EmbedMode,
   type EmbedTheme,
-} from '@plannotator/core/html-embed';
-import { buildHtmlBlockAnchor, matchHtmlBlockAnchor, parseHtmlBlockAnchor } from '@plannotator/core/html-block-anchor';
+} from '@reviewtrail/core/html-embed';
+import { buildHtmlBlockAnchor, matchHtmlBlockAnchor, parseHtmlBlockAnchor } from '@reviewtrail/core/html-block-anchor';
 import type { Annotation, Block } from '../../types';
 import { blockEndLine } from '../../utils/parser';
 import { CodeBlock } from '../blocks/CodeBlock';

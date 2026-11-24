@@ -258,7 +258,7 @@ describe('DecisionControl', () => {
     await clickItem('Approve, discard 3 annotations…');
 
     const dialog = () =>
-      document.querySelector<HTMLElement>('[data-plannotator-confirm-dialog]');
+      document.querySelector<HTMLElement>('[data-reviewtrail-confirm-dialog]');
     expect(dialog()).not.toBeNull();
     expect(handlers['discard-and-finish']).not.toHaveBeenCalled();
 

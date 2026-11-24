@@ -15,7 +15,7 @@ export type { DiffFileTreeDefaultExpanded } from '../hooks/useDiffFileTreeExpans
  * The diff file tree's presentational parts: the atoms below (folder row,
  * file-row content, change letter, +/- counts, indentation) for a host's own
  * rows, and the `DiffFileTree` component at the bottom, the read-only,
- * embeddable tree a host drops beside its own diff list. Plannotator's code
+ * embeddable tree a host drops beside its own diff list. ReviewTrail's code
  * review shares `ChangeTypeLetter` and `diffFileTreeIndent` (its All files
  * tree) but draws its own Changes rows since its aligned sidebar (see
  * HANDOFF.md § "Diff file tree").
@@ -173,12 +173,12 @@ function filesSignature(files: readonly DiffFileTreeFile[]): string {
 
 /**
  * Read-only diff file tree: the same folder collapsing, change letters, +/-
- * counts, icons and indentation as Plannotator's code-review tree, with WAI-ARIA
+ * counts, icons and indentation as ReviewTrail's code-review tree, with WAI-ARIA
  * tree semantics. Keyboard (while focus is in the tree, never window-wide):
  * ArrowDown/`j` and ArrowUp/`k` select the next/previous file in tree order,
  * Home/End the first/last (the review's keys); ArrowRight/ArrowLeft open/close
  * a focused folder, and ArrowLeft from a file moves focus to its folder.
- * Theme comes from the ThemeProvider tokens via `@plannotator/ui/styles.css`.
+ * Theme comes from the ThemeProvider tokens via `@reviewtrail/ui/styles.css`.
  */
 export const DiffFileTree: React.FC<DiffFileTreeProps> = ({
   files,

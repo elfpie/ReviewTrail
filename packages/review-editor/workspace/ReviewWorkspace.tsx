@@ -1,12 +1,12 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { storage } from '@plannotator/ui/utils/storage';
+import { storage } from '@reviewtrail/ui/utils/storage';
 import { PaneDivider } from './PaneDivider';
 import { PanePanels } from './PanePanels';
 import { clampRatio, PANE_MIN_WIDTH } from './paneLayout';
 import { WorkspaceStore, type WorkspaceApi } from './workspaceStore';
 import { readSavedLayout, snapshotLayout, writeSavedLayout } from './layoutMemory';
 
-export const PANE_RATIO_KEY = 'plannotator-review-pane-ratio';
+export const PANE_RATIO_KEY = 'reviewtrail-review-pane-ratio';
 const SAVE_DELAY_MS = 300;
 
 function readRatio(): number {

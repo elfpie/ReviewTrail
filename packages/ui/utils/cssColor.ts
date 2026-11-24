@@ -1,7 +1,7 @@
 /**
  * Small, dependency-free CSS colour toolkit for theme-derived rendering.
  *
- * Plannotator's palettes write their tokens as hex, `rgb()` and `oklch()`
+ * ReviewTrail's palettes write their tokens as hex, `rgb()` and `oklch()`
  * (see `packages/ui/themes/*.css`), and a browser's computed value for a
  * colour can also come back as `oklab()`, `lab()`, `lch()`, `hsl()` or
  * `color(srgb ...)`. Mermaid's own colour library (khroma) understands only

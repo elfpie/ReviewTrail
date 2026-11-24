@@ -1,9 +1,9 @@
-import type { CodeAnnotation, ConventionalLabel, ConventionalDecoration, CommentAnnotation, Annotation, ArtifactAnnotationMeta, MarkdownPreviewAnchor } from '@plannotator/ui/types';
-import type { PRMetadata } from '@plannotator/shared/pr-types';
-import { getMRLabel, getMRNumberLabel, getDisplayRepo } from '@plannotator/shared/pr-types';
-import { exportAnnotations, parseMarkdownToBlocks } from '@plannotator/ui/utils/parser';
+import type { CodeAnnotation, ConventionalLabel, ConventionalDecoration, CommentAnnotation, Annotation, ArtifactAnnotationMeta, MarkdownPreviewAnchor } from '@reviewtrail/ui/types';
+import type { PRMetadata } from '@reviewtrail/shared/pr-types';
+import { getMRLabel, getMRNumberLabel, getDisplayRepo } from '@reviewtrail/shared/pr-types';
+import { exportAnnotations, parseMarkdownToBlocks } from '@reviewtrail/ui/utils/parser';
 import { artifactAnchorLabel } from './artifactAnnotations';
-import { codeFenceFor } from '@plannotator/core/markdown-structure';
+import { codeFenceFor } from '@reviewtrail/core/markdown-structure';
 
 /**
  * Quoted code in a fence longer than any backtick run in it (CommonMark), so

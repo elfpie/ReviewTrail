@@ -3,7 +3,7 @@
  * script path as the executable). It never runs Qwen Code.
  *
  * Every run appends one JSON line to `log`: its argv, the prompt it read from
- * stdin, its cwd, $QWEN_HOME, Plannotator's switches, its pid and when it started (`at`, ms). What it does next comes from the
+ * stdin, its cwd, $QWEN_HOME, ReviewTrail's switches, its pid and when it started (`at`, ms). What it does next comes from the
  * file `mode` in `dir` (read at each run, so a test can change it between
  * questions):
  *
@@ -44,7 +44,7 @@ export interface FakeQwenRun {
   stdin: string;
   cwd: string;
   qwenHome: string | null;
-  /** Plannotator's integration switches in the run's env (ask-ai-env.ts). */
+  /** ReviewTrail's integration switches in the run's env (ask-ai-env.ts). */
   switches: Record<string, string | null>;
   pid: number;
   at: number;
@@ -67,9 +67,9 @@ process.stdin.on("end", () => {
     cwd: process.cwd(),
     qwenHome: process.env.QWEN_HOME ?? null,
     switches: {
-      PLANNOTATOR_ASK_AI_CHILD: process.env.PLANNOTATOR_ASK_AI_CHILD ?? null,
-      PLANNOTATOR_INBOX_TOOL: process.env.PLANNOTATOR_INBOX_TOOL ?? null,
-      PLANNOTATOR_AGENT_TOOL: process.env.PLANNOTATOR_AGENT_TOOL ?? null,
+      REVIEWTRAIL_ASK_AI_CHILD: process.env.REVIEWTRAIL_ASK_AI_CHILD ?? null,
+      REVIEWTRAIL_INBOX_TOOL: process.env.REVIEWTRAIL_INBOX_TOOL ?? null,
+      REVIEWTRAIL_AGENT_TOOL: process.env.REVIEWTRAIL_AGENT_TOOL ?? null,
     },
     pid: process.pid,
     at: Date.now(),

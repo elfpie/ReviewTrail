@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { GUIDE_ENGINE_LABEL } from '@plannotator/core/guide';
+import { GUIDE_ENGINE_LABEL } from '@reviewtrail/core/guide';
 import {
   EFFORT_LABELS,
   effortSelectOptions,
@@ -7,7 +7,7 @@ import {
   modelLabel,
   modelSelectOptions,
   PI_THINKING_LEVELS,
-} from '@plannotator/core/model-catalog';
+} from '@reviewtrail/core/model-catalog';
 import type { AgentCapabilities } from '../types';
 import { useAgentSettings, type ReviewEngine } from './useAgentSettings';
 import { useModelCatalogs, type ModelCatalogs } from './useModelCatalogs';

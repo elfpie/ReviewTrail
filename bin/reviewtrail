@@ -14,33 +14,25 @@ const args = fromPi
 const wantsVersion = ['--version', '-v'].includes(args[0]);
 if (wantsVersion || ['--help', '-h'].includes(args[0])) {
   const message = wantsVersion
-    ? `ReviewTrail (Plannotator base ${pkg.version})`
+    ? `ReviewTrail ${pkg.version}`
     : REVIEW_HELP;
   console.log(fromPi ? JSON.stringify({ decision: 'info', message }) : message);
   process.exit(0);
 }
 
-// Bridge public ReviewTrail settings only inside the review child. Upstream
-// session tags, result-file paths and ports belong to a different host.
+// Inherit the existing corporate policy overrides when the fork has no explicit setting.
 const env = process.env;
-const inheritedPolicy = new Set([
-  'PLANNOTATOR_TEST_SANDBOX', 'PLANNOTATOR_AI',
-  'PLANNOTATOR_PACKAGE_LOOKUP', 'PLANNOTATOR_GIT_REMOTE_CHECK',
-  'PLANNOTATOR_CLAUDE_SANDBOX',
-  // Keep operator-configured service destinations, including corporate mirrors.
-  'PLANNOTATOR_PACKAGE_REGISTRY_URL',
-  'PLANNOTATOR_PACKAGE_DOWNLOADS_URL',
-  'PLANNOTATOR_BITBUCKET_API_URL',
-]);
+for (const setting of ['TEST_SANDBOX', 'AI', 'PACKAGE_LOOKUP', 'GIT_REMOTE_CHECK', 'CLAUDE_SANDBOX',
+  'PACKAGE_REGISTRY_URL', 'PACKAGE_DOWNLOADS_URL', 'BITBUCKET_API_URL']) {
+  const upstream = env['PLANNOTATOR_' + setting];
+  if (upstream !== undefined) env['REVIEWTRAIL_' + setting] ??= upstream;
+}
+// Child tools must never inherit another launcher's session or bridge credentials.
 for (const name of Object.keys(env)) {
-  if (name.startsWith('PLANNOTATOR_') && !inheritedPolicy.has(name)) delete env[name];
+  if (name.startsWith('PLANNOTATOR_')) delete env[name];
 }
-for (const [name, value] of Object.entries(env)) {
-  if (name.startsWith('REVIEWTRAIL_')) env['PLANNOTATOR_' + name.slice('REVIEWTRAIL_'.length)] = value;
-}
-env.PLANNOTATOR_DATA_DIR = env.REVIEWTRAIL_DATA_DIR?.trim() || join(homedir(), '.reviewtrail');
-env.PLANNOTATOR_PORT = env.REVIEWTRAIL_PORT?.trim() || '0';
-if (fromPi) env.PLANNOTATOR_ORIGIN = 'pi';
-env.PLANNOTATOR_SESSION_BRAND = 'ReviewTrail';
+env.REVIEWTRAIL_DATA_DIR = env.REVIEWTRAIL_DATA_DIR?.trim() || join(homedir(), '.reviewtrail');
+env.REVIEWTRAIL_PORT = env.REVIEWTRAIL_PORT?.trim() || '0';
+if (fromPi) env.REVIEWTRAIL_ORIGIN = 'pi';
 process.argv.splice(2, process.argv.length - 2, 'review', ...args);
 await import('../apps/review/server/index.ts');

@@ -343,7 +343,7 @@ let warnedHighlighterFailure = false;
 const warnHighlighterFailure = (context: string, error: unknown): void => {
   if (warnedHighlighterFailure) return;
   warnedHighlighterFailure = true;
-  console.warn(`[plannotator] highlighter ${context} failed; the selection was ignored`, error);
+  console.warn(`[reviewtrail] highlighter ${context} failed; the selection was ignored`, error);
 };
 
 /**

@@ -1,5 +1,5 @@
 import { useState, useCallback, type RefObject } from 'react';
-import type { PRDiffScope } from '@plannotator/shared/pr-stack';
+import type { PRDiffScope } from '@reviewtrail/shared/pr-stack';
 
 export interface PRSwitchResponse {
   rawPatch: string;

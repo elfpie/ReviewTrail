@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import type { CallFlowAdvert, CallFlowInstallStage, CallFlowNode } from '@plannotator/shared/call-flow-types';
-import { getCallFlowLanguage, type CallFlowLanguageId } from '@plannotator/shared/call-flow-languages';
+import type { CallFlowAdvert, CallFlowInstallStage, CallFlowNode } from '@reviewtrail/shared/call-flow-types';
+import { getCallFlowLanguage, type CallFlowLanguageId } from '@reviewtrail/shared/call-flow-languages';
 import type { CallFlowInstallController } from '../../hooks/useCallFlowInstall';
 import { Popover } from '@base-ui/react/popover';
 import { Check, Info, Settings2, X } from 'lucide-react';
-import { Tooltip } from '@plannotator/ui/components/Tooltip';
+import { Tooltip } from '@reviewtrail/ui/components/Tooltip';
 import { useReviewState } from '../ReviewStateContext';
 import { useCallFlowNodeSource } from '../../hooks/useCallFlowNodeSource';
 import {
@@ -13,10 +13,10 @@ import {
 } from '../../components/CallFlowTreeView';
 import { CallFlowRawView } from '../../components/CallFlowRawView';
 import { CallTreeList } from '../../components/callTree/CallTreeList';
-import { callTreeFromEntry } from '@plannotator/shared/call-tree';
+import { callTreeFromEntry } from '@reviewtrail/shared/call-tree';
 import { formatCallFlowInstallSize } from '../../utils/callFlowPresentation';
 
-function errorMessage(error: Exclude<import('@plannotator/shared/call-flow-types').CallFlowResponse, { status: 'ok' }> | Error): string {
+function errorMessage(error: Exclude<import('@reviewtrail/shared/call-flow-types').CallFlowResponse, { status: 'ok' }> | Error): string {
   return error.message || 'Call-flow analysis failed.';
 }
 
@@ -215,7 +215,7 @@ export function CallFlowInstallFunnel({
         <span className="call-flow-empty-kicker">Preparing analysis</span>
         <strong>Call flow is setting up in the background.</strong>
         <p>
-          You can keep reviewing while Plannotator prepares the local runtime and the
+          You can keep reviewing while ReviewTrail prepares the local runtime and the
           language support this review needs.
         </p>
         {advert.message && advert.reason !== 'runtime-unavailable' && (
@@ -266,7 +266,7 @@ export function ReviewCallFlowPanel() {
     }
     const recovery = state.callFlowAdvert.state === 'unsupported'
       ? state.callFlowAdvert.reason === 'demo-mode'
-        ? 'Launch a review through Plannotator to analyze its Git snapshots.'
+        ? 'Launch a review through ReviewTrail to analyze its Git snapshots.'
         : 'Choose a supported local Git review view to run this analysis.'
       : 'The ordinary code diff remains available.';
     return (
@@ -402,7 +402,7 @@ export function ReviewCallFlowPanel() {
               )}
               {!state.callFlowAdvert.installable && (
                 <small className="call-flow-language-progress">
-                  Add this language grammar to PLANNOTATOR_CALLDIFF_PATH to include these files.
+                  Add this language grammar to REVIEWTRAIL_CALLDIFF_PATH to include these files.
                 </small>
               )}
             </span>

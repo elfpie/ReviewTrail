@@ -1,6 +1,6 @@
 /**
  * Pure tree builder for a list of changed files (a diff), shared by
- * Plannotator's code-review file tree (`packages/review-editor`) and the
+ * ReviewTrail's code-review file tree (`packages/review-editor`) and the
  * embeddable `DiffFileTree` component. Browser-safe, no React.
  *
  * Shape rules (the review's, unchanged when this moved here):

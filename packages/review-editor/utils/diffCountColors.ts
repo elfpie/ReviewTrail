@@ -20,7 +20,7 @@ import {
   rgbToOklch,
   toHex,
   type RgbColor,
-} from '@plannotator/ui/utils/cssColor';
+} from '@reviewtrail/ui/utils/cssColor';
 
 export const DIFF_COUNT_CONTRAST_MIN = 4.5;
 /** Kept above the minimum: the browser composites the translucent grounds in

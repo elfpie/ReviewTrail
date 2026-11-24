@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { withServerSession } from '@plannotator/ui/utils/serverSession';
-import { assertSendOk, describeSendFailure, sendFailureOf, throwUnreachable } from '@plannotator/ui/utils/sendFailure';
+import { withServerSession } from '@reviewtrail/ui/utils/serverSession';
+import { assertSendOk, describeSendFailure, sendFailureOf, throwUnreachable } from '@reviewtrail/ui/utils/sendFailure';
 import type { DiffLoadFailureInfo } from '../utils/diffLoadFailure';
 
 /**

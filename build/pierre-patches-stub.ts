@@ -1,6 +1,6 @@
 function unavailable(): never {
   throw new Error(
-    '@pierre/patches is not bundled by Plannotator: diffs use jsdiff (preferredDiffLib: \'jsdiff\'). ' +
+    '@pierre/patches is not bundled by ReviewTrail: diffs use jsdiff (preferredDiffLib: \'jsdiff\'). ' +
       'Remove the `@pierre/patches` alias in the app vite config to re-enable it.',
   );
 }

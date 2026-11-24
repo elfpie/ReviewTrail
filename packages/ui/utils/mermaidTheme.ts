@@ -3,7 +3,7 @@
  *
  * Mermaid diagrams used to render from one static config (`MERMAID_CONFIG` in
  * `./mermaid`: the `dark` base theme plus a slate palette) in every one of
- * Plannotator's palettes and both modes. This module derives the diagram
+ * ReviewTrail's palettes and both modes. This module derives the diagram
  * theme from the live CSS tokens instead, the same tokens `ThemeProvider`
  * applies through `theme.css`, so a diagram follows the palette the way a
  * code fence already does (see `syntaxTheme.ts` / `useFenceTheme`).
@@ -39,7 +39,7 @@
  *
  * Fallback contract (hosts): when no tokens resolve, the runtime keeps the
  * static `MERMAID_CONFIG` it was initialized with, and nothing is
- * re-initialized, so a host that does not use Plannotator's theme tokens
+ * re-initialized, so a host that does not use ReviewTrail's theme tokens
  * renders exactly as before this module existed.
  *
  * Contrast rule (the "guard"): every text-on-fill pair the mapping produces
@@ -135,7 +135,7 @@ export interface MermaidThemeOptions {
 /**
  * The shipped shadow amount: Mermaid 12's neo look at 70% of its own shadow.
  * The full-strength default reads as a grey halo around every node on a
- * Plannotator page; 70 keeps the lift and drops the halo.
+ * ReviewTrail page; 70 keeps the lift and drops the halo.
  */
 export const DEFAULT_MERMAID_SHADOW_AMOUNT = 0.7;
 
@@ -233,7 +233,7 @@ function resolvePalette(tokens: MermaidThemeTokens): Palette | null {
   const muted = over(tokens.muted, towardFg(0.08));
   const primary = over(tokens.primary, foreground);
   // The block's `bg-muted/30` container sits on the document card in
-  // Plannotator (`bg-card` article); a host may place it straight on the page.
+  // ReviewTrail (`bg-card` article); a host may place it straight on the page.
   const canvas = compositeOver({ ...muted, a: CANVAS_MUTED_ALPHA }, card);
   const canvasOnBackground = compositeOver({ ...muted, a: CANVAS_MUTED_ALPHA }, opaqueBackground);
   const font = tokens['font-sans']?.trim();

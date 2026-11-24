@@ -1,11 +1,11 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { fuzzySearchPaths, type FuzzyPathMatch } from '@plannotator/shared/fuzzy-path';
-import { REPO_FILES_SEARCH_ENDPOINT } from '@plannotator/shared/repo-files';
-import { altKey } from '@plannotator/ui/utils/platform';
+import { fuzzySearchPaths, type FuzzyPathMatch } from '@reviewtrail/shared/fuzzy-path';
+import { REPO_FILES_SEARCH_ENDPOINT } from '@reviewtrail/shared/repo-files';
+import { altKey } from '@reviewtrail/ui/utils/platform';
 import type { DiffFile } from '../types';
 import type { RepoFilesState } from '../hooks/useRepoFiles';
-import { fileStatusLetter } from '@plannotator/ui/utils/fileStatusLetter';
+import { fileStatusLetter } from '@reviewtrail/ui/utils/fileStatusLetter';
 
 const RESULT_LIMIT = 50;
 const SERVER_DEBOUNCE_MS = 80;

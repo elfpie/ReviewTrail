@@ -17,7 +17,7 @@
  *
  * A host that sizes the pictures in a document itself turns this off with
  * `<ImageRowsContext.Provider value={false}>` around its renderer: no row, no
- * cap, no attribute; its images draw exactly as before. The Plannotator Inbox
+ * cap, no attribute; its images draw exactly as before. The ReviewTrail Inbox
  * does this for message bodies, whose pictures it fits itself
  * (`.ib-body img[data-ib-fit]`).
  */

@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import type { AgentJobInfo } from '@plannotator/ui/types';
-import { ElapsedTime } from '@plannotator/ui/components/AgentsTab';
+import type { AgentJobInfo } from '@reviewtrail/ui/types';
+import { ElapsedTime } from '@reviewtrail/ui/components/AgentsTab';
 import { LiveLogViewer } from '../LiveLogViewer';
 import { useJobLogs } from '../../dock/JobLogsContext';
-import { GuideSectionSkeleton } from '@plannotator/guide-viewer/GuideSkeleton';
+import { GuideSectionSkeleton } from '@reviewtrail/guide-viewer/GuideSkeleton';
 
 const STATUS_LABEL: Record<AgentJobInfo['status'], string> = {
   starting: 'Starting',

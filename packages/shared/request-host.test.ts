@@ -88,7 +88,7 @@ describe("isAllowedRequestHost", () => {
     }
   });
 
-  test("PLANNOTATOR_ALLOWED_HOSTS adds exact names and dotted suffixes; * turns the check off", () => {
+  test("REVIEWTRAIL_ALLOWED_HOSTS adds exact names and dotted suffixes; * turns the check off", () => {
     const allowed = parseAllowedHosts(" Preview.Example.com , .internal.test,,");
     expect(allowed).toEqual({ any: false, names: ["preview.example.com", ".internal.test"] });
     const policy = { remote: false, allowed };
@@ -146,7 +146,7 @@ describe("helpers", () => {
   });
 
   test("the refusal names the env var and never echoes a malformed header", () => {
-    expect(hostNotAllowedMessage("evil.example:1")).toContain("PLANNOTATOR_ALLOWED_HOSTS");
+    expect(hostNotAllowedMessage("evil.example:1")).toContain("REVIEWTRAIL_ALLOWED_HOSTS");
     expect(hostNotAllowedMessage("evil.example:1")).toContain('"evil.example"');
     expect(hostNotAllowedMessage("<script>")).not.toContain("<script>");
   });

@@ -1051,7 +1051,7 @@ describeRg("resolveCodeNav against real ripgrep (#1558)", () => {
     ].join("\n");
 
   beforeAll(async () => {
-    root = await mkdtemp(join(tmpdir(), "plannotator-code-nav-"));
+    root = await mkdtemp(join(tmpdir(), "reviewtrail-code-nav-"));
     // First-party Java package whose path contains a `vendor` segment.
     await Bun.write(
       `${root}/src/main/java/com/example/vendor/app/ExampleService.java`,

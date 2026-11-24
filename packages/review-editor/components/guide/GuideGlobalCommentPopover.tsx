@@ -1,5 +1,5 @@
 import React from 'react';
-import { CommentPopover, restoreCommentDraft } from '@plannotator/ui/components/CommentPopover';
+import { CommentPopover, restoreCommentDraft } from '@reviewtrail/ui/components/CommentPopover';
 
 /** The guide's global comment composer. A refused add (`false`) puts the words back as the draft, so the next open shows them. */
 export function GuideGlobalCommentPopover({

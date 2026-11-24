@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import { formatShortcutBindingText, getShortcutPlatform, resolveShortcutBindings, reviewExplorerShortcuts } from '@plannotator/ui/shortcuts';
+import { formatShortcutBindingText, getShortcutPlatform, resolveShortcutBindings, reviewExplorerShortcuts } from '@reviewtrail/ui/shortcuts';
 import { useReviewStateOptional } from '../dock/ReviewStateContext';
 import { navLocationLabel, type JumpCrumb, type NavLocation } from '../utils/explorerNavigation';
 

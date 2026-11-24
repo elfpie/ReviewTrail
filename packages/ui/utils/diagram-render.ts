@@ -33,7 +33,7 @@
  * into a navigation. The canvas owns every click.
  */
 import DOMPurify from 'dompurify';
-import type { DiagramKind } from '@plannotator/core/diagram-anchor';
+import type { DiagramKind } from '@reviewtrail/core/diagram-anchor';
 import { MERMAID_FINDER, type DiagramFinder } from './diagram-anchor';
 import { GRAPHVIZ_FINDER } from './diagram-anchor-graphviz';
 import { getGraphvizRetryDelayMs, loadGraphvizRuntime, type GraphvizRuntime } from './graphviz';
@@ -42,7 +42,7 @@ import { getMermaidRetryDelayMs, loadMermaidRuntime } from './mermaid';
 import { hasMermaidMath } from './mermaid-math-slot';
 import { applyMermaidTheme, mermaidThemeKey, type MermaidThemeMode } from './mermaidTheme';
 
-export type { DiagramKind } from '@plannotator/core/diagram-anchor';
+export type { DiagramKind } from '@reviewtrail/core/diagram-anchor';
 
 type Mermaid = Awaited<ReturnType<typeof loadMermaidRuntime>>;
 
@@ -60,7 +60,7 @@ export interface DiagramTheme {
   /**
    * Node drop shadow strength, 0..1 (see `mermaidTheme.buildMermaidShadow`).
    * Absent means the shipped default, so a host that builds its own
-   * `DiagramTheme` renders exactly what Plannotator renders.
+   * `DiagramTheme` renders exactly what ReviewTrail renders.
    */
   readonly shadowAmount?: number;
 }

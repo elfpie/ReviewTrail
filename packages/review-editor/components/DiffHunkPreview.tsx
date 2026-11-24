@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { FileDiff } from '@pierre/diffs/react';
 import { getSingularPatch } from '@pierre/diffs';
-import type { DiffLineBgIntensity } from '@plannotator/shared/config';
-import { extendThemeSwitch, useTheme } from '@plannotator/ui/components/ThemeProvider';
-import { useConfigValue } from '@plannotator/ui/config';
+import type { DiffLineBgIntensity } from '@reviewtrail/shared/config';
+import { extendThemeSwitch, useTheme } from '@reviewtrail/ui/components/ThemeProvider';
+import { useConfigValue } from '@reviewtrail/ui/config';
 import { useReviewState } from '../dock/ReviewStateContext';
 import { resolveSyntaxTheme, buildLineBgOverrides } from '../hooks/usePierreTheme';
 import { buildPierreFontCSS } from '../utils/pierreFontCss';

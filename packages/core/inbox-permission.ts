@@ -1,7 +1,7 @@
 /**
  * Claude Code permission prompts answered in the Inbox (launch, PR 2; PLAN
  * "Permission hook"). A session the Inbox launched runs
- * `plannotator inbox permission-hook` on every PermissionRequest; the hook
+ * `reviewtrail inbox permission-hook` on every PermissionRequest; the hook
  * hands the event to the Inbox, which asks the person with an ordinary
  * question card in the launch thread, and prints the person's answer in the
  * shape Claude Code reads (proved in .ops/work/bg-perm-test/RESULTS.md).
@@ -386,7 +386,7 @@ function purposeOf(event: InboxPermissionEvent): string | null {
 export const inboxLaunchFullPermissions = (launch: { full_permissions?: true }): boolean => launch.full_permissions === true;
 
 /** In a launch's settings file `env` when it started with bypass mode allowed (`bypass_available`): the hook honours "Full permissions" only then. */
-export const INBOX_LAUNCH_FULL_PERMISSIONS_ENV = "PLANNOTATOR_LAUNCH_FULL_PERMISSIONS";
+export const INBOX_LAUNCH_FULL_PERMISSIONS_ENV = "REVIEWTRAIL_LAUNCH_FULL_PERMISSIONS";
 
 /** The answer that also switches the session's mode (Claude Code's `setMode`, destination `session`). */
 export const INBOX_PERMISSION_AUTO = "Allow and switch to Auto mode";
@@ -568,7 +568,7 @@ export type InboxPermissionDecision =
 /** What the agent is told on a Deny: never to retry, and to go on; the person's reason when they gave one. */
 export function inboxPermissionDenyMessage(reason: string | null): string {
   const why = reason?.trim();
-  return `The person denied this in the Plannotator Inbox. Do not retry it; go on with the next step without it.${why ? ` Their reason: ${why}` : ""}`;
+  return `The person denied this in the ReviewTrail Inbox. Do not retry it; go on with the next step without it.${why ? ` Their reason: ${why}` : ""}`;
 }
 
 /**

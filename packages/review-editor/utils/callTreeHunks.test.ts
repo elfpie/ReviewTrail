@@ -11,7 +11,7 @@
  *    the function the changed lines are in.
  */
 import { describe, expect, test } from 'bun:test';
-import type { SemanticDiffChange } from '@plannotator/shared/semantic-diff-types';
+import type { SemanticDiffChange } from '@reviewtrail/shared/semantic-diff-types';
 import { callTreeHunkTargets, functionAroundHunk, listPatchHunks } from './callTreeHunks';
 
 const patch = [
