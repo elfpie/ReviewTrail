@@ -10,7 +10,7 @@ mock.module('../../workerPool', () => ({
   useWorkerPoolThemeSync: () => {},
 }));
 import { ReviewStateProvider, type ReviewState } from '../../dock/ReviewStateContext';
-import { DEMO_GUIDE_ID } from '../../demoGuide';
+import { DEMO_GUIDE, DEMO_GUIDE_ID } from '../../demoGuide';
 
 const { GuideScreen } = await import('./GuideScreen');
 
@@ -41,7 +41,7 @@ afterEach(async () => {
 const file = (path: string) => ({ path, oldPath: path, patch: '', additions: 1, deletions: 0 });
 
 /** Review state as App gives it: the stored `diffStyle`, and a change handler that writes it. */
-function Harness({ compact = false }: { compact?: boolean }) {
+function Harness({ compact = false, jobId = DEMO_GUIDE_ID }: { compact?: boolean; jobId?: string }) {
   const diffStyle = useConfigValue('diffStyle');
   const state = {
     diffStyle,
@@ -57,7 +57,7 @@ function Harness({ compact = false }: { compact?: boolean }) {
   return (
     <ReviewStateProvider value={state}>
       <GuideScreen
-        activeGuideJobId={DEMO_GUIDE_ID}
+        activeGuideJobId={jobId}
         jobs={[]}
         capabilities={null}
         launchJob={async () => null}
@@ -69,15 +69,17 @@ function Harness({ compact = false }: { compact?: boolean }) {
   );
 }
 
-async function renderGuide(compact = false) {
+async function renderGuide(compact = false, jobId = DEMO_GUIDE_ID) {
   originalDiffStyle = configStore.get('diffStyle');
   configStore.set('diffStyle', 'unified');
-  globalThis.fetch = (async () => new Response(null, { status: 404 })) as unknown as typeof fetch;
+  globalThis.fetch = (async (url: RequestInfo | URL) => String(url) === '/api/guide/saved:with-path'
+    ? Response.json({ ...DEMO_GUIDE, sections: [{ title: 'Caller retries', overview: '- [Read caller](code:src/a.ts#L1) Follow the retry.', diffs: [] }] })
+    : new Response(null, { status: 404 })) as unknown as typeof fetch;
   bar = document.createElement('header');
   host = document.createElement('div');
   document.body.append(bar, host);
   root = createRoot(host);
-  await act(async () => root?.render(<Harness compact={compact} />));
+  await act(async () => root?.render(<Harness compact={compact} jobId={jobId} />));
 }
 
 describe('GuideScreen top-bar diff controls', () => {
@@ -102,6 +104,16 @@ describe('GuideScreen top-bar diff controls', () => {
     const collapse = bar!.querySelector<HTMLButtonElement>('[data-guide-collapse-all]')!;
     await act(async () => collapse.click());
     expect(collapse.getAttribute('aria-label')).toBe('Expand all files');
+  });
+
+  test.skipIf(!hasDom)('opens a guide containing a reading path in Full guide and diffs', async () => {
+    await renderGuide(false, 'saved:with-path');
+    const mode = (name: string) => [...host!.querySelectorAll('button')].find(b => b.textContent === name)!;
+    expect(mode('Full guide and diffs').getAttribute('aria-pressed')).toBe('true');
+    await act(async () => mode('Reading path').click());
+    expect(host!.querySelector('nav[aria-label="Reading path chapters"]')).not.toBeNull();
+    await act(async () => mode('Full guide and diffs').click());
+    expect(bar!.querySelector('[data-guide-diff-controls]')).not.toBeNull();
   });
 
   test.skipIf(!hasDom)('a compact touch layout draws none of them', async () => {

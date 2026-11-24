@@ -9,6 +9,7 @@ Reach at least 9/10 satisfaction for each reviewer on typical 2,000-line agent-w
 - [x] Base the fork on upstream Plannotator and retain its review command, diff modes and annotation delivery.
 - [x] Generate scenario chapters that walk from a caller or trigger to an observable outcome. Identify before/after behavior, important branches, architectural decisions, uncertainty and repeated changes.
 - [x] Show excerpts in execution order with inline explanations, expandable context and line-anchored reviewer comments. Let a path revisit a file and distinguish branching or concurrent work.
+- [x] Open generated guides in Full guide and diffs. Offer a full-width Reading path with a named chapter outline, syntax-highlighted passages and line-number comments.
 - [x] Account for files outside the walkthrough and fold tests at the end. Keep the full diff accessible.
 - [x] Package a review-only entry point and verify a local review round trip.
 - [x] Give the fork its own command, data directory, browser preferences, Claude Code skill and Pi extension so it can run alongside Plannotator.

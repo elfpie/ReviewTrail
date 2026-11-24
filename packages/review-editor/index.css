@@ -2567,3 +2567,59 @@ html:has([data-pn-compact-touch-layout='true']) [data-menu-version] a {
 html:has([data-pn-compact-touch-layout='true']) [data-review-sidebar-tab] {
   min-width: var(--pn-touch-target);
 }
+
+.reading-path { container-type: inline-size; }
+.reading-path-outline { max-height: 14rem; overflow-y: auto; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem; }
+@container (min-width: 52rem) {
+  .reading-path-layout {
+    display: grid;
+    grid-template-columns: clamp(12rem, 19%, 17rem) minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+  }
+  .reading-path-outline {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100dvh - 9rem);
+    overflow-y: auto;
+    border-bottom: 0;
+    border-right: 1px solid var(--border);
+    padding: 0 .75rem 0 0;
+    margin: 0;
+  }
+}
+.reading-path-source {
+  display: grid;
+  grid-template-columns: max-content minmax(max-content, 1fr);
+  overflow: auto;
+  max-height: 26rem;
+  font-family: var(--diff-font-override, var(--font-mono));
+  font-size: var(--diff-font-size-override, .8125rem);
+  line-height: 1.6;
+}
+.reading-path-source pre, .reading-path-source code { margin: 0; font: inherit; white-space: pre; }
+.reading-path-source pre { padding: .5rem .75rem; }
+.reading-path-gutter {
+  position: sticky;
+  left: 0;
+  align-self: stretch;
+  padding: .5rem 0;
+  user-select: none;
+  background: var(--background);
+  color: var(--muted-foreground);
+  border-right: 1px solid var(--border);
+}
+.reading-path-gutter > * {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  height: 1lh;
+  padding-left: 1.2rem;
+}
+.reading-path-gutter [data-passage-line] { color: var(--foreground); }
+.reading-path-gutter button:is(:hover, :focus-visible) { background: var(--primary); color: var(--primary-foreground); }
+.reading-path-gutter button svg { position: absolute; left: .2rem; opacity: 0; }
+.reading-path-gutter button:is(:hover, :focus-visible) svg { opacity: 1; }
+.reading-path-sign { display: inline-block; width: 1.3rem; text-align: center; }
