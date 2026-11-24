@@ -41,7 +41,6 @@ export const SAVED_GUIDE_ID_PREFIX = "saved:";
 
 /** On-disk envelope for one persisted guide. */
 export interface SavedGuideEnvelope {
-  reviewProgressKey?: string;
   version: 1;
   /** Epoch ms when the guide was first persisted. */
   savedAt: number;
@@ -235,7 +234,7 @@ function coerceReviewed(value: unknown, sectionCount: number): boolean[] {
 /** Top-level envelope keys this version reads. Anything else is carried through untouched (see `parseEnvelope`). */
 const KNOWN_ENVELOPE_KEYS = new Set<string>([
   "version", "savedAt", "label", "title", "engine", "model", "headSha", "prUrl", "generatedAt",
-  "customInstructions", "review", "share", "guide", "reviewed", "reviewProgressKey",
+  "customInstructions", "review", "share", "guide", "reviewed",
 ]);
 
 /**
@@ -269,7 +268,6 @@ function parseEnvelope(raw: string): SavedGuideEnvelope | null {
   }
   return {
     ...unknown,
-    ...(typeof obj.reviewProgressKey === "string" && /^[0-9a-f]{64}$/.test(obj.reviewProgressKey) && { reviewProgressKey: obj.reviewProgressKey }),
     version: 1,
     savedAt: typeof obj.savedAt === "number" ? obj.savedAt : 0,
     label: typeof obj.label === "string" ? obj.label : "",
@@ -647,7 +645,6 @@ export interface GuideStoreSessionOptions {
  * itself (AgentJobInfo.guideContext), same discipline as changedFilesSnapshot.
  */
 export interface GuideLaunchContext {
-  reviewProgressKey?: string;
   pr?: { url: string; headSha: string; label: string } | null;
   branchLabel?: string;
   headSha?: string;
@@ -680,7 +677,6 @@ export interface GuideStoreSession {
   updateSavedReviewed(id: string, reviewed: boolean[]): Promise<boolean>;
   /** GET /api/guides rows, newest first. */
   listSaved(): Promise<SavedGuideListEntry[]>;
-  savedProgressKey(id: string): Promise<string | undefined>;
   /** DELETE /api/guides/:id. */
   deleteSaved(id: string): Promise<boolean>;
   renameSaved(id: string, title: string): Promise<boolean>;
@@ -767,7 +763,6 @@ export function createGuideStoreSession(options: GuideStoreSessionOptions): Guid
         const patchSaved = launchReview ? saveGuidePatch(repoKey, id, launchReview.rawPatch) : false;
         const envelope: SavedGuideEnvelope = {
           version: 1,
-          reviewProgressKey: launchContext?.reviewProgressKey ?? previous?.reviewProgressKey,
           savedAt: Date.now(),
           label: pr?.label ?? branchLabel ?? "local",
           title: guide.title,
@@ -811,10 +806,6 @@ export function createGuideStoreSession(options: GuideStoreSessionOptions): Guid
       } catch {
         // Best-effort — the in-memory state is still authoritative this session.
       }
-    },
-
-    async savedProgressKey(id) {
-      return loadGuide(await resolveRepoKey(), id)?.reviewProgressKey;
     },
 
     async getSavedGuideData(id) {

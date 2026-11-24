@@ -15,7 +15,6 @@
     "./guide": "./guide.ts",
     "./guide-format": "./guide-format.ts",
     "./offline-guide": "./offline-guide.ts",
-    "./reading-path": "./reading-path.ts",
     "./guide-prompt": "./guide-prompt.ts",
     "./guide-links": "./guide-links.ts",
     "./diff-type": "./diff-type.ts",

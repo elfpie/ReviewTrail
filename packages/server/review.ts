@@ -1,5 +1,3 @@
-import { followUpItems, keepBehaviorMarks, keepConcerns, setFollowUpState } from "./review-follow-up";
-import { attachEvidence, pinGitEvidence, SOURCE_LIMIT, type EvidenceReader } from "./guide/source-evidence";
 import { createOfflineGuide } from "@reviewtrail/core/offline-guide";
 /**
  * Code Review Server
@@ -135,7 +133,7 @@ import { createRefCards, refCardRouteResponse, refCardsTailnetAllowed, type RefR
 import { handleImage, handleUpload, handleAgents, handleServerReady, handleApiNotFound, handleFavicon, handleCustomThemesScript, customThemesPage, readDraftGenerationFromBody, readDraftGenerationFromUrl, missingDraftResponse, type OpencodeClient } from "./shared-handlers";
 import { contentHash } from "./draft";
 import { createReviewDraftSession, localGitDraftTargetKey, localReviewDraftKeys, prDraftTargetKey, type ReviewDraftKeys } from "@reviewtrail/shared/review-draft";
-import { captureReviewProgress, handleReviewProgress, prReviewProgressKey } from "@reviewtrail/shared/review-progress";
+import { captureReviewProgress, handleReviewProgress } from "@reviewtrail/shared/review-progress";
 import { createEditorAnnotationHandler } from "./editor-annotations";
 import { createExternalAnnotationHandler } from "./external-annotations";
 import { createAgentJobHandler } from "./agent-jobs";
@@ -504,17 +502,6 @@ export async function startReviewServer(
     model: job.model,
     generatedAt: job.endedAt ?? Date.now(),
   });
-
-  const evidenceReaders = new WeakMap<GuideLaunchReview, EvidenceReader>();
-  async function saveCompletedGuide(job: AgentJobInfo, launch?: GuideLaunchReview) {
-    const result = guide.getGuide(job.id);
-    if (!result) return;
-    if (launch) {
-      await attachEvidence(result.sections, launch.rawPatch, evidenceReaders.get(launch));
-      evidenceReaders.delete(launch);
-    }
-    await guideStore.saveForJob(guideSaveJob(job), result, job.guideContext, launch);
-  }
 
   /**
    * Snapshot for exporting a guide: `saved:{id}` → the store; a live job →
@@ -1239,16 +1226,6 @@ export async function startReviewServer(
     return written !== null || !hasContent;
   };
 
-  const followUpTarget = () => ({
-    snapshotId: currentSnapshotId(), localTarget: localDraftTarget, prUrl: prMetadata?.url, scope: currentPRDiffScope,
-    diffType: String(currentDiffType),
-  });
-  function rememberComments(key: string | undefined, patch: string, target: ReturnType<typeof followUpTarget>, comments: unknown[]) {
-    if (!key || !resolveReviewProgress(loadConfig()) || !resolveFeedbackHistory(loadConfig()) || !Array.isArray(comments) || !comments.length) return;
-    try { keepConcerns(key, patch, target, comments); }
-    catch (error) { console.error("[reviewtrail] Could not retain review follow-up", error); }
-  }
-
   const buildCurrentAiReviewContext = (
     patch: string = currentPatch,
     base: string = currentBase,
@@ -1373,8 +1350,6 @@ export async function startReviewServer(
       // checkout warmup below yields to other requests (e.g. pr-switch), and
       // the job's cwd, prompt, and PR attribution must describe the same PR.
       const launchMetadata = prMetadata;
-      const launchProgress = progressSnapshot;
-      const launchBaseline = pendingFingerprintCapture ?? Promise.resolve(currentFingerprint);
       const launchPatch = currentPatch;
       const launchDiffType = currentDiffType;
       const launchBase = currentBase;
@@ -1613,7 +1588,6 @@ export async function startReviewServer(
                 ...(guideContext.headSha && { headSha: guideContext.headSha }),
                 ...(commitSha && { commitSha }),
               };
-        if (!repairOf) guideContext.reviewProgressKey = (await launchProgress)?.key;
         const launchReview: GuideLaunchReview = (repairOf ? guide.getLaunchReview(repairOf) : null) ?? {
           rawPatch: launchPatch,
           gitRef: launchGitRef,
@@ -1622,31 +1596,6 @@ export async function startReviewServer(
           source: launchSource,
           ...(typeof config?.instructions === "string" && config.instructions.trim() && { customInstructions: config.instructions }),
         };
-        if (!repairOf && !isStaticPatchMode && !workspacePrompt) {
-          try {
-            let reader: EvidenceReader | undefined;
-            if (launchMetadata && launchScope !== "full-stack") {
-              const ref = parsePRUrl(launchMetadata.url);
-              const local = resolvePRLocalCwd(launchMetadata);
-              const baseSha = launchMetadata.mergeBaseSha;
-              if (ref && baseSha) reader = (side, path) => readPRImageSide({
-                gitRuntime, poolCwd: local, oldSha: baseSha,
-                headSha: launchMetadata.headSha, side, filePath: path, maxBytes: SOURCE_LIMIT,
-                fetchBytes: (sha, file, limit) => fetchPRFileBytes(ref, sha, file, limit),
-              });
-            } else if (launchMetadata?.defaultBranch) {
-              const base = await resolvePRFullStackBaseRef(gitRuntime, launchMetadata.defaultBranch, cwd);
-              if (base) reader = await pinGitEvidence(gitRuntime, cwd, "merge-base", base);
-            } else if (gitContext && (!sessionVcsType || sessionVcsType === "git")) {
-              reader = await pinGitEvidence(gitRuntime, cwd, launchDiffType as DiffType, launchBase);
-            }
-            // Platform layer SHAs are immutable. Other comparisons may have moved on disk while the guide was starting.
-            const baseline = await launchBaseline;
-            const matches = launchMetadata && launchScope !== "full-stack"
-              || baseline && launchSnapshotId === currentSnapshotId() && baseline === await computeDiffFingerprint();
-            if (reader && matches) evidenceReaders.set(launchReview, reader);
-          } catch { /* Patch passages remain available without repository context. */ }
-        }
         return {
           ...built,
           prUrl: launchPrUrl,
@@ -1891,7 +1840,8 @@ export async function startReviewServer(
           // snapshot labels the envelope — never the live session state, which
           // may have PR/diff-switched while the job ran. The launch-time review
           // (the diff the guide describes) is stored beside it for export.
-          await saveCompletedGuide(job, meta.launchReview);
+          const validated = guide.getGuide(job.id);
+          if (validated) await guideStore.saveForJob(guideSaveJob(job), validated, job.guideContext, meta.launchReview);
         } else {
           // Fail closed: an exit-0 job with empty,
           // malformed, or fully-invalidated output must not look like a
@@ -2342,20 +2292,12 @@ export async function startReviewServer(
             try {
               const body = await req.json() as { reviewed: boolean[] };
               if (Array.isArray(body.reviewed)) {
-                const savedId = jobId.startsWith(SAVED_GUIDE_ID_PREFIX) ? jobId.slice(SAVED_GUIDE_ID_PREFIX.length) : null;
-                const track = resolveReviewProgress(loadConfig());
-                const snapshot = track ? await resolveGuideSnapshotForExport(jobId) : null;
-                const key = track && (savedId !== null ? await guideStore.savedProgressKey(savedId) : agentJobs.getJob(jobId)?.guideContext?.reviewProgressKey);
-                if (savedId !== null) {
-                  const ok = await guideStore.updateSavedReviewed(savedId, body.reviewed);
+                if (jobId.startsWith(SAVED_GUIDE_ID_PREFIX)) {
+                  const ok = await guideStore.updateSavedReviewed(jobId.slice(SAVED_GUIDE_ID_PREFIX.length), body.reviewed);
                   if (!ok) return Response.json({ error: "Guide not found" }, { status: 404 });
                 } else {
                   guide.saveReviewed(jobId, body.reviewed);
                   await guideStore.writeThroughReviewed(jobId, body.reviewed);
-                }
-                if (key && snapshot) {
-                  try { keepBehaviorMarks(key, snapshot.review.rawPatch, snapshot.guide.sections, snapshot.guide.reviewed, body.reviewed); }
-                  catch (error) { console.error("[reviewtrail] Could not track reviewed behaviors", error); }
                 }
               }
               return Response.json({ ok: true });
@@ -2368,16 +2310,13 @@ export async function startReviewServer(
           // `saved:{id}` from the store and live ids from this session's
           // launch review (persisted copy as fallback). No size gate: the file
           // is as big as the diff, and that is the user's call.
-          const guideExportMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(export|export-info|patch)$/);
+          const guideExportMatch = url.pathname.match(/^\/api\/guide\/([^/]+)\/(export|export-info)$/);
           if (guideExportMatch && req.method === "GET") {
             const jobId = decodePathSegment(guideExportMatch[1]);
             if (jobId === null) return Response.json({ error: MALFORMED_PATH_ERROR }, { status: 400 });
             const snapshot = await resolveGuideSnapshotForExport(jobId);
             if (!snapshot) {
               return Response.json({ error: "This guide cannot be exported: its diff was not retained." }, { status: 404 });
-            }
-            if (guideExportMatch[2] === "patch") {
-              return Response.json({ patch: snapshot.review.rawPatch });
             }
             const html = createOfflineGuide(snapshot);
             const filename = guideExportFilename(snapshot.guide.title);
@@ -2463,7 +2402,8 @@ export async function startReviewServer(
               // A manually repaired guide passed the same validateGuideOutput
               // gate as an automatic one — persist it too (#1112), labeled
               // with the job's own launch-time context snapshot.
-              await saveCompletedGuide(existingJob, guide.getLaunchReview(jobId) ?? undefined);
+              const repaired = guide.getGuide(jobId);
+              if (repaired) await guideStore.saveForJob(guideSaveJob(existingJob), repaired, existingJob.guideContext, guide.getLaunchReview(jobId) ?? undefined);
               return Response.json({ ok: true, sections, files });
             } catch {
               return Response.json({ error: "Invalid JSON" }, { status: 400 });
@@ -4123,23 +4063,6 @@ export async function startReviewServer(
           }
 
           // API: Durable viewed-file progress
-          if (url.pathname === "/api/review-follow-up") {
-            const pending = progressSnapshot;
-            const snapshot = await pending;
-            const body = req.method === "POST" ? await req.json().catch(() => null) : null;
-            if (pending !== progressSnapshot || url.searchParams.get("snapshot") !== currentSnapshotId()) {
-              return Response.json({ error: "Review changed. Refresh to see its follow-up." }, { status: 409 });
-            }
-            if (!snapshot || !resolveReviewProgress(loadConfig())) return Response.json({ items: [] });
-            if (url.searchParams.get("key") !== snapshot.key) return Response.json({ error: "Review target changed" }, { status: 409 });
-            const includeConcerns = resolveFeedbackHistory(loadConfig());
-            if (req.method === "POST") {
-              if (typeof body?.id !== "string" || typeof body?.resolved !== "boolean") return Response.json({ error: "Invalid follow-up" }, { status: 400 });
-              if (!setFollowUpState(snapshot.key, body.id, body.resolved, currentPatch, includeConcerns)) return Response.json({ error: "Follow-up missing" }, { status: 404 });
-            } else if (req.method !== "GET") return new Response(null, { status: 405 });
-            return Response.json({ items: followUpItems(snapshot.key, currentPatch, includeConcerns) });
-          }
-
           if (url.pathname === "/api/review-progress") {
             if (req.method === "POST" && !callFlowInstallOriginAllowed(req.headers.get("origin"), url.host, req.headers.get("sec-fetch-site"))) {
               return Response.json({ error: "Cross-origin progress updates are not allowed" }, { status: 403 });
@@ -4302,8 +4225,6 @@ export async function startReviewServer(
                 return Response.json(serverSessionMismatchBody(), { status: 409 });
               }
 
-              const pending = progressSnapshot;
-              const followUp = Array.isArray(body.annotations) && body.annotations.length ? await pending : null;
               // Checked after the body is read: a host close can land while
               // it streams. A decided session must not archive, delete the
               // draft, or answer ok for feedback nobody will receive.
@@ -4324,9 +4245,6 @@ export async function startReviewServer(
                 annotationsValue,
                 approved ? (hasContent ? "approved-with-notes" : "lgtm") : "feedback",
               );
-              if (pending === progressSnapshot && body.platform !== true && (!url.searchParams.has("snapshot") || url.searchParams.get("snapshot") === currentSnapshotId())) {
-                rememberComments(followUp?.key, currentPatch, followUpTarget(), annotationsValue);
-              }
               if (durable) reviewDrafts.settle(currentDraftKeys(), readDraftGenerationFromBody(body), url.searchParams.get("client"));
               resolveDecision({
                 approved,
@@ -4401,7 +4319,6 @@ export async function startReviewServer(
 
               console.error(`[pr-action] ${action} with ${body.fileComments.length} line comment(s) and ${fileLevelComments.length} file-level comment(s), target=${targetUrl}, headSha=${targetHeadSha}`);
 
-              const layerPatch = targetUrl === prMetadata.url && currentPRDiffScope === "layer" ? currentPatch : prSwitchCache.get(targetUrl)?.rawPatch;
               const submission = await submitPlatformReview(
                 targetRef,
                 targetHeadSha,
@@ -4412,20 +4329,6 @@ export async function startReviewServer(
               );
 
               console.error(`[pr-action] ${submission.status === "complete" ? "Success" : "Partial success"}`);
-              if (layerPatch !== undefined && resolveReviewProgress(loadConfig()) && resolveFeedbackHistory(loadConfig())) {
-                const posted = submission.status === "complete" ? body.fileComments : body.fileComments.filter(c =>
-                  !submission.failedFileComments.some(({ comment: failed }) => failed.path === c.path && failed.line === c.line
-                    && failed.side === c.side && failed.body === c.body && failed.start_line === c.start_line));
-                const bodyPosted = submission.status === "complete" || submission.reviewBodyPosted;
-                const comments = [
-                  ...posted.map(c => ({ text: c.body, filePath: c.path, lineStart: c.start_line ?? c.line, lineEnd: c.line, side: c.side === "LEFT" ? "old" : "new" })),
-                  ...(submission.status === "complete" ? fileLevelComments.map(c => ({ text: c.body, filePath: c.path })) : []),
-                  ...(bodyPosted && body.body?.trim() && body.body !== "See inline comments." ? [{ text: body.body }] : []),
-                ];
-                rememberComments(prReviewProgressKey(targetUrl), layerPatch, {
-                  snapshotId: targetHeadSha, prUrl: targetUrl, localTarget: null, scope: "layer", diffType: "pr",
-                }, comments);
-              }
               prContextLive.refreshAfterWrite(targetUrl, targetRef);
               return Response.json({ ok: true, prUrl: targetUrl, submission });
             } catch (err) {

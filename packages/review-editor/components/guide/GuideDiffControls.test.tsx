@@ -72,8 +72,8 @@ function Harness({ compact = false, jobId = DEMO_GUIDE_ID }: { compact?: boolean
 async function renderGuide(compact = false, jobId = DEMO_GUIDE_ID) {
   originalDiffStyle = configStore.get('diffStyle');
   configStore.set('diffStyle', 'unified');
-  globalThis.fetch = (async (url: RequestInfo | URL) => String(url) === '/api/guide/saved:with-path'
-    ? Response.json({ ...DEMO_GUIDE, sections: [{ title: 'Caller retries', overview: '- [Read caller](code:src/a.ts#L1) Follow the retry.', diffs: [] }] })
+  globalThis.fetch = (async (url: RequestInfo | URL) => String(url) === '/api/guide/saved:chapter'
+    ? Response.json({ ...DEMO_GUIDE, sections: [{ title: 'Review the retry policy', overview: 'The client retries transient errors.', diffs: [] }] })
     : new Response(null, { status: 404 })) as unknown as typeof fetch;
   bar = document.createElement('header');
   host = document.createElement('div');
@@ -106,14 +106,11 @@ describe('GuideScreen top-bar diff controls', () => {
     expect(collapse.getAttribute('aria-label')).toBe('Expand all files');
   });
 
-  test.skipIf(!hasDom)('opens a guide containing a reading path in Full guide and diffs', async () => {
-    await renderGuide(false, 'saved:with-path');
-    const mode = (name: string) => [...host!.querySelectorAll('button')].find(b => b.textContent === name)!;
-    expect(mode('Full guide and diffs').getAttribute('aria-pressed')).toBe('true');
-    await act(async () => mode('Reading path').click());
-    expect(host!.querySelector('nav[aria-label="Reading path chapters"]')).not.toBeNull();
-    await act(async () => mode('Full guide and diffs').click());
+  test.skipIf(!hasDom)('opens a saved guide directly in the chapter and diff viewer', async () => {
+    await renderGuide(false, 'saved:chapter');
+    expect(host!.textContent).toContain('Review the retry policy');
     expect(bar!.querySelector('[data-guide-diff-controls]')).not.toBeNull();
+    expect(host!.textContent).not.toContain('Reading path');
   });
 
   test.skipIf(!hasDom)('a compact touch layout draws none of them', async () => {

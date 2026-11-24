@@ -258,7 +258,6 @@ import type { PRDiffScope, PRDiffScopeOption, PRStackInfo, PRStackTree } from '@
 import { altKey, isMac } from '@reviewtrail/ui/utils/platform';
 import { copyTextToClipboard } from '@reviewtrail/ui/utils/clipboard';
 import { flushGuideProgress } from './hooks/guide/useGuideData';
-import { ReviewFollowUp } from './components/ReviewFollowUp';
 import { GuideScreen } from './components/guide/GuideScreen';
 import { useAgentsPanelSlots, reviewScopeText } from './components/AgentsPanelSlots';
 import { DEMO_GUIDE_ID } from './demoGuide';
@@ -735,7 +734,7 @@ const ReviewApp: React.FC = () => {
   const localDraftTransport = useMemo(() => localDraftTarget ? localReviewDraftTransport(localDraftTarget, localDraftClientId) : undefined, [localDraftTarget, localDraftClientId]);
   // Always sent: a page whose last switch landed on no target must still let
   // its decision clear the targets it saved. PR drafts ignore it.
-  const feedbackUrl = `/api/feedback?client=${localDraftClientId}${snapshotId ? "&snapshot=" + encodeURIComponent(snapshotId) : ""}`;
+  const feedbackUrl = `/api/feedback?client=${localDraftClientId}`;
   const exitUrl = `/api/exit?client=${localDraftClientId}&`;
   const callFlowAvailable = callFlowEnabled && callFlowAdvert.available;
   const { state: callFlowAnalysis, retry: retryCallFlowAnalysis } = useCallFlowAnalysis(snapshotId, callFlowAvailable);
@@ -918,7 +917,7 @@ const ReviewApp: React.FC = () => {
   }, [repoName, sessionTitle]);
 
   const { prMetadata, prStackInfo, prStackTree, prDiffScope, prDiffScopeOptions, prPatchIncomplete, prPatchUpgradeAvailable, updatePRSession } = usePRSession();
-  const { status: reviewProgressStatus, reviewKey, persistViewed, flush: flushReviewProgress } = useReviewProgress({
+  const { status: reviewProgressStatus, persistViewed, flush: flushReviewProgress } = useReviewProgress({
     snapshotId, contextKey: JSON.stringify([prMetadata?.url, localDraftTarget, committedBase]),
     enabled: !!origin, setViewedFiles, setSuppressedFiles: setAutoViewSuppressed,
   });
@@ -6193,7 +6192,6 @@ const ReviewApp: React.FC = () => {
             />
           </div>
         </header>
-        {snapshotId && reviewKey && <ReviewFollowUp key={reviewKey + snapshotId} reviewKey={reviewKey} snapshot={snapshotId} files={files} />}
 
         {draftTargetChanged && (
           <div role="status" className="shrink-0 flex items-center justify-between gap-3 border-b border-warning/20 bg-warning/10 px-3 py-2 text-xs text-warning">

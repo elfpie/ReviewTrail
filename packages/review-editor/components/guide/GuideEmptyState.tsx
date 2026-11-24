@@ -373,8 +373,10 @@ export const GuideEmptyState: React.FC<GuideEmptyStateProps> = ({ capabilities, 
     <div className="w-full px-10 py-8">
       <h1 className="text-[22px] font-semibold tracking-tight text-foreground">Start a guided review?</h1>
       <p className="mt-2 max-w-[72ch] text-[13px] leading-relaxed text-muted-foreground">
-        Follow each changed behavior from its caller to its outcome. Read short code
-        passages in order, comment on the lines, and expand supporting edits or tests when needed.
+        Large changesets are hard to even start reading. A guide orders this one by
+        importance — the core of the change first, glue and low-signal edits last — so
+        you can understand it in one sitting. Each chapter tells you what changed, why
+        it exists, and what it implies, right next to the diffs, ready to annotate.
       </p>
 
       {failure && (

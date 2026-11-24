@@ -1,6 +1,6 @@
 # ReviewTrail
 
-ReviewTrail is a personal code-review fork of [Plannotator](https://github.com/backnotprop/plannotator). Read a change in execution order. A behavior can start in a caller, cross several files and revisit the original caller to show the outcome. Each step pairs the agent’s explanation with lines from the reviewed patch.
+ReviewTrail is a personal code-review fork of [Plannotator](https://github.com/backnotprop/plannotator). It keeps the upstream diff viewer and chapter-based guided review in a standalone local tool.
 
 ## Install ReviewTrail
 
@@ -26,23 +26,19 @@ reviewtrail --base main --diff-type since-base
 reviewtrail https://github.com/OWNER/REPO/pull/123
 ```
 
-Select **Guide → Generate guide** to open **Full guide and diffs**. Switch to **Reading path** for a walkthrough of the behavior. Pick a chapter from the outline or use **Next behavior**. Each passage shows syntax-highlighted source. **More context** expands the surrounding lines when available. Select a line number to comment on that line in the current diff. Tests start folded, and the coverage list identifies files outside the walkthrough.
-
-On a contract change, expand **Caller impact** to read the existing caller and follow the same input through the old and new code. ReviewTrail labels an unchanged excerpt **Identical on both sides** after checking its source. A **What if…?** question lets you predict the outcome before opening the branch and its relevant test. **Why here?** covers the design choice. Material **Open question** sections start expanded. Groups of identical edits list every affected file.
-
-After sending feedback, reopen the same PR or local branch and comparison. **Review follow-up** lists previous comments and marked behaviors whose cited hunks changed. Expand a path to compare the original lines with the current coordinates. A moved or missing range leads back to the full diff. You can resolve or reopen each comment and mark a revision checked. Follow-up is stored on this machine. Set `REVIEWTRAIL_FEEDBACK_HISTORY=0` to turn off comment retention, or `REVIEWTRAIL_REVIEW_PROGRESS=0` to turn off cross-revision follow-up. Patch-file reviews have no stable branch or PR identity, so their guides and comments work within the review without cross-revision matching.
+Select **Guide → Generate guide** to review the changes in chapters. Each chapter includes an explanation and its annotated file diffs. Use the diff viewer to leave a line comment or mark a file reviewed.
 
 **Send Feedback** returns your notes to the calling agent. In a GitHub PR review, the platform submission action lets you publish comments and your verdict. You make the decision.
 
 ## Share a guide as a file
 
-Open a generated guide and choose **Download portable guide**, or use the menu on a saved guide. Send the resulting `.html` through your chosen channel. It includes the guide, verified excerpts from unchanged callers, and the entire retained patch, including files outside the reading path. The recipient can navigate chapters, read inline explanations and expand file diffs offline in a browser. Diagrams are included as source. The live review handles comments, approval and GitHub submission.
+Open a generated guide and choose **Download portable guide**, or use the menu on a saved guide. Send the resulting `.html` through your chosen channel. It includes the chapters, file summaries, inline guide notes and the retained patch. The recipient can open it offline and expand each file’s diff. Diagrams are included as source. The live review handles comments, approval and GitHub submission.
 
 ## Settings and network traffic
 
 ReviewTrail uses `~/.reviewtrail`, an ephemeral local port, and its own browser preference keys. Use `REVIEWTRAIL_DATA_DIR` or `REVIEWTRAIL_PORT` to override these. A policy stored only in your upstream config file needs an equivalent ReviewTrail setting. The launcher carries forward shared environment opt-outs and service destination overrides listed in [the launcher](bin/reviewtrail). For example, `reviewtrail --no-git-remote-check --diff-type staged` skips automatic Git remote discovery for that session. An explicit fetch still contacts the remote.
 
-The [network inventory](NETWORK_AUDIT.md) lists each request type, destination, trigger, payload, and the traffic controlled by Claude Desktop and Pi. The [review plan](REVIEW_PLAN.md) tracks implementation and how to measure the 90% time-reduction target.
+The [network inventory](NETWORK_AUDIT.md) lists each request type, destination, trigger, payload, and the traffic controlled by Claude Desktop and Pi. The [review plan](REVIEW_PLAN.md) records the scope of the fork.
 
 ## Development
 

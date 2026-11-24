@@ -153,7 +153,6 @@ packages/review-editor/components/AllFilesCodeView.lineTarget.test.tsx
 packages/ui/utils/openInLine.test.ts
 packages/review-editor/App.treePanes.test.tsx
 packages/review-editor/components/FileHeader.counts.test.tsx
-packages/review-editor/components/guide/BehaviorReader.test.tsx
 packages/ui/hooks/useAIChat.persistence.test.tsx
 packages/ui/components/DiagramBlock.engine.test.tsx
 packages/ui/utils/pele-labels.test.ts

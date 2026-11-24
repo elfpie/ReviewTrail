@@ -57,8 +57,6 @@ export interface ReviewProgressInput {
   workspaceRoot?: string;
 }
 
-export const prReviewProgressKey = (url: string, scope = "layer") => hash(JSON.stringify(["pr", url, scope]));
-
 /** Resolve identity once per snapshot; a new commit must not create a new key. */
 export async function captureReviewProgress(
   input: ReviewProgressInput,
@@ -67,7 +65,7 @@ export async function captureReviewProgress(
   const fingerprints = reviewFileFingerprints(input.patch, input.fileIdentities);
   let identity: unknown;
   if (input.prUrl) {
-    return { key: prReviewProgressKey(input.prUrl, input.prScope), fingerprints };
+    identity = ["pr", input.prUrl, input.prScope ?? "layer"];
   } else if (input.cwd && !input.workspaceRoot && (!input.vcsType || input.vcsType === "git")) {
     // Local reviews without generation-time identities retain the draft path.
     if (!input.fileIdentities) return null;
