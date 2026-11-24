@@ -67,7 +67,7 @@ export const REVIEW_HELP = [
     "                is printed either way; an agent host that only logs a bare Approve",
     "                (the Claude Code mod) delivers it as a message.",
     "  --json        Emit one decision/message JSON record instead of plaintext",
-    "  PR_URL        GitHub PR, GitLab MR or Bitbucket Cloud PR URL to review",
+    "  PR_URL        GitHub, GitLab, Bitbucket Cloud or Forgejo/Gitea review URL to review",
     "  DIRECTORY     Review a repo, worktree, or multi-repo workspace at this path",
     "                Relative to the invoking directory; quote paths containing spaces.",
     "",

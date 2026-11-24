@@ -28,6 +28,7 @@ import * as Identity from '@reviewtrail/ui/utils/identity';
 import * as MathSlot from '@reviewtrail/ui/utils/math';
 import * as CommentDraftScope from '@reviewtrail/ui/utils/commentDraftScope';
 import * as DiagramSvgAccept from '@reviewtrail/ui/components/diagramSvgAccept';
+import * as DiagramRemoteLoadsPolicy from '@reviewtrail/ui/utils/diagramRemoteLoadsPolicy';
 import {
   DIAGRAM_ENGINE_API_VERSION,
   DIAGRAM_ENGINE_HOST_KEY,
@@ -52,6 +53,7 @@ function sharedModules(): Record<DiagramEngineSharedModule, unknown> {
     'ui:utils/math': MathSlot,
     'ui:utils/commentDraftScope': CommentDraftScope,
     'ui:components/diagramSvgAccept': DiagramSvgAccept,
+    'ui:utils/diagramRemoteLoadsPolicy': DiagramRemoteLoadsPolicy,
   };
 }
 

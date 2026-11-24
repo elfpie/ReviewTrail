@@ -27,6 +27,9 @@ export const setImageSrcResolver = (resolver: ImageSrcResolver): void => {
   imageSrcResolver = resolver;
 };
 
+/** True while no host replaced the resolver: ReviewTrail's own servers answer the paths. */
+export const usesDefaultImageSrcResolver = (): boolean => imageSrcResolver === defaultImageSrcResolver;
+
 /** Reset to the default (ReviewTrail local) resolver. Mainly for tests. */
 export const resetImageSrcResolver = (): void => {
   imageSrcResolver = defaultImageSrcResolver;

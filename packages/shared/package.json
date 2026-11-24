@@ -109,16 +109,21 @@
     "./inbox/cf-access": "./inbox/cf-access.ts",
     "./inbox/cf-access-door": "./inbox/cf-access-door.ts",
     "./inbox/tailnet-refusal": "./inbox/tailnet-refusal.ts",
-    "./review-live": "./review-live.ts"
+    "./review-live": "./review-live.ts",
+    "./review-file-filter": "./review-file-filter.ts",
+    "./byte-range": "./byte-range.ts",
+    "./linked-worktree": "./linked-worktree.ts"
   },
   "dependencies": {
     "@reviewtrail/core": "workspace:*",
     "@plannotator/sem-jiff": "0.2.0",
     "chokidar": "^5.0.0",
     "diff": "^8.0.4",
-    "parse5": "^7.3.0"
+    "parse5": "^7.3.0",
+    "picomatch": "4.0.7"
   },
   "devDependencies": {
-    "fast-check": "4.10.2"
+    "fast-check": "4.10.2",
+    "@types/picomatch": "^4.0.2"
   }
 }

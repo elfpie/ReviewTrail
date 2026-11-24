@@ -14,7 +14,7 @@ import { modKey } from '@reviewtrail/ui/utils/platform';
 
 export interface CompactReviewDestination {
   value: 'agent' | 'platform';
-  platform: 'github' | 'gitlab' | 'bitbucket';
+  platform: 'github' | 'gitlab' | 'bitbucket' | 'forgejo';
   platformLabel: string;
   onChange: (value: 'agent' | 'platform') => void;
 }

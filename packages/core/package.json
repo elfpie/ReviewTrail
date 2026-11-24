@@ -1,6 +1,6 @@
 {
   "name": "@reviewtrail/core",
-  "version": "0.25.32",
+  "version": "0.25.33",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
@@ -57,7 +57,6 @@
     "./inbox-permission": "./inbox-permission.ts",
     "./inbox-snooze": "./inbox-snooze.ts",
     "./shape": "./shape.ts",
-    "./shape-scene": "./shape-scene.ts",
     "./skill-references-render": "./skill-references-render.ts",
     "./picture-it-page": "./picture-it-page.ts",
     "./inbox-review": "./inbox-review.ts",

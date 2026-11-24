@@ -37,6 +37,7 @@ Implementation: [review API](packages/server/review.ts), [GitHub operations](pac
 | N15 | **Tailscale.** Selecting `--tailscale` or enabling it in ReviewTrail’s environment or config publishes the session through the local Tailscale daemon and tailnet. | Peers with access can receive the review. Control, peer and relay destinations follow the daemon’s configuration. [Tailnet serving](packages/server/tailscale-serve.ts) |
 | N16 | Explicit Cloudflare Access integration. | Reads a running tunnel’s registry and access configuration from the specified data directory. The connector and its Cloudflare traffic belong to that external installation. [Tunnel handoff](packages/server/session-cf-access.ts) |
 | N17 | **Remote/SSH listening.** For a local Desktop or Pi launch the server binds locally. SSH detection or explicit remote mode binds to `0.0.0.0` and allows access through a forwarded port or network interface. | Inbound access to the review UI/API. Set `REVIEWTRAIL_REMOTE=0` to force local mode. [Remote detection and binding](packages/server/remote.ts) |
+| N18 | **Forgejo / Gitea.** Opening a review URL on a compatible instance queries its REST API and can fetch a local checkout. | Reads repository, pull request and file data. Reviewer submission sends feedback. An optional token is scoped to the configured origin. [Forgejo adapter](packages/shared/pr-forgejo.ts) |
 
 ## Removed upstream applications
 

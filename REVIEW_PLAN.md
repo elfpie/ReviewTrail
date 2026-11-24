@@ -66,3 +66,9 @@ A fresh agent used the guide instructions in a scratch repository and produced a
 On a second staged revision, the production reader presented the original comment, its original source and the changed default, and resurfaced the reviewed worker behavior. The reviewer explicitly resolved and reopened the comment and acknowledged the revision. The browser made zero external requests in this fixture. A separate regression covers an unrelated hunk changing in the same large file.
 
 The production build and server type check passed. The unit and integration run passed 5,171 checks. The isolated DOM run passed 1,349. One timing-sensitive diff-cache test failed under concurrent suite load and passed on the full serial rerun. The standalone editor type check still reports 118 existing diagnostics. Pi opened the staged review through its registered slash command, generated the verified caller with a fixture provider, and recorded the marked behavior. The fake GitHub CLI tests passed. Live Claude Desktop on the corporate machine and human satisfaction scores are still pending.
+
+## Upstream sync
+
+Integrated the review changes from upstream revision `800fc3af9` (package version 0.29.3). The file tree supports include and exclude patterns, file-level comments can carry attachments, and SVG changes offer image and source views. The review now supports opening an explicit Forgejo or Gitea pull-request URL. The network inventory describes the API traffic. The review app disables external diagram resources through the renderer’s host setting.
+
+The fork continues to use its own Claude and Pi launchers and self-contained HTML exports. The upstream Inbox, hosted guide services, telemetry and Linear integration are outside this fork.

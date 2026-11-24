@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { Platform } from '@reviewtrail/shared/pr-types';
 
 /** Loading state for a remote HTML or Markdown artifact. */
 export type RemoteArtifactDocumentState =
@@ -11,7 +12,7 @@ type ArtifactDocumentCacheEntry =
   | { readonly status: 'ready'; readonly content: string; readonly expiresAt: number };
 
 export interface ArtifactProviderLocation {
-  readonly platform: 'github' | 'gitlab' | 'bitbucket';
+  readonly platform: Platform;
   readonly host: string;
 }
 

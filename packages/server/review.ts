@@ -3684,6 +3684,7 @@ export async function startReviewServer(
                   ? findRepoOnDiskChanges(gitRuntime, listing.root, diffFileStates(currentPatch), snapshotCapturedAt)
                   : Promise.resolve(null),
               lazyThreshold: options.repoFilesLazyThreshold,
+              signal: req.signal,
             });
             return Response.json(result.body, { status: result.status });
           }
